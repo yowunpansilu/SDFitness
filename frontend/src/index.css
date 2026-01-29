@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 16 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 199 89% 48%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 51 100% 50%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 16 100% 50%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 10%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 16 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 199 89% 48%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 51 100% 50%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 16 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    @apply bg-dark-800 text-white font-sans antialiased;
+  }
+}
+
+@layer components {
+
+  /* Gym-inspired button styles */
+  .btn-gym {
+    @apply relative overflow-hidden bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold px-8 py-4 rounded-lg transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl hover:shadow-primary-500/50 active:scale-95;
+  }
+
+  .btn-gym::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] transition-transform duration-700;
+  }
+
+  .btn-gym:hover::before {
+    @apply translate-x-[100%];
+  }
+
+  /* Glass morphism card */
+  .glass-card {
+    @apply bg-dark-800/80 backdrop-blur-md border border-dark-700 rounded-xl shadow-xl;
+  }
+
+  /* Motivational text gradient */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-400 via-accent-400 to-secondary-400 bg-clip-text text-transparent font-bold;
+  }
+
+  /* Energy pulse effect */
+  .energy-pulse {
+    @apply animate-pulse-glow;
+  }
+
+  /* Gym card with hover effect */
+  .gym-card {
+    @apply bg-dark-700 rounded-xl p-6 border border-dark-600 transition-all duration-300 hover:border-primary-500 hover:shadow-lg hover:shadow-primary-500/20 hover:-translate-y-1;
+  }
+
+  /* Input with gym styling */
+  .gym-input {
+    @apply bg-dark-700 border-dark-600 text-white placeholder:text-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200;
+  }
+
+  /* Progress bar with glow */
+  .progress-glow {
+    @apply relative overflow-hidden rounded-full bg-dark-700;
+  }
+
+  .progress-glow::after {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] animate-[slide 2s ease-in-out infinite];
+  }
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-dark-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-dark-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-500;
+}

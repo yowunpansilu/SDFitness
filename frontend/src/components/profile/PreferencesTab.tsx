@@ -1,0 +1,217 @@
+import { useState } from 'react';
+import { Button } from '../ui/button';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { Card, CardContent } from '../ui/card';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '../ui/select';
+
+export function PreferencesTab() {
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({
+        dietaryRestrictions: [] as string[],
+        allergies: '',
+        budget: '200',
+        workoutTime: '',
+        emailNotifications: true,
+        smsNotifications: false,
+        pushNotifications: true,
+    });
+
+    const dietaryOptions = [
+        'Vegetarian',
+        'Vegan',
+        'Gluten-Free',
+        'Dairy-Free',
+        'Halal',
+        'Kosher',
+        'None',
+    ];
+
+    const toggleDietaryRestriction = (option: string) => {
+        if (!isEditing) return;
+
+        setFormData(prev => ({
+            ...prev,
+            dietaryRestrictions: prev.dietaryRestrictions.includes(option)
+                ? prev.dietaryRestrictions.filter(item => item !== option)
+                : [...prev.dietaryRestrictions, option]
+        }));
+    };
+
+    const handleSave = () => {
+        // TODO: Save to backend
+        setIsEditing(false);
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+    };
+
+    return (
+        <Card className="border-dark-700">
+            <CardContent className="p-6">
+                <div className="space-y-6">
+                    {/* Dietary Restrictions */}
+                    <div className="space-y-2">
+                        <Label>Dietary Restrictions</Label>
+                        <div className="flex flex-wrap gap-2">
+                            {dietaryOptions.map((option) => (
+                                <button
+                                    key={option}
+                                    type="button"
+                                    onClick={() => toggleDietaryRestriction(option)}
+                                    disabled={!isEditing}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${formData.dietaryRestrictions.includes(option)
+                                            ? 'bg-primary-500 text-white'
+                                            : 'bg-dark-700 text-gray-400 hover:bg-dark-600'
+                                        } ${!isEditing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                                >
+                                    {option}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Allergies */}
+                    <div className="space-y-2">
+                        <Label htmlFor="allergies">Allergies</Label>
+                        <Textarea
+                            id="allergies"
+                            placeholder="List any food allergies..."
+                            value={formData.allergies}
+                            onChange={(e) =>
+                                setFormData({ ...formData, allergies: e.target.value })
+                            }
+                            disabled={!isEditing}
+                            rows={3}
+                        />
+                    </div>
+
+                    <div className="grid gap-6 md:grid-cols-2">
+                        {/* Budget */}
+                        <div className="space-y-2">
+                            <Label htmlFor="budget">
+                                Monthly Diet Plan Budget: ${formData.budget}
+                            </Label>
+                            <input
+                                id="budget"
+                                type="range"
+                                min="50"
+                                max="500"
+                                step="10"
+                                value={formData.budget}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, budget: e.target.value })
+                                }
+                                disabled={!isEditing}
+                                className="w-full h-2 bg-dark-700 rounded-lg appearance-none cursor-pointer accent-primary-500"
+                            />
+                            <div className="flex justify-between text-xs text-gray-500">
+                                <span>$50</span>
+                                <span>$500</span>
+                            </div>
+                        </div>
+
+                        {/* Preferred Workout Time */}
+                        <div className="space-y-2">
+                            <Label htmlFor="workoutTime">Preferred Workout Time</Label>
+                            <Select
+                                value={formData.workoutTime}
+                                onValueChange={(value) =>
+                                    setFormData({ ...formData, workoutTime: value })
+                                }
+                                disabled={!isEditing}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select time" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="morning">Morning (6AM - 12PM)</SelectItem>
+                                    <SelectItem value="afternoon">Afternoon (12PM - 6PM)</SelectItem>
+                                    <SelectItem value="evening">Evening (6PM - 10PM)</SelectItem>
+                                    <SelectItem value="night">Night (10PM - 6AM)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* Notification Preferences */}
+                    <div className="space-y-3">
+                        <Label>Notification Preferences</Label>
+                        <div className="space-y-2">
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.emailNotifications}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            emailNotifications: e.target.checked,
+                                        })
+                                    }
+                                    disabled={!isEditing}
+                                    className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                />
+                                <span className="text-sm text-gray-300">Email Notifications</span>
+                            </label>
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.smsNotifications}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            smsNotifications: e.target.checked,
+                                        })
+                                    }
+                                    disabled={!isEditing}
+                                    className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                />
+                                <span className="text-sm text-gray-300">SMS Notifications</span>
+                            </label>
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.pushNotifications}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            pushNotifications: e.target.checked,
+                                        })
+                                    }
+                                    disabled={!isEditing}
+                                    className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                />
+                                <span className="text-sm text-gray-300">Push Notifications</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3 pt-4">
+                        {!isEditing ? (
+                            <Button variant="gym" onClick={() => setIsEditing(true)}>
+                                Edit Preferences
+                            </Button>
+                        ) : (
+                            <>
+                                <Button variant="gym" onClick={handleSave}>
+                                    Save Changes
+                                </Button>
+                                <Button variant="outline" onClick={handleCancel}>
+                                    Cancel
+                                </Button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}

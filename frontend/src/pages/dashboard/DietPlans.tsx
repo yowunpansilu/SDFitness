@@ -1,0 +1,156 @@
+import { useState } from 'react';
+import { Plus, Calendar, Target } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { DietPlanWizard } from '@/components/diet/DietPlanWizard';
+import { DietPlanDisplay } from '@/components/diet/DietPlanDisplay';
+import type { DietPlan } from '@/lib/api/dietPlanApi';
+
+export function DietPlans() {
+    const [showWizard, setShowWizard] = useState(false);
+    const [currentPlan, setCurrentPlan] = useState<DietPlan | null>(null);
+    const [savedPlans, setSavedPlans] = useState<DietPlan[]>([]);
+
+    const handleWizardComplete = (plan: DietPlan) => {
+        setCurrentPlan(plan);
+        setShowWizard(false);
+    };
+
+    const handleSavePlan = () => {
+        if (currentPlan) {
+            setSavedPlans([...savedPlans, currentPlan]);
+            // Show success message
+            alert('Diet plan saved successfully!');
+        }
+    };
+
+    const handleViewPlan = (plan: DietPlan) => {
+        setCurrentPlan(plan);
+    };
+
+    // If showing wizard
+    if (showWizard) {
+        return (
+            <div className="space-y-6 animate-fade-in">
+                <div>
+                    <h1 className="text-3xl font-headline font-bold text-white">Generate Diet Plan</h1>
+                    <p className="text-gray-400 mt-2">
+                        Answer a few questions to get your personalized meal plan
+                    </p>
+                </div>
+                <DietPlanWizard
+                    onComplete={handleWizardComplete}
+                    onCancel={() => setShowWizard(false)}
+                />
+            </div>
+        );
+    }
+
+    // If viewing a plan
+    if (currentPlan) {
+        return (
+            <div className="space-y-6 animate-fade-in">
+                <Button
+                    variant="outline"
+                    onClick={() => setCurrentPlan(null)}
+                >
+                    ← Back to Diet Plans
+                </Button>
+                <DietPlanDisplay
+                    plan={currentPlan}
+                    onSave={handleSavePlan}
+                />
+            </div>
+        );
+    }
+
+    // Main diet plans page
+    return (
+        <div className="space-y-6 animate-fade-in">
+            {/* Page Header */}
+            <div className="flex justify-between items-start">
+                <div>
+                    <h1 className="text-3xl font-headline font-bold text-white">Diet Plans</h1>
+                    <p className="text-gray-400 mt-2">
+                        AI-powered personalized meal plans for your fitness goals
+                    </p>
+                </div>
+                <Button variant="gym" onClick={() => setShowWizard(true)} className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Generate New Plan
+                </Button>
+            </div>
+
+            {/* Saved Plans */}
+            {savedPlans.length > 0 ? (
+                <div className="space-y-4">
+                    <h2 className="text-xl font-semibold text-white">Your Saved Plans</h2>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {savedPlans.map((plan) => (
+                            <Card
+                                key={plan.id}
+                                className="border-dark-700 hover:border-primary-500/50 transition-all cursor-pointer"
+                                onClick={() => handleViewPlan(plan)}
+                            >
+                                <CardContent className="p-6">
+                                    <div className="space-y-3">
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <h3 className="font-semibold text-white">{plan.name}</h3>
+                                                <p className="text-sm text-gray-500 mt-1">
+                                                    {plan.createdAt.toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                            <Target className="w-5 h-5 text-primary-500" />
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                                            <Calendar className="w-4 h-4" />
+                                            <span>7-day plan</span>
+                                        </div>
+                                        {plan.preferences.dietary.length > 0 && (
+                                            <div className="flex flex-wrap gap-1">
+                                                {plan.preferences.dietary.slice(0, 2).map((pref) => (
+                                                    <span
+                                                        key={pref}
+                                                        className="px-2 py-1 bg-dark-800 text-xs text-gray-400 rounded"
+                                                    >
+                                                        {pref}
+                                                    </span>
+                                                ))}
+                                                {plan.preferences.dietary.length > 2 && (
+                                                    <span className="px-2 py-1 bg-dark-800 text-xs text-gray-400 rounded">
+                                                        +{plan.preferences.dietary.length - 2}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            ) : (
+                /* Empty State */
+                <Card className="border-dark-700">
+                    <CardContent className="p-12 text-center">
+                        <div className="max-w-md mx-auto space-y-4">
+                            <div className="w-16 h-16 bg-primary-500/10 rounded-full flex items-center justify-center mx-auto">
+                                <Target className="w-8 h-8 text-primary-500" />
+                            </div>
+                            <h3 className="text-xl font-semibold text-white">No Diet Plans Yet</h3>
+                            <p className="text-gray-400">
+                                Generate your first AI-powered diet plan tailored to your fitness goals,
+                                dietary preferences, and budget.
+                            </p>
+                            <Button variant="gym" onClick={() => setShowWizard(true)} className="gap-2">
+                                <Plus className="w-4 h-4" />
+                                Generate Your First Plan
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+        </div>
+    );
+}

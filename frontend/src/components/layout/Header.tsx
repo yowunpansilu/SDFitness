@@ -1,7 +1,8 @@
-import { Menu, Bell, LogOut, Settings, User } from 'lucide-react';
+import { Menu, LogOut, Settings, User } from 'lucide-react';
+import { NotificationBell } from '../notifications/NotificationBell';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Badge } from '../ui/badge';
+
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -52,49 +53,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 </div>
 
                 {/* Notifications */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="relative text-gray-400 hover:text-white">
-                            <Bell className="h-5 w-5" />
-                            <Badge
-                                variant="destructive"
-                                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                            >
-                                3
-                            </Badge>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-80">
-                        <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <div className="max-h-96 overflow-y-auto">
-                            <DropdownMenuItem>
-                                <div className="flex flex-col gap-1">
-                                    <p className="text-sm font-medium">Class Reminder</p>
-                                    <p className="text-xs text-gray-400">
-                                        Your HIIT class starts in 1 hour
-                                    </p>
-                                </div>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <div className="flex flex-col gap-1">
-                                    <p className="text-sm font-medium">Payment Due</p>
-                                    <p className="text-xs text-gray-400">
-                                        Your membership renewal is due in 3 days
-                                    </p>
-                                </div>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <div className="flex flex-col gap-1">
-                                    <p className="text-sm font-medium">New Message</p>
-                                    <p className="text-xs text-gray-400">
-                                        Your trainer sent you a message
-                                    </p>
-                                </div>
-                            </DropdownMenuItem>
-                        </div>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <NotificationBell />
 
                 {/* User menu */}
                 <DropdownMenu>

@@ -19,6 +19,7 @@ const navigation = [
     { name: 'Diet Plans', href: '/dashboard/diet-plans', icon: Apple },
     { name: 'Workouts', href: '/dashboard/workouts', icon: Dumbbell },
     { name: 'Classes', href: '/dashboard/classes', icon: Calendar },
+    { name: 'My Bookings', href: '/dashboard/my-bookings', icon: Calendar }, // Using Calendar for now, could use Ticket or similar
     { name: 'Membership', href: '/dashboard/membership', icon: CreditCard },
     { name: 'Payments', href: '/dashboard/payments', icon: DollarSign },
     { name: 'Attendance', href: '/dashboard/attendance', icon: CheckCircle },

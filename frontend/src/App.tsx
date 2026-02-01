@@ -8,8 +8,12 @@ import { Dashboard } from './pages/dashboard/Dashboard';
 import { Profile } from './pages/dashboard/Profile';
 import { DietPlans } from './pages/dashboard/DietPlans';
 import { Workouts } from './pages/dashboard/Workouts';
+import { ClassSchedule } from './pages/dashboard/ClassSchedule';
+import { MyBookings } from './pages/dashboard/MyBookings';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
+import { MembershipDetails } from './pages/dashboard/MembershipDetails';
+import { MembershipPlans } from './pages/dashboard/MembershipPlans';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -70,8 +74,10 @@ function App() {
             <Route path="profile" element={<Profile />} />
             <Route path="diet-plans" element={<DietPlans />} />
             <Route path="workouts" element={<Workouts />} />
-            <Route path="classes" element={<div className="text-white">Classes Page (Coming Soon)</div>} />
-            <Route path="membership" element={<div className="text-white">Membership Page (Coming Soon)</div>} />
+            <Route path="classes" element={<ClassSchedule />} />
+            <Route path="my-bookings" element={<MyBookings />} />
+            <Route path="membership" element={<MembershipDetails />} />
+            <Route path="membership/plans" element={<MembershipPlans />} />
             <Route path="payments" element={<div className="text-white">Payments Page (Coming Soon)</div>} />
             <Route path="attendance" element={<div className="text-white">Attendance Page (Coming Soon)</div>} />
             <Route path="messages" element={<div className="text-white">Messages Page (Coming Soon)</div>} />

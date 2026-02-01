@@ -300,7 +300,7 @@ export function Workouts() {
                 {/* Stats Tab */}
                 <TabsContent value="stats" className="mt-6">
                     {stats ? (
-                        <WorkoutStatsChart stats={stats} />
+                        <WorkoutStatsChart stats={stats} history={workoutHistory} />
                     ) : (
                         <div className="text-center py-12">
                             <BarChart3 className="w-16 h-16 text-gray-600 mx-auto mb-4" />

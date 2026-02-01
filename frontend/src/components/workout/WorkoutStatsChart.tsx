@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, TrendingUp, Flame, Dumbbell } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import type { Workout } from '@/lib/api/workoutApi';
+import { format, subDays, isSameDay } from 'date-fns';
 
 interface WorkoutStatsChartProps {
     stats: {
@@ -10,9 +13,29 @@ interface WorkoutStatsChartProps {
         thisWeek?: number;
         thisMonth?: number;
     };
+    history?: Workout[];
 }
 
-export function WorkoutStatsChart({ stats }: WorkoutStatsChartProps) {
+export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProps) {
+    // Prepare data for the chart (last 7 days)
+    const getLast7DaysData = () => {
+        const data = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = subDays(new Date(), i);
+            const workoutsOnDay = history.filter(w => isSameDay(new Date(w.workoutDate), date));
+
+            data.push({
+                date: format(date, 'MMM dd'),
+                workouts: workoutsOnDay.length,
+                calories: workoutsOnDay.reduce((acc, w) => acc + w.totalCaloriesBurned, 0),
+                duration: workoutsOnDay.reduce((acc, w) => acc + w.duration, 0),
+            });
+        }
+        return data;
+    };
+
+    const chartData = getLast7DaysData();
+
     return (
         <Card className="glass-card border-dark-700">
             <CardHeader>
@@ -28,7 +51,7 @@ export function WorkoutStatsChart({ stats }: WorkoutStatsChartProps) {
                         <TabsTrigger value="trends">Trends</TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="overview" className="space-y-4 mt-4">
+                    <TabsContent value="overview" className="space-y-4 mt-4 animate-fade-in">
                         <div className="grid grid-cols-2 gap-4">
                             {/* Total Workouts */}
                             <div className="bg-dark-800/50 rounded-lg p-4 border border-dark-700">
@@ -86,15 +109,34 @@ export function WorkoutStatsChart({ stats }: WorkoutStatsChartProps) {
                         </div>
                     </TabsContent>
 
-                    <TabsContent value="trends" className="mt-4">
-                        <div className="bg-dark-800/50 rounded-lg p-8 border border-dark-700 text-center">
-                            <BarChart3 className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                            <p className="text-gray-400 text-sm">
-                                Detailed charts and trends will be available once you log more workouts.
-                            </p>
-                            <p className="text-gray-500 text-xs mt-2">
-                                Keep tracking your progress to see your improvement over time!
-                            </p>
+                    <TabsContent value="trends" className="mt-4 animate-fade-in">
+                        <div className="bg-dark-800/50 rounded-lg p-4 border border-dark-700 h-[300px]">
+                            <h3 className="text-sm font-semibold text-gray-400 mb-4">Activity (Last 7 Days)</h3>
+                            <ResponsiveContainer width="100%" height="90%">
+                                <BarChart data={chartData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+                                    <XAxis
+                                        dataKey="date"
+                                        stroke="#9CA3AF"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                    />
+                                    <YAxis
+                                        stroke="#9CA3AF"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', borderRadius: '0.5rem', color: '#F3F4F6' }}
+                                        itemStyle={{ color: '#F3F4F6' }}
+                                        cursor={{ fill: '#374151', opacity: 0.4 }}
+                                    />
+                                    <Bar dataKey="duration" name="Duration (min)" fill="#F97316" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="calories" name="Calories" fill="#EA580C" radius={[4, 4, 0, 0]} hide />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </TabsContent>
                 </Tabs>

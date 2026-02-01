@@ -20,9 +20,9 @@ export function MembershipStatusCard({ membership, plan, onManage }: MembershipS
     };
 
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-lg font-bold">Current Membership</CardTitle>
+        <Card className="glass-card border-dark-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 border-b border-dark-700">
+                <CardTitle className="text-lg font-bold text-white">Current Membership</CardTitle>
                 <Badge className={`${statusColors[membership.status]} text-white`}>
                     {membership.status.toUpperCase()}
                 </Badge>
@@ -31,11 +31,11 @@ export function MembershipStatusCard({ membership, plan, onManage }: MembershipS
                 <div className="flex flex-col md:flex-row justify-between gap-6 pt-4">
                     <div className="space-y-4">
                         <div>
-                            <p className="text-sm font-medium text-muted-foreground">Plan</p>
-                            <p className="text-2xl font-bold">{plan?.name || "Loading..."}</p>
+                            <p className="text-sm font-medium text-gray-400">Plan</p>
+                            <p className="text-2xl font-bold text-white">{plan?.name || "Loading..."}</p>
                         </div>
 
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2 text-sm text-gray-400">
                             <Calendar className="h-4 w-4" />
                             <span>
                                 {membership.status === 'active' ? 'Renews on ' : 'Expires on '}
@@ -46,8 +46,8 @@ export function MembershipStatusCard({ membership, plan, onManage }: MembershipS
 
                     <div className="space-y-4">
                         <div>
-                            <p className="text-sm font-medium text-muted-foreground">Billing</p>
-                            <div className="flex items-center gap-2 mt-1">
+                            <p className="text-sm font-medium text-gray-400">Billing</p>
+                            <div className="flex items-center gap-2 mt-1 text-white">
                                 <CreditCard className="h-4 w-4" />
                                 <span className="font-medium">
                                     {membership.paymentMethod?.brand} •••• {membership.paymentMethod?.last4}
@@ -55,7 +55,7 @@ export function MembershipStatusCard({ membership, plan, onManage }: MembershipS
                             </div>
                         </div>
 
-                        <Button variant="outline" size="sm" onClick={onManage}>
+                        <Button variant="outline" size="sm" onClick={onManage} className="bg-transparent border-dark-600 text-white hover:bg-dark-700 hover:text-white w-full md:w-auto">
                             Manage Subscription
                         </Button>
                     </div>

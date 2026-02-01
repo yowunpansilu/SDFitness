@@ -68,22 +68,22 @@ export function MembershipDetails() {
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">My Membership</h1>
-                    <p className="text-muted-foreground mt-1">Manage your subscription and view usage statistics.</p>
+                    <h1 className="text-3xl font-headline font-bold text-white tracking-wide">My Membership</h1>
+                    <p className="text-gray-400 mt-1">Manage your subscription and view usage statistics.</p>
                 </div>
                 <div className="flex gap-3">
                     {currentMembership?.status === 'active' && (
                         <>
-                            <Button variant="outline" onClick={() => setIsFreezeOpen(true)}>
+                            <Button variant="outline" onClick={() => setIsFreezeOpen(true)} className="bg-transparent border-dark-600 text-white hover:bg-dark-700 hover:text-white">
                                 Freeze
                             </Button>
-                            <Button variant="outline" onClick={handleCancel} disabled={cancelling}>
+                            <Button variant="outline" onClick={handleCancel} disabled={cancelling} className="bg-transparent border-red-900/50 text-red-500 hover:bg-red-900/20 hover:text-red-400 hover:border-red-900">
                                 {cancelling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                                 Cancel Membership
                             </Button>
                         </>
                     )}
-                    <Button onClick={() => navigate('/dashboard/membership/plans')}>
+                    <Button onClick={() => navigate('/dashboard/membership/plans')} className="bg-primary-500 hover:bg-primary-600 text-white">
                         Change Plan
                     </Button>
                 </div>

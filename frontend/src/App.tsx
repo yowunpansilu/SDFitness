@@ -15,6 +15,7 @@ import { Toaster } from './components/ui/toaster';
 import { MembershipDetails } from './pages/dashboard/MembershipDetails';
 import { MembershipPlans } from './pages/dashboard/MembershipPlans';
 import { BillingOverview } from './pages/dashboard/BillingOverview';
+import { AttendancePage } from './pages/dashboard/AttendancePage';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -80,7 +81,7 @@ function App() {
             <Route path="membership" element={<MembershipDetails />} />
             <Route path="membership/plans" element={<MembershipPlans />} />
             <Route path="payments" element={<BillingOverview />} />
-            <Route path="attendance" element={<div className="text-white">Attendance Page (Coming Soon)</div>} />
+            <Route path="attendance" element={<AttendancePage />} />
             <Route path="messages" element={<div className="text-white">Messages Page (Coming Soon)</div>} />
             <Route path="settings" element={<div className="text-white">Settings Page (Coming Soon)</div>} />
           </Route>

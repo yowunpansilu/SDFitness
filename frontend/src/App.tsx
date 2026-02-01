@@ -14,6 +14,7 @@ import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
 import { MembershipDetails } from './pages/dashboard/MembershipDetails';
 import { MembershipPlans } from './pages/dashboard/MembershipPlans';
+import { BillingOverview } from './pages/dashboard/BillingOverview';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -78,7 +79,7 @@ function App() {
             <Route path="my-bookings" element={<MyBookings />} />
             <Route path="membership" element={<MembershipDetails />} />
             <Route path="membership/plans" element={<MembershipPlans />} />
-            <Route path="payments" element={<div className="text-white">Payments Page (Coming Soon)</div>} />
+            <Route path="payments" element={<BillingOverview />} />
             <Route path="attendance" element={<div className="text-white">Attendance Page (Coming Soon)</div>} />
             <Route path="messages" element={<div className="text-white">Messages Page (Coming Soon)</div>} />
             <Route path="settings" element={<div className="text-white">Settings Page (Coming Soon)</div>} />

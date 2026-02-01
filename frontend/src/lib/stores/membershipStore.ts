@@ -23,6 +23,7 @@ interface MembershipState {
     fetchMembershipData: () => Promise<void>;
     changePlan: (planId: string, billingCycle: BillingCycle) => Promise<void>;
     cancelSubscription: () => Promise<void>;
+    freezeSubscription: (resumeDate: Date) => Promise<void>; // Added freezeSubscription to interface
 }
 
 export const useMembershipStore = create<MembershipState>((set) => ({
@@ -78,6 +79,23 @@ export const useMembershipStore = create<MembershipState>((set) => ({
             }));
         } catch (err) {
             set({ error: 'Failed to cancel subscription', isLoading: false });
+            throw err;
+        }
+    },
+
+    freezeSubscription: async (resumeDate: Date) => {
+        set({ isLoading: true, error: null });
+        try {
+            // In a real app, we would call an API with the resumeDate
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            set((state) => ({
+                currentMembership: state.currentMembership
+                    ? { ...state.currentMembership, status: 'frozen', endDate: resumeDate.toISOString() }
+                    : null,
+                isLoading: false
+            }));
+        } catch (err) {
+            set({ error: 'Failed to freeze subscription', isLoading: false });
             throw err;
         }
     }

@@ -19,6 +19,7 @@ export interface MembershipPlan {
     features: string[];
     popular?: boolean;
     color: string;
+    trialDays?: number;
 }
 
 export interface UserMembership {
@@ -55,7 +56,8 @@ export const MEMBERSHIP_PLANS: MembershipPlan[] = [
             'Free Parking',
             '1 Guest Pass/Month'
         ],
-        color: 'bg-slate-500'
+        color: 'bg-slate-500',
+        trialDays: 7
     },
     {
         id: 'plan_pro',
@@ -71,7 +73,8 @@ export const MEMBERSHIP_PLANS: MembershipPlan[] = [
             'Access to All Locations',
             'Quarterly Personal Training Session'
         ],
-        color: 'bg-primary/80'
+        color: 'bg-primary/80',
+        trialDays: 14
     },
     {
         id: 'plan_elite',

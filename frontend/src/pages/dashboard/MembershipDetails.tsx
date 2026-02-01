@@ -7,10 +7,14 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
+import { differenceInDays } from "date-fns";
+import { FreezeDialog } from "@/components/membership/FreezeDialog";
+
 export function MembershipDetails() {
     const navigate = useNavigate();
-    const { currentMembership, usageStats, plans, isLoading, error, fetchMembershipData, fetchPlans, cancelSubscription } = useMembershipStore();
+    const { currentMembership, usageStats, plans, isLoading, error, fetchMembershipData, fetchPlans, cancelSubscription, freezeSubscription } = useMembershipStore();
     const [cancelling, setCancelling] = useState(false);
+    const [isFreezeOpen, setIsFreezeOpen] = useState(false);
 
     useEffect(() => {
         fetchMembershipData();
@@ -47,8 +51,21 @@ export function MembershipDetails() {
         );
     }
 
+    const daysToRenewal = currentMembership ? differenceInDays(new Date(currentMembership.endDate), new Date()) : 999;
+    const showRenewalAlert = currentMembership?.status === 'active' && currentMembership.autoRenew && daysToRenewal <= 7 && daysToRenewal >= 0;
+
     return (
         <div className="space-y-8 animate-fade-in">
+            {showRenewalAlert && (
+                <Alert className="bg-yellow-500/10 border-yellow-500/50 text-yellow-600 dark:text-yellow-400">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <AlertTitle>Renewal Reminder</AlertTitle>
+                    <AlertDescription>
+                        Your membership renews in {daysToRenewal === 0 ? 'today' : `${daysToRenewal} days`}.
+                    </AlertDescription>
+                </Alert>
+            )}
+
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">My Membership</h1>
@@ -56,10 +73,15 @@ export function MembershipDetails() {
                 </div>
                 <div className="flex gap-3">
                     {currentMembership?.status === 'active' && (
-                        <Button variant="outline" onClick={handleCancel} disabled={cancelling}>
-                            {cancelling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Cancel Membership
-                        </Button>
+                        <>
+                            <Button variant="outline" onClick={() => setIsFreezeOpen(true)}>
+                                Freeze
+                            </Button>
+                            <Button variant="outline" onClick={handleCancel} disabled={cancelling}>
+                                {cancelling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Cancel Membership
+                            </Button>
+                        </>
                     )}
                     <Button onClick={() => navigate('/dashboard/membership/plans')}>
                         Change Plan
@@ -81,6 +103,12 @@ export function MembershipDetails() {
                     <UsageStatsCards stats={usageStats} />
                 </div>
             )}
+
+            <FreezeDialog
+                isOpen={isFreezeOpen}
+                onClose={() => setIsFreezeOpen(false)}
+                onConfirm={freezeSubscription}
+            />
         </div>
     );
 }

@@ -32,6 +32,13 @@ export function PlanCard({ plan, billingCycle, isCurrent, onSelect, isLoading }:
                 <div className="text-center mt-4">
                     <span className="text-3xl font-bold">${price}</span>
                     <span className="text-muted-foreground">{period}</span>
+                    {plan.trialDays && (
+                        <div className="mt-2">
+                            <Badge variant="secondary" className="text-xs font-normal">
+                                {plan.trialDays} Days Free Trial
+                            </Badge>
+                        </div>
+                    )}
                 </div>
             </CardHeader>
 

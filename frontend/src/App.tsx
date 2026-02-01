@@ -17,6 +17,7 @@ import { MembershipPlans } from './pages/dashboard/MembershipPlans';
 import { BillingOverview } from './pages/dashboard/BillingOverview';
 import { AttendancePage } from './pages/dashboard/AttendancePage';
 import { NotificationSettings } from './pages/dashboard/NotificationSettings';
+import { MessagesPage } from './pages/dashboard/MessagesPage';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -83,8 +84,8 @@ function App() {
             <Route path="membership/plans" element={<MembershipPlans />} />
             <Route path="payments" element={<BillingOverview />} />
             <Route path="attendance" element={<AttendancePage />} />
-            <Route path="messages" element={<div className="text-white">Messages Page (Coming Soon)</div>} />
-            <Route path="messages" element={<div className="text-white">Messages Page (Coming Soon)</div>} />
+
+            <Route path="messages" element={<MessagesPage />} />
             <Route path="settings/notifications" element={<NotificationSettings />} />
           </Route>
 

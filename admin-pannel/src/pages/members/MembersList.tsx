@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Search, Filter, Download, Mail, UserX, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Download, Mail, UserX, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -89,6 +90,7 @@ const statusColors = {
 };
 
 export function MembersList() {
+    const navigate = useNavigate();
     const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -242,6 +244,7 @@ export function MembersList() {
                                 {mockMembers.map((member) => (
                                     <TableRow
                                         key={member.id}
+                                        onClick={() => navigate(`/members/${member.id}`)}
                                         className="border-dark-800 hover:bg-dark-800/30 transition-colors cursor-pointer"
                                     >
                                         <TableCell>
@@ -298,7 +301,13 @@ export function MembersList() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="bg-dark-900 border-dark-700 text-white">
-                                                    <DropdownMenuItem className="focus:bg-dark-800 cursor-pointer">
+                                                    <DropdownMenuItem
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate(`/members/${member.id}`);
+                                                        }}
+                                                        className="focus:bg-dark-800 cursor-pointer"
+                                                    >
                                                         View Details
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem className="focus:bg-dark-800 cursor-pointer">

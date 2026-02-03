@@ -4,6 +4,8 @@ import { AdminLayout } from './components/layout/AdminLayout';
 import { AdminDashboard } from './pages/dashboard/AdminDashboard';
 import { MembersList } from './pages/members/MembersList';
 import { MemberDetail } from './pages/members/MemberDetail';
+import { AddMember } from './pages/members/AddMember';
+import { MembershipPlans } from './pages/plans/MembershipPlans';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
 
@@ -56,7 +58,9 @@ function App() {
                     }>
                         <Route index element={<AdminDashboard />} />
                         <Route path="members" element={<MembersList />} />
+                        <Route path="members/add" element={<AddMember />} />
                         <Route path="members/:id" element={<MemberDetail />} />
+                        <Route path="plans" element={<MembershipPlans />} />
                     </Route>
 
                     {/* Fallback */}

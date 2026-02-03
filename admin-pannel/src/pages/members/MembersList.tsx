@@ -123,7 +123,10 @@ export function MembersList() {
                         Manage all gym members, memberships, and profiles
                     </p>
                 </div>
-                <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20 transition-all duration-200 hover:shadow-purple-500/40">
+                <Button
+                    onClick={() => navigate('/members/add')}
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
+                >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Member
                 </Button>

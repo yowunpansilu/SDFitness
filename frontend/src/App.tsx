@@ -18,6 +18,10 @@ import { BillingOverview } from './pages/dashboard/BillingOverview';
 import { AttendancePage } from './pages/dashboard/AttendancePage';
 import { NotificationSettings } from './pages/dashboard/NotificationSettings';
 import { MessagesPage } from './pages/dashboard/MessagesPage';
+import { AdminRoute } from './components/auth/AdminRoute';
+import { AdminLayout } from './components/admin/layout/AdminLayout';
+import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { MembersList } from './pages/admin/members/MembersList';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -87,6 +91,16 @@ function App() {
 
             <Route path="messages" element={<MessagesPage />} />
             <Route path="settings/notifications" element={<NotificationSettings />} />
+          </Route>
+
+          {/* Admin routes */}
+          <Route path="/admin" element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }>
+            <Route index element={<AdminDashboard />} />
+            <Route path="members" element={<MembersList />} />
           </Route>
 
           {/* Default redirect */}

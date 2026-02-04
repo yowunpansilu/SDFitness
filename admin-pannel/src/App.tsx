@@ -8,6 +8,7 @@ import { AddMember } from './pages/members/AddMember';
 import { MembershipPlans } from './pages/plans/MembershipPlans';
 import { TrainersList } from './pages/trainers/TrainersList';
 import { TrainerDetail } from './pages/trainers/TrainerDetail';
+import { TrainerForm } from './pages/trainers/TrainerForm';
 import { ClassSchedule } from './pages/classes/ClassSchedule';
 import { PaymentsList } from './pages/payments/PaymentsList';
 import { EquipmentInventory } from './pages/equipment/EquipmentInventory';
@@ -68,6 +69,8 @@ function App() {
                         <Route path="members/:id" element={<MemberDetail />} />
                         <Route path="plans" element={<MembershipPlans />} />
                         <Route path="trainers" element={<TrainersList />} />
+                        <Route path="trainers/add" element={<TrainerForm />} />
+                        <Route path="trainers/edit/:id" element={<TrainerForm />} />
                         <Route path="trainers/:id" element={<TrainerDetail />} />
                         <Route path="classes" element={<ClassSchedule />} />
                         <Route path="payments" element={<PaymentsList />} />

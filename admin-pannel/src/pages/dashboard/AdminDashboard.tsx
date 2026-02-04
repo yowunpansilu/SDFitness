@@ -1,6 +1,10 @@
-import { Users, DollarSign, CreditCard, UserCheck, TrendingUp, TrendingDown } from 'lucide-react';
+import { Users, DollarSign, CreditCard, UserCheck, TrendingUp, TrendingDown, Calendar, Wrench, FileText, UserPlus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 
 // Stat Card Component
 interface StatCardProps {
@@ -53,7 +57,33 @@ function StatCard({ title, value, change, icon: Icon, trend, iconColor }: StatCa
     );
 }
 
+// Mock revenue data
+const monthlyRevenueData = [
+    { month: 'Jan', revenue: 42000, target: 40000 },
+    { month: 'Feb', revenue: 38000, target: 42000 },
+    { month: 'Mar', revenue: 45000, target: 43000 },
+    { month: 'Apr', revenue: 48000, target: 45000 },
+    { month: 'May', revenue: 52000, target: 48000 },
+    { month: 'Jun', revenue: 45231, target: 50000 },
+];
+
+const yearlyRevenueData = [
+    { month: '2023', revenue: 380000, target: 400000 },
+    { month: '2024', revenue: 485000, target: 480000 },
+    { month: '2025', revenue: 542000, target: 520000 },
+];
+
+// Mock equipment maintenance data
+const equipmentMaintenanceAlerts = [
+    { id: 1, name: 'Treadmill #3', status: 'overdue', daysUntil: -2, location: 'Cardio Zone' },
+    { id: 2, name: 'Rowing Machine #1', status: 'this-week', daysUntil: 3, location: 'Main Floor' },
+    { id: 3, name: 'Leg Press', status: 'upcoming', daysUntil: 12, location: 'Weight Room' },
+];
+
 export function AdminDashboard() {
+    const navigate = useNavigate();
+    const [revenueTimeRange, setRevenueTimeRange] = useState<'monthly' | 'yearly'>('monthly');
+    const revenueData = revenueTimeRange === 'monthly' ? monthlyRevenueData : yearlyRevenueData;
     return (
         <div className="space-y-8">
             {/* Page Header */}
@@ -104,16 +134,72 @@ export function AdminDashboard() {
 
             {/* Charts and Tables Grid */}
             <div className="grid gap-6 lg:grid-cols-2">
-                {/* Revenue Chart Placeholder */}
+                {/* Revenue Chart */}
                 <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
                     <CardHeader>
-                        <CardTitle className="text-white">Revenue Overview</CardTitle>
-                        <p className="text-sm text-gray-400">Monthly revenue for the past 6 months</p>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="text-white">Revenue Overview</CardTitle>
+                                <p className="text-sm text-gray-400">Track your revenue performance</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant={revenueTimeRange === 'monthly' ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => setRevenueTimeRange('monthly')}
+                                    className={cn(
+                                        revenueTimeRange === 'monthly'
+                                            ? 'bg-purple-600 hover:bg-purple-700'
+                                            : 'border-dark-700 text-gray-400 hover:text-white hover:bg-dark-800'
+                                    )}
+                                >
+                                    Monthly
+                                </Button>
+                                <Button
+                                    variant={revenueTimeRange === 'yearly' ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => setRevenueTimeRange('yearly')}
+                                    className={cn(
+                                        revenueTimeRange === 'yearly'
+                                            ? 'bg-purple-600 hover:bg-purple-700'
+                                            : 'border-dark-700 text-gray-400 hover:text-white hover:bg-dark-800'
+                                    )}
+                                >
+                                    Yearly
+                                </Button>
+                            </div>
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-80 flex items-center justify-center bg-dark-950/50 rounded-lg border border-dark-800">
-                            <p className="text-gray-500">Chart will be implemented with Recharts</p>
-                        </div>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <AreaChart data={revenueData}>
+                                <defs>
+                                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                <XAxis dataKey="month" stroke="#94a3b8" />
+                                <YAxis stroke="#94a3b8" />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#1e293b',
+                                        border: '1px solid #334155',
+                                        borderRadius: '8px',
+                                        color: '#fff',
+                                    }}
+                                    formatter={(value) => value ? [`$${value.toLocaleString()}`, 'Revenue'] : ['$0', 'Revenue']}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="revenue"
+                                    stroke="#8b5cf6"
+                                    strokeWidth={2}
+                                    fill="url(#colorRevenue)"
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
 
@@ -144,6 +230,107 @@ export function AdminDashboard() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Equipment Maintenance & Quick Actions */}
+            <div className="grid gap-6 lg:grid-cols-2">
+                {/* Equipment Maintenance Alerts */}
+                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="text-white">Equipment Maintenance</CardTitle>
+                        <p className="text-sm text-gray-400">Upcoming maintenance schedule</p>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
+                            {equipmentMaintenanceAlerts.map((item) => {
+                                const getStatusColor = (status: string) => {
+                                    if (status === 'overdue') return 'text-red-400 bg-red-500/10 border-red-500/20';
+                                    if (status === 'this-week') return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
+                                    return 'text-green-400 bg-green-500/10 border-green-500/20';
+                                };
+
+                                const getStatusText = (daysUntil: number) => {
+                                    if (daysUntil < 0) return `${Math.abs(daysUntil)} days overdue`;
+                                    return `${daysUntil} days until due`;
+                                };
+
+                                return (
+                                    <div
+                                        key={item.id}
+                                        className="flex items-center justify-between p-3 rounded-lg bg-dark-950/50 hover:bg-dark-800/50 transition-colors cursor-pointer"
+                                        onClick={() => navigate('/equipment')}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={cn('p-2 rounded-lg', getStatusColor(item.status))}>
+                                                <Wrench className="h-4 w-4" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-white">{item.name}</p>
+                                                <p className="text-xs text-gray-500">{item.location}</p>
+                                            </div>
+                                        </div>
+                                        <div className={cn('text-xs font-medium px-2 py-1 rounded-full border', getStatusColor(item.status))}>
+                                            {getStatusText(item.daysUntil)}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Quick Actions Panel */}
+                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className="text-white">Quick Actions</CardTitle>
+                        <p className="text-sm text-gray-400">Common tasks and shortcuts</p>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-2 gap-3">
+                            <Button
+                                variant="outline"
+                                className="h-auto flex-col gap-2 p-4 border-dark-700 hover:border-purple-500/50 hover:bg-dark-800 transition-all group"
+                                onClick={() => navigate('/members')}
+                            >
+                                <UserPlus className="h-6 w-6 text-purple-400 group-hover:scale-110 transition-transform" />
+                                <span className="text-sm font-medium text-gray-300 group-hover:text-white">Add Member</span>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="h-auto flex-col gap-2 p-4 border-dark-700 hover:border-blue-500/50 hover:bg-dark-800 transition-all group"
+                                onClick={() => navigate('/classes')}
+                            >
+                                <Calendar className="h-6 w-6 text-blue-400 group-hover:scale-110 transition-transform" />
+                                <span className="text-sm font-medium text-gray-300 group-hover:text-white">Add Class</span>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="h-auto flex-col gap-2 p-4 border-dark-700 hover:border-green-500/50 hover:bg-dark-800 transition-all group"
+                                onClick={() => navigate('/payments')}
+                            >
+                                <DollarSign className="h-6 w-6 text-green-400 group-hover:scale-110 transition-transform" />
+                                <span className="text-sm font-medium text-gray-300 group-hover:text-white">Record Payment</span>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="h-auto flex-col gap-2 p-4 border-dark-700 hover:border-orange-500/50 hover:bg-dark-800 transition-all group"
+                                onClick={() => navigate('/equipment')}
+                            >
+                                <Wrench className="h-6 w-6 text-orange-400 group-hover:scale-110 transition-transform" />
+                                <span className="text-sm font-medium text-gray-300 group-hover:text-white">Add Equipment</span>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="h-auto flex-col gap-2 p-4 border-dark-700 hover:border-pink-500/50 hover:bg-dark-800 transition-all group col-span-2"
+                                onClick={() => navigate('/analytics')}
+                            >
+                                <FileText className="h-6 w-6 text-pink-400 group-hover:scale-110 transition-transform" />
+                                <span className="text-sm font-medium text-gray-300 group-hover:text-white">View Reports</span>
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
 
             {/* Upcoming Classes */}
             <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">

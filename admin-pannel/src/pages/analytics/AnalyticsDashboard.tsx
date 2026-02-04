@@ -9,6 +9,22 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useState } from 'react';
+import {
+    AreaChart,
+    Area,
+    LineChart,
+    Line,
+    BarChart,
+    Bar,
+    PieChart,
+    Pie,
+    Cell,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+} from 'recharts';
 
 // Mock data for charts (ready for chart integration)
 const memberGrowthData = [
@@ -50,6 +66,9 @@ const membershipBreakdown = [
     { plan: 'Basic', count: 89, percentage: 18, color: 'from-green-500 to-emerald-600' },
     { plan: 'Student', count: 15, percentage: 3, color: 'from-orange-500 to-amber-600' },
 ];
+
+// Colors for pie chart
+const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b'];
 
 export function AnalyticsDashboard() {
     const [timeRange, setTimeRange] = useState('6months');
@@ -157,23 +176,28 @@ export function AnalyticsDashboard() {
                         <p className="text-sm text-gray-400">Monthly active members trend</p>
                     </CardHeader>
                     <CardContent>
-                        {/* Placeholder for chart - ready for Recharts integration */}
-                        <div className="space-y-3">
-                            {memberGrowthData.map((data, index) => (
-                                <div key={data.month} className="space-y-1">
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="text-gray-400">{data.month}</span>
-                                        <span className="text-white font-semibold">{data.members}</span>
-                                    </div>
-                                    <div className="w-full bg-dark-800 rounded-full h-2">
-                                        <div
-                                            className="bg-gradient-to-r from-blue-500 to-cyan-600 h-2 rounded-full transition-all"
-                                            style={{ width: `${(data.members / 350) * 100}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <AreaChart data={memberGrowthData}>
+                                <defs>
+                                    <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                <XAxis dataKey="month" stroke="#94a3b8" />
+                                <YAxis stroke="#94a3b8" />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#1e293b',
+                                        border: '1px solid #334155',
+                                        borderRadius: '8px',
+                                        color: '#fff',
+                                    }}
+                                />
+                                <Area type="monotone" dataKey="members" stroke="#3b82f6" strokeWidth={2} fill="url(#colorMembers)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
 
@@ -184,22 +208,23 @@ export function AnalyticsDashboard() {
                         <p className="text-sm text-gray-400">Monthly revenue performance</p>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-3">
-                            {revenueData.map((data) => (
-                                <div key={data.month} className="space-y-1">
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="text-gray-400">{data.month}</span>
-                                        <span className="text-white font-semibold">${data.revenue.toLocaleString()}</span>
-                                    </div>
-                                    <div className="w-full bg-dark-800 rounded-full h-2">
-                                        <div
-                                            className="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all"
-                                            style={{ width: `${(data.revenue / 30000) * 100}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <LineChart data={revenueData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                <XAxis dataKey="month" stroke="#94a3b8" />
+                                <YAxis stroke="#94a3b8" />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#1e293b',
+                                        border: '1px solid #334155',
+                                        borderRadius: '8px',
+                                        color: '#fff',
+                                    }}
+                                    formatter={(value) => value ? [`$${value.toLocaleString()}`, 'Revenue'] : ['$0', 'Revenue']}
+                                />
+                                <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981', r: 4 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
             </div>
@@ -213,22 +238,23 @@ export function AnalyticsDashboard() {
                         <p className="text-sm text-gray-400">Average attendance by class type</p>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {classAttendanceData.map((data) => (
-                                <div key={data.class}>
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-white font-medium">{data.class}</span>
-                                        <span className="text-gray-400">{data.attendance}%</span>
-                                    </div>
-                                    <div className="w-full bg-dark-800 rounded-full h-2">
-                                        <div
-                                            className="bg-gradient-to-r from-purple-500 to-pink-600 h-2 rounded-full transition-all"
-                                            style={{ width: `${data.attendance}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={classAttendanceData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                <XAxis dataKey="class" stroke="#94a3b8" />
+                                <YAxis stroke="#94a3b8" />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#1e293b',
+                                        border: '1px solid #334155',
+                                        borderRadius: '8px',
+                                        color: '#fff',
+                                    }}
+                                    formatter={(value) => [`${value}%`, 'Attendance']}
+                                />
+                                <Bar dataKey="attendance" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
 
@@ -239,27 +265,35 @@ export function AnalyticsDashboard() {
                         <p className="text-sm text-gray-400">Active members by plan type</p>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {membershipBreakdown.map((data) => (
-                                <div key={data.plan}>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <Badge className={`bg-gradient-to-r ${data.color} text-white`}>
-                                                {data.plan}
-                                            </Badge>
-                                            <span className="text-gray-400 text-sm">{data.count} members</span>
-                                        </div>
-                                        <span className="text-white font-semibold">{data.percentage}%</span>
-                                    </div>
-                                    <div className="w-full bg-dark-800 rounded-full h-2">
-                                        <div
-                                            className={`bg-gradient-to-r ${data.color} h-2 rounded-full transition-all`}
-                                            style={{ width: `${data.percentage}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie
+                                    data={membershipBreakdown}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={(props: any) => {
+                                        const { plan, percentage } = props.payload || {};
+                                        return plan && percentage ? `${plan}: ${percentage}%` : '';
+                                    }}
+                                    outerRadius={100}
+                                    fill="#8884d8"
+                                    dataKey="count"
+                                >
+                                    {membershipBreakdown.map((_, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#1e293b',
+                                        border: '1px solid #334155',
+                                        borderRadius: '8px',
+                                        color: '#fff',
+                                    }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
             </div>

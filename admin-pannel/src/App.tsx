@@ -6,6 +6,12 @@ import { MembersList } from './pages/members/MembersList';
 import { MemberDetail } from './pages/members/MemberDetail';
 import { AddMember } from './pages/members/AddMember';
 import { MembershipPlans } from './pages/plans/MembershipPlans';
+import { TrainersList } from './pages/trainers/TrainersList';
+import { TrainerDetail } from './pages/trainers/TrainerDetail';
+import { ClassSchedule } from './pages/classes/ClassSchedule';
+import { PaymentsList } from './pages/payments/PaymentsList';
+import { EquipmentInventory } from './pages/equipment/EquipmentInventory';
+import { AnalyticsDashboard } from './pages/analytics/AnalyticsDashboard';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
 
@@ -61,6 +67,12 @@ function App() {
                         <Route path="members/add" element={<AddMember />} />
                         <Route path="members/:id" element={<MemberDetail />} />
                         <Route path="plans" element={<MembershipPlans />} />
+                        <Route path="trainers" element={<TrainersList />} />
+                        <Route path="trainers/:id" element={<TrainerDetail />} />
+                        <Route path="classes" element={<ClassSchedule />} />
+                        <Route path="payments" element={<PaymentsList />} />
+                        <Route path="equipment" element={<EquipmentInventory />} />
+                        <Route path="analytics" element={<AnalyticsDashboard />} />
                     </Route>
 
                     {/* Fallback */}

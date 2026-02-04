@@ -255,6 +255,7 @@ export function ClassSchedule() {
                                         return (
                                             <Card
                                                 key={classSession.id}
+                                                onClick={() => navigate(`/classes/${classSession.id}`)}
                                                 className="bg-dark-900/50 border-dark-800 backdrop-blur-sm hover:bg-dark-900/70 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5 cursor-pointer group"
                                             >
                                                 <CardContent className="p-4 space-y-3">

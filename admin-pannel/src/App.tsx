@@ -11,8 +11,11 @@ import { TrainerDetail } from './pages/trainers/TrainerDetail';
 import { TrainerForm } from './pages/trainers/TrainerForm';
 import { ClassSchedule } from './pages/classes/ClassSchedule';
 import { ClassForm } from './pages/classes/ClassForm';
+import { ClassDetail } from './pages/classes/ClassDetail';
 import { PaymentsList } from './pages/payments/PaymentsList';
 import { EquipmentInventory } from './pages/equipment/EquipmentInventory';
+import { EquipmentForm } from './pages/equipment/EquipmentForm';
+import { EquipmentDetail } from './pages/equipment/EquipmentDetail';
 import { AnalyticsDashboard } from './pages/analytics/AnalyticsDashboard';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
@@ -76,8 +79,12 @@ function App() {
                         <Route path="classes" element={<ClassSchedule />} />
                         <Route path="classes/add" element={<ClassForm />} />
                         <Route path="classes/edit/:id" element={<ClassForm />} />
+                        <Route path="classes/:id" element={<ClassDetail />} />
                         <Route path="payments" element={<PaymentsList />} />
                         <Route path="equipment" element={<EquipmentInventory />} />
+                        <Route path="equipment/add" element={<EquipmentForm />} />
+                        <Route path="equipment/edit/:id" element={<EquipmentForm />} />
+                        <Route path="equipment/:id" element={<EquipmentDetail />} />
                         <Route path="analytics" element={<AnalyticsDashboard />} />
                     </Route>
 

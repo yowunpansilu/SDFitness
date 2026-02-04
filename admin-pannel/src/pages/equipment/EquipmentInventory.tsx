@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Wrench, AlertTriangle, CheckCircle, XCircle, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -152,6 +153,7 @@ const categoryLabels = {
 };
 
 export function EquipmentInventory() {
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [categoryFilter, setCategoryFilter] = useState('all');
@@ -184,7 +186,10 @@ export function EquipmentInventory() {
                         Manage gym equipment and maintenance schedules
                     </p>
                 </div>
-                <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20">
+                <Button
+                    onClick={() => navigate('/equipment/add')}
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
+                >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Equipment
                 </Button>
@@ -305,6 +310,7 @@ export function EquipmentInventory() {
                                 return (
                                     <TableRow
                                         key={equipment.id}
+                                        onClick={() => navigate(`/equipment/${equipment.id}`)}
                                         className="border-dark-700 hover:bg-dark-800/50 cursor-pointer"
                                     >
                                         <TableCell>

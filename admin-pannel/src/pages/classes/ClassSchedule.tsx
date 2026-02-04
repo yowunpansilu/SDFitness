@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Clock, Users, MapPin, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -123,6 +124,7 @@ const classTypeColors = {
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function ClassSchedule() {
+    const navigate = useNavigate();
     const [currentWeek, setCurrentWeek] = useState(0);
 
     const getClassesForDay = (day: number) => {
@@ -143,7 +145,10 @@ export function ClassSchedule() {
                         Manage group fitness classes and schedules
                     </p>
                 </div>
-                <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20">
+                <Button
+                    onClick={() => navigate('/classes/add')}
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
+                >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Class
                 </Button>

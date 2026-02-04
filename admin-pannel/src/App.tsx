@@ -10,6 +10,7 @@ import { TrainersList } from './pages/trainers/TrainersList';
 import { TrainerDetail } from './pages/trainers/TrainerDetail';
 import { TrainerForm } from './pages/trainers/TrainerForm';
 import { ClassSchedule } from './pages/classes/ClassSchedule';
+import { ClassForm } from './pages/classes/ClassForm';
 import { PaymentsList } from './pages/payments/PaymentsList';
 import { EquipmentInventory } from './pages/equipment/EquipmentInventory';
 import { AnalyticsDashboard } from './pages/analytics/AnalyticsDashboard';
@@ -73,6 +74,8 @@ function App() {
                         <Route path="trainers/edit/:id" element={<TrainerForm />} />
                         <Route path="trainers/:id" element={<TrainerDetail />} />
                         <Route path="classes" element={<ClassSchedule />} />
+                        <Route path="classes/add" element={<ClassForm />} />
+                        <Route path="classes/edit/:id" element={<ClassForm />} />
                         <Route path="payments" element={<PaymentsList />} />
                         <Route path="equipment" element={<EquipmentInventory />} />
                         <Route path="analytics" element={<AnalyticsDashboard />} />

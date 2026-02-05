@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Download, Eye, Filter, DollarSign, CreditCard, TrendingUp, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -138,6 +139,7 @@ const paymentTypeLabels = {
 };
 
 export function PaymentsList() {
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [typeFilter, setTypeFilter] = useState('all');
@@ -302,7 +304,8 @@ export function PaymentsList() {
                             {filteredPayments.map((payment) => (
                                 <TableRow
                                     key={payment.id}
-                                    className="border-dark-700 hover:bg-dark-800/50"
+                                    onClick={() => navigate(`/payments/${payment.id}`)}
+                                    className="border-dark-700 hover:bg-dark-800/50 cursor-pointer"
                                 >
                                     <TableCell className="font-mono text-sm text-gray-400">
                                         {payment.transactionId}

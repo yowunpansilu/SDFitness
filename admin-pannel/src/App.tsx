@@ -18,6 +18,7 @@ import { EquipmentInventory } from './pages/equipment/EquipmentInventory';
 import { EquipmentForm } from './pages/equipment/EquipmentForm';
 import { EquipmentDetail } from './pages/equipment/EquipmentDetail';
 import { AnalyticsDashboard } from './pages/analytics/AnalyticsDashboard';
+import { Settings } from './pages/settings/Settings';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
 
@@ -88,6 +89,7 @@ function App() {
                         <Route path="equipment/edit/:id" element={<EquipmentForm />} />
                         <Route path="equipment/:id" element={<EquipmentDetail />} />
                         <Route path="analytics" element={<AnalyticsDashboard />} />
+                        <Route path="settings" element={<Settings />} />
                     </Route>
 
                     {/* Fallback */}

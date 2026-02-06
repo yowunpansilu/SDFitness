@@ -70,7 +70,7 @@ export function AdminDashboard() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <StatCard
                     title="Total Members"
-                    value={1, 234}
+                    value={1234}
                     change={12}
                     trend="up"
                     icon={Users}

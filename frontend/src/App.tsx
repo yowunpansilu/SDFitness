@@ -22,6 +22,7 @@ import { AdminRoute } from './components/auth/AdminRoute';
 import { AdminLayout } from './components/admin/layout/AdminLayout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { MembersList } from './pages/admin/members/MembersList';
+import { Settings } from './pages/admin/settings/Settings';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -101,6 +102,7 @@ function App() {
           }>
             <Route index element={<AdminDashboard />} />
             <Route path="members" element={<MembersList />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
 
           {/* Default redirect */}

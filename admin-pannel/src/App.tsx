@@ -14,6 +14,7 @@ import { ClassForm } from './pages/classes/ClassForm';
 import { ClassDetail } from './pages/classes/ClassDetail';
 import { PaymentsList } from './pages/payments/PaymentsList';
 import { PaymentDetail } from './pages/payments/PaymentDetail';
+import { PaymentForm } from './pages/payments/PaymentForm';
 import { EquipmentInventory } from './pages/equipment/EquipmentInventory';
 import { EquipmentForm } from './pages/equipment/EquipmentForm';
 import { EquipmentDetail } from './pages/equipment/EquipmentDetail';
@@ -83,6 +84,7 @@ function App() {
                         <Route path="classes/edit/:id" element={<ClassForm />} />
                         <Route path="classes/:id" element={<ClassDetail />} />
                         <Route path="payments" element={<PaymentsList />} />
+                        <Route path="payments/add" element={<PaymentForm />} />
                         <Route path="payments/:id" element={<PaymentDetail />} />
                         <Route path="equipment" element={<EquipmentInventory />} />
                         <Route path="equipment/add" element={<EquipmentForm />} />

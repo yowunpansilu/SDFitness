@@ -1,19 +1,10 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import {
-    ArrowLeft,
-    Save,
-    Wrench,
-    Calendar,
-    MapPin,
-    Package,
-    FileText,
-} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -23,321 +14,512 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { ArrowLeft, Save, X, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
+// Form validation schema
 const equipmentSchema = z.object({
-    name: z.string().min(2, 'Equipment name must be at least 2 characters'),
-    category: z.enum(['cardio', 'strength', 'free_weights', 'functional', 'other']),
-    brand: z.string().min(1, 'Brand is required'),
-    model: z.string().min(1, 'Model is required'),
+    // Equipment Information
+    name: z.string().min(1, 'Equipment name is required'),
+    category: z.string().min(1, 'Category is required'),
+    brand: z.string().optional(),
+    model: z.string().optional(),
     serialNumber: z.string().min(1, 'Serial number is required'),
-    purchaseDate: z.string().min(1, 'Purchase date is required'),
+    status: z.enum(['available', 'in-use', 'maintenance', 'broken']),
+
+    // Purchase Details
+    purchaseDate: z.string().optional(),
+    purchasePrice: z.number().min(0).optional(),
+    supplierName: z.string().optional(),
+    warrantyMonths: z.number().min(0).optional(),
+
+    // Location & Specifications
     location: z.string().min(1, 'Location is required'),
-    status: z.enum(['working', 'maintenance', 'broken', 'retired']),
-    lastMaintenance: z.string().optional(),
-    nextMaintenance: z.string().optional(),
-    notes: z.string().optional(),
+    weightCapacity: z.string().optional(),
+    dimensions: z.string().optional(),
+
+    // Maintenance
+    maintenanceFrequency: z.enum(['weekly', 'monthly', 'quarterly', 'yearly']).optional(),
+    lastMaintenanceDate: z.string().optional(),
+    maintenanceNotes: z.string().optional(),
 });
 
 type EquipmentFormData = z.infer<typeof equipmentSchema>;
 
-const categories = [
-    { value: 'cardio', label: 'Cardio' },
-    { value: 'strength', label: 'Strength' },
-    { value: 'free_weights', label: 'Free Weights' },
-    { value: 'functional', label: 'Functional' },
-    { value: 'other', label: 'Other' },
-];
+interface Specification {
+    id: string;
+    key: string;
+    value: string;
+}
 
-const statuses = [
-    { value: 'working', label: '✅ Working', color: 'text-green-400' },
-    { value: 'maintenance', label: '🔧 Maintenance', color: 'text-yellow-400' },
-    { value: 'broken', label: '❌ Broken', color: 'text-red-400' },
-    { value: 'retired', label: '🚫 Retired', color: 'text-gray-400' },
-];
+const CATEGORIES = ['Cardio', 'Strength', 'Free Weights', 'Machines', 'Accessories', 'Other'];
+const LOCATIONS = ['Cardio Zone', 'Weight Room', 'Studio A', 'Studio B', 'Main Hall', 'Storage'];
 
 export function EquipmentForm() {
-    const navigate = useNavigate();
     const { id } = useParams();
-    const isEditing = Boolean(id);
+    const navigate = useNavigate();
+    const { toast } = useToast();
+    const isEditMode = Boolean(id);
+
+    const [specifications, setSpecifications] = useState<Specification[]>([]);
 
     const {
         register,
         handleSubmit,
-        control,
-        formState: { errors, isSubmitting },
+        formState: { errors },
+        setValue,
+        watch,
     } = useForm<EquipmentFormData>({
         resolver: zodResolver(equipmentSchema),
         defaultValues: {
-            category: 'cardio',
-            status: 'working',
-            purchaseDate: new Date().toISOString().split('T')[0],
+            name: '',
+            category: '',
+            serialNumber: '',
+            status: 'available',
+            location: '',
         },
     });
 
-    const onSubmit = async (data: EquipmentFormData) => {
-        try {
-            console.log('Equipment data:', data);
-            navigate('/equipment');
-        } catch (error) {
-            console.error('Error saving equipment:', error);
-        }
+    const warrantyMonths = watch('warrantyMonths');
+    const purchaseDate = watch('purchaseDate');
+
+    const onSubmit = (data: EquipmentFormData) => {
+        console.log('Form submitted:', data);
+        console.log('Specifications:', specifications);
+
+        toast({
+            title: isEditMode ? 'Equipment Updated' : 'Equipment Added',
+            description: `${data.name} has been ${isEditMode ? 'updated' : 'added'} successfully`,
+        });
+
+        navigate('/admin/equipment');
     };
 
+    const addSpecification = () => {
+        setSpecifications([
+            ...specifications,
+            {
+                id: Date.now().toString(),
+                key: '',
+                value: '',
+            },
+        ]);
+    };
+
+    const updateSpecification = (id: string, field: keyof Specification, value: string) => {
+        setSpecifications(
+            specifications.map((spec) =>
+                spec.id === id ? { ...spec, [field]: value } : spec
+            )
+        );
+    };
+
+    const removeSpecification = (id: string) => {
+        setSpecifications(specifications.filter((spec) => spec.id !== id));
+    };
+
+    // Calculate warranty expiry
+    const warrantyExpiry =
+        purchaseDate && warrantyMonths
+            ? new Date(
+                new Date(purchaseDate).setMonth(
+                    new Date(purchaseDate).getMonth() + warrantyMonths
+                )
+            )
+                .toISOString()
+                .split('T')[0]
+            : null;
+
     return (
-        <div className="space-y-6">
-            <div className="flex items-center gap-4">
-                <Button
-                    variant="ghost"
-                    onClick={() => navigate('/equipment')}
-                    className="text-gray-400 hover:text-white"
-                >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                </Button>
-                <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                    {isEditing ? 'Edit Equipment' : 'Add New Equipment'}
-                </h1>
+        <div className="space-y-6 p-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => navigate('/admin/equipment')}
+                        className="text-gray-400 hover:text-white hover:bg-dark-800"
+                    >
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                    <div>
+                        <h1 className="text-2xl font-bold text-white">
+                            {isEditMode ? 'Edit Equipment' : 'Add New Equipment'}
+                        </h1>
+                        <p className="text-gray-400">
+                            {isEditMode ? 'Update equipment information' : 'Add new equipment to inventory'}
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => navigate('/admin/equipment')}
+                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                    >
+                        <X className="h-4 w-4 mr-2" />
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSubmit(onSubmit)}
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    >
+                        <Save className="h-4 w-4 mr-2" />
+                        {isEditMode ? 'Update Equipment' : 'Add Equipment'}
+                    </Button>
+                </div>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                {/* Basic Information */}
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                {/* Equipment Information */}
+                <Card className="bg-dark-900/50 border-dark-800">
                     <CardHeader>
-                        <CardTitle className="text-white flex items-center gap-2">
-                            <Package className="h-5 w-5" />
-                            Basic Information
-                        </CardTitle>
+                        <CardTitle className="text-white">Equipment Information</CardTitle>
+                        <CardDescription className="text-gray-400">
+                            Basic details about the equipment
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div>
-                            <Label htmlFor="name" className="text-gray-300">
-                                Equipment Name *
-                            </Label>
-                            <Input
-                                id="name"
-                                {...register('name')}
-                                className="bg-dark-800/50 border-dark-700 text-white"
-                                placeholder="e.g., Treadmill Pro X5"
-                            />
-                            {errors.name && (
-                                <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>
-                            )}
-                        </div>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="md:col-span-2">
+                                <Label htmlFor="name" className="text-gray-300">
+                                    Equipment Name <span className="text-red-400">*</span>
+                                </Label>
+                                <Input
+                                    id="name"
+                                    {...register('name')}
+                                    className="bg-dark-800 border-dark-700 text-white"
+                                    placeholder="Treadmill Pro X3000"
+                                />
+                                {errors.name && (
+                                    <p className="text-xs text-red-400 mt-1">{errors.name.message}</p>
+                                )}
+                            </div>
+
                             <div>
                                 <Label htmlFor="category" className="text-gray-300">
-                                    Category *
+                                    Category <span className="text-red-400">*</span>
                                 </Label>
-                                <Controller
-                                    name="category"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger className="bg-dark-800/50 border-dark-700 text-white">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-dark-900 border-dark-700">
-                                                {categories.map((cat) => (
-                                                    <SelectItem key={cat.value} value={cat.value}>
-                                                        {cat.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
+                                <Select onValueChange={(value) => setValue('category', value)}>
+                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                        <SelectValue placeholder="Select category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {CATEGORIES.map((category) => (
+                                            <SelectItem key={category} value={category}>
+                                                {category}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 {errors.category && (
-                                    <p className="text-red-400 text-sm mt-1">{errors.category.message}</p>
+                                    <p className="text-xs text-red-400 mt-1">{errors.category.message}</p>
                                 )}
                             </div>
 
                             <div>
                                 <Label htmlFor="status" className="text-gray-300">
-                                    Status *
+                                    Status <span className="text-red-400">*</span>
                                 </Label>
-                                <Controller
-                                    name="status"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger className="bg-dark-800/50 border-dark-700 text-white">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-dark-900 border-dark-700">
-                                                {statuses.map((status) => (
-                                                    <SelectItem key={status.value} value={status.value}>
-                                                        <span className={status.color}>{status.label}</span>
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                                {errors.status && (
-                                    <p className="text-red-400 text-sm mt-1">{errors.status.message}</p>
-                                )}
+                                <Select onValueChange={(value) => setValue('status', value as any)}>
+                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="available">Available</SelectItem>
+                                        <SelectItem value="in-use">In Use</SelectItem>
+                                        <SelectItem value="maintenance">Maintenance</SelectItem>
+                                        <SelectItem value="broken">Broken</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <Label htmlFor="brand" className="text-gray-300">
-                                    Brand *
+                                    Brand
                                 </Label>
                                 <Input
                                     id="brand"
                                     {...register('brand')}
-                                    className="bg-dark-800/50 border-dark-700 text-white"
-                                    placeholder="e.g., RunMaster"
+                                    className="bg-dark-800 border-dark-700 text-white"
+                                    placeholder="FitTech"
                                 />
-                                {errors.brand && (
-                                    <p className="text-red-400 text-sm mt-1">{errors.brand.message}</p>
-                                )}
                             </div>
 
                             <div>
                                 <Label htmlFor="model" className="text-gray-300">
-                                    Model *
+                                    Model
                                 </Label>
                                 <Input
                                     id="model"
                                     {...register('model')}
-                                    className="bg-dark-800/50 border-dark-700 text-white"
-                                    placeholder="e.g., X5-2024"
+                                    className="bg-dark-800 border-dark-700 text-white"
+                                    placeholder="X3000-PRO"
                                 />
-                                {errors.model && (
-                                    <p className="text-red-400 text-sm mt-1">{errors.model.message}</p>
-                                )}
                             </div>
 
                             <div>
                                 <Label htmlFor="serialNumber" className="text-gray-300">
-                                    Serial Number *
+                                    Serial Number <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="serialNumber"
                                     {...register('serialNumber')}
-                                    className="bg-dark-800/50 border-dark-700 text-white font-mono"
-                                    placeholder="e.g., RM-TM-001234"
+                                    className="bg-dark-800 border-dark-700 text-white font-mono"
+                                    placeholder="FT-X3000-2025-1234"
                                 />
                                 {errors.serialNumber && (
-                                    <p className="text-red-400 text-sm mt-1">{errors.serialNumber.message}</p>
+                                    <p className="text-xs text-red-400 mt-1">{errors.serialNumber.message}</p>
                                 )}
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Location & Dates */}
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                {/* Purchase Details */}
+                <Card className="bg-dark-900/50 border-dark-800">
                     <CardHeader>
-                        <CardTitle className="text-white flex items-center gap-2">
-                            <MapPin className="h-5 w-5" />
-                            Location & Dates
-                        </CardTitle>
+                        <CardTitle className="text-white">Purchase Details</CardTitle>
+                        <CardDescription className="text-gray-400">
+                            Purchase and warranty information
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div>
-                            <Label htmlFor="location" className="text-gray-300">
-                                Location *
-                            </Label>
-                            <Input
-                                id="location"
-                                {...register('location')}
-                                className="bg-dark-800/50 border-dark-700 text-white"
-                                placeholder="e.g., Cardio Zone A, Strength Zone B"
-                            />
-                            {errors.location && (
-                                <p className="text-red-400 text-sm mt-1">{errors.location.message}</p>
-                            )}
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <Label htmlFor="purchaseDate" className="text-gray-300 flex items-center gap-2">
-                                    <Calendar className="h-4 w-4" />
-                                    Purchase Date *
+                                <Label htmlFor="purchaseDate" className="text-gray-300">
+                                    Purchase Date
                                 </Label>
                                 <Input
                                     id="purchaseDate"
                                     type="date"
                                     {...register('purchaseDate')}
-                                    className="bg-dark-800/50 border-dark-700 text-white"
+                                    className="bg-dark-800 border-dark-700 text-white"
                                 />
-                                {errors.purchaseDate && (
-                                    <p className="text-red-400 text-sm mt-1">{errors.purchaseDate.message}</p>
+                            </div>
+
+                            <div>
+                                <Label htmlFor="purchasePrice" className="text-gray-300">
+                                    Purchase Price ($)
+                                </Label>
+                                <Input
+                                    id="purchasePrice"
+                                    type="number"
+                                    step="0.01"
+                                    {...register('purchasePrice', { valueAsNumber: true })}
+                                    className="bg-dark-800 border-dark-700 text-white"
+                                    placeholder="3500.00"
+                                />
+                            </div>
+
+                            <div>
+                                <Label htmlFor="supplierName" className="text-gray-300">
+                                    Supplier Name
+                                </Label>
+                                <Input
+                                    id="supplierName"
+                                    {...register('supplierName')}
+                                    className="bg-dark-800 border-dark-700 text-white"
+                                    placeholder="FitTech Suppliers Inc."
+                                />
+                            </div>
+
+                            <div>
+                                <Label htmlFor="warrantyMonths" className="text-gray-300">
+                                    Warranty Duration (months)
+                                </Label>
+                                <Input
+                                    id="warrantyMonths"
+                                    type="number"
+                                    {...register('warrantyMonths', { valueAsNumber: true })}
+                                    className="bg-dark-800 border-dark-700 text-white"
+                                    placeholder="36"
+                                />
+                            </div>
+                        </div>
+
+                        {warrantyExpiry && (
+                            <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+                                <p className="text-sm text-green-400">
+                                    Warranty expires on: <span className="font-semibold">{warrantyExpiry}</span>
+                                </p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Location & Specifications */}
+                <Card className="bg-dark-900/50 border-dark-800">
+                    <CardHeader>
+                        <CardTitle className="text-white">Location & Specifications</CardTitle>
+                        <CardDescription className="text-gray-400">
+                            Physical location and technical details
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <Label htmlFor="location" className="text-gray-300">
+                                    Location <span className="text-red-400">*</span>
+                                </Label>
+                                <Select onValueChange={(value) => setValue('location', value)}>
+                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                        <SelectValue placeholder="Select location" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {LOCATIONS.map((location) => (
+                                            <SelectItem key={location} value={location}>
+                                                {location}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {errors.location && (
+                                    <p className="text-xs text-red-400 mt-1">{errors.location.message}</p>
                                 )}
                             </div>
 
                             <div>
-                                <Label htmlFor="lastMaintenance" className="text-gray-300">
-                                    Last Maintenance
+                                <Label htmlFor="weightCapacity" className="text-gray-300">
+                                    Weight Capacity
                                 </Label>
                                 <Input
-                                    id="lastMaintenance"
-                                    type="date"
-                                    {...register('lastMaintenance')}
-                                    className="bg-dark-800/50 border-dark-700 text-white"
+                                    id="weightCapacity"
+                                    {...register('weightCapacity')}
+                                    className="bg-dark-800 border-dark-700 text-white"
+                                    placeholder="350 lbs"
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="nextMaintenance" className="text-gray-300 flex items-center gap-2">
-                                    <Wrench className="h-4 w-4" />
-                                    Next Maintenance
+                                <Label htmlFor="dimensions" className="text-gray-300">
+                                    Dimensions (L × W × H)
                                 </Label>
                                 <Input
-                                    id="nextMaintenance"
-                                    type="date"
-                                    {...register('nextMaintenance')}
-                                    className="bg-dark-800/50 border-dark-700 text-white"
+                                    id="dimensions"
+                                    {...register('dimensions')}
+                                    className="bg-dark-800 border-dark-700 text-white"
+                                    placeholder="60 × 20 × 50 inches"
                                 />
+                            </div>
+                        </div>
+
+                        {/* Technical Specifications */}
+                        <div>
+                            <div className="flex items-center justify-between mb-3">
+                                <Label className="text-gray-300">Technical Specifications</Label>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={addSpecification}
+                                    className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Spec
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                {specifications.map((spec) => (
+                                    <div
+                                        key={spec.id}
+                                        className="grid grid-cols-2 gap-3 p-3 rounded-lg bg-dark-800/50 border border-dark-700"
+                                    >
+                                        <Input
+                                            value={spec.key}
+                                            onChange={(e) =>
+                                                updateSpecification(spec.id, 'key', e.target.value)
+                                            }
+                                            placeholder="Specification name"
+                                            className="bg-dark-800 border-dark-700 text-white"
+                                        />
+                                        <div className="flex gap-2">
+                                            <Input
+                                                value={spec.value}
+                                                onChange={(e) =>
+                                                    updateSpecification(spec.id, 'value', e.target.value)
+                                                }
+                                                placeholder="Value"
+                                                className="bg-dark-800 border-dark-700 text-white"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => removeSpecification(spec.id)}
+                                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Additional Notes */}
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                {/* Maintenance Schedule */}
+                <Card className="bg-dark-900/50 border-dark-800">
                     <CardHeader>
-                        <CardTitle className="text-white flex items-center gap-2">
-                            <FileText className="h-5 w-5" />
-                            Additional Notes
-                        </CardTitle>
+                        <CardTitle className="text-white">Maintenance Schedule</CardTitle>
+                        <CardDescription className="text-gray-400">
+                            Regular maintenance configuration
+                        </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <Label htmlFor="notes" className="text-gray-300">
-                            Notes
-                        </Label>
-                        <Textarea
-                            id="notes"
-                            {...register('notes')}
-                            className="bg-dark-800/50 border-dark-700 text-white min-h-[100px]"
-                            placeholder="Any additional information about this equipment..."
-                        />
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <Label htmlFor="maintenanceFrequency" className="text-gray-300">
+                                    Maintenance Frequency
+                                </Label>
+                                <Select
+                                    onValueChange={(value) =>
+                                        setValue('maintenanceFrequency', value as any)
+                                    }
+                                >
+                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                        <SelectValue placeholder="Select frequency" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="weekly">Weekly</SelectItem>
+                                        <SelectItem value="monthly">Monthly</SelectItem>
+                                        <SelectItem value="quarterly">Quarterly</SelectItem>
+                                        <SelectItem value="yearly">Yearly</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div>
+                                <Label htmlFor="lastMaintenanceDate" className="text-gray-300">
+                                    Last Maintenance Date
+                                </Label>
+                                <Input
+                                    id="lastMaintenanceDate"
+                                    type="date"
+                                    {...register('lastMaintenanceDate')}
+                                    className="bg-dark-800 border-dark-700 text-white"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <Label htmlFor="maintenanceNotes" className="text-gray-300">
+                                Maintenance Notes
+                            </Label>
+                            <Textarea
+                                id="maintenanceNotes"
+                                {...register('maintenanceNotes')}
+                                className="bg-dark-800 border-dark-700 text-white"
+                                placeholder="Any special maintenance instructions..."
+                                rows={3}
+                            />
+                        </div>
                     </CardContent>
                 </Card>
-
-                {/* Actions */}
-                <div className="flex justify-end gap-4">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => navigate('/equipment')}
-                        className="border-dark-700 text-gray-300 hover:bg-dark-800"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
-                    >
-                        <Save className="h-4 w-4 mr-2" />
-                        {isSubmitting ? 'Saving...' : isEditing ? 'Update Equipment' : 'Add Equipment'}
-                    </Button>
-                </div>
             </form>
         </div>
     );

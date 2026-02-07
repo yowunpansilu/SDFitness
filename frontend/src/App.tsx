@@ -26,6 +26,10 @@ import { Settings } from './pages/admin/settings/Settings';
 import { ClassDetail } from './pages/admin/classes/ClassDetail';
 import { PaymentDetail } from './pages/admin/payments/PaymentDetail';
 import { EquipmentDetail } from './pages/admin/equipment/EquipmentDetail';
+import { TrainerForm } from './pages/admin/trainers/TrainerForm';
+import { ClassForm } from './pages/admin/classes/ClassForm';
+import { EquipmentForm } from './pages/admin/equipment/EquipmentForm';
+import { PaymentForm } from './pages/admin/payments/PaymentForm';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -109,6 +113,15 @@ function App() {
             <Route path="classes/:id" element={<ClassDetail />} />
             <Route path="payments/:id" element={<PaymentDetail />} />
             <Route path="equipment/:id" element={<EquipmentDetail />} />
+
+            {/* Form routes */}
+            <Route path="trainers/new" element={<TrainerForm />} />
+            <Route path="trainers/:id/edit" element={<TrainerForm />} />
+            <Route path="classes/new" element={<ClassForm />} />
+            <Route path="classes/:id/edit" element={<ClassForm />} />
+            <Route path="equipment/new" element={<EquipmentForm />} />
+            <Route path="equipment/:id/edit" element={<EquipmentForm />} />
+            <Route path="payments/new" element={<PaymentForm />} />
           </Route>
 
           {/* Default redirect */}

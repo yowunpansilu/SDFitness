@@ -23,6 +23,9 @@ import { AdminLayout } from './components/admin/layout/AdminLayout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { MembersList } from './pages/admin/members/MembersList';
 import { Settings } from './pages/admin/settings/Settings';
+import { ClassDetail } from './pages/admin/classes/ClassDetail';
+import { PaymentDetail } from './pages/admin/payments/PaymentDetail';
+import { EquipmentDetail } from './pages/admin/equipment/EquipmentDetail';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -103,6 +106,9 @@ function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="members" element={<MembersList />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="classes/:id" element={<ClassDetail />} />
+            <Route path="payments/:id" element={<PaymentDetail />} />
+            <Route path="equipment/:id" element={<EquipmentDetail />} />
           </Route>
 
           {/* Default redirect */}

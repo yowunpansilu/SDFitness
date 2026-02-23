@@ -42,6 +42,7 @@ The SDFitness gym management system uses MongoDB with the following collections:
 | `reviews` | Ratings and feedback | References members, trainers, classes |
 | `supportTickets` | Customer support | References users |
 | `auditLogs` | Admin action tracking | References users |
+| `foodPrices` | Real-time food price tracking | - |
 
 ---
 
@@ -752,17 +753,31 @@ The SDFitness gym management system uses MongoDB with the following collections:
   }],
   
   // Shopping List
-  shoppingList: [{
-    item: String,
-    quantity: String,
-    unit: String,
-    category: {
-      type: String,
-      enum: ['produce', 'protein', 'dairy', 'grains', 'pantry', 'frozen', 'other']
-    },
-    estimatedCost: Number
-  }],
-  totalEstimatedCost: Number,
+  shoppingList: {
+    items: [{
+      foodId: {
+        type: String, // Matches foodId in foodPrices collection
+        required: true
+      },
+      name: String,
+      quantity: Number,
+      unit: String,
+      category: {
+        type: String,
+        enum: ['produce', 'protein', 'dairy', 'grains', 'pantry', 'frozen', 'other']
+      },
+      priceAtGeneration: Number, // Cost when plan was created
+      currentPrice: Number,      // Live cost updated by priceWatcher
+      store: String              // Which store this price is from
+    }],
+    totalAtGeneration: Number,
+    currentTotal: Number,
+    lastPriceUpdate: Date,
+    priceChanged: {
+      type: Boolean,
+      default: false
+    }
+  },
   
   // AI Metadata
   aiProvider: {
@@ -2008,7 +2023,90 @@ The SDFitness gym management system uses MongoDB with the following collections:
 
 ---
 
-### 20. Audit Logs Collection
+### 20. Food Prices Collection
+
+**Purpose**: Real-time store prices for ML budget scoring and shopping list updates
+
+```javascript
+{
+  _id: ObjectId,
+  foodId: {
+    type: String,
+    required: true,
+    unique: true
+    // Identifier used by the Python ML model (e.g., 'chicken_breast')
+  },
+  name: {
+    type: String,
+    required: true
+  },
+  category: {
+    type: String,
+    enum: ['protein', 'carbs', 'fats', 'vegetable', 'fruit', 'dairy', 'other'],
+    required: true
+  },
+  
+  // Price history across different stores
+  prices: [{
+    store: {
+      type: String,
+      required: true
+    },
+    pricePerUnit: Number,
+    unit: String,
+    pricePerGram: {
+      type: Number,
+      required: true
+      // Normalized for ML scoring
+    },
+    isAvailable: {
+      type: Boolean,
+      default: true
+    },
+    source: {
+      type: String,
+      enum: ['scraper_catalog', 'api', 'manual'],
+      required: true
+    },
+    lastUpdated: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  
+  // Quick aggregates for the ML model
+  averagePricePerGram: Number,
+  lowestPricePerGram: Number,
+  currency: {
+    type: String,
+    default: 'LKR'
+  },
+  
+  isVerified: {
+    type: Boolean,
+    default: false // Set to true when admin confirms fuzzy match
+  },
+  
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+}
+```
+
+**Indexes**:
+- `foodId` (unique)
+- `category`
+- `prices.store`
+- `isVerified`
+
+---
+
+### 21. Audit Logs Collection
 
 **Purpose**: Track admin actions for security and compliance
 
@@ -2103,6 +2201,7 @@ User (1) ──── (N) Announcement [creator]
 Member (1) ──── (N) Review
 User (1) ──── (N) SupportTicket
 User (1) ──── (N) AuditLog
+DietPlan (N) ──── (M) FoodPrice [via shoppingList.foodId]
 ```
 
 ---

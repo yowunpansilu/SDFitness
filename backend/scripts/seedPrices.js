@@ -4,7 +4,7 @@
  *
  * Run: node scripts/seedPrices.js
  */
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config();
 const mongoose = require('mongoose');
 const FoodPrice = require('../models/FoodPrice');
 

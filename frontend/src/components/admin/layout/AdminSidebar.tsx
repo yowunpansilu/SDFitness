@@ -11,6 +11,9 @@ import {
     Megaphone,
     HeadphonesIcon,
     LogOut,
+    Brain,
+    Tag,
+    ScanSearch,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { cn } from '@/lib/utils';
@@ -30,6 +33,12 @@ const navigation = [
     { name: 'Announcements', href: '/admin/announcements', icon: Megaphone },
     { name: 'Support', href: '/admin/support', icon: HeadphonesIcon },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
+];
+
+const aiNavigation = [
+    { name: 'ML Dashboard', href: '/admin/ml-dashboard', icon: Brain },
+    { name: 'Food Prices', href: '/admin/food-prices', icon: Tag },
+    { name: 'Scraper Review', href: '/admin/scraper-review', icon: ScanSearch },
 ];
 
 export function AdminSidebar() {
@@ -62,7 +71,7 @@ export function AdminSidebar() {
             <div className="p-4">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-dark-800/50 backdrop-blur-sm border border-dark-700 hover:bg-dark-800 transition-all duration-300">
                     <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
-                        <AvatarImage src={user?.profilePhoto} alt={user?.firstName} />
+                        <AvatarImage src={(user as any)?.profilePhoto} alt={user?.firstName} />
                         <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white font-semibold">
                             {userInitials}
                         </AvatarFallback>
@@ -117,6 +126,44 @@ export function AdminSidebar() {
                     );
                 })}
             </nav>
+
+            {/* AI & Data Navigation */}
+            <Separator className="bg-dark-800" />
+            <div className="px-3 py-3">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">AI &amp; Data</p>
+                <nav className="space-y-1">
+                    {aiNavigation.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                            <NavLink
+                                key={item.name}
+                                to={item.href}
+                                className={({ isActive }) =>
+                                    cn(
+                                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative overflow-hidden',
+                                        isActive
+                                            ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-white shadow-lg shadow-purple-500/10'
+                                            : 'text-gray-400 hover:text-white hover:bg-dark-800/50'
+                                    )
+                                }
+                            >
+                                {({ isActive }) => (
+                                    <>
+                                        {isActive && (
+                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-600/10 animate-pulse" />
+                                        )}
+                                        <Icon className={cn('h-5 w-5 transition-transform duration-200 group-hover:scale-110 relative z-10', isActive && 'text-purple-400')} />
+                                        <span className="relative z-10">{item.name}</span>
+                                        {isActive && (
+                                            <div className="absolute right-0 top-0 h-full w-1 bg-gradient-to-b from-purple-500 to-pink-600 rounded-l-full" />
+                                        )}
+                                    </>
+                                )}
+                            </NavLink>
+                        );
+                    })}
+                </nav>
+            </div>
 
             <Separator className="bg-dark-800" />
 

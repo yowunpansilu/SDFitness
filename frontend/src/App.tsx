@@ -30,6 +30,9 @@ import { TrainerForm } from './pages/admin/trainers/TrainerForm';
 import { ClassForm } from './pages/admin/classes/ClassForm';
 import { EquipmentForm } from './pages/admin/equipment/EquipmentForm';
 import { PaymentForm } from './pages/admin/payments/PaymentForm';
+import { MLDashboard } from './pages/admin/ml/MLDashboard';
+import { FoodPrices } from './pages/admin/prices/FoodPrices';
+import { ScraperReview } from './pages/admin/scraper/ScraperReview';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -122,6 +125,11 @@ function App() {
             <Route path="equipment/new" element={<EquipmentForm />} />
             <Route path="equipment/:id/edit" element={<EquipmentForm />} />
             <Route path="payments/new" element={<PaymentForm />} />
+
+            {/* Phase 6: ML & AI Admin */}
+            <Route path="ml-dashboard" element={<MLDashboard />} />
+            <Route path="food-prices" element={<FoodPrices />} />
+            <Route path="scraper-review" element={<ScraperReview />} />
           </Route>
 
           {/* Default redirect */}

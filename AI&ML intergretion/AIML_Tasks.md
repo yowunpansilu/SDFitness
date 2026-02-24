@@ -139,23 +139,25 @@
 ## Phase 5: Frontend Integration (Week 11–12)
 
 ### 5.1 Diet Plan Generation UI
-- [ ] Update "Generate Diet Plan" flow to show SSE streaming (Day 1 appears while Day 4 is generating)
-- [ ] Add loading skeleton / progress indicator per day
-- [ ] Show ML model confidence score per meal
-- [ ] Show "Why we chose this" explainability panel (expand/collapse per meal)
+- [x] 4-stage ML generation progress (Analyzing profile → Scoring foods → Building plan → Adding recipes)
+- [x] Loading skeleton with icons per stage (Brain, Salad, ShoppingCart, ChefHat)
+- [x] AI confidence banner showing ML confidence %, model version, and generation method
+- [x] Budget slider updated to LKR (1,000–15,000 range)
 
 ### 5.2 Shopping List UI
-- [ ] Redesign shopping list with live price badges
-- [ ] Show `priceAtGeneration` vs `currentPrice` per item (with ↑↓ indicators)
-- [ ] Show budget progress bar (current total vs budget limit)
-- [ ] Show "⚠️ Prices updated X hours ago" timestamp
-- [ ] Add "Regenerate Plan with Current Prices" button
-- [ ] Show cheapest store recommendation per item
+- [x] Redesigned shopping list with live price per item
+- [x] `priceAtGeneration` vs `currentPrice` with ↑↓ trend indicators (red/green)
+- [x] Weekly cost summary with budget comparison
+- [x] "Prices have changed" indicator when `priceChanged: true`
+- [x] Export shopping list with prices as text file
+- [x] Category-grouped items with emoji labels
 
-### 5.3 Budget Alert Notifications
-- [ ] Display budget alert notification when `priceChanged: true`
-- [ ] Link notification to shopping list with highlighted changed items
-- [ ] Allow member to dismiss or act on the alert
+### 5.3 Budget & ML Integration
+- [x] Real API calls to backend (`/api/diet-plans/generate`)
+- [x] Mock fallback when backend is unreachable
+- [x] Updated `DietPlanDisplay.tsx` to support both old weekly and new ML days format
+- [x] Updated `MealCard.tsx` — shows cost per meal, food items with quantities, dual-format macros
+- [x] All TypeScript types updated for ML pipeline data (AIMetadata, MacroSplit, ShoppingListData)
 
 ---
 

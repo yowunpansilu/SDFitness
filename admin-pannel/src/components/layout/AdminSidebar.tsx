@@ -11,6 +11,9 @@ import {
     Megaphone,
     HeadphonesIcon,
     LogOut,
+    Brain,
+    Tag,
+    ScanSearch,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { cn } from '@/lib/utils';
@@ -30,6 +33,12 @@ const navigation = [
     { name: 'Announcements', href: '/announcements', icon: Megaphone },
     { name: 'Support', href: '/support', icon: HeadphonesIcon },
     { name: 'Settings', href: '/settings', icon: Settings },
+];
+
+const aiNavigation = [
+    { name: 'ML Dashboard', href: '/ml-dashboard', icon: Brain },
+    { name: 'Food Prices', href: '/food-prices', icon: Tag },
+    { name: 'Scraper Review', href: '/scraper-review', icon: ScanSearch },
 ];
 
 export function AdminSidebar() {
@@ -117,6 +126,43 @@ export function AdminSidebar() {
                     );
                 })}
             </nav>
+
+            {/* AI & Data Section */}
+            <div className="px-3 pb-2">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">AI &amp; Data</p>
+                <nav className="space-y-1">
+                    {aiNavigation.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                            <NavLink
+                                key={item.name}
+                                to={item.href}
+                                className={({ isActive }) =>
+                                    cn(
+                                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative overflow-hidden',
+                                        isActive
+                                            ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-white light:text-gray-900 shadow-lg shadow-purple-500/10'
+                                            : 'text-gray-400 light:text-gray-600 hover:text-white light:hover:text-gray-900 hover:bg-dark-800/50 light:hover:bg-gray-100'
+                                    )
+                                }
+                            >
+                                {({ isActive }) => (
+                                    <>
+                                        {isActive && (
+                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-600/10 animate-pulse" />
+                                        )}
+                                        <Icon className={cn('h-5 w-5 transition-transform duration-200 group-hover:scale-110 relative z-10', isActive && 'text-purple-400')} />
+                                        <span className="relative z-10">{item.name}</span>
+                                        {isActive && (
+                                            <div className="absolute right-0 top-0 h-full w-1 bg-gradient-to-b from-purple-500 to-pink-600 rounded-l-full" />
+                                        )}
+                                    </>
+                                )}
+                            </NavLink>
+                        );
+                    })}
+                </nav>
+            </div>
 
             <Separator className="bg-dark-800 light:bg-gray-200" />
 

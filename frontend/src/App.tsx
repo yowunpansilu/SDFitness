@@ -18,22 +18,6 @@ import { BillingOverview } from './pages/dashboard/BillingOverview';
 import { AttendancePage } from './pages/dashboard/AttendancePage';
 import { NotificationSettings } from './pages/dashboard/NotificationSettings';
 import { MessagesPage } from './pages/dashboard/MessagesPage';
-import { AdminRoute } from './components/auth/AdminRoute';
-import { AdminLayout } from './components/admin/layout/AdminLayout';
-import { AdminDashboard } from './pages/admin/AdminDashboard';
-import { MembersList } from './pages/admin/members/MembersList';
-import { Settings } from './pages/admin/settings/Settings';
-import { ClassDetail } from './pages/admin/classes/ClassDetail';
-import { PaymentDetail } from './pages/admin/payments/PaymentDetail';
-import { EquipmentDetail } from './pages/admin/equipment/EquipmentDetail';
-import { TrainerForm } from './pages/admin/trainers/TrainerForm';
-import { ClassForm } from './pages/admin/classes/ClassForm';
-import { EquipmentForm } from './pages/admin/equipment/EquipmentForm';
-import { PaymentForm } from './pages/admin/payments/PaymentForm';
-import { MLDashboard } from './pages/admin/ml/MLDashboard';
-import { FoodPrices } from './pages/admin/prices/FoodPrices';
-import { ScraperReview } from './pages/admin/scraper/ScraperReview';
-import { AnalyticsDashboard } from './pages/admin/analytics/AnalyticsDashboard';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -84,7 +68,7 @@ function App() {
             </PublicRoute>
           } />
 
-          {/* Protected routes */}
+          {/* Member dashboard routes */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <DashboardLayout />
@@ -100,38 +84,8 @@ function App() {
             <Route path="membership/plans" element={<MembershipPlans />} />
             <Route path="payments" element={<BillingOverview />} />
             <Route path="attendance" element={<AttendancePage />} />
-
             <Route path="messages" element={<MessagesPage />} />
             <Route path="settings/notifications" element={<NotificationSettings />} />
-          </Route>
-
-          {/* Admin routes */}
-          <Route path="/admin" element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }>
-            <Route index element={<AdminDashboard />} />
-            <Route path="members" element={<MembersList />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="classes/:id" element={<ClassDetail />} />
-            <Route path="payments/:id" element={<PaymentDetail />} />
-            <Route path="equipment/:id" element={<EquipmentDetail />} />
-
-            {/* Form routes */}
-            <Route path="trainers/new" element={<TrainerForm />} />
-            <Route path="trainers/:id/edit" element={<TrainerForm />} />
-            <Route path="classes/new" element={<ClassForm />} />
-            <Route path="classes/:id/edit" element={<ClassForm />} />
-            <Route path="equipment/new" element={<EquipmentForm />} />
-            <Route path="equipment/:id/edit" element={<EquipmentForm />} />
-            <Route path="payments/new" element={<PaymentForm />} />
-
-            {/* Phase 6 & 7: ML & AI Admin */}
-            <Route path="ml-dashboard" element={<MLDashboard />} />
-            <Route path="food-prices" element={<FoodPrices />} />
-            <Route path="scraper-review" element={<ScraperReview />} />
-            <Route path="analytics" element={<AnalyticsDashboard />} />
           </Route>
 
           {/* Default redirect */}

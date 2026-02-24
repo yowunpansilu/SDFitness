@@ -20,6 +20,9 @@ import { EquipmentForm } from './pages/equipment/EquipmentForm';
 import { EquipmentDetail } from './pages/equipment/EquipmentDetail';
 import { AnalyticsDashboard } from './pages/analytics/AnalyticsDashboard';
 import { Settings } from './pages/settings/Settings';
+import { MLDashboard } from './pages/ml/MLDashboard';
+import { FoodPrices } from './pages/prices/FoodPrices';
+import { ScraperReview } from './pages/scraper/ScraperReview';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
 
@@ -92,6 +95,11 @@ function App() {
                         <Route path="equipment/:id" element={<EquipmentDetail />} />
                         <Route path="analytics" element={<AnalyticsDashboard />} />
                         <Route path="settings" element={<Settings />} />
+
+                        {/* ML & AI Routes (Phase 6 & 7) */}
+                        <Route path="ml-dashboard" element={<MLDashboard />} />
+                        <Route path="food-prices" element={<FoodPrices />} />
+                        <Route path="scraper-review" element={<ScraperReview />} />
                     </Route>
 
                     {/* Fallback */}

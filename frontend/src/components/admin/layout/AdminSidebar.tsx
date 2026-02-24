@@ -14,6 +14,7 @@ import {
     Brain,
     Tag,
     ScanSearch,
+    LineChart,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { cn } from '@/lib/utils';
@@ -39,6 +40,7 @@ const aiNavigation = [
     { name: 'ML Dashboard', href: '/admin/ml-dashboard', icon: Brain },
     { name: 'Food Prices', href: '/admin/food-prices', icon: Tag },
     { name: 'Scraper Review', href: '/admin/scraper-review', icon: ScanSearch },
+    { name: 'Analytics', href: '/admin/analytics', icon: LineChart },
 ];
 
 export function AdminSidebar() {

@@ -33,6 +33,7 @@ import { PaymentForm } from './pages/admin/payments/PaymentForm';
 import { MLDashboard } from './pages/admin/ml/MLDashboard';
 import { FoodPrices } from './pages/admin/prices/FoodPrices';
 import { ScraperReview } from './pages/admin/scraper/ScraperReview';
+import { AnalyticsDashboard } from './pages/admin/analytics/AnalyticsDashboard';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -126,10 +127,11 @@ function App() {
             <Route path="equipment/:id/edit" element={<EquipmentForm />} />
             <Route path="payments/new" element={<PaymentForm />} />
 
-            {/* Phase 6: ML & AI Admin */}
+            {/* Phase 6 & 7: ML & AI Admin */}
             <Route path="ml-dashboard" element={<MLDashboard />} />
             <Route path="food-prices" element={<FoodPrices />} />
             <Route path="scraper-review" element={<ScraperReview />} />
+            <Route path="analytics" element={<AnalyticsDashboard />} />
           </Route>
 
           {/* Default redirect */}

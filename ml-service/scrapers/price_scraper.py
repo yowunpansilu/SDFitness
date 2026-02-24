@@ -40,21 +40,25 @@ log = logging.getLogger(__name__)
 STORE_CONFIGS = [
     {
         "store": "Keells",
-        "search_url": "https://www.keells.com/search?q={query}",
-        "item_selector": ".product-item, .product-card, [data-product]",
-        "name_selector": ".product-title, .product-name, h3.name",
-        "price_selector": ".product-price, .price, span[class*='price']",
-        "use_stealth": True,   # Keells uses JS rendering
+        # Keells Super grocery site — search URL format: /product?s=~QUERY
+        "search_url": "https://www.keellssuper.com/product?s=~{query}",
+        "item_selector": ".product-colV2",
+        "name_selector": ".product-card-nameV2",
+        "price_selector": ".product-card-final-priceV2",
+        "use_stealth": True,   # React SPA + Cloudflare — needs real browser
         "currency": "LKR",
+        "enabled": True,
     },
     {
         "store": "Cargills",
-        "search_url": "https://www.cargillsfood.com/search?q={query}",
-        "item_selector": ".product-item, .item-card",
-        "name_selector": ".item-name, .product-title, h4",
-        "price_selector": ".item-price, .product-price, [class*='price']",
+        # cargillsonline.com is a JS SPA — StealthyFetcher required
+        "search_url": "https://cargillsonline.com/Search?query={query}",
+        "item_selector": ".product-card-price-containerV2, .product-item, .item-card",
+        "name_selector": ".product-card-nameV2, .item-name, .product-title, h4",
+        "price_selector": ".product-card-final-priceV2, .item-price, .product-price",
         "use_stealth": True,
         "currency": "LKR",
+        "enabled": True,
     },
     {
         "store": "Sathosa",
@@ -62,8 +66,9 @@ STORE_CONFIGS = [
         "item_selector": ".product, .product-wrap",
         "name_selector": ".product-title, h2.woocommerce-loop-product__title",
         "price_selector": ".price, .woocommerce-Price-amount",
-        "use_stealth": False,  # Simpler WordPress site
+        "use_stealth": False,
         "currency": "LKR",
+        "enabled": False,  # DNS dead — disable until URL is confirmed
     },
     {
         "store": "Arpico",
@@ -73,6 +78,7 @@ STORE_CONFIGS = [
         "price_selector": ".grid-product__price, .product-item__price",
         "use_stealth": False,
         "currency": "LKR",
+        "enabled": False,  # DNS dead — disable until URL is confirmed
     },
 ]
 
@@ -114,8 +120,10 @@ class ScrapedPrice:
 # Fetch + parse one store for one search query
 # ─────────────────────────────────────────────────────────────────────────────
 def _parse_price(price_text: str) -> Optional[float]:
-    """Extract numeric price from text like 'LKR 1,450.00' or 'Rs. 220'."""
+    """Extract numeric price from text like 'LKR 1,450.00', 'Rs. 220', or 'Rs 775.00 / Unit'."""
     import re
+    # Strip unit suffix like '/ Unit', '/ Kg', '/ 500g' etc.
+    price_text = re.sub(r"/.*$", "", price_text, flags=re.IGNORECASE).strip()
     # Remove currency symbols, letters, spaces
     digits = re.sub(r"[^\d.]", "", price_text.replace(",", ""))
     try:
@@ -133,13 +141,22 @@ def scrape_store(store_config: dict, query: str) -> List[ScrapedPrice]:
     try:
         # Choose fetcher based on store config
         if store_config["use_stealth"]:
+            from scrapling.fetchers import StealthyFetcher
             try:
-                from scrapling.fetchers import StealthyFetcher
-                page = StealthyFetcher.fetch(url, headless=True, network_idle=True)
+                # Wait for product elements instead of network_idle — SPAs never reach
+                # network idle due to polling/websockets, so that wait always times out.
+                wait_sel = store_config["item_selector"].split(",")[0].strip()
+                page = StealthyFetcher.fetch(
+                    url,
+                    headless=True,
+                    wait_selector=wait_sel,
+                    timeout=60000,
+                )
             except Exception as e:
-                log.warning(f"[{store_name}] StealthyFetcher failed ({e}), falling back to Fetcher")
-                from scrapling.fetchers import Fetcher
-                page = Fetcher.get(url, stealthy_headers=True)
+                # Don't fall back to plain Fetcher for stealth stores — they're React SPAs
+                # and plain HTTP only returns the empty JS shell (0 items).
+                log.warning(f"[{store_name}] StealthyFetcher failed for '{query}': {e}")
+                return results
         else:
             from scrapling.fetchers import Fetcher
             page = Fetcher.get(url, stealthy_headers=True)
@@ -286,6 +303,8 @@ def run_scrape_job(stores: Optional[List[str]] = None, dry_run: bool = False) ->
     configs = STORE_CONFIGS
     if stores:
         configs = [c for c in STORE_CONFIGS if c["store"] in stores]
+    # Skip disabled stores
+    configs = [c for c in configs if c.get("enabled", True)]
 
     for store_config in configs:
         for category, queries in SEARCH_QUERIES.items():

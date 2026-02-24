@@ -70,12 +70,30 @@ router.get('/:id/cost', async (req, res) => {
     }
 });
 
-// POST /api/diet-plans/generate — placeholder (will be built in Phase 4)
+// POST /api/diet-plans/generate — ML-first generation pipeline
 router.post('/generate', async (req, res) => {
-    res.status(501).json({
-        success: false,
-        error: 'Diet plan generation not yet implemented. Coming in Phase 4.'
-    });
+    const { memberId } = req.body;
+    if (!memberId) {
+        return res.status(400).json({ success: false, error: 'memberId is required' });
+    }
+
+    try {
+        const { generateDietPlan } = require('../services/aiService');
+        const plan = await generateDietPlan(memberId);
+
+        res.status(201).json({
+            success: true,
+            data: plan,
+            metadata: {
+                generationMethod: plan.aiMetadata?.generationMethod,
+                confidence: plan.aiMetadata?.mlConfidenceScore,
+                inferenceTimeMs: plan.aiMetadata?.mlInferenceTimeMs
+            }
+        });
+    } catch (error) {
+        console.error('❌ Diet plan generation error:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 module.exports = router;

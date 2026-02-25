@@ -19,7 +19,7 @@ import json
 import os
 import logging
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, List
 import requests as http_requests
 
 from scrapers.food_aliases import fuzzy_match_to_food_id, get_all_food_ids
@@ -124,7 +124,7 @@ def _parse_price(price_text: str) -> Optional[float]:
         return None
 
 
-def scrape_store(store_config: dict, query: str) -> list[ScrapedPrice]:
+def scrape_store(store_config: dict, query: str) -> List[ScrapedPrice]:
     """Scrape one store for one search query. Returns list of ScrapedPrice."""
     results = []
     url = store_config["search_url"].format(query=query.replace(" ", "+"))
@@ -183,7 +183,7 @@ def scrape_store(store_config: dict, query: str) -> list[ScrapedPrice]:
 # ─────────────────────────────────────────────────────────────────────────────
 # Match + aggregate scraped items
 # ─────────────────────────────────────────────────────────────────────────────
-def process_scraped_items(scraped: list[ScrapedPrice]) -> dict:
+def process_scraped_items(scraped: List[ScrapedPrice]) -> dict:
     """
     Fuzzy matches scraped items → food IDs.
     Returns:
@@ -226,7 +226,7 @@ def process_scraped_items(scraped: list[ScrapedPrice]) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 # Push to backend API
 # ─────────────────────────────────────────────────────────────────────────────
-def push_prices_to_backend(matched: dict[str, list]) -> dict:
+def push_prices_to_backend(matched: dict) -> dict:
     """POST each matched food's prices to backend /api/prices/bulk-update."""
     payload = []
     for food_id, entries in matched.items():
@@ -251,7 +251,7 @@ def push_prices_to_backend(matched: dict[str, list]) -> dict:
         return {"success": False, "error": str(e)}
 
 
-def push_unmatched_to_review_queue(unmatched: list[dict]) -> dict:
+def push_unmatched_to_review_queue(unmatched: List[dict]) -> dict:
     """POST unmatched items to backend /api/scraper/review-queue."""
     if not unmatched:
         return {"queued": 0}
@@ -270,7 +270,7 @@ def push_unmatched_to_review_queue(unmatched: list[dict]) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 # Main scrape job
 # ─────────────────────────────────────────────────────────────────────────────
-def run_scrape_job(stores: Optional[list[str]] = None, dry_run: bool = False) -> dict:
+def run_scrape_job(stores: Optional[List[str]] = None, dry_run: bool = False) -> dict:
     """
     Full scrape cycle across all stores and food categories.
     Args:

@@ -10,6 +10,7 @@ Usage:
 
 from thefuzz import fuzz
 from thefuzz import process
+from typing import Optional
 
 # ─────────────────────────────────────────────────────────────
 # Canonical food ID → list of known aliases / product name fragments
@@ -192,8 +193,8 @@ for food_id, meta in FOOD_ALIASES.items():
 def fuzzy_match_to_food_id(
     scraped_name: str,
     threshold: float = 0.60,
-    category_hint: str | None = None,
-) -> dict | None:
+    category_hint: Optional[str] = None,
+) -> Optional[dict]:
     """
     Match a raw scraped product name to a canonical food_id.
 
@@ -252,5 +253,5 @@ def get_all_food_ids() -> list[str]:
     return list(FOOD_ALIASES.keys())
 
 
-def get_category_for_food(food_id: str) -> str | None:
+def get_category_for_food(food_id: str) -> Optional[str]:
     return FOOD_ALIASES.get(food_id, {}).get("category")

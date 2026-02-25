@@ -22,9 +22,11 @@ app.get('/api/health', (req, res) => {
 });
 
 // Routes
+app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/prices', require('./routes/priceRoutes'));
 app.use('/api/diet-plans', require('./routes/dietPlanRoutes'));
 app.use('/api/scraper', require('./routes/scraperRoutes'));
+
 
 // Error handler
 app.use((err, req, res, next) => {

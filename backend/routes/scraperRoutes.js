@@ -55,20 +55,26 @@ router.post('/review-queue', async (req, res) => {
             return res.status(400).json({ success: false, error: 'items array required' });
         }
 
-        // Insert only truly new items (avoid duplicates by rawName+store)
+        // Accept both scraper field names (scrapedName/scrapedPrice) and internal names (rawName/price)
         let inserted = 0;
         for (const item of items) {
+            const rawName = item.rawName || item.scrapedName;
+            const price = item.price || item.scrapedPrice;
+            const store = item.store;
+
+            if (!rawName || !store) continue;
+
             const exists = await ScraperReviewItem.findOne({
-                rawName: item.rawName,
-                store: item.store,
-                status: 'pending',
+                rawName, store, status: 'pending',
             });
             if (!exists) {
                 await ScraperReviewItem.create({
-                    rawName: item.rawName,
-                    store: item.store,
-                    price: item.price,
-                    url: item.url,
+                    rawName,
+                    store,
+                    price,
+                    url: item.url || '',
+                    suggestedMatch: item.suggestedFoodId || null,
+                    matchConfidence: item.suggestedScore || 0,
                     scrapedAt: item.scrapedAt || new Date(),
                 });
                 inserted++;
@@ -80,6 +86,7 @@ router.post('/review-queue', async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+
 
 // ─── PATCH /api/scraper/review-queue/:id/approve
 //     Admin links an unmatched item to a food_id → persists alias to DB
@@ -120,7 +127,7 @@ router.patch('/review-queue/:id/dismiss', async (req, res) => {
         const item = await ScraperReviewItem.findByIdAndUpdate(
             req.params.id,
             { status: 'ignored' },
-            { new: true }
+            { returnDocument: 'after' }
         );
         if (!item) return res.status(404).json({ success: false, error: 'Item not found' });
         res.json({ success: true, data: item });

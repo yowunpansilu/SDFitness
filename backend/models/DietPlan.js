@@ -74,7 +74,8 @@ const dietPlanSchema = new mongoose.Schema({
             unit: String,
             category: {
                 type: String,
-                enum: ['produce', 'protein', 'dairy', 'grains', 'pantry', 'frozen', 'other']
+                enum: ['produce', 'protein', 'dairy', 'grains', 'pantry', 'frozen',
+                    'vegetable', 'fruit', 'carbs', 'fats', 'other']
             },
             priceAtGeneration: Number,
             currentPrice: Number,
@@ -95,8 +96,8 @@ const dietPlanSchema = new mongoose.Schema({
         gptPromptVersion: String,
         generationMethod: {
             type: String,
-            enum: ['ml_plus_gpt', 'gpt_only_fallback'],
-            default: 'ml_plus_gpt'
+            enum: ['ml_plus_gpt', 'ml_plus_gemini', 'gpt_only_fallback', 'gemini_only_fallback'],
+            default: 'ml_plus_gemini'
         },
         featureImportance: [{
             feature: String,

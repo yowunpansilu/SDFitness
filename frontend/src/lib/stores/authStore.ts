@@ -8,6 +8,7 @@ interface User {
     lastName: string;
     role: 'member' | 'trainer' | 'admin';
     avatar?: string;
+    memberId?: string;
 }
 
 interface AuthState {

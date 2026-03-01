@@ -1,6 +1,6 @@
 // Types for diet plan data structures — updated for ML pipeline
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import api from './axios';
+import { useAuthStore } from '../stores/authStore';
 
 // ============================================================
 // Core Types
@@ -139,46 +139,46 @@ export interface WizardFormData {
  * Generate a diet plan via the ML-first pipeline
  */
 export async function generateDietPlan(formData: WizardFormData): Promise<DietPlan> {
-    // For now, we need a memberId. In production this comes from auth.
-    // Using a mock memberId if none exists.
-    const memberId = localStorage.getItem('memberId') || 'demo';
+    const memberId = useAuthStore.getState().user?.memberId;
+    if (!memberId) throw new Error('User is not a registered member');
 
     try {
-        const response = await fetch(`${API_BASE}/diet-plans/generate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ memberId, ...formData })
+        const response = await api.post('/diet-plans/generate', {
+            memberId,
+            ...formData
         });
 
-        if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
-        }
-
-        const result = await response.json();
-        if (result.success) {
-            const plan = result.data;
-            return {
-                ...plan,
-                id: plan._id,
-                name: plan.planName,
-                goal: formData.goal,
-                createdAt: new Date(plan.createdAt),
-            };
-        } else {
-            throw new Error(result.error || 'Failed to generate plan');
-        }
+        const plan = response.data.data;
+        return {
+            ...plan,
+            id: plan._id,
+            name: plan.planName,
+            goal: formData.goal,
+            createdAt: new Date(plan.createdAt),
+        };
     } catch (error) {
-        console.warn('⚠️ Backend unreachable, using mock data:', error);
+        console.warn('⚠️ Backend error, using mock data for now:', error);
         return generateMockDietPlan(formData);
     }
+}
+
+/**
+ * Get all diet plans for the current member
+ */
+export async function getDietPlans(): Promise<DietPlan[]> {
+    const memberId = useAuthStore.getState().user?.memberId;
+    if (!memberId) throw new Error('User is not a registered member');
+
+    const response = await api.get(`/diet-plans?memberId=${memberId}`);
+    return response.data.data;
 }
 
 /**
  * Get a specific diet plan
  */
 export async function getDietPlan(planId: string): Promise<DietPlan> {
-    const response = await fetch(`${API_BASE}/diet-plans/${planId}`);
-    const result = await response.json();
+    const response = await api.get(`/diet-plans/${planId}`);
+    const result = response.data;
     return { ...result.data, id: result.data._id };
 }
 
@@ -186,16 +186,16 @@ export async function getDietPlan(planId: string): Promise<DietPlan> {
  * Get live cost recalculation for a plan
  */
 export async function getPlanCost(planId: string) {
-    const response = await fetch(`${API_BASE}/diet-plans/${planId}/cost`);
-    return (await response.json()).data;
+    const response = await api.get(`/diet-plans/${planId}/cost`);
+    return response.data.data;
 }
 
 /**
  * Get all food prices
  */
 export async function getFoodPrices() {
-    const response = await fetch(`${API_BASE}/prices`);
-    return (await response.json()).data;
+    const response = await api.get('/prices');
+    return response.data.data;
 }
 
 // ============================================================

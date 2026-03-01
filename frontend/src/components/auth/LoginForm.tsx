@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useAuthStore } from '@/lib/stores/authStore';
+import api from '@/lib/api/axios';
 
 export function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +15,7 @@ export function LoginForm() {
         password: '',
         rememberMe: false,
     });
+    const [error, setError] = useState('');
 
     const { login } = useAuthStore();
     const navigate = useNavigate();
@@ -21,27 +23,31 @@ export function LoginForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        setError('');
 
-        // TODO: Implement actual API login logic
-        // For now, mock login with demo user
-        setTimeout(() => {
-            const mockUser = {
-                id: '1',
+        try {
+            const response = await api.post('/auth/login', {
                 email: formData.email,
-                firstName: 'John',
-                lastName: 'Doe',
-                role: 'member' as const,
-            };
-            const mockToken = 'mock-jwt-token';
+                password: formData.password
+            });
+            const { token, user } = response.data;
 
-            login(mockUser, mockToken);
+            login(user, token);
             navigate('/dashboard');
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Failed to login. Please check credentials.');
+        } finally {
             setIsLoading(false);
-        }, 1500);
+        }
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+                <div className="p-3 rounded bg-red-500/10 border border-red-500/50 text-red-500 text-sm string">
+                    {error}
+                </div>
+            )}
             {/* Email Field */}
             <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-200">

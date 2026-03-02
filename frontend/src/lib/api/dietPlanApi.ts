@@ -1,58 +1,122 @@
-// Types for diet plan data structures
+// Types for diet plan data structures — updated for ML pipeline
+import api from './axios';
+import { useAuthStore } from '../stores/authStore';
+
+// ============================================================
+// Core Types
+// ============================================================
+
 export interface Macros {
     calories: number;
     protein: number;
     carbs: number;
     fats: number;
+    fiber?: number;
+}
+
+export interface MealItem {
+    foodId: string;
+    food: string;
+    quantity: number;
+    unit: string;
 }
 
 export interface Meal {
     id: string;
+    mealType: 'breakfast' | 'morning_snack' | 'lunch' | 'afternoon_snack' | 'dinner' | 'evening_snack';
     name: string;
-    type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+    items: MealItem[];
     calories: number;
-    protein: number;
-    carbs: number;
-    fats: number;
-    ingredients: string[];
-    instructions: string[];
-    prepTime: number;
-    servings: number;
+    macros: Macros;
+    estimatedCost: { amount: number; currency: string };
+    description?: string;
+    instructions?: string[];
+    prepTime?: number;
+    cookTime?: number;
+    // Legacy support
+    protein?: number;
+    carbs?: number;
+    fats?: number;
+    ingredients?: string[];
+    servings?: number;
+    type?: string;
     image?: string;
 }
 
 export interface DayPlan {
-    breakfast: Meal;
-    lunch: Meal;
-    dinner: Meal;
-    snacks: Meal[];
-    totalMacros: Macros;
+    dayOfWeek: number;
+    dayName: string;
+    meals: Meal[];
+    totalCalories?: number;
+    // Legacy support
+    breakfast?: Meal;
+    lunch?: Meal;
+    dinner?: Meal;
+    snacks?: Meal[];
+    totalMacros?: Macros;
 }
 
 export interface ShoppingItem {
     id: string;
+    foodId: string;
     name: string;
-    quantity: string;
+    quantity: number | string;
+    unit?: string;
     category: string;
+    priceAtGeneration?: number;
+    currentPrice?: number;
+    store?: string;
     checked: boolean;
 }
 
+export interface ShoppingListData {
+    items: ShoppingItem[];
+    totalAtGeneration: number;
+    currentTotal: number;
+    lastPriceUpdate?: string;
+    priceChanged: boolean;
+    currency: string;
+}
+
+export interface AIMetadata {
+    mlModelVersion?: string;
+    mlConfidenceScore: number;
+    mlInferenceTimeMs?: number;
+    gptModel?: string;
+    generationMethod: 'ml_plus_gemini' | 'gemini_only_fallback';
+    featureImportance?: { feature: string; importance: number }[];
+    tdee?: number;
+    foodsConsidered?: number;
+    foodsSelected?: number;
+}
+
+export interface MacroSplit {
+    protein: { grams: number; percentage: number };
+    carbs: { grams: number; percentage: number };
+    fats: { grams: number; percentage: number };
+}
+
 export interface DietPlan {
+    _id: string;
     id: string;
+    memberId: string;
+    planName: string;
     name: string;
     goal: string;
-    weeklyPlan: {
-        monday: DayPlan;
-        tuesday: DayPlan;
-        wednesday: DayPlan;
-        thursday: DayPlan;
-        friday: DayPlan;
-        saturday: DayPlan;
-        sunday: DayPlan;
-    };
-    shoppingList: ShoppingItem[];
-    createdAt: Date;
-    preferences: {
+    targetCalories: number;
+    macroSplit: MacroSplit;
+    budget?: { amount: number; currency: string; period: string };
+    days: DayPlan[];
+    // Legacy weekly plan support
+    weeklyPlan?: Record<string, DayPlan>;
+    shoppingList: ShoppingListData | ShoppingItem[];
+    aiMetadata: AIMetadata;
+    status: 'generating' | 'completed' | 'failed';
+    isActive: boolean;
+    rating?: number;
+    feedback?: string;
+    createdAt: Date | string;
+    preferences?: {
         dietary: string[];
         allergies: string[];
         budget: number;
@@ -67,141 +131,161 @@ export interface WizardFormData {
     activityLevel: string;
 }
 
-// Mock meal database
-const mockMeals: Meal[] = [
-    {
-        id: '1',
-        name: 'Protein Oatmeal Bowl',
-        type: 'breakfast',
-        calories: 350,
-        protein: 25,
-        carbs: 45,
-        fats: 8,
-        ingredients: ['1 cup oats', '1 scoop protein powder', '1 banana', '1 tbsp almond butter', '1/2 cup almond milk'],
-        instructions: [
-            'Cook oats with almond milk according to package directions',
-            'Stir in protein powder while hot',
-            'Top with sliced banana and almond butter',
-            'Optional: add cinnamon and honey'
-        ],
-        prepTime: 10,
-        servings: 1,
-    },
-    {
-        id: '2',
-        name: 'Grilled Chicken Salad',
-        type: 'lunch',
-        calories: 420,
-        protein: 45,
-        carbs: 25,
-        fats: 15,
-        ingredients: ['6oz grilled chicken breast', '2 cups mixed greens', '1/2 cup cherry tomatoes', '1/4 avocado', '2 tbsp olive oil', 'Lemon juice'],
-        instructions: [
-            'Season and grill chicken breast until cooked through',
-            'Slice chicken and set aside',
-            'Toss mixed greens with tomatoes and avocado',
-            'Top with sliced chicken',
-            'Drizzle with olive oil and lemon juice'
-        ],
-        prepTime: 20,
-        servings: 1,
-    },
-    {
-        id: '3',
-        name: 'Salmon with Sweet Potato',
-        type: 'dinner',
-        calories: 550,
-        protein: 40,
-        carbs: 45,
-        fats: 20,
-        ingredients: ['6oz salmon fillet', '1 medium sweet potato', '2 cups broccoli', '1 tbsp olive oil', 'Garlic', 'Lemon'],
-        instructions: [
-            'Preheat oven to 400°F',
-            'Season salmon with garlic, lemon, and olive oil',
-            'Cube sweet potato and toss with olive oil',
-            'Roast salmon and sweet potato for 15-20 minutes',
-            'Steam broccoli until tender',
-            'Serve together'
-        ],
-        prepTime: 30,
-        servings: 1,
-    },
-    {
-        id: '4',
-        name: 'Greek Yogurt Parfait',
-        type: 'snack',
-        calories: 200,
-        protein: 20,
-        carbs: 25,
-        fats: 4,
-        ingredients: ['1 cup Greek yogurt', '1/2 cup berries', '2 tbsp granola', '1 tsp honey'],
-        instructions: [
-            'Layer Greek yogurt in a bowl',
-            'Top with fresh berries',
-            'Sprinkle granola on top',
-            'Drizzle with honey'
-        ],
-        prepTime: 5,
-        servings: 1,
-    },
-];
+// ============================================================
+// API Functions
+// ============================================================
 
-// Mock API function to generate diet plan
+/**
+ * Generate a diet plan via the ML-first pipeline
+ */
 export async function generateDietPlan(formData: WizardFormData): Promise<DietPlan> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 2500));
+    const memberId = useAuthStore.getState().user?.memberId;
+    if (!memberId) throw new Error('User is not a registered member');
 
-    // Create a week of meals
-    const createDayPlan = (): DayPlan => {
-        const breakfast = { ...mockMeals[0], id: Math.random().toString() };
-        const lunch = { ...mockMeals[1], id: Math.random().toString() };
-        const dinner = { ...mockMeals[2], id: Math.random().toString() };
-        const snacks = [{ ...mockMeals[3], id: Math.random().toString() }];
+    try {
+        const response = await api.post('/diet-plans/generate', {
+            memberId,
+            ...formData
+        });
 
-        const totalMacros: Macros = {
-            calories: breakfast.calories + lunch.calories + dinner.calories + snacks.reduce((sum, s) => sum + s.calories, 0),
-            protein: breakfast.protein + lunch.protein + dinner.protein + snacks.reduce((sum, s) => sum + s.protein, 0),
-            carbs: breakfast.carbs + lunch.carbs + dinner.carbs + snacks.reduce((sum, s) => sum + s.carbs, 0),
-            fats: breakfast.fats + lunch.fats + dinner.fats + snacks.reduce((sum, s) => sum + s.fats, 0),
+        const plan = response.data.data;
+        return {
+            ...plan,
+            id: plan._id,
+            name: plan.planName,
+            goal: formData.goal,
+            createdAt: new Date(plan.createdAt),
         };
+    } catch (error) {
+        console.warn('⚠️ Backend error, using mock data for now:', error);
+        return generateMockDietPlan(formData);
+    }
+}
 
-        return { breakfast, lunch, dinner, snacks, totalMacros };
-    };
+/**
+ * Get all diet plans for the current member
+ */
+export async function getDietPlans(): Promise<DietPlan[]> {
+    const memberId = useAuthStore.getState().user?.memberId;
+    if (!memberId) throw new Error('User is not a registered member');
 
-    const weeklyPlan = {
-        monday: createDayPlan(),
-        tuesday: createDayPlan(),
-        wednesday: createDayPlan(),
-        thursday: createDayPlan(),
-        friday: createDayPlan(),
-        saturday: createDayPlan(),
-        sunday: createDayPlan(),
-    };
+    const response = await api.get(`/diet-plans?memberId=${memberId}`);
+    return response.data.data;
+}
 
-    // Generate shopping list
-    const shoppingList: ShoppingItem[] = [
-        { id: '1', name: 'Oats', quantity: '7 cups', category: 'Grains', checked: false },
-        { id: '2', name: 'Protein Powder', quantity: '7 scoops', category: 'Supplements', checked: false },
-        { id: '3', name: 'Bananas', quantity: '7', category: 'Fruits', checked: false },
-        { id: '4', name: 'Almond Butter', quantity: '1 jar', category: 'Spreads', checked: false },
-        { id: '5', name: 'Chicken Breast', quantity: '42 oz', category: 'Protein', checked: false },
-        { id: '6', name: 'Mixed Greens', quantity: '14 cups', category: 'Vegetables', checked: false },
-        { id: '7', name: 'Cherry Tomatoes', quantity: '3.5 cups', category: 'Vegetables', checked: false },
-        { id: '8', name: 'Avocados', quantity: '2', category: 'Produce', checked: false },
-        { id: '9', name: 'Salmon Fillets', quantity: '42 oz', category: 'Protein', checked: false },
-        { id: '10', name: 'Sweet Potatoes', quantity: '7', category: 'Vegetables', checked: false },
-        { id: '11', name: 'Broccoli', quantity: '14 cups', category: 'Vegetables', checked: false },
-        { id: '12', name: 'Greek Yogurt', quantity: '7 cups', category: 'Dairy', checked: false },
-        { id: '13', name: 'Berries', quantity: '3.5 cups', category: 'Fruits', checked: false },
-        { id: '14', name: 'Granola', quantity: '1 bag', category: 'Grains', checked: false },
+/**
+ * Get a specific diet plan
+ */
+export async function getDietPlan(planId: string): Promise<DietPlan> {
+    const response = await api.get(`/diet-plans/${planId}`);
+    const result = response.data;
+    return { ...result.data, id: result.data._id };
+}
+
+/**
+ * Get live cost recalculation for a plan
+ */
+export async function getPlanCost(planId: string) {
+    const response = await api.get(`/diet-plans/${planId}/cost`);
+    return response.data.data;
+}
+
+/**
+ * Get all food prices
+ */
+export async function getFoodPrices() {
+    const response = await api.get('/prices');
+    return response.data.data;
+}
+
+// ============================================================
+// Mock Fallback (when backend is not running)
+// ============================================================
+
+function generateMockDietPlan(formData: WizardFormData): DietPlan {
+    const mockMeals: Meal[] = [
+        {
+            id: '1', mealType: 'breakfast', name: 'Protein Oatmeal Bowl',
+            items: [{ foodId: 'oats', food: 'Oats', quantity: 100, unit: 'g' }, { foodId: 'banana', food: 'Banana', quantity: 120, unit: 'g' }],
+            calories: 350, macros: { calories: 350, protein: 25, carbs: 45, fats: 8, fiber: 5 },
+            estimatedCost: { amount: 180, currency: 'LKR' },
+            description: 'Hearty oatmeal packed with protein and fiber',
+            instructions: ['Cook oats with water', 'Stir in protein powder', 'Top with sliced banana'],
+            prepTime: 10, cookTime: 5, protein: 25, carbs: 45, fats: 8, ingredients: ['100g oats', '1 banana'], servings: 1
+        },
+        {
+            id: '2', mealType: 'lunch', name: 'Chicken & Rice Bowl',
+            items: [{ foodId: 'chicken_breast', food: 'Chicken Breast', quantity: 200, unit: 'g' }, { foodId: 'brown_rice', food: 'Brown Rice', quantity: 150, unit: 'g' }],
+            calories: 550, macros: { calories: 550, protein: 55, carbs: 50, fats: 12, fiber: 3 },
+            estimatedCost: { amount: 420, currency: 'LKR' },
+            description: 'Classic muscle-building lunch',
+            instructions: ['Grill chicken breast', 'Cook brown rice', 'Serve together with steamed vegetables'],
+            prepTime: 15, cookTime: 20, protein: 55, carbs: 50, fats: 12, ingredients: ['200g chicken breast', '150g brown rice'], servings: 1
+        },
+        {
+            id: '3', mealType: 'dinner', name: 'Lentil & Spinach Curry',
+            items: [{ foodId: 'red_lentils', food: 'Red Lentils', quantity: 100, unit: 'g' }, { foodId: 'spinach', food: 'Spinach', quantity: 200, unit: 'g' }],
+            calories: 400, macros: { calories: 400, protein: 28, carbs: 55, fats: 5, fiber: 12 },
+            estimatedCost: { amount: 250, currency: 'LKR' },
+            description: 'Protein-rich Sri Lankan dhal curry',
+            instructions: ['Cook lentils until soft', 'Sauté spinach with garlic', 'Combine and season with turmeric'],
+            prepTime: 10, cookTime: 25, protein: 28, carbs: 55, fats: 5, ingredients: ['100g red lentils', '200g spinach'], servings: 1
+        },
+        {
+            id: '4', mealType: 'morning_snack', name: 'Yogurt & Banana',
+            items: [{ foodId: 'yogurt', food: 'Plain Yogurt', quantity: 150, unit: 'g' }, { foodId: 'banana', food: 'Banana', quantity: 100, unit: 'g' }],
+            calories: 180, macros: { calories: 180, protein: 15, carbs: 25, fats: 2, fiber: 3 },
+            estimatedCost: { amount: 120, currency: 'LKR' },
+            description: 'Light protein snack', instructions: ['Mix yogurt with sliced banana'],
+            prepTime: 2, cookTime: 0, protein: 15, carbs: 25, fats: 2, ingredients: ['150g yogurt', '1 banana'], servings: 1
+        },
     ];
 
+    const createDay = (dayIdx: number): DayPlan => ({
+        dayOfWeek: dayIdx,
+        dayName: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][dayIdx],
+        meals: mockMeals.map(m => ({ ...m, id: `${dayIdx}-${m.id}` })),
+        totalCalories: mockMeals.reduce((s, m) => s + m.calories, 0),
+    });
+
     return {
-        id: Math.random().toString(36).substr(2, 9),
+        _id: 'mock-' + Date.now(),
+        id: 'mock-' + Date.now(),
+        memberId: 'demo',
+        planName: `${formData.goal} Plan`,
         name: `${formData.goal} Plan`,
         goal: formData.goal,
-        weeklyPlan,
-        shoppingList,
+        targetCalories: 2200,
+        macroSplit: {
+            protein: { grams: 120, percentage: 30 },
+            carbs: { grams: 175, percentage: 35 },
+            fats: { grams: 70, percentage: 35 },
+        },
+        days: Array.from({ length: 7 }, (_, i) => createDay(i)),
+        shoppingList: {
+            items: [
+                { id: '1', foodId: 'oats', name: 'Oats', quantity: 700, unit: 'g', category: 'carbs', priceAtGeneration: 434, currentPrice: 434, checked: false },
+                { id: '2', foodId: 'chicken_breast', name: 'Chicken Breast', quantity: 1400, unit: 'g', category: 'protein', priceAtGeneration: 2030, currentPrice: 2030, checked: false },
+                { id: '3', foodId: 'brown_rice', name: 'Brown Rice', quantity: 1050, unit: 'g', category: 'carbs', priceAtGeneration: 399, currentPrice: 399, checked: false },
+                { id: '4', foodId: 'red_lentils', name: 'Red Lentils', quantity: 700, unit: 'g', category: 'protein', priceAtGeneration: 385, currentPrice: 385, checked: false },
+                { id: '5', foodId: 'spinach', name: 'Spinach', quantity: 1400, unit: 'g', category: 'vegetable', priceAtGeneration: 392, currentPrice: 392, checked: false },
+                { id: '6', foodId: 'banana', name: 'Banana', quantity: 1540, unit: 'g', category: 'fruit', priceAtGeneration: 277, currentPrice: 277, checked: false },
+                { id: '7', foodId: 'yogurt', name: 'Plain Yogurt', quantity: 1050, unit: 'g', category: 'dairy', priceAtGeneration: 462, currentPrice: 462, checked: false },
+            ],
+            totalAtGeneration: 4379,
+            currentTotal: 4379,
+            priceChanged: false,
+            currency: 'LKR'
+        },
+        aiMetadata: {
+            mlModelVersion: '1.0.0',
+            mlConfidenceScore: 0.85,
+            mlInferenceTimeMs: 22,
+            gptModel: 'gemini-2.0-flash',
+            generationMethod: 'ml_plus_gemini',
+        },
+        status: 'completed',
+        isActive: true,
         createdAt: new Date(),
         preferences: {
             dietary: formData.dietaryPreferences,

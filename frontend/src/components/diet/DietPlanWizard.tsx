@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Target, CheckCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Target, CheckCircle, Loader2, Brain, Salad, ShoppingCart, ChefHat } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Label } from '../ui/label';
@@ -15,6 +15,21 @@ interface DietPlanWizardProps {
 export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
     const [currentStep, setCurrentStep] = useState(1);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [generationStage, setGenerationStage] = useState(0);
+
+    const generationStages = [
+        { icon: Brain, label: 'Analyzing your profile...', detail: 'Calculating TDEE & macro targets' },
+        { icon: Salad, label: 'ML model scoring foods...', detail: 'Ranking 20 foods for your goals' },
+        { icon: ShoppingCart, label: 'Building 7-day plan...', detail: 'Optimizing portions & budget' },
+        { icon: ChefHat, label: 'Gemini adding recipes...', detail: 'Generating cooking instructions' },
+    ];
+
+    useEffect(() => {
+        if (isGenerating && generationStage < generationStages.length - 1) {
+            const timer = setTimeout(() => setGenerationStage(s => s + 1), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [isGenerating, generationStage]);
     const [formData, setFormData] = useState<WizardFormData>({
         goal: '',
         dietaryPreferences: [],
@@ -90,6 +105,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
 
     const handleGenerate = async () => {
         setIsGenerating(true);
+        setGenerationStage(0);
         try {
             const plan = await generateDietPlan(formData);
             onComplete(plan);
@@ -97,6 +113,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
             console.error('Error generating diet plan:', error);
         } finally {
             setIsGenerating(false);
+            setGenerationStage(0);
         }
     };
 
@@ -211,27 +228,27 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
                         <div className="space-y-6">
                             <div>
                                 <h2 className="text-2xl font-bold text-white mb-2">Weekly Budget</h2>
-                                <p className="text-gray-400">Set your weekly food budget</p>
+                                <p className="text-gray-400">Set your weekly food budget in LKR</p>
                             </div>
                             <div className="space-y-4">
                                 <div className="text-center">
                                     <div className="text-5xl font-bold text-primary-500 mb-2">
-                                        ${formData.budget}
+                                        LKR {formData.budget.toLocaleString()}
                                     </div>
                                     <p className="text-gray-400">per week</p>
                                 </div>
                                 <input
                                     type="range"
-                                    min="50"
-                                    max="500"
-                                    step="10"
+                                    min="1000"
+                                    max="15000"
+                                    step="500"
                                     value={formData.budget}
                                     onChange={(e) => setFormData({ ...formData, budget: parseInt(e.target.value) })}
                                     className="w-full h-2 bg-dark-700 rounded-lg appearance-none cursor-pointer accent-primary-500"
                                 />
                                 <div className="flex justify-between text-sm text-gray-500">
-                                    <span>$50</span>
-                                    <span>$500</span>
+                                    <span>LKR 1,000</span>
+                                    <span>LKR 15,000</span>
                                 </div>
                             </div>
                         </div>
@@ -288,21 +305,46 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
                     >
                         Next Step
                     </Button>
+                ) : isGenerating ? (
+                    <div className="flex-1 ml-4">
+                        <Card className="border-dark-700 bg-dark-800">
+                            <CardContent className="p-6">
+                                <div className="space-y-4">
+                                    {generationStages.map((stage, i) => {
+                                        const StageIcon = stage.icon;
+                                        const isActive = i === generationStage;
+                                        const isDone = i < generationStage;
+                                        return (
+                                            <div key={i} className={`flex items-center gap-3 transition-opacity ${isDone ? 'opacity-50' : isActive ? 'opacity-100' : 'opacity-30'}`}>
+                                                {isDone ? (
+                                                    <CheckCircle className="w-5 h-5 text-green-500" />
+                                                ) : isActive ? (
+                                                    <Loader2 className="w-5 h-5 text-primary-500 animate-spin" />
+                                                ) : (
+                                                    <StageIcon className="w-5 h-5 text-gray-500" />
+                                                )}
+                                                <div>
+                                                    <div className={`text-sm font-medium ${isActive ? 'text-white' : 'text-gray-400'}`}>
+                                                        {stage.label}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500">{stage.detail}</div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 ) : (
                     <Button
                         variant="gym"
                         onClick={handleGenerate}
-                        disabled={!canProceed() || isGenerating}
+                        disabled={!canProceed()}
                         className="gap-2"
                     >
-                        {isGenerating ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Generating Plan...
-                            </>
-                        ) : (
-                            'Generate Diet Plan'
-                        )}
+                        <Brain className="w-4 h-4" />
+                        Generate with FitGenius AI
                     </Button>
                 )}
             </div>

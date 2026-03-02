@@ -1,0 +1,10 @@
+
+> frontend@0.0.0 dev
+> vite --port 3000
+
+
+  ROLLDOWN-VITE v7.2.5  ready in 105 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: use --host to expose
+5:57:42 AM [vite] (client) hmr update /src/components/auth/RegisterForm.tsx, /src/index.css

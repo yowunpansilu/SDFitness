@@ -1,34 +1,58 @@
-import type { ShoppingItem } from '@/lib/api/dietPlanApi';
+import type { ShoppingItem, ShoppingListData } from '@/lib/api/dietPlanApi';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { Download } from 'lucide-react';
+import { Download, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface ShoppingListProps {
     items: ShoppingItem[];
     onToggleItem: (itemId: string) => void;
+    priceData?: ShoppingListData | null;
 }
 
-export function ShoppingList({ items, onToggleItem }: ShoppingListProps) {
+export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListProps) {
     // Group items by category
     const groupedItems = items.reduce((acc, item) => {
-        if (!acc[item.category]) {
-            acc[item.category] = [];
-        }
-        acc[item.category].push(item);
+        const cat = item.category || 'Other';
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(item);
         return acc;
     }, {} as Record<string, ShoppingItem[]>);
 
-    const handleExport = () => {
-        const text = Object.entries(groupedItems)
-            .map(([category, categoryItems]) => {
-                const itemsList = categoryItems
-                    .map(item => `  - ${item.name} (${item.quantity})`)
-                    .join('\n');
-                return `${category}:\n${itemsList}`;
-            })
-            .join('\n\n');
+    const categoryLabels: Record<string, string> = {
+        protein: '🥩 Protein',
+        carbs: '🌾 Carbs & Grains',
+        vegetable: '🥬 Vegetables',
+        fruit: '🍌 Fruits',
+        dairy: '🥛 Dairy',
+        fats: '🫒 Fats & Oils',
+        Other: '📦 Other',
+        Grains: '🌾 Grains',
+        Supplements: '💊 Supplements',
+        Fruits: '🍌 Fruits',
+        Spreads: '🧈 Spreads',
+        Protein: '🥩 Protein',
+        Vegetables: '🥬 Vegetables',
+        Produce: '🥑 Produce',
+        Dairy: '🥛 Dairy',
+    };
 
-        const blob = new Blob([text], { type: 'text/plain' });
+    const handleExport = () => {
+        const lines: string[] = [];
+        if (priceData) {
+            lines.push(`Shopping List — ${priceData.currency} ${priceData.currentTotal?.toLocaleString()} total`);
+            lines.push('');
+        }
+
+        Object.entries(groupedItems).forEach(([category, categoryItems]) => {
+            lines.push(`${categoryLabels[category] || category}:`);
+            categoryItems.forEach(item => {
+                const price = item.currentPrice ? ` — ${priceData?.currency || 'LKR'} ${item.currentPrice.toFixed(0)}` : '';
+                lines.push(`  ${item.checked ? '✓' : '○'} ${item.name} (${item.quantity}${item.unit || ''})${price}`);
+            });
+            lines.push('');
+        });
+
+        const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -41,7 +65,17 @@ export function ShoppingList({ items, onToggleItem }: ShoppingListProps) {
         <Card className="border-dark-700">
             <CardHeader>
                 <div className="flex justify-between items-center">
-                    <CardTitle className="text-white">Shopping List</CardTitle>
+                    <div>
+                        <CardTitle className="text-white">Shopping List</CardTitle>
+                        {priceData && (
+                            <p className="text-sm text-gray-400 mt-1">
+                                {priceData.currency} {priceData.currentTotal?.toLocaleString()} total for 7 days
+                                {priceData.priceChanged && (
+                                    <span className="text-yellow-500 ml-2">• Prices have changed</span>
+                                )}
+                            </p>
+                        )}
+                    </div>
                     <Button variant="outline" size="sm" onClick={handleExport} className="gap-2">
                         <Download className="w-4 h-4" />
                         Export
@@ -52,26 +86,48 @@ export function ShoppingList({ items, onToggleItem }: ShoppingListProps) {
                 <div className="space-y-6">
                     {Object.entries(groupedItems).map(([category, categoryItems]) => (
                         <div key={category}>
-                            <h3 className="font-semibold text-white mb-3">{category}</h3>
+                            <h3 className="font-semibold text-white mb-3">
+                                {categoryLabels[category] || category}
+                            </h3>
                             <div className="space-y-2">
-                                {categoryItems.map((item) => (
-                                    <label
-                                        key={item.id}
-                                        className="flex items-center gap-3 p-2 rounded hover:bg-dark-800 cursor-pointer transition-colors"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={item.checked}
-                                            onChange={() => onToggleItem(item.id)}
-                                            className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
-                                        />
-                                        <span className={`flex-1 text-sm ${item.checked ? 'text-gray-500 line-through' : 'text-gray-300'
-                                            }`}>
-                                            {item.name}
-                                        </span>
-                                        <span className="text-sm text-gray-500">{item.quantity}</span>
-                                    </label>
-                                ))}
+                                {categoryItems.map((item) => {
+                                    const priceChanged = item.currentPrice && item.priceAtGeneration &&
+                                        item.currentPrice !== item.priceAtGeneration;
+                                    const priceIncreased = priceChanged && (item.currentPrice || 0) > (item.priceAtGeneration || 0);
+
+                                    return (
+                                        <label
+                                            key={item.id}
+                                            className="flex items-center gap-3 p-2 rounded hover:bg-dark-800 cursor-pointer transition-colors"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={item.checked}
+                                                onChange={() => onToggleItem(item.id)}
+                                                className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                            />
+                                            <span className={`flex-1 text-sm ${item.checked ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
+                                                {item.name}
+                                            </span>
+                                            <span className="text-sm text-gray-500">
+                                                {item.quantity}{item.unit ? item.unit : ''}
+                                            </span>
+                                            {item.currentPrice != null && (
+                                                <span className={`text-sm font-medium min-w-[70px] text-right ${priceChanged
+                                                        ? (priceIncreased ? 'text-red-400' : 'text-green-400')
+                                                        : 'text-gray-400'
+                                                    }`}>
+                                                    {priceData?.currency || 'LKR'} {item.currentPrice.toFixed(0)}
+                                                    {priceChanged && (
+                                                        priceIncreased
+                                                            ? <TrendingUp className="w-3 h-3 inline ml-1" />
+                                                            : <TrendingDown className="w-3 h-3 inline ml-1" />
+                                                    )}
+                                                </span>
+                                            )}
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
                     ))}

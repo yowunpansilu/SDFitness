@@ -4,6 +4,9 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { DatePicker } from '../ui/date-picker';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/lib/stores/authStore';
+import api from '@/lib/api/axios';
 
 interface Step1Data {
     firstName: string;
@@ -32,6 +35,9 @@ interface Step3Data {
 export function RegisterForm() {
     const [currentStep, setCurrentStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+    const { login } = useAuthStore();
 
     const [step1Data, setStep1Data] = useState<Step1Data>({
         firstName: '',
@@ -66,11 +72,50 @@ export function RegisterForm() {
         }
 
         setIsLoading(true);
-        // TODO: Implement actual registration logic
-        setTimeout(() => {
+        setError('');
+        try {
+            // Map frontend display values to backend enum values
+            const goalMapping: Record<string, string> = {
+                'Weight Loss': 'weight_loss',
+                'Muscle Gain': 'muscle_gain',
+                'Endurance': 'endurance',
+                'Flexibility': 'flexibility',
+                'General Fitness': 'general_fitness',
+                'Sports Performance': 'athletic_performance'
+            };
+
+            const response = await api.post('/auth/register', {
+                email: step1Data.email,
+                password: step1Data.password,
+                firstName: step1Data.firstName,
+                lastName: step1Data.lastName,
+                role: 'member',
+                dateOfBirth: step2Data.dateOfBirth?.toISOString(),
+                gender: step2Data.gender.toLowerCase() || 'other',
+                height: step2Data.height ? parseInt(step2Data.height) : 170,
+                weight: step2Data.weight ? parseInt(step2Data.weight) : 70,
+                goal: goalMapping[step3Data.fitnessGoals[0]] || 'general_fitness',
+                dietaryPreferences: step3Data.dietaryPreferences.map(pref => {
+                    const mappings: Record<string, string> = {
+                        'Vegetarian': 'vegetarian',
+                        'Vegan': 'vegan',
+                        'Keto': 'keto',
+                        'Paleo': 'paleo',
+                        'Gluten-Free': 'gluten_free',
+                        'Dairy-Free': 'dairy_free'
+                    };
+                    return mappings[pref] || 'none';
+                }),
+                activityLevel: step3Data.activityLevel || 'moderately_active'
+            });
+            const { token, user } = response.data;
+            login(user, token);
+            navigate('/dashboard');
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'Registration failed. Please try again.');
+        } finally {
             setIsLoading(false);
-            console.log('Registration:', { step1Data, step2Data, step3Data });
-        }, 2000);
+        }
     };
 
     const toggleGoal = (goal: string) => {
@@ -93,6 +138,11 @@ export function RegisterForm() {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+                <div className="p-3 rounded bg-red-500/10 border border-red-500/50 text-red-500 text-sm string">
+                    {error}
+                </div>
+            )}
             {/* Progress Indicator */}
             <div className="flex items-center justify-between mb-8">
                 {[1, 2, 3].map((step) => (

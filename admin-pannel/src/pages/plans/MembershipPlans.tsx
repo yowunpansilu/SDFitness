@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit, Trash2, DollarSign, Clock, Users, Check, X } from 'lucide-react';
+import { Plus, Edit, Trash2, DollarSign, Users, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

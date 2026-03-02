@@ -1,0 +1,7 @@
+source .venv/bin/activate && cd ml-service && python app.py &
+cd ../backend && node server.js &
+
+
+A — Test POST /api/diet-plans/generate (the ML+Gemini pipeline — the core feature)
+B — Start the member frontend (cd frontend && npm run dev)
+C — Add auth routes (register/login)

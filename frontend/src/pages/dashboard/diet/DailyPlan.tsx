@@ -59,10 +59,10 @@ export function DailyPlan() {
 
             {/* Daily Macros Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <MacroCard icon={Flame} label="Calories" value={`${day.totalCalories || 0} kcal`} color="primary" />
-                <MacroCard icon={Beef} label="Protein" value="--- g" color="blue" />
-                <MacroCard icon={Wheat} label="Carbs" value="--- g" color="green" />
-                <MacroCard icon={Droplet} label="Fats" value="--- g" color="yellow" />
+                <MacroCard icon={Flame} label="Calories" value={`${day.meals?.reduce((acc, m) => acc + (m.calories || 0), 0) || 0} kcal`} color="primary" />
+                <MacroCard icon={Beef} label="Protein" value={`${day.meals?.reduce((acc, m) => acc + (m.macros?.protein || m.protein || 0), 0) || 0} g`} color="blue" />
+                <MacroCard icon={Wheat} label="Carbs" value={`${day.meals?.reduce((acc, m) => acc + (m.macros?.carbs || m.carbs || 0), 0) || 0} g`} color="green" />
+                <MacroCard icon={Droplet} label="Fats" value={`${day.meals?.reduce((acc, m) => acc + (m.macros?.fats || m.fats || 0), 0) || 0} g`} color="yellow" />
             </div>
 
             {/* Meals List */}
@@ -72,7 +72,7 @@ export function DailyPlan() {
                     <Card
                         key={idx}
                         className="border-dark-700 hover:border-primary-500/50 transition-all cursor-pointer bg-dark-800"
-                        onClick={() => navigate(`/dashboard/diet-plans/${plan.id}/meal/${meal.id}`)}
+                        onClick={() => navigate(`/dashboard/diet-plans/${plan.id}/meal/${(meal as any)._id || meal.id}`)}
                     >
                         <CardContent className="p-4 sm:p-6 flex items-center justify-between">
                             <div>

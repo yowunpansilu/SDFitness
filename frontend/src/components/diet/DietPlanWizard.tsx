@@ -344,7 +344,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
                         className="gap-2"
                     >
                         <Brain className="w-4 h-4" />
-                        Generate with AI
+                        Generate with FitGenius AI
                     </Button>
                 )}
             </div>

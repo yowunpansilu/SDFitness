@@ -18,6 +18,10 @@ import { BillingOverview } from './pages/dashboard/BillingOverview';
 import { AttendancePage } from './pages/dashboard/AttendancePage';
 import { NotificationSettings } from './pages/dashboard/NotificationSettings';
 import { MessagesPage } from './pages/dashboard/MessagesPage';
+import { WeeklyPlan } from './pages/dashboard/diet/WeeklyPlan';
+import { DailyPlan } from './pages/dashboard/diet/DailyPlan';
+import { GroceryList } from './pages/dashboard/diet/GroceryList';
+import { MealRecipe } from './pages/dashboard/diet/MealRecipe';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -77,6 +81,10 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="profile" element={<Profile />} />
             <Route path="diet-plans" element={<DietPlans />} />
+            <Route path="diet-plans/:id" element={<WeeklyPlan />} />
+            <Route path="diet-plans/:id/day/:dayIndex" element={<DailyPlan />} />
+            <Route path="diet-plans/:id/grocery-list" element={<GroceryList />} />
+            <Route path="diet-plans/:id/meal/:mealId" element={<MealRecipe />} />
             <Route path="workouts" element={<Workouts />} />
             <Route path="classes" element={<ClassSchedule />} />
             <Route path="my-bookings" element={<MyBookings />} />

@@ -1,31 +1,41 @@
-import { useState } from 'react';
-import { Plus, Calendar, Target } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Calendar, Target, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DietPlanWizard } from '@/components/diet/DietPlanWizard';
-import { DietPlanDisplay } from '@/components/diet/DietPlanDisplay';
+import { getDietPlans } from '@/lib/api/dietPlanApi';
 import type { DietPlan } from '@/lib/api/dietPlanApi';
 
 export function DietPlans() {
+    const navigate = useNavigate();
     const [showWizard, setShowWizard] = useState(false);
-    const [currentPlan, setCurrentPlan] = useState<DietPlan | null>(null);
     const [savedPlans, setSavedPlans] = useState<DietPlan[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const handleWizardComplete = (plan: DietPlan) => {
-        setCurrentPlan(plan);
-        setShowWizard(false);
-    };
+    useEffect(() => {
+        loadPlans();
+    }, []);
 
-    const handleSavePlan = () => {
-        if (currentPlan) {
-            setSavedPlans([...savedPlans, currentPlan]);
-            // Show success message
-            alert('Diet plan saved successfully!');
+    const loadPlans = async () => {
+        try {
+            setIsLoading(true);
+            const plans = await getDietPlans();
+            setSavedPlans(plans);
+        } catch (error) {
+            console.error('Failed to load diet plans:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
+    const handleWizardComplete = (plan: DietPlan) => {
+        setShowWizard(false);
+        navigate(`/dashboard/diet-plans/${plan.id || plan._id}`);
+    };
+
     const handleViewPlan = (plan: DietPlan) => {
-        setCurrentPlan(plan);
+        navigate(`/dashboard/diet-plans/${plan.id || plan._id}`);
     };
 
     // If showing wizard
@@ -46,23 +56,7 @@ export function DietPlans() {
         );
     }
 
-    // If viewing a plan
-    if (currentPlan) {
-        return (
-            <div className="space-y-6 animate-fade-in">
-                <Button
-                    variant="outline"
-                    onClick={() => setCurrentPlan(null)}
-                >
-                    ← Back to Diet Plans
-                </Button>
-                <DietPlanDisplay
-                    plan={currentPlan}
-                    onSave={handleSavePlan}
-                />
-            </div>
-        );
-    }
+
 
     // Main diet plans page
     return (
@@ -72,7 +66,7 @@ export function DietPlans() {
                 <div>
                     <h1 className="text-3xl font-headline font-bold text-white">Diet Plans</h1>
                     <p className="text-gray-400 mt-2">
-                        AI-powered personalized meal plans for your fitness goals
+                        FitGenius AI-powered personalized meal plans for your fitness goals
                     </p>
                 </div>
                 <Button variant="gym" onClick={() => setShowWizard(true)} className="gap-2">
@@ -81,8 +75,12 @@ export function DietPlans() {
                 </Button>
             </div>
 
-            {/* Saved Plans */}
-            {savedPlans.length > 0 ? (
+            {/* Loading State */}
+            {isLoading ? (
+                <div className="flex justify-center p-12">
+                    <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+                </div>
+            ) : savedPlans.length > 0 ? (
                 <div className="space-y-4">
                     <h2 className="text-xl font-semibold text-white">Your Saved Plans</h2>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -98,7 +96,7 @@ export function DietPlans() {
                                             <div>
                                                 <h3 className="font-semibold text-white">{plan.name}</h3>
                                                 <p className="text-sm text-gray-500 mt-1">
-                                                    {plan.createdAt.toLocaleDateString()}
+                                                    {new Date(plan.createdAt).toLocaleDateString()}
                                                 </p>
                                             </div>
                                             <Target className="w-5 h-5 text-primary-500" />
@@ -107,7 +105,7 @@ export function DietPlans() {
                                             <Calendar className="w-4 h-4" />
                                             <span>7-day plan</span>
                                         </div>
-                                        {plan.preferences.dietary.length > 0 && (
+                                        {plan.preferences?.dietary && plan.preferences.dietary.length > 0 && (
                                             <div className="flex flex-wrap gap-1">
                                                 {plan.preferences.dietary.slice(0, 2).map((pref) => (
                                                     <span
@@ -140,7 +138,7 @@ export function DietPlans() {
                             </div>
                             <h3 className="text-xl font-semibold text-white">No Diet Plans Yet</h3>
                             <p className="text-gray-400">
-                                Generate your first AI-powered diet plan tailored to your fitness goals,
+                                Generate your first FitGenius AI-powered diet plan tailored to your fitness goals,
                                 dietary preferences, and budget.
                             </p>
                             <Button variant="gym" onClick={() => setShowWizard(true)} className="gap-2">

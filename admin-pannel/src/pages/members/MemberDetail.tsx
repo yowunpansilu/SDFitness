@@ -71,7 +71,7 @@ const statusColors = {
 };
 
 export function MemberDetail() {
-    const { id } = useParams();
+    useParams();
     const navigate = useNavigate();
 
     return (

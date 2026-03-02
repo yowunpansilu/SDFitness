@@ -14,7 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
+
 import { ArrowLeft, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -347,8 +347,8 @@ export function ClassForm() {
                                         <div
                                             key={day.value}
                                             className={`flex-1 p-3 rounded-lg border cursor-pointer text-center transition-colors ${selectedDays.includes(day.value)
-                                                    ? 'bg-purple-500/20 border-purple-500 text-purple-400'
-                                                    : 'bg-dark-800/50 border-dark-700 text-gray-400 hover:border-purple-500/30'
+                                                ? 'bg-purple-500/20 border-purple-500 text-purple-400'
+                                                : 'bg-dark-800/50 border-dark-700 text-gray-400 hover:border-purple-500/30'
                                                 }`}
                                             onClick={() => toggleDay(day.value)}
                                         >

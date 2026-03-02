@@ -1,6 +1,6 @@
-# Gym Management System with AI Diet Plan Generator
+# SD Fitness - Gym Management System & FitGenius AI
 
-A comprehensive full-stack gym management system featuring AI-powered personalized diet plan generation. Built with Node.js, Express, MongoDB, and React.
+A comprehensive full-stack gym management system featuring **FitGenius AI**—a personalized diet plan generator powered by a custom ML model and Google Gemini. Built with Node.js, Express, MongoDB, Python, and React.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D%2018.0.0-brightgreen)](https://nodejs.org/)
@@ -34,14 +34,17 @@ This Gym Management System is designed to streamline gym operations while provid
 - **Admin Panel**: Administrative interface for gym owners and staff to manage operations
 - **Backend API**: Centralized Node.js/Express server serving both applications
 
-### Key Highlight
+### Key Highlight: FitGenius AI
 
-The **AI Diet Plan Generator** creates personalized meal plans based on:
-- User's fitness goals (weight loss, muscle gain, endurance)
-- Dietary preferences and restrictions (vegetarian, vegan, allergies)
-- **Budget constraints** - generates affordable meal plans
-- Activity level and metabolic requirements
-- Macro and calorie targets
+The **FitGenius AI Diet Plan Generator** creates personalized, hyper-optimized meal plans using a two-step pipeline:
+1. **Machine Learning Core (Python)**: Calculates exact calorie and macro requirements based on the user's fitness goals, body metrics, and activity level. It optimizes food selection against live market prices (e.g., Keells) to fit within a specific budget.
+2. **Gemini Formatting Layer**: Google's Gemini 2.0 Flash model takes the strict ML output and generates appetizing meal names, short descriptions, and step-by-step cooking instructions tailored for a Sri Lankan kitchen.
+
+Features include:
+- Budget-aware meal plans
+- Detailed Weekly and Daily breakdowns
+- Interactive Grocery Lists
+- Cooking procedures and recipes
 
 ---
 
@@ -105,7 +108,8 @@ The **AI Diet Plan Generator** creates personalized meal plans based on:
 - **Email**: Nodemailer
 
 ### AI & External Services
-- **AI APIs**: OpenAI GPT-4 / Anthropic Claude / Google Gemini
+- **AI Integration**: Custom Python ML Model + Google Gemini 2.0 Flash
+- **Data Scraping**: Puppeteer (Keells grocery prices)
 - **Payment**: Stripe / Razorpay / PayPal
 - **Cloud Storage**: AWS S3 / Cloudinary
 - **QR Codes**: qrcode library

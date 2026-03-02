@@ -86,7 +86,7 @@ export function WeeklyPlan() {
                                 </div>
                                 <div className="flex justify-between text-sm text-gray-400 border-t border-dark-600 pt-3">
                                     <span>Meals: {day.meals?.length || 0}</span>
-                                    <span>Cals: {day.totalCalories ?? '---'} kcal</span>
+                                    <span>Cals: {day.meals?.reduce((acc, m) => acc + (m.calories || 0), 0)} kcal</span>
                                 </div>
                             </div>
                         </CardContent>

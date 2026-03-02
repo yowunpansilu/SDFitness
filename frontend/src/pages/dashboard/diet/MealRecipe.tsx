@@ -28,7 +28,7 @@ export function MealRecipe() {
     let meal: Meal | undefined;
     let dayIndex: number = -1;
     for (let i = 0; i < plan.days.length; i++) {
-        const found = plan.days[i].meals?.find(m => m.id === mealId);
+        const found = plan.days[i].meals?.find(m => (m as any)._id === mealId || m.id === mealId);
         if (found) {
             meal = found;
             dayIndex = i;

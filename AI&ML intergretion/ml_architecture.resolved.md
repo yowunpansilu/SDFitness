@@ -210,18 +210,6 @@ SDFitness/
 
 ---
 
-## Team Responsibility Restructuring
-
-| Member | Component | New ML Work |
-|---|---|---|
-| **Member 1** (IT24102008 - Withana W.Y.P) | Backend API | Build `mlService.js` to call Python service; modify `aiService.js` to use ML-first, GPT-second pipeline |
-| **Member 2** (IT24101252 - Matharaarachchi D.C.M) | Member Frontend | Display ML model's confidence score per meal; show "Why we chose this" explainability panel |
-| **Member 3** (IT24103530 - Ilham M.M) | Admin Panel | ✨ **New**: ML Model Dashboard — show training accuracy, feature importance chart, model version, A/B comparison (ML plan vs GPT-only plan) |
-| **Member 4** (IT24100732 - Kodituwakku S.D) | Payment/Notifications | Budget compliance prediction — use ML to predict if a user's budget is realistic before generation; send smart alerts |
-| **Member 5** (IT24100697 - Kamsha S) | Equipment/Activity | ✨ **Own the ML model**: data collection, preprocessing USDA data, training the GBM model, Flask microservice |
-| **Member 6** (IT24103087 - Anojaa S) | Analytics/Security | Model evaluation metrics (RMSE, precision, recall); bias detection across demographics; model retraining pipeline |
-
----
 
 ## What You Present to the Panel (Updated Narrative)
 

@@ -64,6 +64,11 @@ async function runTest() {
                     console.log(`     [${meal.mealType.padEnd(18)}] "${name}"`);
                     console.log(`       ${cals} kcal | LKR ${cost} | ${items}`);
                     console.log(`       ${instrCount} cooking steps, prep:${meal.prepTime || '?'}m cook:${meal.cookTime || '?'}m`);
+                    if (meal.instructions && meal.instructions.length > 0) {
+                        meal.instructions.forEach((step, idx) => {
+                            console.log(`         ${idx + 1}. ${step}`);
+                        });
+                    }
                 }
                 console.log();
             }

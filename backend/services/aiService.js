@@ -17,8 +17,21 @@ const DietPlan = require('../models/DietPlan');
 const FoodPrice = require('../models/FoodPrice');
 const { getMLRecommendation } = require('./mlService');
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Initialize Gemini keys support for basic rotation (comma-separated keys)
+const geminiKeys = (process.env.GEMINI_API_KEY || '').split(',').map(k => k.trim()).filter(Boolean);
+let currentGeminiKeyIndex = 0;
+
+const getNextGenAI = () => {
+    if (geminiKeys.length === 0) {
+        throw new Error("GEMINI_API_KEY is not configured in the environment variables.");
+    }
+    const key = geminiKeys[currentGeminiKeyIndex];
+    currentGeminiKeyIndex = (currentGeminiKeyIndex + 1) % geminiKeys.length;
+    // Log masked key for debugging
+    const maskedKey = key.substring(0, 4) + '...' + key.slice(-4);
+    console.log(`🔑 Using Gemini API Key ${currentGeminiKeyIndex === 0 ? geminiKeys.length : currentGeminiKeyIndex}/${geminiKeys.length} (${maskedKey})`);
+    return new GoogleGenerativeAI(key);
+};
 
 /**
  * Build a live prices dict from MongoDB for the ML service
@@ -42,6 +55,7 @@ const getLivePrices = async () => {
  * It only adds the human-readable layer on top.
  */
 const formatWithGemini = async (mlRecommendation, userProfile) => {
+    const genAI = getNextGenAI();
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `You are a professional nutritionist and recipe writer for SDFitness, a gym management app in Sri Lanka.
@@ -100,7 +114,9 @@ RULES:
             jsonStr = jsonMatch[1];
         }
 
-        return JSON.parse(jsonStr.trim());
+        const parsedGemini = JSON.parse(jsonStr.trim());
+        console.log("Raw Gemini JSON:", JSON.stringify(parsedGemini, null, 2));
+        return parsedGemini;
     } catch (error) {
         console.error('❌ Gemini formatting error:', error.message);
         return null;
@@ -111,6 +127,7 @@ RULES:
  * Gemini-only fallback — generates entire plan without ML model
  */
 const generateWithGeminiOnly = async (userProfile) => {
+    const genAI = getNextGenAI();
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `You are a professional nutritionist for SDFitness gym in Sri Lanka.
@@ -222,20 +239,23 @@ const generateDietPlan = async (memberId) => {
         planData = {
             targetCalories: mlResult.targetCalories,
             macroSplit: mlResult.macroSplit,
-            days: mlResult.days.map((day, i) => ({
-                ...day,
-                meals: day.meals.map((meal, j) => {
-                    const geminiMeal = geminiFormatted?.days?.[i]?.meals?.[j];
-                    return {
-                        ...meal,
-                        name: geminiMeal?.name || `${meal.mealType} meal`,
-                        description: geminiMeal?.description || '',
-                        instructions: geminiMeal?.instructions || [],
-                        prepTime: geminiMeal?.prepTime || 10,
-                        cookTime: geminiMeal?.cookTime || 15
-                    };
-                })
-            })),
+            days: mlResult.days.map((day, i) => {
+                const geminiDay = geminiFormatted?.days?.find(d => d.dayOfWeek === day.dayOfWeek || d.dayName === day.dayName) || geminiFormatted?.days?.[i];
+                return {
+                    ...day,
+                    meals: day.meals.map((meal) => {
+                        const geminiMeal = geminiDay?.meals?.find(m => m.mealType === meal.mealType);
+                        return {
+                            ...meal,
+                            name: geminiMeal?.name || `${meal.mealType.replace('_', ' ')} meal`,
+                            description: geminiMeal?.description || '',
+                            instructions: geminiMeal?.instructions || [],
+                            prepTime: geminiMeal?.prepTime || 10,
+                            cookTime: geminiMeal?.cookTime || 15
+                        };
+                    })
+                };
+            }),
             shoppingList: mlResult.shoppingList,
             aiMetadata: {
                 ...mlResult.aiMetadata,

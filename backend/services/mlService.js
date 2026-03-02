@@ -71,9 +71,10 @@ const getMLRecommendation = async (userProfile, livePrices = {}) => {
 /**
  * Check if the ML service is healthy
  */
-const checkMLHealth = async () => {
+const checkMLHealth = async (customUrl = null) => {
+    const url = customUrl || ML_SERVICE_URL;
     try {
-        const response = await axios.get(`${ML_SERVICE_URL}/health`, { timeout: 3000 });
+        const response = await axios.get(`${url}/health`, { timeout: 3000 });
         return response.data;
     } catch {
         return { status: 'unreachable', model_loaded: false };

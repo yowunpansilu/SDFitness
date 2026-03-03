@@ -159,7 +159,7 @@ export function TrainerDetail() {
                                             <TableRow key={cls._id} className="border-dark-700 hover:bg-dark-800/50 cursor-pointer" onClick={() => navigate(`/classes/${cls._id}`)}>
                                                 <TableCell className="text-white font-medium">{cls.name}</TableCell>
                                                 <TableCell className="text-gray-400">{cls.schedule?.dayOfWeek || '—'} {cls.schedule?.startTime || ''}</TableCell>
-                                                <TableCell className="text-gray-400">{cls.enrolledCount || cls.enrolled?.length || 0}/{cls.capacity || 0}</TableCell>
+                                                <TableCell className="text-gray-400">{cls.enrolled || 0}/{cls.capacity || 0}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>

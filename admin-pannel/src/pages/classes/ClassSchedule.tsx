@@ -23,9 +23,9 @@ interface GymClass {
         startTime: string;
         endTime: string;
     };
-    maxCapacity: number;
-    currentEnrollment: number;
-    category: string;
+    capacity: number;
+    enrolled: number;
+    description?: string;
 }
 
 const classTypeColors: Record<string, string> = {
@@ -128,7 +128,7 @@ export function ClassSchedule() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-white">
-                            {new Set(classes.map(c => c.category)).size}
+                            {new Set(classes.map(c => c.name.split(' ')[0] || 'General')).size}
                         </div>
                     </CardContent>
                 </Card>
@@ -138,7 +138,7 @@ export function ClassSchedule() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-white">
-                            {classes.reduce((sum, c) => sum + (c.maxCapacity || 0), 0)}
+                            {classes.reduce((sum, c) => sum + (c.capacity || 0), 0)}
                         </div>
                     </CardContent>
                 </Card>
@@ -148,7 +148,7 @@ export function ClassSchedule() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-white">
-                            {classes.reduce((sum, c) => sum + (c.currentEnrollment || 0), 0)}
+                            {classes.reduce((sum, c) => sum + (c.enrolled || 0), 0)}
                         </div>
                     </CardContent>
                 </Card>
@@ -212,8 +212,8 @@ export function ClassSchedule() {
                             <div className="space-y-3">
                                 {dayClasses.length > 0 ? (
                                     dayClasses.map((classSession) => {
-                                        const isFull = (classSession.currentEnrollment || 0) >= (classSession.maxCapacity || 1);
-                                        const category = (classSession.category || 'cardio').toLowerCase();
+                                        const isFull = (classSession.enrolled || 0) >= (classSession.capacity || 1);
+                                        const category = (classSession.name || 'cardio').toLowerCase();
                                         const colorKey = Object.keys(classTypeColors).find(k => category.includes(k)) || 'cardio';
 
                                         return (
@@ -232,7 +232,7 @@ export function ClassSchedule() {
                                                             "text-xs bg-gradient-to-r text-white",
                                                             classTypeColors[colorKey]
                                                         )}>
-                                                            {classSession.category}
+                                                            {classSession.name.split(' ')[0] || 'Class'}
                                                         </Badge>
                                                     </div>
 
@@ -257,7 +257,7 @@ export function ClassSchedule() {
                                                         <div className="flex items-center justify-between mb-1">
                                                             <div className="flex items-center gap-1 text-xs text-gray-400">
                                                                 <Users className="h-3 w-3" />
-                                                                <span>{classSession.currentEnrollment || 0}/{classSession.maxCapacity || 0}</span>
+                                                                <span>{classSession.enrolled || 0}/{classSession.capacity || 0}</span>
                                                             </div>
                                                             {isFull && (
                                                                 <Badge className="text-xs bg-red-500/20 text-red-400 border-red-500/30">
@@ -273,7 +273,7 @@ export function ClassSchedule() {
                                                                         ? "bg-gradient-to-r from-red-500 to-orange-600"
                                                                         : "bg-gradient-to-r from-purple-500 to-pink-600"
                                                                 )}
-                                                                style={{ width: `${Math.min(((classSession.currentEnrollment || 0) / (classSession.maxCapacity || 1)) * 100, 100)}%` }}
+                                                                style={{ width: `${Math.min(((classSession.enrolled || 0) / (classSession.capacity || 1)) * 100, 100)}%` }}
                                                             />
                                                         </div>
                                                     </div>

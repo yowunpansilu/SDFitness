@@ -4,7 +4,7 @@ import { ArrowLeft, Edit, Users, Clock, MapPin, Calendar, User, Trash2, Loader2 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import api from '@/lib/api/axios';
 
@@ -23,6 +23,8 @@ export function ClassDetail() {
     const [cls, setCls] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
+    const [isDeleting, setIsDeleting] = useState(false);
+
     useEffect(() => {
         const fetchClass = async () => {
             try {
@@ -34,6 +36,20 @@ export function ClassDetail() {
         fetchClass();
     }, [id]);
 
+    const handleDelete = async () => {
+        if (!window.confirm('Are you sure you want to delete this class?')) return;
+        try {
+            setIsDeleting(true);
+            await api.delete(`/classes/${id}`);
+            navigate('/classes');
+        } catch (error) {
+            console.error('Failed to delete class:', error);
+            alert('Failed to delete class. Please try again.');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-purple-500 animate-spin" /></div>;
     if (!cls) return <div className="text-center py-12"><p className="text-gray-400">Class not found</p><Button onClick={() => navigate('/classes')} className="mt-4">Back</Button></div>;
 
@@ -42,18 +58,17 @@ export function ClassDetail() {
     const trainerUser = trainer.user || {};
     const trainerName = `${trainerUser.firstName || ''} ${trainerUser.lastName || ''}`.trim() || 'TBD';
     const capacity = cls.capacity || 0;
-    const enrolled = cls.enrolledCount || cls.enrolled?.length || 0;
+    const enrolled = cls.enrolled || 0;
     const enrollmentPercentage = capacity > 0 ? (enrolled / capacity) * 100 : 0;
-    const spotsRemaining = capacity - enrolled;
-    const classType = cls.type || trainer.specialization?.[0]?.toLowerCase() || 'other';
+    const spotsRemaining = Math.max(0, capacity - enrolled);
+    const classType = (cls.name?.split(' ')[0] || trainer.specialization?.[0] || 'other').toLowerCase();
     const duration = schedule.startTime && schedule.endTime
         ? (parseInt(schedule.endTime.split(':')[0]) * 60 + parseInt(schedule.endTime.split(':')[1])) - (parseInt(schedule.startTime.split(':')[0]) * 60 + parseInt(schedule.startTime.split(':')[1]))
         : 60;
 
-    const enrolledMembers = (cls.enrolled || []).map((m: any) => {
+    const enrolledMembers = (cls.enrolledMembers || []).map((m: any) => {
         if (typeof m === 'string') return { _id: m, name: 'Member', joinedDate: '' };
-        const u = m.user || m;
-        return { _id: m._id || '', name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Member', joinedDate: m.joinDate || m.createdAt || '' };
+        return { _id: m._id || '', name: `${m.firstName || ''} ${m.lastName || ''}`.trim() || 'Member', joinedDate: m.createdAt || '' };
     });
 
     return (
@@ -68,7 +83,9 @@ export function ClassDetail() {
                 </div>
                 <div className="flex gap-3">
                     <Button onClick={() => navigate(`/classes/edit/${id}`)} className="bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30"><Edit className="h-4 w-4 mr-2" /> Edit Class</Button>
-                    <Button variant="outline" className="border-red-500/30 text-red-400 hover:bg-red-500/20"><Trash2 className="h-4 w-4 mr-2" /> Delete</Button>
+                    <Button variant="outline" onClick={handleDelete} disabled={isDeleting} className="border-red-500/30 text-red-400 hover:bg-red-500/20">
+                        {isDeleting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Trash2 className="h-4 w-4 mr-2" />} Delete
+                    </Button>
                 </div>
             </div>
 

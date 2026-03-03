@@ -8,6 +8,7 @@ const dietPlanSchema = new mongoose.Schema({
     },
 
     planName: { type: String, default: 'Custom Diet Plan' },
+    goal: String,
     generatedAt: { type: Date, default: Date.now },
     validUntil: Date,
 
@@ -112,6 +113,13 @@ const dietPlanSchema = new mongoose.Schema({
         type: String,
         enum: ['generating', 'completed', 'failed'],
         default: 'generating'
+    },
+
+    // Preferences used for generation
+    preferences: {
+        dietary: [String],
+        allergies: [String],
+        budget: Number
     },
 
     // Member Feedback (feeds collaborative filtering)

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,23 +16,23 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 
-import { ArrowLeft, Save, X } from 'lucide-react';
+import { ArrowLeft, Save, X, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 // Form validation schema
 const classSchema = z.object({
     // Class Details
     name: z.string().min(1, 'Class name is required'),
-    type: z.string().min(1, 'Class type is required'),
-    level: z.enum(['beginner', 'intermediate', 'advanced']),
-    description: z.string().min(10, 'Description must be at least 10 characters'),
-    duration: z.number().min(15, 'Duration must be at least 15 minutes'),
+    type: z.string().optional(),
+    level: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+    description: z.string().optional(),
+    duration: z.number().optional(),
 
     // Schedule
-    startDate: z.string().min(1, 'Start date is required'),
+    startDate: z.string().optional(),
     startTime: z.string().min(1, 'Start time is required'),
     endTime: z.string().min(1, 'End time is required'),
-    recurrence: z.enum(['one-time', 'daily', 'weekly', 'monthly']),
+    recurrence: z.enum(['one-time', 'daily', 'weekly', 'monthly']).optional(),
     daysOfWeek: z.array(z.number()).optional(),
     endRecurrence: z.enum(['never', 'after', 'on-date']).optional(),
     occurrences: z.number().optional(),
@@ -39,7 +40,7 @@ const classSchema = z.object({
 
     // Capacity & Location
     maxParticipants: z.number().min(1, 'Max participants must be at least 1'),
-    location: z.string().min(1, 'Location is required'),
+    location: z.string().optional(),
 
     // Trainer
     trainerId: z.string().min(1, 'Trainer is required'),
@@ -53,6 +54,8 @@ const classSchema = z.object({
 
 type ClassFormData = z.infer<typeof classSchema>;
 
+import api from '@/lib/api/axios';
+
 const CLASS_TYPES = ['Cardio', 'Strength', 'Yoga', 'HIIT', 'Pilates', 'Boxing', 'Spinning', 'CrossFit'];
 const DAYS_OF_WEEK = [
     { value: 1, label: 'Mon' },
@@ -65,18 +68,14 @@ const DAYS_OF_WEEK = [
 ];
 const LOCATIONS = ['Studio A', 'Studio B', 'Main Hall', 'Outdoor Area', 'Cardio Zone', 'Spin Room'];
 
-// Mock trainers
-const TRAINERS = [
-    { id: '1', name: 'Mike Ross' },
-    { id: '2', name: 'Sarah Lee' },
-    { id: '3', name: 'Tom Wilson' },
-];
-
 export function ClassForm() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { toast } = useToast();
     const isEditMode = Boolean(id);
+    const [trainers, setTrainers] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(isEditMode);
+    const [isSaving, setIsSaving] = useState(false);
 
     const {
         register,
@@ -107,15 +106,95 @@ export function ClassForm() {
     const endRecurrence = watch('endRecurrence');
     const selectedDays = watch('daysOfWeek') || [];
 
-    const onSubmit = (data: ClassFormData) => {
-        console.log('Form submitted:', data);
+    useEffect(() => {
+        const fetchDropdowns = async () => {
+            try {
+                const res = await api.get('/trainers');
+                setTrainers(res.data);
+            } catch (error) {
+                console.error('Failed to load trainers', error);
+            }
+        };
 
-        toast({
-            title: isEditMode ? 'Class Updated' : 'Class Created',
-            description: `${data.name} has been ${isEditMode ? 'updated' : 'scheduled'} successfully`,
-        });
+        const fetchClassData = async () => {
+            if (!isEditMode) return;
+            try {
+                const res = await api.get(`/classes/${id}`);
+                const data = res.data;
+                const schedule = data.schedule || {};
 
-        navigate('/admin/classes');
+                setValue('name', data.name || '');
+                setValue('description', data.description || '');
+                setValue('maxParticipants', data.capacity || 20);
+
+                // Try to infer type from name prefix
+                const typeMatch = CLASS_TYPES.find(t => data.name?.toLowerCase().includes(t.toLowerCase()));
+                if (typeMatch) setValue('type', typeMatch);
+
+                if (data.trainer) {
+                    setValue('trainerId', typeof data.trainer === 'string' ? data.trainer : data.trainer._id);
+                }
+
+                if (schedule.dayOfWeek) {
+                    setValue('recurrence', 'weekly');
+                    const dayObj = DAYS_OF_WEEK.find(d => dayOfWeekToString(d.value) === schedule.dayOfWeek);
+                    if (dayObj) setValue('daysOfWeek', [dayObj.value]);
+                }
+                if (schedule.startTime) setValue('startTime', schedule.startTime);
+                if (schedule.endTime) setValue('endTime', schedule.endTime);
+
+            } catch (error) {
+                console.error('Failed to load class', error);
+                toast({ title: 'Error', description: 'Failed to load class details', variant: 'destructive' });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchDropdowns().then(fetchClassData);
+    }, [id, isEditMode, setValue]);
+
+    const dayOfWeekToString = (val: number) => {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        return days[val === 7 ? 0 : val] || 'Monday';
+    };
+
+    const onSubmit = async (data: ClassFormData) => {
+        setIsSaving(true);
+        try {
+            const payload = {
+                name: data.name,
+                description: data.description,
+                trainer: data.trainerId,
+                capacity: data.maxParticipants,
+                schedule: {
+                    dayOfWeek: data.daysOfWeek?.[0] ? dayOfWeekToString(data.daysOfWeek[0]) : 'Monday',
+                    startTime: data.startTime,
+                    endTime: data.endTime,
+                }
+            };
+
+            if (isEditMode) {
+                await api.put(`/classes/${id}`, payload);
+            } else {
+                await api.post('/classes', payload);
+            }
+
+            toast({
+                title: isEditMode ? 'Class Updated' : 'Class Created',
+                description: `${data.name} has been ${isEditMode ? 'updated' : 'scheduled'} successfully`,
+            });
+            navigate('/classes');
+        } catch (error) {
+            console.error('Save failed:', error);
+            toast({
+                title: 'Error',
+                description: 'Failed to save class',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const toggleDay = (day: number) => {
@@ -152,17 +231,19 @@ export function ClassForm() {
                 <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
-                        onClick={() => navigate('/admin/classes')}
+                        onClick={() => navigate('/classes')}
                         className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                        disabled={isSaving}
                     >
                         <X className="h-4 w-4 mr-2" />
                         Cancel
                     </Button>
                     <Button
                         onClick={handleSubmit(onSubmit)}
+                        disabled={isSaving || isLoading}
                         className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                     >
-                        <Save className="h-4 w-4 mr-2" />
+                        {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                         {isEditMode ? 'Update Class' : 'Schedule Class'}
                     </Button>
                 </div>
@@ -474,14 +555,14 @@ export function ClassForm() {
                                 <Label htmlFor="trainerId" className="text-gray-300">
                                     Primary Trainer <span className="text-red-400">*</span>
                                 </Label>
-                                <Select onValueChange={(value) => setValue('trainerId', value)}>
+                                <Select value={watch('trainerId')} onValueChange={(value) => setValue('trainerId', value)}>
                                     <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
                                         <SelectValue placeholder="Select trainer" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {TRAINERS.map((trainer) => (
-                                            <SelectItem key={trainer.id} value={trainer.id}>
-                                                {trainer.name}
+                                        {trainers.map((trainer: any) => (
+                                            <SelectItem key={trainer._id} value={trainer._id}>
+                                                {trainer.user?.firstName || ''} {trainer.user?.lastName || ''}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -495,14 +576,14 @@ export function ClassForm() {
                                 <Label htmlFor="backupTrainerId" className="text-gray-300">
                                     Backup Trainer
                                 </Label>
-                                <Select onValueChange={(value) => setValue('backupTrainerId', value)}>
+                                <Select value={watch('backupTrainerId')} onValueChange={(value) => setValue('backupTrainerId', value)}>
                                     <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
                                         <SelectValue placeholder="Select backup trainer" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {TRAINERS.map((trainer) => (
-                                            <SelectItem key={trainer.id} value={trainer.id}>
-                                                {trainer.name}
+                                        {trainers.map((trainer: any) => (
+                                            <SelectItem key={trainer._id} value={trainer._id}>
+                                                {trainer.user?.firstName || ''} {trainer.user?.lastName || ''}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>

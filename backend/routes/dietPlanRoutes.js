@@ -72,14 +72,15 @@ router.get('/:id/cost', async (req, res) => {
 
 // POST /api/diet-plans/generate — ML-first generation pipeline
 router.post('/generate', async (req, res) => {
-    const { memberId } = req.body;
+    const { memberId, goal, dietaryPreferences, allergies, budget, activityLevel } = req.body;
     if (!memberId) {
         return res.status(400).json({ success: false, error: 'memberId is required' });
     }
 
     try {
         const { generateDietPlan } = require('../services/aiService');
-        const plan = await generateDietPlan(memberId);
+        const formData = { goal, dietaryPreferences, allergies, budget, activityLevel };
+        const plan = await generateDietPlan(memberId, formData);
 
         res.status(201).json({
             success: true,

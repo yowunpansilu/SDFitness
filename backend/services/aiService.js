@@ -192,7 +192,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
 /**
  * MAIN: Generate a diet plan using the ML-first pipeline
  */
-const generateDietPlan = async (memberId) => {
+const generateDietPlan = async (memberId, formData = {}) => {
     // 1. Fetch member profile
     const member = await Member.findById(memberId);
     if (!member) throw new Error('Member not found');
@@ -200,16 +200,26 @@ const generateDietPlan = async (memberId) => {
     // Calculate age from dateOfBirth
     const age = Math.floor((Date.now() - new Date(member.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 
+    // Convert comma-separated string back to array if needed for allergies
+    let parsedAllergies = formData.allergies;
+    if (typeof parsedAllergies === 'string') {
+        parsedAllergies = parsedAllergies.split(',').map(a => a.trim()).filter(Boolean);
+    }
+
     const userProfile = {
         age,
         weight_kg: member.currentWeight?.value || 70,
         height_cm: member.height?.value || 170,
         gender: member.gender === 'male' ? 'male' : 'female',
-        activity_level: member.activityLevel || 'moderately_active',
-        goal: member.fitnessGoals?.[0] || 'general_fitness',
-        dietary_preferences: member.dietaryPreferences || [],
-        allergies: member.allergies || [],
-        diet_budget: member.dietBudget || { amount: 7000, currency: 'LKR', period: 'weekly' }
+        activity_level: formData.activityLevel || member.activityLevel || 'moderately_active',
+        goal: formData.goal || member.fitnessGoals?.[0] || 'general_fitness',
+        dietary_preferences: formData.dietaryPreferences || member.dietaryPreferences || [],
+        allergies: parsedAllergies || member.allergies || [],
+        diet_budget: {
+            amount: formData.budget || member.dietBudget?.amount || 7000,
+            currency: 'LKR',
+            period: 'weekly'
+        }
     };
 
     // 2. Fetch live prices
@@ -281,6 +291,7 @@ const generateDietPlan = async (memberId) => {
     const dietPlan = new DietPlan({
         memberId,
         planName: `${userProfile.goal.replace('_', ' ')} plan`,
+        goal: userProfile.goal,
         targetCalories: planData.targetCalories,
         macroSplit: planData.macroSplit,
         budget: userProfile.diet_budget,
@@ -291,7 +302,12 @@ const generateDietPlan = async (memberId) => {
             priceChanged: false
         },
         aiMetadata: planData.aiMetadata,
-        status: 'completed'
+        status: 'completed',
+        preferences: {
+            dietary: userProfile.dietary_preferences,
+            allergies: userProfile.allergies,
+            budget: userProfile.diet_budget.amount
+        }
     });
 
     await dietPlan.save();

@@ -1,27 +1,18 @@
-# ML Service Docker Image
+# ML Service Docker Image (Dev)
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system deps
+# Install system deps (tiny, fast)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python deps
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy source
-COPY . .
-
-# Pre-train model if not already trained
-RUN python model/train.py || true
-
+# No pip install during build — deps install at runtime via entrypoint
 EXPOSE 5001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"
 
-CMD ["python", "app.py"]
+# Entrypoint: install deps, train model if needed, then start
+CMD sh -c "pip install --retries 5 --timeout 120 -r requirements.txt && (python model/train.py || true) && python app.py"

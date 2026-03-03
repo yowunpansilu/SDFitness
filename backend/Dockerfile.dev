@@ -1,0 +1,13 @@
+# Backend Dev Container
+FROM node:20-alpine
+
+# Install nodemon globally (tiny package, fast download)
+RUN npm install -g nodemon
+
+WORKDIR /app
+
+# No npm install during build — deps install at runtime via entrypoint
+EXPOSE 5000
+
+# Entrypoint: install deps (if needed) then start with nodemon
+CMD sh -c "npm install && nodemon --watch . --ext js,json server.js"

@@ -1,0 +1,10 @@
+# Frontend Dev Container
+FROM node:20-alpine
+
+WORKDIR /app
+
+# No npm install during build — deps install at runtime via entrypoint
+EXPOSE 5173
+
+# Entrypoint: install deps (if needed) then start dev server
+CMD sh -c "npm install && npm run dev -- --host 0.0.0.0"

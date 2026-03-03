@@ -1,0 +1,100 @@
+Tasks and Members
+
+
+Withana -
+
+- [ ] Dashboard: components/dashboard/ActivityTimeline.tsx, StatsCard.tsx, UpcomingClasses.tsx — Dashboard widgets.
+- [ ] Profile: components/profile/GoalsTab.tsx, HealthMetricsTab.tsx, PersonalInfoTab.tsx, PreferencesTab.tsx — User profile management view.
+- [ ] pages/trainers/TrainerList.tsx & TrainerDetail.tsx & TrainerForm.tsx: CRUD pages for gym trainers.
+
+AIML Contribution - 
+Data Scrapers for data Gathering and Updating the price Database. 
+Real price Integration. 
+
+
+
+
+Matharaarachchi -
+
+- [ ] Auth: components/auth/AuthLayout.tsx, LoginForm.tsx, RegisterForm.tsx, ForgotPasswordForm.tsx, ResetPasswordForm.tsx Authentication UI blocks.
+
+- [ ] Diet: 
+components/diet/DietPlanWizard.tsx (Handles the multi-step flow to request an ML diet plan), MealCard.tsx (Displays meal summary), ShoppingList.tsx (Displays
+
+- [ ] pages/analytics/AnalyticsDashboard.tsx: Data visualization reporting page.
+
+
+AIML Contribution - 
+
+MLOps Engineer	train.py (Steps 3 & 4), 
+
+Dockerfile, 
+
+requirements.txt	Model training, performance metrics, visualization, and containerization.
+
+
+
+
+Illham - 
+
+- [ ] pages/members/MemberList.tsx & MemberDetail.tsx & MemberForm.tsx: CRUD pages for managing gym member properties.
+- [ ] pages/dashboard/AdminDashboard.tsx: High-level overview of gym operations.
+
+- [ ] pages/analytics/AnalyticsDashboard.tsx: Data visualization reporting page.
+
+
+AIML Contribution - 
+
+Data Scientist	train.py (Steps 1 & 2)	Synthetic user generation and the scoring logic that teaches the model preferences.
+
+
+
+Kodithuwakku - 
+
+- [ ] Messaging: components/messaging/ChatWindow.tsx, ConversationList.tsx, MessageBubble.tsx, MessageInput.tsx — UI for trainer-member chat.
+- [ ] Notifications: components/notifications/NotificationBell.tsx, NotificationItem.tsx, NotificationSheet.tsx — Alert popups.
+
+- [ ] pages/members/MemberList.tsx & MemberDetail.tsx & MemberForm.tsx: CRUD pages for managing gym member properties.
+
+
+
+
+AIML Contribution - 
+
+Optimization Architect	recommender.py (Planning engine)	7-day meal plan generation, variety rotation, and budget optimization.
+
+
+
+
+
+Kamsha - 
+
+- [ ] Classes: components/classes/BookingDialog.tsx, ClassCard.tsx, ClassScheduleCalendar.tsx — UI for gym class booking.
+- [ ] pages/equipment/EquipmentList.tsx & EquipmentDetail.tsx & EquipmentForm.tsx: Inventory management pages.
+- [ ] pages/equipment/EquipmentList.tsx & EquipmentDetail.tsx & EquipmentForm.tsx: Inventory management pages.
+- [ ] pages/classes/ClassSchedule.tsx & ClassDetail.tsx & ClassForm.tsx: CRUD pages for scheduling classes.
+
+
+AIML Contribution - 
+
+Nutrition Logic	recommender.py (Inference core)	TDEE/Macro calculations and model-driven food scoring logic.
+
+
+
+Anoja - 
+
+- [ ] Membership: components/membership/FreezeDialog.tsx, MembershipStatusCard.tsx, PlanCard.tsx, UpgradeDialog.tsx, UsageStats.tsx — UI for managing gym subscriptions.
+
+- [ ] Attendance: components/attendance/AttendanceCalendar.tsx, AttendanceStats.tsx, CheckInControl.tsx, QRCodeCard.tsx — UI for gym check-ins.
+- [ ] Feedback. - Not Done. 
+- [ ] pages/settings/Settings.tsx: Gym global configuration.
+
+
+
+AIML Contribution - 
+
+Integration & Ethics	app.py, 
+
+bias_analysis.py	Flask API endpoints and the bias detection suite (Gender/Age fairness).
+
+

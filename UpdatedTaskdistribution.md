@@ -23,8 +23,10 @@ This document maps each team member's **complete** set of responsibilities — f
 - `dashboard/ActivityTimeline.tsx`, `StatsCard.tsx`, `UpcomingClasses.tsx`
 - `profile/GoalsTab.tsx`, `HealthMetricsTab.tsx`, `PersonalInfoTab.tsx`, `PreferencesTab.tsx`
 
-#### Frontend Pages (`frontend/src/pages/`)
-- `trainers/TrainerList.tsx`, `TrainerDetail.tsx`, `TrainerForm.tsx`
+#### Frontend & Admin Pages (`frontend/src/pages/` & `admin-pannel/src/pages/`)
+- Frontend: `trainers/TrainerList.tsx`, `TrainerDetail.tsx`, `TrainerForm.tsx`
+- Admin Panel: `trainers/TrainersList.tsx`, `TrainerDetail.tsx`, `TrainerForm.tsx`
+- Admin Panel (Data): `scraper/ScraperReview.tsx`, `prices/FoodPrices.tsx`
 
 #### Backend Database Model (`backend/models/`)
 - `Trainer.js`
@@ -47,10 +49,10 @@ Data Scrapers for data gathering and updating the price database. Real price int
 - `auth/AuthLayout.tsx`, `LoginForm.tsx`, `RegisterForm.tsx`, `ForgotPasswordForm.tsx`, `ResetPasswordForm.tsx`
 - `diet/DietPlanWizard.tsx`, `MealCard.tsx`, `ShoppingList.tsx`
 
-#### Frontend Pages (`frontend/src/pages/`)
-- `auth/Login.tsx`, `Register.tsx`, `ForgotPassword.tsx`, `ResetPassword.tsx`
-- `analytics/AnalyticsDashboard.tsx`
-- `dashboard/DietPlans.tsx`, `dashboard/diet/DailyPlan.tsx`, `WeeklyPlan.tsx`, `GroceryList.tsx`, `MealRecipe.tsx`
+#### Frontend & Admin Pages (`frontend/src/pages/` & `admin-pannel/src/pages/`)
+- Frontend Auth: `auth/Login.tsx`, `Register.tsx`, `ForgotPassword.tsx`, `ResetPassword.tsx`
+- Frontend Dashboard: `analytics/AnalyticsDashboard.tsx`, `dashboard/DietPlans.tsx`, `dashboard/diet/DailyPlan.tsx`, `WeeklyPlan.tsx`, `GroceryList.tsx`, `MealRecipe.tsx`
+- Admin Panel (ML): `ml/MLDashboard.tsx`
 
 #### Backend Database Models (`backend/models/`)
 - `User.js`, `DietPlan.js`, `FoodPrice.js`
@@ -69,10 +71,9 @@ Data Scrapers for data gathering and updating the price database. Real price int
 ### 👤 Member 3: Illham
 **Domain**: Member Management, Admin Dashboard
 
-#### Frontend Pages (`frontend/src/pages/`)
-- `members/MemberList.tsx`, `MemberDetail.tsx`, `MemberForm.tsx`
-- `dashboard/Dashboard.tsx` (Admin Overview)
-- `analytics/AnalyticsDashboard.tsx`
+#### Frontend & Admin Pages (`frontend/src/pages/` & `admin-pannel/src/pages/`)
+- Frontend: `members/MemberList.tsx`, `MemberDetail.tsx`, `MemberForm.tsx`, `dashboard/Dashboard.tsx`
+- Admin Panel: `members/MembersList.tsx`, `MemberDetail.tsx`, `AddMember.tsx`, `dashboard/AdminDashboard.tsx`, `analytics/AnalyticsDashboard.tsx`
 
 #### Backend Database Model (`backend/models/`)
 - `Member.js`
@@ -95,9 +96,8 @@ Data Scrapers for data gathering and updating the price database. Real price int
 - `messaging/ChatWindow.tsx`, `ConversationList.tsx`, `MessageBubble.tsx`, `MessageInput.tsx`
 - `notifications/NotificationBell.tsx`, `NotificationItem.tsx`, `NotificationSheet.tsx`
 
-#### Frontend Pages (`frontend/src/pages/`)
-- `dashboard/MessagesPage.tsx`, `NotificationSettings.tsx`
-- `members/MemberList.tsx`, `MemberDetail.tsx`, `MemberForm.tsx`
+#### Frontend & Admin Pages (`frontend/src/pages/` & `admin-pannel/src/pages/`)
+- Frontend: `dashboard/MessagesPage.tsx`, `dashboard/NotificationSettings.tsx`, `dashboard/Profile.tsx`, `dashboard/Workouts.tsx`
 
 #### Backend Database Models (`backend/models/`)
 - `Message.js`, `Conversation.js`, `Notification.js`
@@ -119,10 +119,9 @@ Data Scrapers for data gathering and updating the price database. Real price int
 #### Frontend Components (`frontend/src/components/`)
 - `classes/BookingDialog.tsx`, `ClassCard.tsx`, `ClassScheduleCalendar.tsx`
 
-#### Frontend Pages (`frontend/src/pages/`)
-- `classes/ClassSchedule.tsx`
-- `equipment/EquipmentList.tsx`, `EquipmentDetail.tsx`
-- `dashboard/ClassSchedule.tsx`, `MyBookings.tsx`
+#### Frontend & Admin Pages (`frontend/src/pages/` & `admin-pannel/src/pages/`)
+- Frontend: `classes/ClassSchedule.tsx`, `dashboard/ClassSchedule.tsx`, `MyBookings.tsx`, `equipment/EquipmentList.tsx`, `EquipmentDetail.tsx`
+- Admin Panel: `classes/ClassSchedule.tsx`, `ClassDetail.tsx`, `ClassForm.tsx`, `equipment/EquipmentInventory.tsx`, `EquipmentForm.tsx`, `EquipmentDetail.tsx`
 
 #### Backend Database Models (`backend/models/`)
 - `Class.js`, `Booking.js`, `Equipment.js`
@@ -145,11 +144,9 @@ Data Scrapers for data gathering and updating the price database. Real price int
 - `membership/FreezeDialog.tsx`, `MembershipStatusCard.tsx`, `PlanCard.tsx`, `UpgradeDialog.tsx`, `UsageStats.tsx`
 - `attendance/AttendanceCalendar.tsx`, `AttendanceStats.tsx`, `CheckInControl.tsx`, `QRCodeCard.tsx`
 
-#### Frontend Pages (`frontend/src/pages/`)
-- `dashboard/MembershipDetails.tsx`, `MembershipPlans.tsx`, `BillingOverview.tsx`
-- `dashboard/AttendancePage.tsx`
-- `settings/Settings.tsx`
-- Feedback — *Not Done*
+#### Frontend & Admin Pages (`frontend/src/pages/` & `admin-pannel/src/pages/`)
+- Frontend: `dashboard/MembershipDetails.tsx`, `MembershipPlans.tsx`, `BillingOverview.tsx`, `dashboard/AttendancePage.tsx`, `settings/Settings.tsx`
+- Admin Panel: `plans/MembershipPlans.tsx`, `payments/PaymentsList.tsx`, `PaymentDetail.tsx`, `PaymentForm.tsx`, `settings/Settings.tsx`, `settings/EmailTemplates.tsx`, `settings/GeneralSettings.tsx`, `settings/NotificationSettings.tsx`, `settings/RolesPermissions.tsx`
 
 #### Backend Database Models (`backend/models/`)
 - `MembershipPlan.js`, `Subscription.js`, `AttendanceRecord.js`

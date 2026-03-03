@@ -174,6 +174,9 @@ async function seed() {
         { userId: memberUsers[9]._id, memberNumber: 'SD-010', dateOfBirth: new Date('2001-06-14'), gender: 'female', height: { value: 155, unit: 'cm' }, currentWeight: { value: 48, unit: 'kg' }, activityLevel: 'lightly_active', fitnessGoals: ['general_fitness'], dietaryPreferences: ['vegan'], status: 'inactive' }
     ];
     const members = await Member.create(memberData);
+    for (const member of members) {
+        await User.findByIdAndUpdate(member.userId, { memberId: member._id });
+    }
     console.log(`✅ Created ${members.length} members`);
 
     // ─── 5. Subscriptions ─────────────────────────────────────────

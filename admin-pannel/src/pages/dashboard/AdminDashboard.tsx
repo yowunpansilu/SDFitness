@@ -1,10 +1,11 @@
-import { Users, DollarSign, CreditCard, UserCheck, TrendingUp, TrendingDown, Calendar, Wrench, FileText, UserPlus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, DollarSign, CreditCard, UserCheck, TrendingUp, TrendingDown, Calendar, Wrench, FileText, UserPlus, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useNavigate } from 'react-router-dom';
+import api from '@/lib/api/axios';
 
 // Stat Card Component
 interface StatCardProps {
@@ -47,17 +48,12 @@ function StatCard({ title, value, change, icon: Icon, trend, iconColor }: StatCa
                         </div>
                     )}
                 </div>
-                {change !== undefined && (
-                    <p className="text-xs text-gray-500 mt-1">
-                        {trend === 'up' ? '↑' : '↓'} from last month
-                    </p>
-                )}
             </CardContent>
         </Card>
     );
 }
 
-// Mock revenue data
+// Revenue data for chart
 const monthlyRevenueData = [
     { month: 'Jan', revenue: 42000, target: 40000 },
     { month: 'Feb', revenue: 38000, target: 42000 },
@@ -73,17 +69,60 @@ const yearlyRevenueData = [
     { month: '2025', revenue: 542000, target: 520000 },
 ];
 
-// Mock equipment maintenance data
-const equipmentMaintenanceAlerts = [
-    { id: 1, name: 'Treadmill #3', status: 'overdue', daysUntil: -2, location: 'Cardio Zone' },
-    { id: 2, name: 'Rowing Machine #1', status: 'this-week', daysUntil: 3, location: 'Main Floor' },
-    { id: 3, name: 'Leg Press', status: 'upcoming', daysUntil: 12, location: 'Weight Room' },
-];
+interface DashboardData {
+    members: any[];
+    trainers: any[];
+    classes: any[];
+    equipment: any[];
+    plans: any[];
+}
 
 export function AdminDashboard() {
     const navigate = useNavigate();
     const [revenueTimeRange, setRevenueTimeRange] = useState<'monthly' | 'yearly'>('monthly');
+    const [data, setData] = useState<DashboardData>({ members: [], trainers: [], classes: [], equipment: [], plans: [] });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const [membersRes, trainersRes, classesRes, equipmentRes, plansRes] = await Promise.allSettled([
+                    api.get('/members'),
+                    api.get('/trainers'),
+                    api.get('/classes'),
+                    api.get('/equipment'),
+                    api.get('/membership/plans'),
+                ]);
+                setData({
+                    members: membersRes.status === 'fulfilled' ? membersRes.value.data : [],
+                    trainers: trainersRes.status === 'fulfilled' ? trainersRes.value.data : [],
+                    classes: classesRes.status === 'fulfilled' ? classesRes.value.data : [],
+                    equipment: equipmentRes.status === 'fulfilled' ? equipmentRes.value.data : [],
+                    plans: plansRes.status === 'fulfilled' ? plansRes.value.data : [],
+                });
+            } catch (err) {
+                console.error('Failed to fetch dashboard data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchDashboardData();
+    }, []);
+
     const revenueData = revenueTimeRange === 'monthly' ? monthlyRevenueData : yearlyRevenueData;
+
+    const activeMembers = data.members.filter((m: any) => m.status === 'active').length;
+    const maintenanceEquipment = data.equipment.filter((e: any) => e.status === 'maintenance' || e.status === 'out_of_order');
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+                <span className="ml-3 text-gray-400">Loading dashboard...</span>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-8">
             {/* Page Header */}
@@ -100,34 +139,26 @@ export function AdminDashboard() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <StatCard
                     title="Total Members"
-                    value="1,234"
-                    change={12}
-                    trend="up"
+                    value={data.members.length}
                     icon={Users}
                     iconColor="bg-gradient-to-br from-blue-500 to-blue-600"
                 />
                 <StatCard
-                    title="Active Memberships"
-                    value="892"
-                    change={8}
-                    trend="up"
+                    title="Active Members"
+                    value={activeMembers}
                     icon={CreditCard}
                     iconColor="bg-gradient-to-br from-purple-500 to-pink-600"
                 />
                 <StatCard
-                    title="Monthly Revenue"
-                    value="$45,231"
-                    change={23}
-                    trend="up"
-                    icon={DollarSign}
+                    title="Total Trainers"
+                    value={data.trainers.length}
+                    icon={UserCheck}
                     iconColor="bg-gradient-to-br from-green-500 to-emerald-600"
                 />
                 <StatCard
-                    title="Today's Attendance"
-                    value="156"
-                    change={-5}
-                    trend="down"
-                    icon={UserCheck}
+                    title="Total Classes"
+                    value={data.classes.length}
+                    icon={Calendar}
                     iconColor="bg-gradient-to-br from-orange-500 to-red-600"
                 />
             </div>
@@ -203,29 +234,37 @@ export function AdminDashboard() {
                     </CardContent>
                 </Card>
 
-                {/* Recent Registrations */}
+                {/* Recent Members */}
                 <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
                     <CardHeader>
-                        <CardTitle className="text-white">Recent Registrations</CardTitle>
-                        <p className="text-sm text-gray-400">New members this week</p>
+                        <CardTitle className="text-white">Recent Members</CardTitle>
+                        <p className="text-sm text-gray-400">Latest registered members</p>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {[1, 2, 3, 4, 5].map((i) => (
+                            {data.members.slice(0, 5).map((member: any, i: number) => (
                                 <div
-                                    key={i}
-                                    className="flex items-center gap-4 p-3 rounded-lg bg-dark-950/50 hover:bg-dark-800/50 transition-colors"
+                                    key={member._id || i}
+                                    className="flex items-center gap-4 p-3 rounded-lg bg-dark-950/50 hover:bg-dark-800/50 transition-colors cursor-pointer"
+                                    onClick={() => navigate(`/members/${member._id}`)}
                                 >
                                     <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white font-semibold">
-                                        JD
+                                        {(member.user?.firstName || '?')[0]}{(member.user?.lastName || '?')[0]}
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium text-white">John Doe</p>
-                                        <p className="text-xs text-gray-400">Premium Plan</p>
+                                        <p className="text-sm font-medium text-white">
+                                            {member.user?.firstName} {member.user?.lastName}
+                                        </p>
+                                        <p className="text-xs text-gray-400">{member.membershipType || 'Standard'} Plan</p>
                                     </div>
-                                    <div className="text-xs text-gray-500">2 hours ago</div>
+                                    <div className="text-xs text-gray-500">
+                                        {member.joinDate ? new Date(member.joinDate).toLocaleDateString() : ''}
+                                    </div>
                                 </div>
                             ))}
+                            {data.members.length === 0 && (
+                                <p className="text-gray-500 text-sm text-center py-4">No members found</p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -233,29 +272,24 @@ export function AdminDashboard() {
 
             {/* Equipment Maintenance & Quick Actions */}
             <div className="grid gap-6 lg:grid-cols-2">
-                {/* Equipment Maintenance Alerts */}
+                {/* Equipment Status */}
                 <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
                     <CardHeader>
-                        <CardTitle className="text-white">Equipment Maintenance</CardTitle>
-                        <p className="text-sm text-gray-400">Upcoming maintenance schedule</p>
+                        <CardTitle className="text-white">Equipment Status</CardTitle>
+                        <p className="text-sm text-gray-400">Current equipment overview</p>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {equipmentMaintenanceAlerts.map((item) => {
+                            {data.equipment.slice(0, 5).map((item: any) => {
                                 const getStatusColor = (status: string) => {
-                                    if (status === 'overdue') return 'text-red-400 bg-red-500/10 border-red-500/20';
-                                    if (status === 'this-week') return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
+                                    if (status === 'out_of_order') return 'text-red-400 bg-red-500/10 border-red-500/20';
+                                    if (status === 'maintenance') return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
                                     return 'text-green-400 bg-green-500/10 border-green-500/20';
-                                };
-
-                                const getStatusText = (daysUntil: number) => {
-                                    if (daysUntil < 0) return `${Math.abs(daysUntil)} days overdue`;
-                                    return `${daysUntil} days until due`;
                                 };
 
                                 return (
                                     <div
-                                        key={item.id}
+                                        key={item._id}
                                         className="flex items-center justify-between p-3 rounded-lg bg-dark-950/50 hover:bg-dark-800/50 transition-colors cursor-pointer"
                                         onClick={() => navigate('/equipment')}
                                     >
@@ -265,15 +299,18 @@ export function AdminDashboard() {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-white">{item.name}</p>
-                                                <p className="text-xs text-gray-500">{item.location}</p>
+                                                <p className="text-xs text-gray-500">{item.category || item.location}</p>
                                             </div>
                                         </div>
                                         <div className={cn('text-xs font-medium px-2 py-1 rounded-full border', getStatusColor(item.status))}>
-                                            {getStatusText(item.daysUntil)}
+                                            {(item.status || 'active').replace('_', ' ')}
                                         </div>
                                     </div>
                                 );
                             })}
+                            {data.equipment.length === 0 && (
+                                <p className="text-gray-500 text-sm text-center py-4">No equipment data</p>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -331,39 +368,36 @@ export function AdminDashboard() {
                 </Card>
             </div>
 
-
-            {/* Upcoming Classes */}
+            {/* Membership Plans Overview */}
             <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
                 <CardHeader>
-                    <CardTitle className="text-white">Upcoming Classes Today</CardTitle>
-                    <p className="text-sm text-gray-400">Schedule for {new Date().toLocaleDateString()}</p>
+                    <CardTitle className="text-white">Membership Plans</CardTitle>
+                    <p className="text-sm text-gray-400">Active plans and pricing</p>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {[
-                            { name: 'Yoga Flow', time: '10:00 AM', trainer: 'Sarah Johnson', spots: '8/15' },
-                            { name: 'HIIT Training', time: '2:00 PM', trainer: 'Mike Ross', spots: '12/12' },
-                            { name: 'Spin Class', time: '6:00 PM', trainer: 'Emma Wilson', spots: '5/20' },
-                        ].map((classItem, i) => (
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        {data.plans.map((plan: any, i: number) => (
                             <div
-                                key={i}
-                                className="p-4 rounded-lg bg-gradient-to-br from-dark-950/80 to-dark-900/50 border border-dark-800 hover:border-purple-500/30 transition-all duration-300 group"
+                                key={plan._id || i}
+                                className="p-4 rounded-lg bg-gradient-to-br from-dark-950/80 to-dark-900/50 border border-dark-800 hover:border-purple-500/30 transition-all duration-300 group cursor-pointer"
+                                onClick={() => navigate('/plans')}
                             >
                                 <div className="flex justify-between items-start mb-2">
                                     <h3 className="font-semibold text-white group-hover:text-purple-400 transition-colors">
-                                        {classItem.name}
+                                        {plan.name}
                                     </h3>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">
-                                        {classItem.time}
-                                    </span>
                                 </div>
-                                <p className="text-sm text-gray-400 mb-1">{classItem.trainer}</p>
-                                <div className="flex items-center justify-between mt-3">
-                                    <span className="text-xs text-gray-500">Spots Available</span>
-                                    <span className="text-sm font-medium text-white">{classItem.spots}</span>
-                                </div>
+                                <p className="text-2xl font-bold text-purple-400 mb-1">
+                                    LKR {(plan.price || 0).toLocaleString()}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    {plan.durationDays} days • {(plan.features || []).length} features
+                                </p>
                             </div>
                         ))}
+                        {data.plans.length === 0 && (
+                            <p className="text-gray-500 text-sm col-span-4 text-center py-4">No plans found</p>
+                        )}
                     </div>
                 </CardContent>
             </Card>

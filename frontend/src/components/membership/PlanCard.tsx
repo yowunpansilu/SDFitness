@@ -30,7 +30,7 @@ export function PlanCard({ plan, billingCycle, isCurrent, onSelect, isLoading }:
                     <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
                 </div>
                 <div className="text-center mt-4">
-                    <span className="text-3xl font-bold">${price}</span>
+                    <span className="text-3xl font-bold">LKR {price.toLocaleString()}</span>
                     <span className="text-muted-foreground">{period}</span>
                     {plan.trialDays && (
                         <div className="mt-2">

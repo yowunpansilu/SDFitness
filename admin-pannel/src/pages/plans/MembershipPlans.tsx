@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Edit, Trash2, DollarSign, Users, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Edit, Trash2, DollarSign, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,93 +17,138 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import api from '@/lib/api/axios';
 
 interface MembershipPlan {
-    id: string;
+    _id: string;
     name: string;
-    description: string;
     price: number;
-    duration: number;
-    durationType: 'days' | 'months';
+    durationDays: number;
     features: string[];
     isActive: boolean;
-    memberCount: number;
+    createdAt?: string;
+}
+
+interface PlanDisplay extends MembershipPlan {
+    description: string;
     color: string;
 }
 
-// Mock data
-const mockPlans: MembershipPlan[] = [
-    {
-        id: '1',
-        name: 'Basic',
-        description: 'Perfect for beginners starting their fitness journey',
-        price: 49,
-        duration: 1,
-        durationType: 'months',
-        features: ['Gym Access', 'Locker Room', 'Basic Equipment'],
-        isActive: true,
-        memberCount: 245,
-        color: 'from-blue-500 to-cyan-600',
-    },
-    {
-        id: '2',
-        name: 'Premium',
-        description: 'Most popular plan with full gym access and classes',
-        price: 99,
-        duration: 1,
-        durationType: 'months',
-        features: ['Gym Access', 'All Group Classes', 'Personal Trainer (2 sessions)', 'Nutrition Consultation', 'Sauna & Steam Room'],
-        isActive: true,
-        memberCount: 567,
-        color: 'from-purple-500 to-pink-600',
-    },
-    {
-        id: '3',
-        name: 'VIP',
-        description: 'Ultimate fitness experience with exclusive benefits',
-        price: 149,
-        duration: 1,
-        durationType: 'months',
-        features: ['24/7 Gym Access', 'All Group Classes', 'Personal Trainer (8 sessions)', 'Nutrition & Diet Plan', 'Sauna & Steam Room', 'Guest Passes (4/month)', 'Priority Equipment Access'],
-        isActive: true,
-        memberCount: 123,
-        color: 'from-amber-500 to-orange-600',
-    },
-    {
-        id: '4',
-        name: 'Student',
-        description: 'Special discount for students with valid ID',
-        price: 39,
-        duration: 1,
-        durationType: 'months',
-        features: ['Gym Access', 'Locker Room', 'Group Classes (select)', 'Study Area'],
-        isActive: false,
-        memberCount: 89,
-        color: 'from-green-500 to-emerald-600',
-    },
-];
+const planColors: Record<string, string> = {
+    'Basic': 'from-blue-500 to-cyan-600',
+    'Pro': 'from-purple-500 to-pink-600',
+    'Elite': 'from-amber-500 to-orange-600',
+    'Student': 'from-green-500 to-emerald-600',
+};
+
+const planDescriptions: Record<string, string> = {
+    'Basic': 'Perfect for beginners starting their fitness journey',
+    'Pro': 'Most popular plan with full gym access and classes',
+    'Elite': 'Ultimate fitness experience with exclusive benefits',
+    'Student': 'Special discount for students with valid ID',
+};
 
 export function MembershipPlans() {
-    const [plans, setPlans] = useState(mockPlans);
+    const [plans, setPlans] = useState<PlanDisplay[]>([]);
+    const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
-    const [editingPlan, setEditingPlan] = useState<MembershipPlan | null>(null);
+    const [editingPlan, setEditingPlan] = useState<PlanDisplay | null>(null);
 
-    const togglePlanStatus = (planId: string) => {
-        setPlans(plans.map(plan =>
-            plan.id === planId ? { ...plan, isActive: !plan.isActive } : plan
-        ));
+    // Form state
+    const [formName, setFormName] = useState('');
+    const [formPrice, setFormPrice] = useState('');
+    const [formFeatures, setFormFeatures] = useState('');
+    const [formDescription, setFormDescription] = useState('');
+
+    // Fetch plans from API
+    const fetchPlans = async () => {
+        try {
+            setLoading(true);
+            const response = await api.get('/membership/plans');
+            const data: MembershipPlan[] = response.data;
+            setPlans(data.map(plan => ({
+                ...plan,
+                description: planDescriptions[plan.name] || 'Membership plan',
+                color: planColors[plan.name] || 'from-gray-500 to-gray-600',
+            })));
+        } catch (err) {
+            console.error('Failed to fetch plans:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleEdit = (plan: MembershipPlan) => {
+    useEffect(() => { fetchPlans(); }, []);
+
+    const togglePlanStatus = async (planId: string) => {
+        const plan = plans.find(p => p._id === planId);
+        if (!plan) return;
+        try {
+            await api.put(`/membership/plans/${planId}`, { isActive: !plan.isActive });
+            setPlans(plans.map(p => p._id === planId ? { ...p, isActive: !p.isActive } : p));
+        } catch (err) {
+            console.error('Failed to toggle plan status:', err);
+        }
+    };
+
+    const handleEdit = (plan: PlanDisplay) => {
         setEditingPlan(plan);
+        setFormName(plan.name);
+        setFormPrice(plan.price.toString());
+        setFormFeatures(plan.features.join('\n'));
+        setFormDescription(plan.description);
         setOpenDialog(true);
     };
 
-    const handleDelete = (planId: string) => {
+    const handleDelete = async (planId: string) => {
         if (confirm('Are you sure you want to delete this plan?')) {
-            setPlans(plans.filter(plan => plan.id !== planId));
+            try {
+                await api.delete(`/membership/plans/${planId}`);
+                setPlans(plans.filter(p => p._id !== planId));
+            } catch (err) {
+                console.error('Failed to delete plan:', err);
+            }
         }
     };
+
+    const handleSave = async () => {
+        const planData = {
+            name: formName,
+            price: Number(formPrice),
+            durationDays: 30,
+            features: formFeatures.split('\n').filter(f => f.trim()),
+            isActive: true,
+        };
+
+        try {
+            if (editingPlan) {
+                await api.put(`/membership/plans/${editingPlan._id}`, planData);
+            } else {
+                await api.post('/membership/plans', planData);
+            }
+            setOpenDialog(false);
+            setEditingPlan(null);
+            setFormName(''); setFormPrice(''); setFormFeatures(''); setFormDescription('');
+            fetchPlans(); // Refresh from DB
+        } catch (err) {
+            console.error('Failed to save plan:', err);
+        }
+    };
+
+    const handleNewPlan = () => {
+        setEditingPlan(null);
+        setFormName(''); setFormPrice(''); setFormFeatures(''); setFormDescription('');
+        setOpenDialog(true);
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+                <span className="ml-3 text-gray-400">Loading plans...</span>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -119,7 +164,10 @@ export function MembershipPlans() {
                 </div>
                 <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                     <DialogTrigger asChild>
-                        <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20">
+                        <Button
+                            onClick={handleNewPlan}
+                            className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
+                        >
                             <Plus className="h-4 w-4 mr-2" />
                             Add New Plan
                         </Button>
@@ -137,16 +185,20 @@ export function MembershipPlans() {
                                     <Label htmlFor="name" className="text-gray-300">Plan Name</Label>
                                     <Input
                                         id="name"
+                                        value={formName}
+                                        onChange={(e) => setFormName(e.target.value)}
                                         placeholder="Premium"
                                         className="bg-dark-800/50 border-dark-700 text-white"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="price" className="text-gray-300">Price (per month)</Label>
+                                    <Label htmlFor="price" className="text-gray-300">Price in LKR (per month)</Label>
                                     <Input
                                         id="price"
                                         type="number"
-                                        placeholder="99"
+                                        value={formPrice}
+                                        onChange={(e) => setFormPrice(e.target.value)}
+                                        placeholder="8500"
                                         className="bg-dark-800/50 border-dark-700 text-white"
                                     />
                                 </div>
@@ -155,6 +207,8 @@ export function MembershipPlans() {
                                 <Label htmlFor="description" className="text-gray-300">Description</Label>
                                 <Textarea
                                     id="description"
+                                    value={formDescription}
+                                    onChange={(e) => setFormDescription(e.target.value)}
                                     placeholder="Enter plan description..."
                                     className="bg-dark-800/50 border-dark-700 text-white"
                                     rows={3}
@@ -164,7 +218,9 @@ export function MembershipPlans() {
                                 <Label htmlFor="features" className="text-gray-300">Features (one per line)</Label>
                                 <Textarea
                                     id="features"
-                                    placeholder="Gym Access&#10;Personal Trainer&#10;Nutrition Plan"
+                                    value={formFeatures}
+                                    onChange={(e) => setFormFeatures(e.target.value)}
+                                    placeholder={"Gym Access\nPersonal Trainer\nNutrition Plan"}
                                     className="bg-dark-800/50 border-dark-700 text-white"
                                     rows={5}
                                 />
@@ -178,7 +234,10 @@ export function MembershipPlans() {
                             >
                                 Cancel
                             </Button>
-                            <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white">
+                            <Button
+                                onClick={handleSave}
+                                className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
+                            >
                                 {editingPlan ? 'Update Plan' : 'Create Plan'}
                             </Button>
                         </DialogFooter>
@@ -187,7 +246,7 @@ export function MembershipPlans() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-gray-400">Total Plans</CardTitle>
@@ -208,21 +267,11 @@ export function MembershipPlans() {
                 </Card>
                 <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Total Members</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-400">Price Range (LKR)</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-white">
-                            {plans.reduce((sum, plan) => sum + plan.memberCount, 0)}
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Monthly Revenue</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-white">
-                            ${plans.reduce((sum, plan) => sum + (plan.price * plan.memberCount), 0).toLocaleString()}
+                            {plans.length > 0 ? `${Math.min(...plans.map(p => p.price)).toLocaleString()} - ${Math.max(...plans.map(p => p.price)).toLocaleString()}` : '0'}
                         </div>
                     </CardContent>
                 </Card>
@@ -232,7 +281,7 @@ export function MembershipPlans() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {plans.map((plan) => (
                     <Card
-                        key={plan.id}
+                        key={plan._id}
                         className={cn(
                             "bg-dark-900/50 border-dark-800 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group",
                             !plan.isActive && "opacity-60"
@@ -269,14 +318,8 @@ export function MembershipPlans() {
                         <CardContent className="space-y-4">
                             {/* Price */}
                             <div className="flex items-baseline gap-1">
-                                <span className="text-4xl font-bold text-white">${plan.price}</span>
-                                <span className="text-gray-400">/{plan.duration} {plan.durationType}</span>
-                            </div>
-
-                            {/* Member Count */}
-                            <div className="flex items-center gap-2 text-sm text-gray-400">
-                                <Users className="h-4 w-4" />
-                                <span>{plan.memberCount} active members</span>
+                                <span className="text-4xl font-bold text-white">LKR {plan.price.toLocaleString()}</span>
+                                <span className="text-gray-400">/{plan.durationDays} days</span>
                             </div>
 
                             {/* Features */}
@@ -297,7 +340,7 @@ export function MembershipPlans() {
                                 <div className="flex items-center gap-2">
                                     <Switch
                                         checked={plan.isActive}
-                                        onCheckedChange={() => togglePlanStatus(plan.id)}
+                                        onCheckedChange={() => togglePlanStatus(plan._id)}
                                         className="data-[state=checked]:bg-green-500"
                                     />
                                     <span className="text-sm text-gray-400">
@@ -316,7 +359,7 @@ export function MembershipPlans() {
                                     <Button
                                         size="icon"
                                         variant="ghost"
-                                        onClick={() => handleDelete(plan.id)}
+                                        onClick={() => handleDelete(plan._id)}
                                         className="text-gray-400 hover:text-red-400 hover:bg-red-500/10"
                                     >
                                         <Trash2 className="h-4 w-4" />

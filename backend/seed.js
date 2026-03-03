@@ -16,6 +16,7 @@ const AttendanceRecord = require('./models/AttendanceRecord');
 const Notification = require('./models/Notification');
 const Conversation = require('./models/Conversation');
 const Message = require('./models/Message');
+const FoodPrice = require('./models/FoodPrice');
 
 async function seed() {
     await mongoose.connect(process.env.MONGO_URI);
@@ -286,6 +287,57 @@ async function seed() {
     await Conversation.findByIdAndUpdate(conv1._id, { lastMessage: msgs[3]._id });
     await Conversation.findByIdAndUpdate(conv2._id, { lastMessage: msgs[5]._id });
     console.log(`✅ Created ${2} conversations with ${msgs.length} messages`);
+
+    // ─── 12. Food Prices ─────────────────────────────────────────
+    await FoodPrice.deleteMany({});
+    const foodPrices = await FoodPrice.create([
+        { foodId: 'rice', name: 'White Rice', category: 'carbs', nutritionPer100g: { calories: 130, protein: 2.7, carbs: 28, fat: 0.3, fiber: 0.4 }, prices: [{ store: 'Keells', pricePerUnit: 220, unit: 'kg', pricePerGram: 0.22, source: 'scraper_catalog' }, { store: 'Cargills', pricePerUnit: 210, unit: 'kg', pricePerGram: 0.21, source: 'scraper_catalog' }], aliases: ['samba rice', 'white rice', 'basmati rice'], isVerified: true },
+        { foodId: 'brown_rice', name: 'Brown Rice', category: 'carbs', nutritionPer100g: { calories: 112, protein: 2.3, carbs: 24, fat: 0.8, fiber: 1.8 }, prices: [{ store: 'Keells', pricePerUnit: 380, unit: 'kg', pricePerGram: 0.38, source: 'scraper_catalog' }], aliases: ['red rice', 'brown rice'], isVerified: true },
+        { foodId: 'chicken_breast', name: 'Chicken Breast', category: 'protein', nutritionPer100g: { calories: 165, protein: 31, carbs: 0, fat: 3.6, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 1450, unit: 'kg', pricePerGram: 1.45, source: 'scraper_catalog' }, { store: 'Arpico', pricePerUnit: 1380, unit: 'kg', pricePerGram: 1.38, source: 'scraper_catalog' }], aliases: ['chicken breast fillet', 'boneless chicken'], isVerified: true },
+        { foodId: 'eggs', name: 'Eggs (10 pack)', category: 'protein', nutritionPer100g: { calories: 155, protein: 13, carbs: 1.1, fat: 11, fiber: 0 }, prices: [{ store: 'Cargills', pricePerUnit: 520, unit: 'pack', pricePerGram: 0.87, source: 'scraper_catalog' }, { store: 'Keells', pricePerUnit: 540, unit: 'pack', pricePerGram: 0.9, source: 'scraper_catalog' }], aliases: ['farm eggs', 'hen eggs'], isVerified: true },
+        { foodId: 'banana', name: 'Banana (Ambul)', category: 'fruit', nutritionPer100g: { calories: 89, protein: 1.1, carbs: 23, fat: 0.3, fiber: 2.6 }, prices: [{ store: 'Keells', pricePerUnit: 180, unit: 'kg', pricePerGram: 0.18, source: 'scraper_catalog' }, { store: 'Sathosa', pricePerUnit: 150, unit: 'kg', pricePerGram: 0.15, source: 'scraper_catalog' }], aliases: ['ambul banana', 'banana'], isVerified: true },
+        { foodId: 'red_lentils', name: 'Red Lentils (Parippu)', category: 'protein', nutritionPer100g: { calories: 116, protein: 9, carbs: 20, fat: 0.4, fiber: 8 }, prices: [{ store: 'Cargills', pricePerUnit: 550, unit: 'kg', pricePerGram: 0.55, source: 'scraper_catalog' }, { store: 'Sathosa', pricePerUnit: 490, unit: 'kg', pricePerGram: 0.49, source: 'scraper_catalog' }], aliases: ['masoor dhal', 'parippu', 'dhal'], isVerified: true },
+        { foodId: 'spinach', name: 'Spinach', category: 'vegetable', nutritionPer100g: { calories: 23, protein: 2.9, carbs: 3.6, fat: 0.4, fiber: 2.2 }, prices: [{ store: 'Keells', pricePerUnit: 280, unit: 'kg', pricePerGram: 0.28, source: 'scraper_catalog' }], aliases: ['spinach leaves', 'nivithi'], isVerified: true },
+        { foodId: 'coconut_oil', name: 'Coconut Oil', category: 'fats', nutritionPer100g: { calories: 862, protein: 0, carbs: 0, fat: 100, fiber: 0 }, prices: [{ store: 'Arpico', pricePerUnit: 890, unit: 'L', pricePerGram: 0.97, source: 'manual' }], aliases: ['pol thel', 'virgin coconut oil'], isVerified: true },
+        { foodId: 'yogurt', name: 'Plain Yogurt', category: 'dairy', nutritionPer100g: { calories: 59, protein: 10, carbs: 3.6, fat: 0.4, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 440, unit: 'kg', pricePerGram: 0.44, source: 'scraper_catalog' }, { store: 'Cargills', pricePerUnit: 420, unit: 'kg', pricePerGram: 0.42, source: 'scraper_catalog' }], aliases: ['curd', 'meekiri'], isVerified: true },
+        { foodId: 'sweet_potato', name: 'Sweet Potato', category: 'carbs', nutritionPer100g: { calories: 86, protein: 1.6, carbs: 20, fat: 0.1, fiber: 3 }, prices: [{ store: 'Sathosa', pricePerUnit: 320, unit: 'kg', pricePerGram: 0.32, source: 'scraper_catalog' }], aliases: ['bathala', 'sweet potato'], isVerified: true },
+        { foodId: 'oats', name: 'Oats', category: 'carbs', nutritionPer100g: { calories: 389, protein: 17, carbs: 66, fat: 7, fiber: 11 }, prices: [{ store: 'Keells', pricePerUnit: 620, unit: 'kg', pricePerGram: 0.62, source: 'scraper_catalog' }], aliases: ['rolled oats', 'oat meal'], isVerified: true },
+        { foodId: 'tuna', name: 'Canned Tuna', category: 'protein', nutritionPer100g: { calories: 132, protein: 29, carbs: 0, fat: 1, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 450, unit: 'can', pricePerGram: 2.65, source: 'scraper_catalog' }, { store: 'Cargills', pricePerUnit: 430, unit: 'can', pricePerGram: 2.53, source: 'scraper_catalog' }], aliases: ['tin fish', 'canned tuna'], isVerified: true },
+        { foodId: 'milk', name: 'Fresh Milk (1L)', category: 'dairy', nutritionPer100g: { calories: 42, protein: 3.4, carbs: 5, fat: 1, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 310, unit: 'L', pricePerGram: 0.31, source: 'scraper_catalog' }, { store: 'Cargills', pricePerUnit: 295, unit: 'L', pricePerGram: 0.30, source: 'scraper_catalog' }], aliases: ['ambewela milk', 'fresh milk'], isVerified: true },
+        { foodId: 'butter', name: 'Butter', category: 'fats', nutritionPer100g: { calories: 717, protein: 0.9, carbs: 0.1, fat: 81, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 680, unit: '200g', pricePerGram: 3.4, source: 'scraper_catalog' }], aliases: ['anchor butter', 'unsalted butter'], isVerified: true },
+        { foodId: 'soy_meat', name: 'Soy Meat', category: 'protein', nutritionPer100g: { calories: 296, protein: 52, carbs: 30, fat: 1, fiber: 6 }, prices: [{ store: 'Sathosa', pricePerUnit: 95, unit: '90g', pricePerGram: 1.06, source: 'scraper_catalog' }], aliases: ['lanka soy', 'soya meat chunks'], isVerified: true },
+        { foodId: 'bread', name: 'Bread (Sliced)', category: 'carbs', nutritionPer100g: { calories: 265, protein: 9, carbs: 49, fat: 3.2, fiber: 2.7 }, prices: [{ store: 'Keells', pricePerUnit: 190, unit: '450g', pricePerGram: 0.42, source: 'scraper_catalog' }], aliases: ['prima bread', 'sliced bread'], isVerified: true },
+        { foodId: 'coconut_milk', name: 'Coconut Milk', category: 'fats', nutritionPer100g: { calories: 230, protein: 2.3, carbs: 5.5, fat: 24, fiber: 0 }, prices: [{ store: 'Cargills', pricePerUnit: 180, unit: '400ml', pricePerGram: 0.45, source: 'scraper_catalog' }], aliases: ['coconut cream', 'pol kiri'], isVerified: true },
+        { foodId: 'tofu', name: 'Tofu', category: 'protein', nutritionPer100g: { calories: 76, protein: 8, carbs: 1.9, fat: 4.8, fiber: 0.3 }, prices: [{ store: 'Keells', pricePerUnit: 350, unit: '300g', pricePerGram: 1.17, source: 'manual' }], aliases: ['bean curd', 'soy tofu'], isVerified: false },
+        { foodId: 'papaya', name: 'Papaya', category: 'fruit', nutritionPer100g: { calories: 43, protein: 0.5, carbs: 11, fat: 0.3, fiber: 1.7 }, prices: [{ store: 'Sathosa', pricePerUnit: 120, unit: 'kg', pricePerGram: 0.12, source: 'scraper_catalog' }], aliases: ['papol', 'gaslabu'], isVerified: true },
+        { foodId: 'chicken_thigh', name: 'Chicken Thigh', category: 'protein', nutritionPer100g: { calories: 209, protein: 26, carbs: 0, fat: 11, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 1100, unit: 'kg', pricePerGram: 1.1, source: 'scraper_catalog' }, { store: 'Cargills', pricePerUnit: 1050, unit: 'kg', pricePerGram: 1.05, source: 'scraper_catalog' }], aliases: ['chicken leg', 'chicken thigh'], isVerified: true }
+    ]);
+    console.log(`✅ Created ${foodPrices.length} food prices`);
+
+    // ─── 13. Scraper Review Queue ────────────────────────────────
+    const ScraperReviewItem = mongoose.models.ScraperReviewItem || mongoose.model('ScraperReviewItem', new mongoose.Schema({
+        rawName: { type: String, required: true },
+        store: { type: String, required: true },
+        price: Number,
+        url: { type: String, default: '' },
+        scrapedAt: { type: Date, default: Date.now },
+        suggestedMatch: { type: String, default: null },
+        matchConfidence: { type: Number, default: 0 },
+        status: { type: String, enum: ['pending', 'matched', 'ignored'], default: 'pending' },
+        linkedFoodId: { type: String, default: null },
+        notes: { type: String, default: '' },
+    }, { timestamps: true }));
+    await ScraperReviewItem.deleteMany({});
+    const scraperItems = await ScraperReviewItem.create([
+        { rawName: 'KEELLS Chicken Drumstick 500g', store: 'Keells', price: 890, scrapedAt: new Date(), suggestedMatch: 'chicken_thigh', matchConfidence: 0.72, status: 'pending' },
+        { rawName: 'Anchor Butter Unsalted 200g', store: 'Keells', price: 680, scrapedAt: new Date(), suggestedMatch: 'butter', matchConfidence: 0.91, status: 'pending' },
+        { rawName: 'Cargills Magic Basmati Rice 1kg', store: 'Cargills', price: 490, scrapedAt: new Date(), suggestedMatch: 'rice', matchConfidence: 0.85, status: 'pending' },
+        { rawName: 'Vim Dishwash Liquid 500ml', store: 'Keells', price: 350, scrapedAt: new Date(), status: 'pending' },
+        { rawName: 'Ambewela Fresh Milk 1L', store: 'Cargills', price: 310, scrapedAt: new Date(), suggestedMatch: 'milk', matchConfidence: 0.94, status: 'pending' },
+        { rawName: 'Signal Toothpaste 120g', store: 'Arpico', price: 280, scrapedAt: new Date(), status: 'pending' },
+        { rawName: 'Lanka Soy Meat 90g', store: 'Sathosa', price: 95, scrapedAt: new Date(), suggestedMatch: 'soy_meat', matchConfidence: 0.88, status: 'pending' }
+    ]);
+    console.log(`✅ Created ${scraperItems.length} scraper review items`);
 
     console.log('\n🎉 Seed complete! Database populated with sample data.');
     console.log('   Admin login: admin@sdfitness.com / admin123');

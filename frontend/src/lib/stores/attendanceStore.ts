@@ -1,13 +1,19 @@
 import { create } from 'zustand';
 import {
     type AttendanceRecord,
-    type AttendanceStats,
     getAttendanceHistory,
-    checkInUser,
-    checkOutUser
+    checkIn,
+    checkOut
 } from '@/lib/api/attendanceService';
 import { produce } from 'immer';
 import { differenceInMinutes, parseISO } from 'date-fns';
+
+interface AttendanceStats {
+    totalVisits: number;
+    currentStreak: number;
+    avgDurationMinutes: number;
+    lastVisitDate?: string;
+}
 
 interface AttendanceState {
     history: AttendanceRecord[];
@@ -38,7 +44,7 @@ export const useAttendanceStore = create<AttendanceState>((set, get) => ({
             const currentStreak = calculateStreak(history);
             const totalDuration = history.reduce((acc, curr) => acc + (curr.durationMinutes || 0), 0);
             const avgDurationMinutes = totalVisits > 0 ? Math.round(totalDuration / totalVisits) : 0;
-            const lastVisitDate = history.length > 0 ? history[0].date : undefined;
+            const lastVisitDate = history.length > 0 ? history[0].checkInTime : undefined;
 
             set({
                 history,
@@ -53,7 +59,7 @@ export const useAttendanceStore = create<AttendanceState>((set, get) => ({
     checkIn: async (method) => {
         set({ isLoading: true, error: null });
         try {
-            const session = await checkInUser(method);
+            const session = await checkIn('current-user', method === 'qr' ? 'Main Gym' : 'Main Gym');
             set({ currentSession: session, isLoading: false });
         } catch (err) {
             set({ error: 'Failed to check in', isLoading: false });
@@ -66,8 +72,8 @@ export const useAttendanceStore = create<AttendanceState>((set, get) => ({
 
         set({ isLoading: true, error: null });
         try {
-            const completedSession = await checkOutUser(currentSession.id);
-            // Update the completed session with actual duration calculations if needed in a real app
+            const userId = typeof currentSession.user === 'string' ? currentSession.user : currentSession.user._id;
+            const completedSession = await checkOut(userId);
             const endTime = new Date();
             const startTime = parseISO(currentSession.checkInTime);
             const duration = differenceInMinutes(endTime, startTime);
@@ -77,10 +83,8 @@ export const useAttendanceStore = create<AttendanceState>((set, get) => ({
             set(produce((state: AttendanceState) => {
                 state.history.unshift(finalRecord);
                 state.currentSession = null;
-                // Update stats
                 if (state.stats) {
                     state.stats.totalVisits += 1;
-                    // Recalculate average approx
                     const totalDur = (state.stats.avgDurationMinutes * (state.stats.totalVisits - 1)) + duration;
                     state.stats.avgDurationMinutes = Math.round(totalDur / state.stats.totalVisits);
                 }
@@ -92,10 +96,32 @@ export const useAttendanceStore = create<AttendanceState>((set, get) => ({
     }
 }));
 
-// Helper to calculate streak (mock logic for now - consecutive days)
+// Helper to calculate streak (consecutive days with attendance)
 function calculateStreak(history: AttendanceRecord[]): number {
-    // Determine streak based on history dates
-    // Simplified logic: just returning a mock number or simple calculation
-    // In real app, sort by date desc and check consecutiveness
-    return history.length > 0 ? 3 : 0;
+    if (history.length === 0) return 0;
+
+    // Get unique dates sorted descending
+    const uniqueDates = [...new Set(
+        history.map(r => {
+            const d = new Date(r.checkInTime);
+            return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        })
+    )].sort().reverse();
+
+    if (uniqueDates.length === 0) return 0;
+
+    let streak = 1;
+    for (let i = 1; i < uniqueDates.length; i++) {
+        const [y1, m1, d1] = uniqueDates[i - 1].split('-').map(Number);
+        const [y2, m2, d2] = uniqueDates[i].split('-').map(Number);
+        const date1 = new Date(y1, m1, d1);
+        const date2 = new Date(y2, m2, d2);
+        const diffDays = Math.round((date1.getTime() - date2.getTime()) / 86400000);
+        if (diffDays === 1) {
+            streak++;
+        } else {
+            break;
+        }
+    }
+    return streak;
 }

@@ -75,24 +75,24 @@ export function ClassDetail() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" onClick={() => navigate('/classes')} className="text-gray-400 hover:text-white"><ArrowLeft className="h-4 w-4 mr-2" /> Back</Button>
+                    <Button variant="ghost" onClick={() => navigate('/classes')} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"><ArrowLeft className="h-4 w-4 mr-2" /> Back</Button>
                     <div>
-                        <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">{cls.name}</h1>
-                        <p className="text-gray-400 mt-2">Class Details & Enrollment</p>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{cls.name}</h1>
+                        <p className="text-gray-500 dark:text-gray-400 mt-2">Class Details & Enrollment</p>
                     </div>
                 </div>
                 <div className="flex gap-3">
-                    <Button onClick={() => navigate(`/classes/edit/${id}`)} className="bg-blue-500/20 text-blue-400 border border-blue-500/30 hover:bg-blue-500/30"><Edit className="h-4 w-4 mr-2" /> Edit Class</Button>
-                    <Button variant="outline" onClick={handleDelete} disabled={isDeleting} className="border-red-500/30 text-red-400 hover:bg-red-500/20">
+                    <Button onClick={() => navigate(`/classes/edit/${id}`)} className="bg-blue-500/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30 hover:bg-blue-500/20 dark:hover:bg-blue-500/30 shadow-sm"><Edit className="h-4 w-4 mr-2" /> Edit Class</Button>
+                    <Button variant="outline" onClick={handleDelete} disabled={isDeleting} className="bg-white dark:bg-dark-900/50 border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 shadow-sm">
                         {isDeleting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Trash2 className="h-4 w-4 mr-2" />} Delete
                     </Button>
                 </div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-4">
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-400">Enrollment</CardTitle></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-white">{enrolled}/{capacity}</div><p className="text-xs text-gray-500 mt-1">{enrollmentPercentage.toFixed(0)}% Full</p></CardContent>
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
+                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Enrollment</CardTitle></CardHeader>
+                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">{enrolled}/{capacity}</div><p className="text-xs text-gray-500 mt-1">{enrollmentPercentage.toFixed(0)}% Full</p></CardContent>
                 </Card>
                 <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
                     <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-400">Spots Remaining</CardTitle></CardHeader>
@@ -110,36 +110,36 @@ export function ClassDetail() {
 
             <div className="grid gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2 space-y-6">
-                    <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                        <CardHeader><CardTitle className="text-white flex items-center gap-2"><Calendar className="h-5 w-5" /> Class Information</CardTitle></CardHeader>
+                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
+                        <CardHeader><CardTitle className="text-gray-900 dark:text-white flex items-center gap-2"><Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" /> Class Information</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
-                            {cls.description && <div><label className="text-sm text-gray-400">Description</label><p className="text-white mt-1">{cls.description}</p></div>}
+                            {cls.description && <div><label className="text-sm text-gray-500 dark:text-gray-400">Description</label><p className="text-gray-900 dark:text-white mt-1">{cls.description}</p></div>}
                             <div className="grid grid-cols-2 gap-4">
-                                <div><label className="text-sm text-gray-400">Class Type</label><div className="mt-1"><Badge className={cn('text-white bg-gradient-to-r', classTypeColors[classType] || 'from-gray-500 to-gray-600')}>{classType}</Badge></div></div>
-                                <div><label className="text-sm text-gray-400 flex items-center gap-2"><MapPin className="h-4 w-4" /> Location</label><p className="text-white mt-1">{cls.location || schedule.room || 'TBD'}</p></div>
+                                <div><label className="text-sm text-gray-500 dark:text-gray-400">Class Type</label><div className="mt-1"><Badge className={cn('text-white bg-gradient-to-r shadow-sm', classTypeColors[classType] || 'from-gray-500 to-gray-600')}>{classType}</Badge></div></div>
+                                <div><label className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2"><MapPin className="h-4 w-4 text-purple-600 dark:text-purple-400" /> Location</label><p className="text-gray-900 dark:text-white mt-1">{cls.location || schedule.room || 'TBD'}</p></div>
                             </div>
-                            <div><label className="text-sm text-gray-400 flex items-center gap-2"><Clock className="h-4 w-4" /> Schedule</label><p className="text-white mt-1">{schedule.dayOfWeek || 'TBD'} at {schedule.startTime || 'TBD'} - {schedule.endTime || ''}</p></div>
-                            {cls.createdAt && <div><label className="text-sm text-gray-400">Created</label><p className="text-white mt-1">{new Date(cls.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p></div>}
+                            <div><label className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2"><Clock className="h-4 w-4 text-purple-600 dark:text-purple-400" /> Schedule</label><p className="text-gray-900 dark:text-white mt-1">{schedule.dayOfWeek || 'TBD'} at {schedule.startTime || 'TBD'} - {schedule.endTime || ''}</p></div>
+                            {cls.createdAt && <div><label className="text-sm text-gray-500 dark:text-gray-400">Created</label><p className="text-gray-900 dark:text-white mt-1">{new Date(cls.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p></div>}
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                        <CardHeader><CardTitle className="text-white flex items-center gap-2"><Users className="h-5 w-5" /> Enrolled Members ({enrolled})</CardTitle></CardHeader>
+                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
+                        <CardHeader><CardTitle className="text-gray-900 dark:text-white flex items-center gap-2"><Users className="h-5 w-5 text-purple-600 dark:text-purple-400" /> Enrolled Members ({enrolled})</CardTitle></CardHeader>
                         <CardContent>
                             {enrolledMembers.length === 0 ? (
-                                <p className="text-gray-400 text-center py-6">No members enrolled yet</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-center py-6">No members enrolled yet</p>
                             ) : (
                                 <div className="space-y-3">
                                     {enrolledMembers.map((member: any) => (
-                                        <div key={member._id} className="flex items-center justify-between p-3 rounded-lg bg-dark-800/50 hover:bg-dark-800 transition-colors cursor-pointer" onClick={() => navigate(`/members/${member._id}`)}>
+                                        <div key={member._id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-dark-800/50 hover:bg-gray-100 dark:hover:bg-dark-800 transition-colors cursor-pointer border border-gray-100 dark:border-dark-700 shadow-sm" onClick={() => navigate(`/members/${member._id}`)}>
                                             <div className="flex items-center gap-3">
-                                                <Avatar className="h-10 w-10"><AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">{member.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
+                                                <Avatar className="h-10 w-10 ring-2 ring-purple-500/10"><AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-sm">{member.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
                                                 <div>
-                                                    <p className="text-white font-medium">{member.name}</p>
-                                                    {member.joinedDate && <p className="text-xs text-gray-400">Joined {new Date(member.joinedDate).toLocaleDateString()}</p>}
+                                                    <p className="text-gray-900 dark:text-white font-medium">{member.name}</p>
+                                                    {member.joinedDate && <p className="text-xs text-gray-500 dark:text-gray-400">Joined {new Date(member.joinedDate).toLocaleDateString()}</p>}
                                                 </div>
                                             </div>
-                                            <Button variant="ghost" size="sm" className="text-gray-400">View</Button>
+                                            <Button variant="ghost" size="sm" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">View</Button>
                                         </div>
                                     ))}
                                 </div>
@@ -149,20 +149,20 @@ export function ClassDetail() {
                 </div>
 
                 <div className="space-y-6">
-                    <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                        <CardHeader><CardTitle className="text-white flex items-center gap-2"><User className="h-5 w-5" /> Trainer</CardTitle></CardHeader>
+                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
+                        <CardHeader><CardTitle className="text-gray-900 dark:text-white flex items-center gap-2"><User className="h-5 w-5 text-purple-600 dark:text-purple-400" /> Trainer</CardTitle></CardHeader>
                         <CardContent>
                             <div className="text-center space-y-4">
-                                <Avatar className="h-24 w-24 mx-auto"><AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-2xl">{trainerName.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
+                                <Avatar className="h-24 w-24 mx-auto ring-4 ring-purple-500/10"><AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-2xl shadow-lg">{trainerName.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
                                 <div>
-                                    <h3 className="text-white font-semibold text-lg">{trainerName}</h3>
-                                    {trainerUser.email && <p className="text-gray-400 text-sm">{trainerUser.email}</p>}
+                                    <h3 className="text-gray-900 dark:text-white font-semibold text-lg">{trainerName}</h3>
+                                    {trainerUser.email && <p className="text-gray-500 dark:text-gray-400 text-sm">{trainerUser.email}</p>}
                                 </div>
                                 {trainer.specialization && trainer.specialization.length > 0 && (
                                     <div>
-                                        <label className="text-sm text-gray-400 block mb-2">Specializations</label>
+                                        <label className="text-sm text-gray-500 dark:text-gray-400 block mb-2">Specializations</label>
                                         <div className="flex flex-wrap gap-2 justify-center">
-                                            {trainer.specialization.map((spec: string) => <Badge key={spec} className="bg-blue-500/20 text-blue-400 border-blue-500/30">{spec}</Badge>)}
+                                            {trainer.specialization.map((spec: string) => <Badge key={spec} className="bg-purple-500/10 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-purple-200 dark:border-purple-500/30 shadow-sm">{spec}</Badge>)}
                                         </div>
                                     </div>
                                 )}
@@ -171,12 +171,12 @@ export function ClassDetail() {
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                        <CardHeader><CardTitle className="text-white text-sm">Quick Actions</CardTitle></CardHeader>
+                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
+                        <CardHeader><CardTitle className="text-gray-900 dark:text-white text-sm">Quick Actions</CardTitle></CardHeader>
                         <CardContent className="space-y-2">
-                            <Button variant="outline" className="w-full border-dark-700 text-gray-300 hover:bg-dark-800">Send Notification</Button>
-                            <Button variant="outline" className="w-full border-dark-700 text-gray-300 hover:bg-dark-800">Download Roster</Button>
-                            <Button variant="outline" className="w-full border-dark-700 text-gray-300 hover:bg-dark-800">Cancel Session</Button>
+                            <Button variant="outline" className="w-full bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 shadow-sm">Send Notification</Button>
+                            <Button variant="outline" className="w-full bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 shadow-sm">Download Roster</Button>
+                            <Button variant="outline" className="w-full bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 shadow-sm">Cancel Session</Button>
                         </CardContent>
                     </Card>
                 </div>

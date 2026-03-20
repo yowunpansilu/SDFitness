@@ -186,13 +186,13 @@ export function EquipmentDetail() {
                         variant="ghost"
                         size="icon"
                         onClick={() => navigate('/admin/equipment')}
-                        className="text-gray-400 hover:text-white hover:bg-dark-800"
+                        className="text-muted-foreground hover:text-foreground hover:bg-card"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">{equipmentData.name}</h1>
-                        <p className="text-gray-400">
+                        <h1 className="text-2xl font-bold text-foreground">{equipmentData.name}</h1>
+                        <p className="text-muted-foreground">
                             {equipmentData.brand} {equipmentData.model}
                         </p>
                     </div>
@@ -202,7 +202,7 @@ export function EquipmentDetail() {
                     <Button
                         variant="outline"
                         onClick={handleScheduleMaintenance}
-                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                        className="bg-card border-border text-muted-foreground hover:bg-muted"
                     >
                         <Wrench className="h-4 w-4 mr-2" />
                         Schedule Maintenance
@@ -210,7 +210,7 @@ export function EquipmentDetail() {
                     <Button
                         variant="outline"
                         onClick={handleEdit}
-                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                        className="bg-card border-border text-muted-foreground hover:bg-muted"
                     >
                         <Edit className="h-4 w-4 mr-2" />
                         Edit
@@ -218,7 +218,7 @@ export function EquipmentDetail() {
                     <Button
                         variant="outline"
                         onClick={handleDelete}
-                        className="bg-dark-800 border-dark-700 text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
+                        className="bg-card border-border text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
                     >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete
@@ -236,7 +236,7 @@ export function EquipmentDetail() {
                                     <StatusIcon className="h-3 w-3 mr-1" />
                                     {STATUS_CONFIG[equipmentData.status].label}
                                 </Badge>
-                                <Badge variant="outline" className="bg-dark-800 text-gray-300 border-dark-700">
+                                <Badge variant="outline" className="bg-card text-muted-foreground border-border">
                                     {equipmentData.category}
                                 </Badge>
                                 {isWarrantyActive && (
@@ -250,22 +250,22 @@ export function EquipmentDetail() {
                                 <div className="flex items-center gap-2">
                                     <MapPin className="h-4 w-4 text-blue-400" />
                                     <div>
-                                        <div className="text-sm text-gray-400">Location</div>
-                                        <div className="text-white font-semibold">{equipmentData.location}</div>
+                                        <div className="text-sm text-muted-foreground">Location</div>
+                                        <div className="text-foreground font-semibold">{equipmentData.location}</div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Clock className="h-4 w-4 text-blue-400" />
                                     <div>
-                                        <div className="text-sm text-gray-400">Usage Hours</div>
-                                        <div className="text-white font-semibold">{equipmentData.usageHours}h</div>
+                                        <div className="text-sm text-muted-foreground">Usage Hours</div>
+                                        <div className="text-foreground font-semibold">{equipmentData.usageHours}h</div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4 text-blue-400" />
                                     <div>
-                                        <div className="text-sm text-gray-400">Next Maintenance</div>
-                                        <div className="text-white font-semibold">
+                                        <div className="text-sm text-muted-foreground">Next Maintenance</div>
+                                        <div className="text-foreground font-semibold">
                                             {formatDate(equipmentData.nextMaintenance)}
                                         </div>
                                     </div>
@@ -273,8 +273,8 @@ export function EquipmentDetail() {
                                 <div className="flex items-center gap-2">
                                     <DollarSign className="h-4 w-4 text-blue-400" />
                                     <div>
-                                        <div className="text-sm text-gray-400">Purchase Price</div>
-                                        <div className="text-white font-semibold">
+                                        <div className="text-sm text-muted-foreground">Purchase Price</div>
+                                        <div className="text-foreground font-semibold">
                                             {formatCurrency(equipmentData.purchasePrice)}
                                         </div>
                                     </div>
@@ -283,8 +283,8 @@ export function EquipmentDetail() {
 
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm text-gray-400">Equipment Condition</span>
-                                    <span className="text-sm font-semibold text-white">{equipmentData.condition}%</span>
+                                    <span className="text-sm text-muted-foreground">Equipment Condition</span>
+                                    <span className="text-sm font-semibold text-foreground">{equipmentData.condition}%</span>
                                 </div>
                                 <Progress
                                     value={equipmentData.condition}
@@ -298,71 +298,71 @@ export function EquipmentDetail() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Equipment Details */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white flex items-center gap-2">
+                        <CardTitle className="text-foreground flex items-center gap-2">
                             <Barcode className="h-5 w-5 text-purple-400" />
                             Equipment Details
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <div>
-                            <div className="text-sm text-gray-400">Serial Number</div>
-                            <div className="text-white font-mono text-sm">{equipmentData.serialNumber}</div>
+                            <div className="text-sm text-muted-foreground">Serial Number</div>
+                            <div className="text-foreground font-mono text-sm">{equipmentData.serialNumber}</div>
                         </div>
-                        <Separator className="bg-dark-700" />
+                        <Separator className="bg-muted" />
                         <div>
-                            <div className="text-sm text-gray-400">Purchase Date</div>
-                            <div className="text-white">{formatDate(equipmentData.purchaseDate)}</div>
+                            <div className="text-sm text-muted-foreground">Purchase Date</div>
+                            <div className="text-foreground">{formatDate(equipmentData.purchaseDate)}</div>
                         </div>
-                        <Separator className="bg-dark-700" />
+                        <Separator className="bg-muted" />
                         <div>
-                            <div className="text-sm text-gray-400">Warranty Expires</div>
-                            <div className="text-white">{formatDate(equipmentData.warrantyExpiry)}</div>
+                            <div className="text-sm text-muted-foreground">Warranty Expires</div>
+                            <div className="text-foreground">{formatDate(equipmentData.warrantyExpiry)}</div>
                         </div>
-                        <Separator className="bg-dark-700" />
+                        <Separator className="bg-muted" />
                         <div>
-                            <div className="text-sm text-gray-400">Last Maintenance</div>
-                            <div className="text-white">{formatDate(equipmentData.lastMaintenance)}</div>
+                            <div className="text-sm text-muted-foreground">Last Maintenance</div>
+                            <div className="text-foreground">{formatDate(equipmentData.lastMaintenance)}</div>
                         </div>
                     </CardContent>
                 </Card>
 
                 {/* Specifications */}
-                <Card className="bg-dark-900/50 border-dark-800 lg:col-span-2">
+                <Card className="bg-background/50 border-border lg:col-span-2">
                     <CardHeader>
-                        <CardTitle className="text-white">Technical Specifications</CardTitle>
+                        <CardTitle className="text-foreground">Technical Specifications</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {equipmentData.specifications ? (
                             <div className="grid grid-cols-2 gap-4">
                                 {Object.entries(equipmentData.specifications).map(([key, value]) => (
                                     <div key={key} className="space-y-1">
-                                        <div className="text-sm text-gray-400">{key}</div>
-                                        <div className="text-white font-medium">{value}</div>
+                                        <div className="text-sm text-muted-foreground">{key}</div>
+                                        <div className="text-foreground font-medium">{value}</div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-gray-400">No specifications available</p>
+                            <p className="text-muted-foreground">No specifications available</p>
                         )}
                     </CardContent>
                 </Card>
             </div>
 
             {/* Maintenance History */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-white">Maintenance History</CardTitle>
-                            <CardDescription className="text-gray-400">
+                            <CardTitle className="text-foreground">Maintenance History</CardTitle>
+                            <CardDescription className="text-muted-foreground">
                                 View all maintenance and repair records
                             </CardDescription>
                         </div>
                         <Button
                             variant="outline"
-                            className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                            className="bg-card border-border text-muted-foreground hover:bg-muted"
                             onClick={handleScheduleMaintenance}
                         >
                             Add Record
@@ -374,14 +374,14 @@ export function EquipmentDetail() {
                         {equipmentData.maintenanceRecords.map((record) => (
                             <div
                                 key={record.id}
-                                className="flex items-start gap-4 p-4 rounded-lg bg-dark-800/50 hover:bg-dark-800 transition-colors"
+                                className="flex items-start gap-4 p-4 rounded-lg bg-card/50 hover:bg-card transition-colors"
                             >
                                 <div className="p-2 rounded-lg bg-purple-500/20">
                                     <Wrench className="h-5 w-5 text-purple-400" />
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="font-medium text-white">{record.description}</span>
+                                        <span className="font-medium text-foreground">{record.description}</span>
                                         <Badge
                                             variant="outline"
                                             className={MAINTENANCE_TYPE_CONFIG[record.type].color}
@@ -389,10 +389,10 @@ export function EquipmentDetail() {
                                             {MAINTENANCE_TYPE_CONFIG[record.type].label}
                                         </Badge>
                                     </div>
-                                    <div className="text-sm text-gray-400">
+                                    <div className="text-sm text-muted-foreground">
                                         {formatDate(record.date)} • Technician: {record.technician}
                                     </div>
-                                    <div className="text-sm text-gray-500 mt-1">
+                                    <div className="text-sm text-muted-foreground mt-1">
                                         Cost: {formatCurrency(record.cost)}
                                     </div>
                                 </div>
@@ -409,12 +409,12 @@ export function EquipmentDetail() {
 
             {/* Notes */}
             {equipmentData.notes && (
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Notes</CardTitle>
+                        <CardTitle className="text-foreground">Notes</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-gray-300">{equipmentData.notes}</p>
+                        <p className="text-muted-foreground">{equipmentData.notes}</p>
                     </CardContent>
                 </Card>
             )}

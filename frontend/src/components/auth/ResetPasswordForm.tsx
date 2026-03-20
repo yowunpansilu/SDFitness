@@ -44,18 +44,18 @@ export function ResetPasswordForm() {
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="text-center mb-6">
-                <p className="text-gray-400">
+                <p className="text-muted-foreground">
                     Create a strong password to secure your account.
                 </p>
             </div>
 
             {/* New Password */}
             <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-200">
+                <Label htmlFor="password" className="text-foreground">
                     New Password
                 </Label>
                 <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                         id="password"
                         type={showPassword ? 'text' : 'password'}
@@ -68,7 +68,7 @@ export function ResetPasswordForm() {
                     <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -78,7 +78,7 @@ export function ResetPasswordForm() {
                 {formData.password && (
                     <div className="space-y-2 animate-fade-in">
                         <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-400">Password Strength:</span>
+                            <span className="text-muted-foreground">Password Strength:</span>
                             <span className={`font-semibold ${passwordStrength.label === 'Weak' ? 'text-red-400' :
                                     passwordStrength.label === 'Fair' ? 'text-yellow-400' :
                                         passwordStrength.label === 'Good' ? 'text-blue-400' :
@@ -93,12 +93,12 @@ export function ResetPasswordForm() {
                                     key={level}
                                     className={`h-2 flex-1 rounded-full transition-all ${level <= passwordStrength.score
                                             ? passwordStrength.color
-                                            : 'bg-dark-700'
+                                            : 'bg-muted'
                                         }`}
                                 />
                             ))}
                         </div>
-                        <ul className="text-xs text-gray-400 space-y-1">
+                        <ul className="text-xs text-muted-foreground space-y-1">
                             <li className={formData.password.length >= 8 ? 'text-success' : ''}>
                                 {formData.password.length >= 8 ? '✓' : '○'} At least 8 characters
                             </li>
@@ -118,11 +118,11 @@ export function ResetPasswordForm() {
 
             {/* Confirm Password */}
             <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-gray-200">
+                <Label htmlFor="confirmPassword" className="text-foreground">
                     Confirm Password
                 </Label>
                 <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                         id="confirmPassword"
                         type={showConfirmPassword ? 'text' : 'password'}
@@ -135,7 +135,7 @@ export function ResetPasswordForm() {
                     <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
                         {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -167,7 +167,7 @@ export function ResetPasswordForm() {
                 )}
             </Button>
 
-            <p className="text-center text-sm text-gray-400">
+            <p className="text-center text-sm text-muted-foreground">
                 Password must be at least "Good" strength to continue
             </p>
         </form>

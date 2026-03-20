@@ -62,13 +62,13 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
     };
 
     return (
-        <Card className="border-dark-700">
+        <Card className="border-border">
             <CardHeader>
                 <div className="flex justify-between items-center">
                     <div>
-                        <CardTitle className="text-white">Shopping List</CardTitle>
+                        <CardTitle className="text-foreground">Shopping List</CardTitle>
                         {priceData && (
-                            <p className="text-sm text-gray-400 mt-1">
+                            <p className="text-sm text-muted-foreground mt-1">
                                 {priceData.currency} {priceData.currentTotal?.toLocaleString()} total for 7 days
                                 {priceData.priceChanged && (
                                     <span className="text-yellow-500 ml-2">• Prices have changed</span>
@@ -86,7 +86,7 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
                 <div className="space-y-6">
                     {Object.entries(groupedItems).map(([category, categoryItems]) => (
                         <div key={category}>
-                            <h3 className="font-semibold text-white mb-3">
+                            <h3 className="font-semibold text-foreground mb-3">
                                 {categoryLabels[category] || category}
                             </h3>
                             <div className="space-y-2">
@@ -98,24 +98,24 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
                                     return (
                                         <label
                                             key={item.id}
-                                            className="flex items-center gap-3 p-2 rounded hover:bg-dark-800 cursor-pointer transition-colors"
+                                            className="flex items-center gap-3 p-2 rounded hover:bg-card cursor-pointer transition-colors"
                                         >
                                             <input
                                                 type="checkbox"
                                                 checked={item.checked}
                                                 onChange={() => onToggleItem(item.id)}
-                                                className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                                className="w-4 h-4 rounded border-border bg-muted text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
                                             />
-                                            <span className={`flex-1 text-sm ${item.checked ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
+                                            <span className={`flex-1 text-sm ${item.checked ? 'text-muted-foreground line-through' : 'text-muted-foreground'}`}>
                                                 {item.name}
                                             </span>
-                                            <span className="text-sm text-gray-500">
+                                            <span className="text-sm text-muted-foreground">
                                                 {item.quantity}{item.unit ? item.unit : ''}
                                             </span>
                                             {item.currentPrice != null && (
                                                 <span className={`text-sm font-medium min-w-[70px] text-right ${priceChanged
                                                         ? (priceIncreased ? 'text-red-400' : 'text-green-400')
-                                                        : 'text-gray-400'
+                                                        : 'text-muted-foreground'
                                                     }`}>
                                                     {priceData?.currency || 'LKR'} {item.currentPrice.toFixed(0)}
                                                     {priceChanged && (

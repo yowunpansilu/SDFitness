@@ -166,15 +166,15 @@ export function TrainerForm() {
                         variant="ghost"
                         size="icon"
                         onClick={() => navigate('/admin/trainers')}
-                        className="text-gray-400 hover:text-white hover:bg-dark-800"
+                        className="text-muted-foreground hover:text-foreground hover:bg-card"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">
+                        <h1 className="text-2xl font-bold text-foreground">
                             {isEditMode ? 'Edit Trainer' : 'Add New Trainer'}
                         </h1>
-                        <p className="text-gray-400">
+                        <p className="text-muted-foreground">
                             {isEditMode ? 'Update trainer information' : 'Create a new trainer profile'}
                         </p>
                     </div>
@@ -184,7 +184,7 @@ export function TrainerForm() {
                     <Button
                         variant="outline"
                         onClick={() => navigate('/admin/trainers')}
-                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                        className="bg-card border-border text-muted-foreground hover:bg-muted"
                     >
                         <X className="h-4 w-4 mr-2" />
                         Cancel
@@ -201,10 +201,10 @@ export function TrainerForm() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* Personal Information */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Personal Information</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Personal Information</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Basic personal details of the trainer
                         </CardDescription>
                     </CardHeader>
@@ -212,7 +212,7 @@ export function TrainerForm() {
                         {/* Photo Upload */}
                         <div className="flex items-center gap-6">
                             <div className="flex-shrink-0">
-                                <div className="w-24 h-24 rounded-full bg-dark-800 border-2 border-dark-700 overflow-hidden flex items-center justify-center">
+                                <div className="w-24 h-24 rounded-full bg-card border-2 border-border overflow-hidden flex items-center justify-center">
                                     {photoPreview ? (
                                         <img
                                             src={photoPreview}
@@ -220,14 +220,14 @@ export function TrainerForm() {
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (
-                                        <Upload className="h-8 w-8 text-gray-500" />
+                                        <Upload className="h-8 w-8 text-muted-foreground" />
                                     )}
                                 </div>
                             </div>
                             <div>
                                 <Label
                                     htmlFor="photo"
-                                    className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-dark-800 border border-dark-700 text-gray-300 rounded-md hover:bg-dark-700"
+                                    className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-card border border-border text-muted-foreground rounded-md hover:bg-muted"
                                 >
                                     <Upload className="h-4 w-4" />
                                     Upload Photo
@@ -239,19 +239,19 @@ export function TrainerForm() {
                                     className="hidden"
                                     onChange={handlePhotoUpload}
                                 />
-                                <p className="text-xs text-gray-500 mt-1">JPG, PNG or WebP (max 2MB)</p>
+                                <p className="text-xs text-muted-foreground mt-1">JPG, PNG or WebP (max 2MB)</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <Label htmlFor="fullName" className="text-gray-300">
+                                <Label htmlFor="fullName" className="text-muted-foreground">
                                     Full Name <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="fullName"
                                     {...register('fullName')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="John Doe"
                                 />
                                 {errors.fullName && (
@@ -260,14 +260,14 @@ export function TrainerForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="email" className="text-gray-300">
+                                <Label htmlFor="email" className="text-muted-foreground">
                                     Email <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="email"
                                     type="email"
                                     {...register('email')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="john@example.com"
                                 />
                                 {errors.email && (
@@ -276,13 +276,13 @@ export function TrainerForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="phone" className="text-gray-300">
+                                <Label htmlFor="phone" className="text-muted-foreground">
                                     Phone <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="phone"
                                     {...register('phone')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="1234567890"
                                 />
                                 {errors.phone && (
@@ -291,23 +291,23 @@ export function TrainerForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="dateOfBirth" className="text-gray-300">
+                                <Label htmlFor="dateOfBirth" className="text-muted-foreground">
                                     Date of Birth
                                 </Label>
                                 <Input
                                     id="dateOfBirth"
                                     type="date"
                                     {...register('dateOfBirth')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="gender" className="text-gray-300">
+                                <Label htmlFor="gender" className="text-muted-foreground">
                                     Gender
                                 </Label>
                                 <Select onValueChange={(value) => setValue('gender', value as any)}>
-                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                    <SelectTrigger className="bg-card border-border text-foreground">
                                         <SelectValue placeholder="Select gender" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -322,30 +322,30 @@ export function TrainerForm() {
                 </Card>
 
                 {/* Professional Details */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Professional Details</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Professional Details</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Training specializations and experience
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div>
-                            <Label className="text-gray-300">
+                            <Label className="text-muted-foreground">
                                 Specializations <span className="text-red-400">*</span>
                             </Label>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
                                 {SPECIALIZATIONS.map((spec) => (
                                     <div
                                         key={spec}
-                                        className="flex items-center space-x-2 p-3 rounded-lg bg-dark-800/50 border border-dark-700 hover:border-purple-500/30 cursor-pointer"
+                                        className="flex items-center space-x-2 p-3 rounded-lg bg-card/50 border border-border hover:border-purple-500/30 cursor-pointer"
                                         onClick={() => toggleSpecialization(spec)}
                                     >
                                         <Checkbox
                                             checked={selectedSpecializations.includes(spec)}
                                             onCheckedChange={() => toggleSpecialization(spec)}
                                         />
-                                        <label className="text-sm text-gray-300 cursor-pointer">
+                                        <label className="text-sm text-muted-foreground cursor-pointer">
                                             {spec}
                                         </label>
                                     </div>
@@ -357,13 +357,13 @@ export function TrainerForm() {
                         </div>
 
                         <div>
-                            <Label htmlFor="bio" className="text-gray-300">
+                            <Label htmlFor="bio" className="text-muted-foreground">
                                 Bio
                             </Label>
                             <Textarea
                                 id="bio"
                                 {...register('bio')}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                                 placeholder="Tell us about your experience and training philosophy..."
                                 rows={4}
                             />
@@ -374,20 +374,20 @@ export function TrainerForm() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <Label htmlFor="yearsOfExperience" className="text-gray-300">
+                                <Label htmlFor="yearsOfExperience" className="text-muted-foreground">
                                     Years of Experience
                                 </Label>
                                 <Input
                                     id="yearsOfExperience"
                                     type="number"
                                     {...register('yearsOfExperience', { valueAsNumber: true })}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="5"
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="hourlyRate" className="text-gray-300">
+                                <Label htmlFor="hourlyRate" className="text-muted-foreground">
                                     Hourly Rate ($) <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
@@ -395,7 +395,7 @@ export function TrainerForm() {
                                     type="number"
                                     step="0.01"
                                     {...register('hourlyRate', { valueAsNumber: true })}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="50.00"
                                 />
                                 {errors.hourlyRate && (
@@ -407,13 +407,13 @@ export function TrainerForm() {
                         {/* Certifications */}
                         <div>
                             <div className="flex items-center justify-between mb-3">
-                                <Label className="text-gray-300">Certifications</Label>
+                                <Label className="text-muted-foreground">Certifications</Label>
                                 <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
                                     onClick={addCertification}
-                                    className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                                    className="bg-card border-border text-muted-foreground hover:bg-muted"
                                 >
                                     <Plus className="h-4 w-4 mr-2" />
                                     Add Certification
@@ -423,7 +423,7 @@ export function TrainerForm() {
                                 {certifications.map((cert) => (
                                     <div
                                         key={cert.id}
-                                        className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 rounded-lg bg-dark-800/50 border border-dark-700"
+                                        className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 rounded-lg bg-card/50 border border-border"
                                     >
                                         <Input
                                             value={cert.name}
@@ -431,7 +431,7 @@ export function TrainerForm() {
                                                 updateCertification(cert.id, 'name', e.target.value)
                                             }
                                             placeholder="Certification name"
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-card border-border text-foreground"
                                         />
                                         <Input
                                             value={cert.issuer}
@@ -439,7 +439,7 @@ export function TrainerForm() {
                                                 updateCertification(cert.id, 'issuer', e.target.value)
                                             }
                                             placeholder="Issuing organization"
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-card border-border text-foreground"
                                         />
                                         <Input
                                             type="date"
@@ -447,7 +447,7 @@ export function TrainerForm() {
                                             onChange={(e) =>
                                                 updateCertification(cert.id, 'issueDate', e.target.value)
                                             }
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-card border-border text-foreground"
                                         />
                                         <Button
                                             type="button"
@@ -466,29 +466,29 @@ export function TrainerForm() {
                 </Card>
 
                 {/* Employment */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Employment Details</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Employment Details</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Work schedule and compensation
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <Label htmlFor="joinDate" className="text-gray-300">
+                                <Label htmlFor="joinDate" className="text-muted-foreground">
                                     Join Date <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="joinDate"
                                     type="date"
                                     {...register('joinDate')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="employmentStatus" className="text-gray-300">
+                                <Label htmlFor="employmentStatus" className="text-muted-foreground">
                                     Employment Status <span className="text-red-400">*</span>
                                 </Label>
                                 <Select
@@ -496,7 +496,7 @@ export function TrainerForm() {
                                         setValue('employmentStatus', value as any)
                                     }
                                 >
-                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                    <SelectTrigger className="bg-card border-border text-foreground">
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -508,7 +508,7 @@ export function TrainerForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="commissionRate" className="text-gray-300">
+                                <Label htmlFor="commissionRate" className="text-muted-foreground">
                                     Commission Rate (%)
                                 </Label>
                                 <Input
@@ -516,20 +516,20 @@ export function TrainerForm() {
                                     type="number"
                                     step="0.01"
                                     {...register('commissionRate', { valueAsNumber: true })}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="10.00"
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="availableHoursPerWeek" className="text-gray-300">
+                                <Label htmlFor="availableHoursPerWeek" className="text-muted-foreground">
                                     Available Hours/Week
                                 </Label>
                                 <Input
                                     id="availableHoursPerWeek"
                                     type="number"
                                     {...register('availableHoursPerWeek', { valueAsNumber: true })}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="40"
                                 />
                             </div>
@@ -538,23 +538,23 @@ export function TrainerForm() {
                 </Card>
 
                 {/* Emergency Contact */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Emergency Contact</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Emergency Contact</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Emergency contact information
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <Label htmlFor="emergencyContactName" className="text-gray-300">
+                                <Label htmlFor="emergencyContactName" className="text-muted-foreground">
                                     Contact Name <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="emergencyContactName"
                                     {...register('emergencyContactName')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="Jane Doe"
                                 />
                                 {errors.emergencyContactName && (
@@ -565,25 +565,25 @@ export function TrainerForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="emergencyContactRelationship" className="text-gray-300">
+                                <Label htmlFor="emergencyContactRelationship" className="text-muted-foreground">
                                     Relationship
                                 </Label>
                                 <Input
                                     id="emergencyContactRelationship"
                                     {...register('emergencyContactRelationship')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="Spouse, Parent, etc."
                                 />
                             </div>
 
                             <div>
-                                <Label htmlFor="emergencyContactPhone" className="text-gray-300">
+                                <Label htmlFor="emergencyContactPhone" className="text-muted-foreground">
                                     Contact Phone <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="emergencyContactPhone"
                                     {...register('emergencyContactPhone')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="1234567890"
                                 />
                                 {errors.emergencyContactPhone && (

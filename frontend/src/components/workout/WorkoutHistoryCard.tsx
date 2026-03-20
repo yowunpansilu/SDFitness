@@ -27,7 +27,7 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
             case 'too_hard':
                 return 'bg-red-500/20 text-red-400 border-red-500/30';
             default:
-                return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+                return 'bg-gray-500/20 text-muted-foreground border-gray-500/30';
         }
     };
 
@@ -40,7 +40,7 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
             case 'low':
                 return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
             default:
-                return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+                return 'bg-gray-500/20 text-muted-foreground border-gray-500/30';
         }
     };
 
@@ -55,14 +55,14 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
     );
 
     return (
-        <Card className="glass-card border-dark-700 hover:border-primary-500/30 transition-all">
+        <Card className="glass-card border-border hover:border-primary-500/30 transition-all">
             <Collapsible open={isOpen} onOpenChange={setIsOpen}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                                <Calendar className="w-4 h-4 text-primary-400" />
-                                <CardTitle className="text-lg font-bold text-white">
+                                <Calendar className="w-4 h-4 text-primary-800" />
+                                <CardTitle className="text-lg font-bold text-foreground">
                                     {formatDate(workout.workoutDate)}
                                 </CardTitle>
                                 {workout.personalRecords && workout.personalRecords.length > 0 && (
@@ -73,16 +73,16 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                                 )}
                             </div>
 
-                            <div className="flex flex-wrap gap-3 text-sm text-gray-400">
+                            <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                                 <div className="flex items-center gap-1">
-                                    <Clock className="w-4 h-4 text-primary-400" />
+                                    <Clock className="w-4 h-4 text-primary-800" />
                                     <span>{workout.duration} min</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <Flame className="w-4 h-4 text-orange-400" />
                                     <span>{workout.totalCaloriesBurned} cal</span>
                                 </div>
-                                <div className="text-gray-500">
+                                <div className="text-muted-foreground">
                                     {completedSets}/{totalSets} sets completed
                                 </div>
                             </div>
@@ -104,7 +104,7 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                         </div>
 
                         <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                                 {isOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                             </Button>
                         </CollapsibleTrigger>
@@ -116,18 +116,18 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                         <div className="space-y-4">
                             {/* Exercises */}
                             <div>
-                                <h4 className="text-sm font-semibold text-gray-400 mb-3">Exercises</h4>
+                                <h4 className="text-sm font-semibold text-muted-foreground mb-3">Exercises</h4>
                                 <div className="space-y-3">
                                     {workout.exercises.map((exercise, idx) => (
-                                        <div key={idx} className="bg-dark-800/50 rounded-lg p-3 border border-dark-700">
-                                            <p className="font-semibold text-white mb-2">{exercise.name || `Exercise ${idx + 1}`}</p>
+                                        <div key={idx} className="bg-card/50 rounded-lg p-3 border border-border">
+                                            <p className="font-semibold text-foreground mb-2">{exercise.name || `Exercise ${idx + 1}`}</p>
                                             <div className="grid grid-cols-4 gap-2 text-xs">
                                                 {exercise.sets.map((set, setIdx) => (
                                                     <div
                                                         key={setIdx}
                                                         className={`p-2 rounded text-center ${set.completed
-                                                            ? 'bg-primary-500/20 text-primary-400'
-                                                            : 'bg-dark-900 text-gray-500'
+                                                            ? 'bg-primary-500/20 text-primary-800'
+                                                            : 'bg-background text-muted-foreground'
                                                             }`}
                                                     >
                                                         <div className="font-semibold">Set {set.setNumber}</div>
@@ -138,7 +138,7 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                                                 ))}
                                             </div>
                                             {exercise.notes && (
-                                                <p className="text-xs text-gray-500 mt-2 italic">{exercise.notes}</p>
+                                                <p className="text-xs text-muted-foreground mt-2 italic">{exercise.notes}</p>
                                             )}
                                         </div>
                                     ))}
@@ -148,7 +148,7 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                             {/* Personal Records */}
                             {workout.personalRecords && workout.personalRecords.length > 0 && (
                                 <div>
-                                    <h4 className="text-sm font-semibold text-gray-400 mb-3 flex items-center gap-2">
+                                    <h4 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
                                         <Trophy className="w-4 h-4 text-yellow-400" />
                                         Personal Records
                                     </h4>
@@ -163,7 +163,7 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                                                         {pr.recordType.replace('_', ' ')}
                                                     </Badge>
                                                 </div>
-                                                <p className="text-white text-lg font-bold mt-1">
+                                                <p className="text-foreground text-lg font-bold mt-1">
                                                     {pr.value} {pr.recordType === 'max_weight' ? 'kg' : pr.recordType === 'longest_duration' ? 's' : 'reps'}
                                                 </p>
                                             </div>
@@ -175,8 +175,8 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                             {/* Notes */}
                             {workout.notes && (
                                 <div>
-                                    <h4 className="text-sm font-semibold text-gray-400 mb-2">Notes</h4>
-                                    <p className="text-gray-300 text-sm bg-dark-800/50 rounded-lg p-3 border border-dark-700">
+                                    <h4 className="text-sm font-semibold text-muted-foreground mb-2">Notes</h4>
+                                    <p className="text-muted-foreground text-sm bg-card/50 rounded-lg p-3 border border-border">
                                         {workout.notes}
                                     </p>
                                 </div>

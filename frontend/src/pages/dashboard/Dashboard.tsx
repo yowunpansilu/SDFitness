@@ -12,11 +12,11 @@ export function Dashboard() {
     return (
         <div className="space-y-8 animate-fade-in">
             {/* Welcome Section */}
-            <div className="glass-card border-dark-700 p-8 rounded-lg bg-gradient-to-br from-primary-900/20 via-dark-900 to-secondary-900/20">
-                <h1 className="text-4xl font-headline font-bold text-white mb-2">
+            <div className="glass-card border-border p-8 rounded-lg bg-gradient-to-br from-primary-900/20 via-dark-900 to-secondary-900/20">
+                <h1 className="text-4xl font-headline font-bold text-foreground mb-2">
                     Welcome Back, {user?.firstName}! 💪
                 </h1>
-                <p className="text-gray-400 text-lg">
+                <p className="text-muted-foreground text-lg">
                     Ready to crush your fitness goals today?
                 </p>
             </div>
@@ -54,9 +54,9 @@ export function Dashboard() {
             </div>
 
             {/* Quick Actions */}
-            <Card className="glass-card border-dark-700">
+            <Card className="glass-card border-border">
                 <CardContent className="p-6">
-                    <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
+                    <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <Button variant="gym" className="h-auto py-4 flex-col gap-2">
                             <Calendar className="w-6 h-6" />

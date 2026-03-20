@@ -35,9 +35,9 @@ export function ChatWindow() {
 
     if (!activeConversation || !participant) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-dark-900 h-full">
-                <div className="text-center text-gray-400">
-                    <p className="text-lg font-medium text-white">No conversation selected</p>
+            <div className="flex-1 flex items-center justify-center bg-background h-full">
+                <div className="text-center text-muted-foreground">
+                    <p className="text-lg font-medium text-foreground">No conversation selected</p>
                     <p className="text-sm">Choose a chat to start messaging</p>
                 </div>
             </div>
@@ -45,31 +45,31 @@ export function ChatWindow() {
     }
 
     return (
-        <div className="flex flex-col h-full bg-dark-900 flex-1 overflow-hidden">
+        <div className="flex flex-col h-full bg-background flex-1 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-dark-700 bg-dark-800">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-card">
                 <div className="flex items-center gap-3">
                     <div className="relative">
-                        <Avatar className="border border-dark-600">
+                        <Avatar className="border border-border">
                             <AvatarImage src={participant.avatar} />
-                            <AvatarFallback className="bg-dark-600 text-white">{participant.name[0]}</AvatarFallback>
+                            <AvatarFallback className="bg-accent text-foreground">{participant.name[0]}</AvatarFallback>
                         </Avatar>
-                        <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-dark-800 bg-green-500" />
+                        <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-border bg-green-500" />
                     </div>
                     <div>
-                        <h2 className="font-semibold text-sm text-white">{participant.name}</h2>
-                        <p className="text-xs text-gray-400 capitalize">{participant.status}</p>
+                        <h2 className="font-semibold text-sm text-foreground">{participant.name}</h2>
+                        <p className="text-xs text-muted-foreground capitalize">{participant.status}</p>
                     </div>
                 </div>
 
                 <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white hover:bg-dark-700">
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hover:bg-muted">
                         <Phone className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white hover:bg-dark-700">
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hover:bg-muted">
                         <Video className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white hover:bg-dark-700">
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hover:bg-muted">
                         <MoreVertical className="h-4 w-4" />
                     </Button>
                 </div>

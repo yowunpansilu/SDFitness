@@ -44,39 +44,39 @@ export function AdminSidebar() {
         : 'AD';
 
     return (
-        <div className="flex h-full flex-col bg-gradient-to-b from-dark-900 to-dark-950 border-r border-dark-800">
+        <div className="flex h-full flex-col bg-gradient-to-b from-background to-dark-950 border-r border-border">
             {/* Logo/Brand */}
-            <div className="flex h-16 items-center justify-center px-6 border-b border-dark-800">
+            <div className="flex h-16 items-center justify-center px-6 border-b border-border">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-                        <Dumbbell className="w-5 h-5 text-white" />
+                        <Dumbbell className="w-5 h-5 text-foreground" />
                     </div>
                     <div className="flex flex-col">
-                        <h1 className="text-lg font-bold text-white">SD Fitness</h1>
-                        <p className="text-xs text-gray-400">Admin Panel</p>
+                        <h1 className="text-lg font-bold text-foreground">SD Fitness</h1>
+                        <p className="text-xs text-muted-foreground">Admin Panel</p>
                     </div>
                 </div>
             </div>
 
             {/* User Profile Section */}
             <div className="p-4">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-dark-800/50 backdrop-blur-sm border border-dark-700 hover:bg-dark-800 transition-all duration-300">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-card/50 backdrop-blur-sm border border-border hover:bg-card transition-all duration-300">
                     <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
                         <AvatarImage src={user?.profilePhoto} alt={user?.firstName} />
-                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white font-semibold">
+                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-foreground font-semibold">
                             {userInitials}
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">
+                        <p className="text-sm font-semibold text-foreground truncate">
                             {user?.firstName} {user?.lastName}
                         </p>
-                        <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
                     </div>
                 </div>
             </div>
 
-            <Separator className="bg-dark-800" />
+            <Separator className="bg-card" />
 
             {/* Navigation Links */}
             <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-dark-700 scrollbar-track-transparent">
@@ -91,8 +91,8 @@ export function AdminSidebar() {
                                 cn(
                                     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative overflow-hidden',
                                     isActive
-                                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-white shadow-lg shadow-purple-500/10'
-                                        : 'text-gray-400 hover:text-white hover:bg-dark-800/50'
+                                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-foreground shadow-lg shadow-purple-500/10'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-card/50'
                                 )
                             }
                         >
@@ -118,14 +118,14 @@ export function AdminSidebar() {
                 })}
             </nav>
 
-            <Separator className="bg-dark-800" />
+            <Separator className="bg-card" />
 
             {/* Logout Button */}
             <div className="p-4">
                 <Button
                     onClick={handleLogout}
                     variant="ghost"
-                    className="w-full justify-start gap-3 text-gray-400 hover:text-white hover:bg-red-500/10 hover:border-red-500/20 border border-dark-700 transition-all duration-200"
+                    className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-red-500/10 hover:border-red-500/20 border border-border transition-all duration-200"
                 >
                     <LogOut className="h-5 w-5" />
                     <span>Logout</span>

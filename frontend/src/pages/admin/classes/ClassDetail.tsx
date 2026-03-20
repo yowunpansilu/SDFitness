@@ -107,7 +107,7 @@ const MOCK_CLASS: ClassData = {
 const STATUS_COLORS = {
     scheduled: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     ongoing: 'bg-green-500/20 text-green-400 border-green-500/30',
-    completed: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    completed: 'bg-gray-500/20 text-muted-foreground border-gray-500/30',
     cancelled: 'bg-red-500/20 text-red-400 border-red-500/30',
 };
 
@@ -162,13 +162,13 @@ export function ClassDetail() {
                         variant="ghost"
                         size="icon"
                         onClick={() => navigate('/admin/classes')}
-                        className="text-gray-400 hover:text-white hover:bg-dark-800"
+                        className="text-muted-foreground hover:text-foreground hover:bg-card"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">{classData.name}</h1>
-                        <p className="text-gray-400">Class Details</p>
+                        <h1 className="text-2xl font-bold text-foreground">{classData.name}</h1>
+                        <p className="text-muted-foreground">Class Details</p>
                     </div>
                 </div>
 
@@ -176,7 +176,7 @@ export function ClassDetail() {
                     <Button
                         variant="outline"
                         onClick={handleDuplicate}
-                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                        className="bg-card border-border text-muted-foreground hover:bg-muted"
                     >
                         <Copy className="h-4 w-4 mr-2" />
                         Duplicate
@@ -184,7 +184,7 @@ export function ClassDetail() {
                     <Button
                         variant="outline"
                         onClick={handleEdit}
-                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                        className="bg-card border-border text-muted-foreground hover:bg-muted"
                     >
                         <Edit className="h-4 w-4 mr-2" />
                         Edit
@@ -192,7 +192,7 @@ export function ClassDetail() {
                     <Button
                         variant="outline"
                         onClick={handleDelete}
-                        className="bg-dark-800 border-dark-700 text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
+                        className="bg-card border-border text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
                     >
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete
@@ -212,19 +212,19 @@ export function ClassDetail() {
                                 <Badge variant="outline" className={LEVEL_COLORS[classData.level]}>
                                     {classData.level}
                                 </Badge>
-                                <Badge variant="outline" className="bg-dark-800 text-gray-300 border-dark-700">
+                                <Badge variant="outline" className="bg-card text-muted-foreground border-border">
                                     {classData.type}
                                 </Badge>
                             </div>
 
-                            <p className="text-gray-300 max-w-2xl">{classData.description}</p>
+                            <p className="text-muted-foreground max-w-2xl">{classData.description}</p>
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div className="flex items-center gap-2">
                                     <Users className="h-4 w-4 text-purple-400" />
                                     <div>
-                                        <div className="text-sm text-gray-400">Enrolled</div>
-                                        <div className="text-white font-semibold">
+                                        <div className="text-sm text-muted-foreground">Enrolled</div>
+                                        <div className="text-foreground font-semibold">
                                             {classData.enrolled}/{classData.capacity}
                                         </div>
                                     </div>
@@ -232,8 +232,8 @@ export function ClassDetail() {
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4 text-purple-400" />
                                     <div>
-                                        <div className="text-sm text-gray-400">Date</div>
-                                        <div className="text-white font-semibold">
+                                        <div className="text-sm text-muted-foreground">Date</div>
+                                        <div className="text-foreground font-semibold">
                                             {new Date(classData.schedule.date).toLocaleDateString()}
                                         </div>
                                     </div>
@@ -241,8 +241,8 @@ export function ClassDetail() {
                                 <div className="flex items-center gap-2">
                                     <Clock className="h-4 w-4 text-purple-400" />
                                     <div>
-                                        <div className="text-sm text-gray-400">Time</div>
-                                        <div className="text-white font-semibold">
+                                        <div className="text-sm text-muted-foreground">Time</div>
+                                        <div className="text-foreground font-semibold">
                                             {classData.schedule.startTime} - {classData.schedule.endTime}
                                         </div>
                                     </div>
@@ -250,16 +250,16 @@ export function ClassDetail() {
                                 <div className="flex items-center gap-2">
                                     <MapPin className="h-4 w-4 text-purple-400" />
                                     <div>
-                                        <div className="text-sm text-gray-400">Location</div>
-                                        <div className="text-white font-semibold">{classData.location}</div>
+                                        <div className="text-sm text-muted-foreground">Location</div>
+                                        <div className="text-foreground font-semibold">{classData.location}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div className="text-right">
-                            <div className="text-4xl font-bold text-white">{availableSpots}</div>
-                            <div className="text-sm text-gray-400">Spots Available</div>
+                            <div className="text-4xl font-bold text-foreground">{availableSpots}</div>
+                            <div className="text-sm text-muted-foreground">Spots Available</div>
                         </div>
                     </div>
                 </CardContent>
@@ -267,9 +267,9 @@ export function ClassDetail() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Trainer Information */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white flex items-center gap-2">
+                        <CardTitle className="text-foreground flex items-center gap-2">
                             <User className="h-5 w-5 text-purple-400" />
                             Trainer
                         </CardTitle>
@@ -278,18 +278,18 @@ export function ClassDetail() {
                         <div className="flex items-center gap-4">
                             <Avatar className="h-16 w-16">
                                 <AvatarImage src={classData.trainer.avatar} />
-                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-lg">
+                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-foreground text-lg">
                                     {getInitials(classData.trainer.name)}
                                 </AvatarFallback>
                             </Avatar>
                             <div>
-                                <div className="font-semibold text-white">{classData.trainer.name}</div>
-                                <div className="text-sm text-gray-400">{classData.trainer.specialization}</div>
+                                <div className="font-semibold text-foreground">{classData.trainer.name}</div>
+                                <div className="text-sm text-muted-foreground">{classData.trainer.specialization}</div>
                             </div>
                         </div>
                         <Button
                             variant="outline"
-                            className="w-full bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                            className="w-full bg-card border-border text-muted-foreground hover:bg-muted"
                         >
                             View Profile
                         </Button>
@@ -297,27 +297,27 @@ export function ClassDetail() {
                 </Card>
 
                 {/* Schedule Information */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white flex items-center gap-2">
+                        <CardTitle className="text-foreground flex items-center gap-2">
                             <Calendar className="h-5 w-5 text-purple-400" />
                             Schedule
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <div>
-                            <div className="text-sm text-gray-400">Recurrence</div>
-                            <div className="text-white">{classData.schedule.recurrence}</div>
+                            <div className="text-sm text-muted-foreground">Recurrence</div>
+                            <div className="text-foreground">{classData.schedule.recurrence}</div>
                         </div>
-                        <Separator className="bg-dark-700" />
+                        <Separator className="bg-muted" />
                         <div>
-                            <div className="text-sm text-gray-400">Duration</div>
-                            <div className="text-white">60 minutes</div>
+                            <div className="text-sm text-muted-foreground">Duration</div>
+                            <div className="text-foreground">60 minutes</div>
                         </div>
-                        <Separator className="bg-dark-700" />
+                        <Separator className="bg-muted" />
                         <div>
-                            <div className="text-sm text-gray-400">Next Session</div>
-                            <div className="text-white">
+                            <div className="text-sm text-muted-foreground">Next Session</div>
+                            <div className="text-foreground">
                                 {new Date(classData.schedule.date).toLocaleDateString('en-US', {
                                     weekday: 'long',
                                     year: 'numeric',
@@ -330,29 +330,29 @@ export function ClassDetail() {
                 </Card>
 
                 {/* Additional Notes */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Notes</CardTitle>
+                        <CardTitle className="text-foreground">Notes</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-gray-300 text-sm">{classData.notes || 'No additional notes'}</p>
+                        <p className="text-muted-foreground text-sm">{classData.notes || 'No additional notes'}</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Enrolled Members */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-white">Enrolled Members</CardTitle>
-                            <CardDescription className="text-gray-400">
+                            <CardTitle className="text-foreground">Enrolled Members</CardTitle>
+                            <CardDescription className="text-muted-foreground">
                                 {classData.enrolled} members enrolled
                             </CardDescription>
                         </div>
                         <Button
                             variant="outline"
-                            className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                            className="bg-card border-border text-muted-foreground hover:bg-muted"
                         >
                             Add Member
                         </Button>
@@ -363,22 +363,22 @@ export function ClassDetail() {
                         {classData.members.map((member) => (
                             <div
                                 key={member.id}
-                                className="flex items-center justify-between p-3 rounded-lg bg-dark-800/50 hover:bg-dark-800 transition-colors"
+                                className="flex items-center justify-between p-3 rounded-lg bg-card/50 hover:bg-card transition-colors"
                             >
                                 <div className="flex items-center gap-3">
                                     <Avatar>
                                         <AvatarImage src={member.avatar} />
-                                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+                                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-foreground">
                                             {getInitials(member.name)}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <div className="font-medium text-white">{member.name}</div>
-                                        <div className="text-sm text-gray-400">{member.email}</div>
+                                        <div className="font-medium text-foreground">{member.name}</div>
+                                        <div className="text-sm text-muted-foreground">{member.email}</div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="text-xs text-gray-500">
+                                    <div className="text-xs text-muted-foreground">
                                         Enrolled {new Date(member.enrolledAt).toLocaleDateString()}
                                     </div>
                                     {member.status === 'enrolled' && (

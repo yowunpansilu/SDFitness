@@ -6,7 +6,7 @@ export function Register() {
         <AuthLayout
             title="Join SDFitness"
             subtitle="Start your transformation journey today"
-            backgroundImage="/images/achievement-bg.png"
+            backgroundImage="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=2069&auto=format&fit=crop"
             quote="Your Journey Starts Here. Your Success Starts Now."
         >
             <RegisterForm />

@@ -36,7 +36,7 @@ export function PersonalInfoTab() {
     };
 
     return (
-        <Card className="border-dark-700">
+        <Card className="border-border">
             <CardContent className="p-6">
                 <div className="space-y-6">
                     {/* Profile Photo */}
@@ -52,7 +52,7 @@ export function PersonalInfoTab() {
                                 <Camera className="h-4 w-4" />
                                 Change Photo
                             </Button>
-                            <p className="text-xs text-gray-500 mt-2">
+                            <p className="text-xs text-muted-foreground mt-2">
                                 JPG, PNG or GIF. Max size 2MB.
                             </p>
                         </div>
@@ -93,7 +93,7 @@ export function PersonalInfoTab() {
                                 disabled
                                 className="opacity-60"
                             />
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                                 Email cannot be changed
                             </p>
                         </div>

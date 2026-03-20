@@ -66,9 +66,9 @@ const activityColors = {
 
 export function ActivityTimeline() {
     return (
-        <Card className="glass-card border-dark-700">
+        <Card className="glass-card border-border">
             <CardHeader>
-                <CardTitle className="text-white">Recent Activity</CardTitle>
+                <CardTitle className="text-foreground">Recent Activity</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
@@ -80,7 +80,7 @@ export function ActivityTimeline() {
                             <div key={activity.id} className="relative flex gap-4">
                                 {/* Timeline line */}
                                 {!isLast && (
-                                    <div className="absolute left-5 top-12 bottom-0 w-px bg-dark-700" />
+                                    <div className="absolute left-5 top-12 bottom-0 w-px bg-muted" />
                                 )}
 
                                 {/* Icon */}
@@ -96,14 +96,14 @@ export function ActivityTimeline() {
                                 {/* Content */}
                                 <div className="flex-1 pb-4">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="text-sm font-semibold text-white">
+                                        <h4 className="text-sm font-semibold text-foreground">
                                             {activity.title}
                                         </h4>
-                                        <span className="text-xs text-gray-500">
+                                        <span className="text-xs text-muted-foreground">
                                             {activity.timestamp}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-gray-400 mt-1">
+                                    <p className="text-sm text-muted-foreground mt-1">
                                         {activity.description}
                                     </p>
                                 </div>

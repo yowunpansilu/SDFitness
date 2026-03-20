@@ -17,8 +17,8 @@ export function Settings() {
                     <SettingsIcon className="h-6 w-6 text-purple-400" />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Settings</h1>
-                    <p className="text-gray-400 mt-1">
+                    <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+                    <p className="text-muted-foreground mt-1">
                         Manage your gym's configuration and preferences
                     </p>
                 </div>
@@ -26,31 +26,31 @@ export function Settings() {
 
             {/* Settings Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="grid w-full grid-cols-4 bg-dark-900 border border-dark-800">
+                <TabsList className="grid w-full grid-cols-4 bg-background border border-border">
                     <TabsTrigger
                         value="general"
-                        className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-600/20 data-[state=active]:text-white"
+                        className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-600/20 data-[state=active]:text-foreground"
                     >
                         <Building2 className="h-4 w-4 mr-2" />
                         General
                     </TabsTrigger>
                     <TabsTrigger
                         value="email"
-                        className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-600/20 data-[state=active]:text-white"
+                        className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-600/20 data-[state=active]:text-foreground"
                     >
                         <Mail className="h-4 w-4 mr-2" />
                         Email Templates
                     </TabsTrigger>
                     <TabsTrigger
                         value="notifications"
-                        className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-600/20 data-[state=active]:text-white"
+                        className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-600/20 data-[state=active]:text-foreground"
                     >
                         <Bell className="h-4 w-4 mr-2" />
                         Notifications
                     </TabsTrigger>
                     <TabsTrigger
                         value="roles"
-                        className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-600/20 data-[state=active]:text-white"
+                        className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-600/20 data-[state=active]:text-foreground"
                     >
                         <Shield className="h-4 w-4 mr-2" />
                         User Roles

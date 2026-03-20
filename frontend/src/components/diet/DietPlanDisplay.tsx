@@ -51,10 +51,10 @@ export function DietPlanDisplay({ plan, onSave }: DietPlanDisplayProps) {
             {/* Header with Actions */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-headline font-bold text-white">
+                    <h1 className="text-3xl font-headline font-bold text-foreground">
                         {plan.planName || plan.name}
                     </h1>
-                    <p className="text-gray-400 mt-1">
+                    <p className="text-muted-foreground mt-1">
                         Generated on {new Date(plan.createdAt).toLocaleDateString()}
                     </p>
                 </div>
@@ -78,26 +78,26 @@ export function DietPlanDisplay({ plan, onSave }: DietPlanDisplayProps) {
 
             {/* AI Confidence Banner */}
             {meta && (
-                <Card className="border-dark-700 bg-gradient-to-r from-primary-900/30 to-dark-800">
+                <Card className="border-border bg-gradient-to-r from-primary-900/30 to-card">
                     <CardContent className="p-4">
                         <div className="flex flex-wrap items-center gap-6">
                             <div className="flex items-center gap-2">
                                 <Brain className="w-5 h-5 text-primary-500" />
-                                <span className="text-sm text-gray-400">ML Confidence</span>
+                                <span className="text-sm text-muted-foreground">ML Confidence</span>
                                 <span className="text-lg font-bold text-primary-500">
                                     {Math.round((meta.mlConfidenceScore || 0) * 100)}%
                                 </span>
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-muted-foreground">
                                 Model v{meta.mlModelVersion || '1.0'} • {meta.generationMethod === 'ml_plus_gemini' ? 'ML + Gemini' : 'Gemini Only'}
                             </div>
                             {meta.mlInferenceTimeMs && (
-                                <div className="text-sm text-gray-500">
+                                <div className="text-sm text-muted-foreground">
                                     ⚡ {meta.mlInferenceTimeMs}ms inference
                                 </div>
                             )}
                             {plan.targetCalories && (
-                                <div className="text-sm text-gray-500">
+                                <div className="text-sm text-muted-foreground">
                                     🎯 {plan.targetCalories} cal/day target
                                 </div>
                             )}
@@ -108,12 +108,12 @@ export function DietPlanDisplay({ plan, onSave }: DietPlanDisplayProps) {
 
             {/* Budget Summary */}
             {shoppingData && (
-                <Card className="border-dark-700">
+                <Card className="border-border">
                     <CardContent className="p-4">
                         <div className="flex flex-wrap items-center gap-6">
                             <div>
-                                <span className="text-sm text-gray-400">Weekly Cost</span>
-                                <div className="text-2xl font-bold text-white">
+                                <span className="text-sm text-muted-foreground">Weekly Cost</span>
+                                <div className="text-2xl font-bold text-foreground">
                                     {shoppingData.currency} {shoppingData.currentTotal?.toLocaleString()}
                                 </div>
                             </div>
@@ -127,7 +127,7 @@ export function DietPlanDisplay({ plan, onSave }: DietPlanDisplayProps) {
                                 </div>
                             )}
                             {plan.budget && (
-                                <div className="text-sm text-gray-500">
+                                <div className="text-sm text-muted-foreground">
                                     Budget: {plan.budget.currency} {plan.budget.amount?.toLocaleString()} / {plan.budget.period}
                                 </div>
                             )}
@@ -157,9 +157,9 @@ export function DietPlanDisplay({ plan, onSave }: DietPlanDisplayProps) {
                     ? plan.days.map((day, i) => (
                         <TabsContent key={i} value={String(i)} className="space-y-6">
                             {/* Daily Totals */}
-                            <Card className="border-dark-700">
+                            <Card className="border-border">
                                 <CardHeader>
-                                    <CardTitle className="text-white">Daily Totals</CardTitle>
+                                    <CardTitle className="text-foreground">Daily Totals</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -167,25 +167,25 @@ export function DietPlanDisplay({ plan, onSave }: DietPlanDisplayProps) {
                                             <div className="text-3xl font-bold text-primary-500">
                                                 {day.totalCalories || day.meals?.reduce((s, m) => s + (m.calories || 0), 0) || 0}
                                             </div>
-                                            <div className="text-sm text-gray-500">Calories</div>
+                                            <div className="text-sm text-muted-foreground">Calories</div>
                                         </div>
                                         <div className="text-center">
                                             <div className="text-3xl font-bold text-blue-500">
                                                 {day.meals?.reduce((s, m) => s + (m.macros?.protein || m.protein || 0), 0).toFixed(0) || 0}g
                                             </div>
-                                            <div className="text-sm text-gray-500">Protein</div>
+                                            <div className="text-sm text-muted-foreground">Protein</div>
                                         </div>
                                         <div className="text-center">
                                             <div className="text-3xl font-bold text-orange-500">
                                                 {day.meals?.reduce((s, m) => s + (m.macros?.carbs || m.carbs || 0), 0).toFixed(0) || 0}g
                                             </div>
-                                            <div className="text-sm text-gray-500">Carbs</div>
+                                            <div className="text-sm text-muted-foreground">Carbs</div>
                                         </div>
                                         <div className="text-center">
                                             <div className="text-3xl font-bold text-yellow-500">
                                                 {day.meals?.reduce((s, m) => s + (m.macros?.fats || m.fats || 0), 0).toFixed(0) || 0}g
                                             </div>
-                                            <div className="text-sm text-gray-500">Fats</div>
+                                            <div className="text-sm text-muted-foreground">Fats</div>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -193,11 +193,11 @@ export function DietPlanDisplay({ plan, onSave }: DietPlanDisplayProps) {
 
                             {/* Meals */}
                             <div className="space-y-4">
-                                <h2 className="text-xl font-semibold text-white">Meals</h2>
+                                <h2 className="text-xl font-semibold text-foreground">Meals</h2>
                                 <div className="grid gap-4 md:grid-cols-2">
                                     {day.meals?.map((meal, j) => (
                                         <div key={j}>
-                                            <h3 className="text-sm font-medium text-gray-400 mb-2 uppercase">
+                                            <h3 className="text-sm font-medium text-muted-foreground mb-2 uppercase">
                                                 {meal.mealType?.replace('_', ' ') || meal.type}
                                             </h3>
                                             <MealCard meal={meal} />
@@ -212,9 +212,9 @@ export function DietPlanDisplay({ plan, onSave }: DietPlanDisplayProps) {
                         if (!dayPlan) return null;
                         return (
                             <TabsContent key={day} value={day} className="space-y-6">
-                                <Card className="border-dark-700">
+                                <Card className="border-border">
                                     <CardHeader>
-                                        <CardTitle className="text-white">Daily Totals</CardTitle>
+                                        <CardTitle className="text-foreground">Daily Totals</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -222,53 +222,53 @@ export function DietPlanDisplay({ plan, onSave }: DietPlanDisplayProps) {
                                                 <div className="text-3xl font-bold text-primary-500">
                                                     {dayPlan.totalMacros?.calories}
                                                 </div>
-                                                <div className="text-sm text-gray-500">Calories</div>
+                                                <div className="text-sm text-muted-foreground">Calories</div>
                                             </div>
                                             <div className="text-center">
                                                 <div className="text-3xl font-bold text-blue-500">
                                                     {dayPlan.totalMacros?.protein}g
                                                 </div>
-                                                <div className="text-sm text-gray-500">Protein</div>
+                                                <div className="text-sm text-muted-foreground">Protein</div>
                                             </div>
                                             <div className="text-center">
                                                 <div className="text-3xl font-bold text-orange-500">
                                                     {dayPlan.totalMacros?.carbs}g
                                                 </div>
-                                                <div className="text-sm text-gray-500">Carbs</div>
+                                                <div className="text-sm text-muted-foreground">Carbs</div>
                                             </div>
                                             <div className="text-center">
                                                 <div className="text-3xl font-bold text-yellow-500">
                                                     {dayPlan.totalMacros?.fats}g
                                                 </div>
-                                                <div className="text-sm text-gray-500">Fats</div>
+                                                <div className="text-sm text-muted-foreground">Fats</div>
                                             </div>
                                         </div>
                                     </CardContent>
                                 </Card>
                                 <div className="space-y-4">
-                                    <h2 className="text-xl font-semibold text-white">Meals</h2>
+                                    <h2 className="text-xl font-semibold text-foreground">Meals</h2>
                                     <div className="grid gap-4 md:grid-cols-2">
                                         {dayPlan.breakfast && (
                                             <div>
-                                                <h3 className="text-sm font-medium text-gray-400 mb-2">BREAKFAST</h3>
+                                                <h3 className="text-sm font-medium text-muted-foreground mb-2">BREAKFAST</h3>
                                                 <MealCard meal={dayPlan.breakfast} />
                                             </div>
                                         )}
                                         {dayPlan.lunch && (
                                             <div>
-                                                <h3 className="text-sm font-medium text-gray-400 mb-2">LUNCH</h3>
+                                                <h3 className="text-sm font-medium text-muted-foreground mb-2">LUNCH</h3>
                                                 <MealCard meal={dayPlan.lunch} />
                                             </div>
                                         )}
                                         {dayPlan.dinner && (
                                             <div>
-                                                <h3 className="text-sm font-medium text-gray-400 mb-2">DINNER</h3>
+                                                <h3 className="text-sm font-medium text-muted-foreground mb-2">DINNER</h3>
                                                 <MealCard meal={dayPlan.dinner} />
                                             </div>
                                         )}
                                         {dayPlan.snacks?.map((snack, index) => (
                                             <div key={snack.id}>
-                                                <h3 className="text-sm font-medium text-gray-400 mb-2">SNACK {index + 1}</h3>
+                                                <h3 className="text-sm font-medium text-muted-foreground mb-2">SNACK {index + 1}</h3>
                                                 <MealCard meal={snack} />
                                             </div>
                                         ))}

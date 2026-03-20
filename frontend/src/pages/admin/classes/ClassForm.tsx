@@ -135,15 +135,15 @@ export function ClassForm() {
                         variant="ghost"
                         size="icon"
                         onClick={() => navigate('/admin/classes')}
-                        className="text-gray-400 hover:text-white hover:bg-dark-800"
+                        className="text-muted-foreground hover:text-foreground hover:bg-card"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">
+                        <h1 className="text-2xl font-bold text-foreground">
                             {isEditMode ? 'Edit Class' : 'Schedule New Class'}
                         </h1>
-                        <p className="text-gray-400">
+                        <p className="text-muted-foreground">
                             {isEditMode ? 'Update class details' : 'Create a new class schedule'}
                         </p>
                     </div>
@@ -153,7 +153,7 @@ export function ClassForm() {
                     <Button
                         variant="outline"
                         onClick={() => navigate('/admin/classes')}
-                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                        className="bg-card border-border text-muted-foreground hover:bg-muted"
                     >
                         <X className="h-4 w-4 mr-2" />
                         Cancel
@@ -170,23 +170,23 @@ export function ClassForm() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* Class Details */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Class Details</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Class Details</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Basic information about the class
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="md:col-span-2">
-                                <Label htmlFor="name" className="text-gray-300">
+                                <Label htmlFor="name" className="text-muted-foreground">
                                     Class Name <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="name"
                                     {...register('name')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="HIIT Bootcamp"
                                 />
                                 {errors.name && (
@@ -195,11 +195,11 @@ export function ClassForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="type" className="text-gray-300">
+                                <Label htmlFor="type" className="text-muted-foreground">
                                     Type <span className="text-red-400">*</span>
                                 </Label>
                                 <Select onValueChange={(value) => setValue('type', value)}>
-                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                    <SelectTrigger className="bg-card border-border text-foreground">
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -216,11 +216,11 @@ export function ClassForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="level" className="text-gray-300">
+                                <Label htmlFor="level" className="text-muted-foreground">
                                     Level <span className="text-red-400">*</span>
                                 </Label>
                                 <Select onValueChange={(value) => setValue('level', value as any)}>
-                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                    <SelectTrigger className="bg-card border-border text-foreground">
                                         <SelectValue placeholder="Select level" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -232,14 +232,14 @@ export function ClassForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="duration" className="text-gray-300">
+                                <Label htmlFor="duration" className="text-muted-foreground">
                                     Duration (minutes) <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="duration"
                                     type="number"
                                     {...register('duration', { valueAsNumber: true })}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="60"
                                 />
                                 {errors.duration && (
@@ -248,13 +248,13 @@ export function ClassForm() {
                             </div>
 
                             <div className="md:col-span-2">
-                                <Label htmlFor="description" className="text-gray-300">
+                                <Label htmlFor="description" className="text-muted-foreground">
                                     Description <span className="text-red-400">*</span>
                                 </Label>
                                 <Textarea
                                     id="description"
                                     {...register('description')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="Describe what participants will do in this class..."
                                     rows={3}
                                 />
@@ -267,24 +267,24 @@ export function ClassForm() {
                 </Card>
 
                 {/* Schedule */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Schedule</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Schedule</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             When and how often the class occurs
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <Label htmlFor="startDate" className="text-gray-300">
+                                <Label htmlFor="startDate" className="text-muted-foreground">
                                     Start Date <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="startDate"
                                     type="date"
                                     {...register('startDate')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                 />
                                 {errors.startDate && (
                                     <p className="text-xs text-red-400 mt-1">{errors.startDate.message}</p>
@@ -292,14 +292,14 @@ export function ClassForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="startTime" className="text-gray-300">
+                                <Label htmlFor="startTime" className="text-muted-foreground">
                                     Start Time <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="startTime"
                                     type="time"
                                     {...register('startTime')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                 />
                                 {errors.startTime && (
                                     <p className="text-xs text-red-400 mt-1">{errors.startTime.message}</p>
@@ -307,14 +307,14 @@ export function ClassForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="endTime" className="text-gray-300">
+                                <Label htmlFor="endTime" className="text-muted-foreground">
                                     End Time <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="endTime"
                                     type="time"
                                     {...register('endTime')}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                 />
                                 {errors.endTime && (
                                     <p className="text-xs text-red-400 mt-1">{errors.endTime.message}</p>
@@ -323,11 +323,11 @@ export function ClassForm() {
                         </div>
 
                         <div>
-                            <Label className="text-gray-300">
+                            <Label className="text-muted-foreground">
                                 Recurrence <span className="text-red-400">*</span>
                             </Label>
                             <Select onValueChange={(value) => setValue('recurrence', value as any)}>
-                                <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                <SelectTrigger className="bg-card border-border text-foreground">
                                     <SelectValue placeholder="Select recurrence" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -341,14 +341,14 @@ export function ClassForm() {
 
                         {recurrence === 'weekly' && (
                             <div>
-                                <Label className="text-gray-300">Days of Week</Label>
+                                <Label className="text-muted-foreground">Days of Week</Label>
                                 <div className="flex gap-2 mt-2">
                                     {DAYS_OF_WEEK.map((day) => (
                                         <div
                                             key={day.value}
                                             className={`flex-1 p-3 rounded-lg border cursor-pointer text-center transition-colors ${selectedDays.includes(day.value)
                                                     ? 'bg-purple-500/20 border-purple-500 text-purple-400'
-                                                    : 'bg-dark-800/50 border-dark-700 text-gray-400 hover:border-purple-500/30'
+                                                    : 'bg-card/50 border-border text-muted-foreground hover:border-purple-500/30'
                                                 }`}
                                             onClick={() => toggleDay(day.value)}
                                         >
@@ -362,9 +362,9 @@ export function ClassForm() {
                         {recurrence !== 'one-time' && (
                             <>
                                 <div>
-                                    <Label className="text-gray-300">End Recurrence</Label>
+                                    <Label className="text-muted-foreground">End Recurrence</Label>
                                     <Select onValueChange={(value) => setValue('endRecurrence', value as any)}>
-                                        <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                        <SelectTrigger className="bg-card border-border text-foreground">
                                             <SelectValue placeholder="Select when to end" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -377,14 +377,14 @@ export function ClassForm() {
 
                                 {endRecurrence === 'after' && (
                                     <div>
-                                        <Label htmlFor="occurrences" className="text-gray-300">
+                                        <Label htmlFor="occurrences" className="text-muted-foreground">
                                             Number of Occurrences
                                         </Label>
                                         <Input
                                             id="occurrences"
                                             type="number"
                                             {...register('occurrences', { valueAsNumber: true })}
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-card border-border text-foreground"
                                             placeholder="10"
                                         />
                                     </div>
@@ -392,14 +392,14 @@ export function ClassForm() {
 
                                 {endRecurrence === 'on-date' && (
                                     <div>
-                                        <Label htmlFor="endDate" className="text-gray-300">
+                                        <Label htmlFor="endDate" className="text-muted-foreground">
                                             End Date
                                         </Label>
                                         <Input
                                             id="endDate"
                                             type="date"
                                             {...register('endDate')}
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-card border-border text-foreground"
                                         />
                                     </div>
                                 )}
@@ -409,24 +409,24 @@ export function ClassForm() {
                 </Card>
 
                 {/* Capacity & Location */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Capacity & Location</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Capacity & Location</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Where the class takes place and participant limits
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <Label htmlFor="maxParticipants" className="text-gray-300">
+                                <Label htmlFor="maxParticipants" className="text-muted-foreground">
                                     Max Participants <span className="text-red-400">*</span>
                                 </Label>
                                 <Input
                                     id="maxParticipants"
                                     type="number"
                                     {...register('maxParticipants', { valueAsNumber: true })}
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                     placeholder="20"
                                 />
                                 {errors.maxParticipants && (
@@ -437,11 +437,11 @@ export function ClassForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="location" className="text-gray-300">
+                                <Label htmlFor="location" className="text-muted-foreground">
                                     Location <span className="text-red-400">*</span>
                                 </Label>
                                 <Select onValueChange={(value) => setValue('location', value)}>
-                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                    <SelectTrigger className="bg-card border-border text-foreground">
                                         <SelectValue placeholder="Select location" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -461,21 +461,21 @@ export function ClassForm() {
                 </Card>
 
                 {/* Trainer Assignment */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Trainer Assignment</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Trainer Assignment</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Assign trainers to lead the class
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <Label htmlFor="trainerId" className="text-gray-300">
+                                <Label htmlFor="trainerId" className="text-muted-foreground">
                                     Primary Trainer <span className="text-red-400">*</span>
                                 </Label>
                                 <Select onValueChange={(value) => setValue('trainerId', value)}>
-                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                    <SelectTrigger className="bg-card border-border text-foreground">
                                         <SelectValue placeholder="Select trainer" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -492,11 +492,11 @@ export function ClassForm() {
                             </div>
 
                             <div>
-                                <Label htmlFor="backupTrainerId" className="text-gray-300">
+                                <Label htmlFor="backupTrainerId" className="text-muted-foreground">
                                     Backup Trainer
                                 </Label>
                                 <Select onValueChange={(value) => setValue('backupTrainerId', value)}>
-                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                    <SelectTrigger className="bg-card border-border text-foreground">
                                         <SelectValue placeholder="Select backup trainer" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -513,46 +513,46 @@ export function ClassForm() {
                 </Card>
 
                 {/* Requirements & Notes */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Requirements & Notes</CardTitle>
-                        <CardDescription className="text-gray-400">
+                        <CardTitle className="text-foreground">Requirements & Notes</CardTitle>
+                        <CardDescription className="text-muted-foreground">
                             Additional information for participants
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div>
-                            <Label htmlFor="prerequisites" className="text-gray-300">
+                            <Label htmlFor="prerequisites" className="text-muted-foreground">
                                 Prerequisites
                             </Label>
                             <Input
                                 id="prerequisites"
                                 {...register('prerequisites')}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                                 placeholder="Basic fitness level required"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="whatToBring" className="text-gray-300">
+                            <Label htmlFor="whatToBring" className="text-muted-foreground">
                                 What to Bring
                             </Label>
                             <Input
                                 id="whatToBring"
                                 {...register('whatToBring')}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                                 placeholder="Yoga mat, water bottle, towel"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="notes" className="text-gray-300">
+                            <Label htmlFor="notes" className="text-muted-foreground">
                                 Special Notes
                             </Label>
                             <Textarea
                                 id="notes"
                                 {...register('notes')}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                                 placeholder="Any additional information..."
                                 rows={3}
                             />

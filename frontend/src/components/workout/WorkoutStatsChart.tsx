@@ -37,16 +37,16 @@ export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProp
     const chartData = getLast7DaysData();
 
     return (
-        <Card className="glass-card border-dark-700">
+        <Card className="glass-card border-border">
             <CardHeader>
-                <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5 text-primary-400" />
+                <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-primary-800" />
                     Workout Statistics
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 <Tabs defaultValue="overview" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 bg-dark-800">
+                    <TabsList className="grid w-full grid-cols-2 bg-card">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="trends">Trends</TabsTrigger>
                     </TabsList>
@@ -54,54 +54,54 @@ export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProp
                     <TabsContent value="overview" className="space-y-4 mt-4 animate-fade-in">
                         <div className="grid grid-cols-2 gap-4">
                             {/* Total Workouts */}
-                            <div className="bg-dark-800/50 rounded-lg p-4 border border-dark-700">
+                            <div className="bg-card/50 rounded-lg p-4 border border-border">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <Dumbbell className="w-4 h-4 text-primary-400" />
-                                    <p className="text-xs text-gray-500">Total Workouts</p>
+                                    <Dumbbell className="w-4 h-4 text-primary-800" />
+                                    <p className="text-xs text-muted-foreground">Total Workouts</p>
                                 </div>
-                                <p className="text-2xl font-bold text-white">{stats.totalWorkouts}</p>
+                                <p className="text-2xl font-bold text-foreground">{stats.totalWorkouts}</p>
                                 {stats.thisMonth !== undefined && (
-                                    <p className="text-xs text-gray-400 mt-1">
+                                    <p className="text-xs text-muted-foreground mt-1">
                                         {stats.thisMonth} this month
                                     </p>
                                 )}
                             </div>
 
                             {/* Total Calories */}
-                            <div className="bg-dark-800/50 rounded-lg p-4 border border-dark-700">
+                            <div className="bg-card/50 rounded-lg p-4 border border-border">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Flame className="w-4 h-4 text-orange-400" />
-                                    <p className="text-xs text-gray-500">Calories Burned</p>
+                                    <p className="text-xs text-muted-foreground">Calories Burned</p>
                                 </div>
-                                <p className="text-2xl font-bold text-white">
+                                <p className="text-2xl font-bold text-foreground">
                                     {stats.totalCaloriesBurned.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-gray-400 mt-1">
+                                <p className="text-xs text-muted-foreground mt-1">
                                     Avg: {Math.round(stats.totalCaloriesBurned / (stats.totalWorkouts || 1))} per workout
                                 </p>
                             </div>
 
                             {/* Average Duration */}
-                            <div className="bg-dark-800/50 rounded-lg p-4 border border-dark-700">
+                            <div className="bg-card/50 rounded-lg p-4 border border-border">
                                 <div className="flex items-center gap-2 mb-2">
                                     <TrendingUp className="w-4 h-4 text-green-400" />
-                                    <p className="text-xs text-gray-500">Avg Duration</p>
+                                    <p className="text-xs text-muted-foreground">Avg Duration</p>
                                 </div>
-                                <p className="text-2xl font-bold text-white">{stats.averageDuration} min</p>
-                                <p className="text-xs text-gray-400 mt-1">
+                                <p className="text-2xl font-bold text-foreground">{stats.averageDuration} min</p>
+                                <p className="text-xs text-muted-foreground mt-1">
                                     Per workout session
                                 </p>
                             </div>
 
                             {/* This Week */}
                             {stats.thisWeek !== undefined && (
-                                <div className="bg-dark-800/50 rounded-lg p-4 border border-dark-700">
+                                <div className="bg-card/50 rounded-lg p-4 border border-border">
                                     <div className="flex items-center gap-2 mb-2">
                                         <BarChart3 className="w-4 h-4 text-blue-400" />
-                                        <p className="text-xs text-gray-500">This Week</p>
+                                        <p className="text-xs text-muted-foreground">This Week</p>
                                     </div>
-                                    <p className="text-2xl font-bold text-white">{stats.thisWeek}</p>
-                                    <p className="text-xs text-gray-400 mt-1">
+                                    <p className="text-2xl font-bold text-foreground">{stats.thisWeek}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">
                                         Workouts completed
                                     </p>
                                 </div>
@@ -110,8 +110,8 @@ export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProp
                     </TabsContent>
 
                     <TabsContent value="trends" className="mt-4 animate-fade-in">
-                        <div className="bg-dark-800/50 rounded-lg p-4 border border-dark-700 h-[300px]">
-                            <h3 className="text-sm font-semibold text-gray-400 mb-4">Activity (Last 7 Days)</h3>
+                        <div className="bg-card/50 rounded-lg p-4 border border-border h-[300px]">
+                            <h3 className="text-sm font-semibold text-muted-foreground mb-4">Activity (Last 7 Days)</h3>
                             <ResponsiveContainer width="100%" height="90%">
                                 <BarChart data={chartData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />

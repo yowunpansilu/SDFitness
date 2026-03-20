@@ -135,14 +135,14 @@ export function Workouts() {
     return (
         <div className="space-y-6 animate-fade-in">
             {/* Header */}
-            <div className="glass-card border-dark-700 p-6 rounded-lg bg-gradient-to-br from-primary-900/20 via-dark-900 to-secondary-900/20">
+            <div className="glass-card border-border p-6 rounded-lg bg-gradient-to-br from-primary-900/20 via-dark-900 to-secondary-900/20">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-headline font-bold text-white mb-2 flex items-center gap-3">
-                            <Dumbbell className="w-8 h-8 text-primary-400" />
+                        <h1 className="text-3xl font-headline font-bold text-foreground mb-2 flex items-center gap-3">
+                            <Dumbbell className="w-8 h-8 text-primary-800" />
                             Workout Tracking
                         </h1>
-                        <p className="text-gray-400">
+                        <p className="text-muted-foreground">
                             Track your workouts, monitor progress, and crush your fitness goals
                         </p>
                     </div>
@@ -163,8 +163,8 @@ export function Workouts() {
 
             {/* Personal Records Banner */}
             {personalRecords.length > 0 && (
-                <div className="glass-card border-dark-700 p-4 rounded-lg">
-                    <h3 className="text-sm font-semibold text-gray-400 mb-3">Recent Personal Records</h3>
+                <div className="glass-card border-border p-4 rounded-lg">
+                    <h3 className="text-sm font-semibold text-muted-foreground mb-3">Recent Personal Records</h3>
                     <div className="flex flex-wrap gap-3">
                         {personalRecords.slice(0, 3).map((pr, idx) => (
                             <PersonalRecordsBadge key={idx} record={pr} animated={idx === 0} />
@@ -179,7 +179,7 @@ export function Workouts() {
                     fetchHistory();
                 }
             }}>
-                <TabsList className="grid w-full grid-cols-3 bg-dark-800">
+                <TabsList className="grid w-full grid-cols-3 bg-card">
                     <TabsTrigger value="templates">
                         <Dumbbell className="w-4 h-4 mr-2" />
                         Templates
@@ -199,20 +199,20 @@ export function Workouts() {
                     {/* Filters */}
                     <div className="flex flex-col sm:flex-row gap-3">
                         <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 placeholder="Search workouts..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 bg-dark-800 border-dark-600 text-white"
+                                className="pl-10 bg-card border-border text-foreground"
                             />
                         </div>
                         <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-                            <SelectTrigger className="w-full sm:w-[180px] bg-dark-800 border-dark-600 text-white">
+                            <SelectTrigger className="w-full sm:w-[180px] bg-card border-border text-foreground">
                                 <Filter className="w-4 h-4 mr-2" />
                                 <SelectValue placeholder="Difficulty" />
                             </SelectTrigger>
-                            <SelectContent className="bg-dark-800 border-dark-600">
+                            <SelectContent className="bg-card border-border">
                                 <SelectItem value="all">All Levels</SelectItem>
                                 <SelectItem value="beginner">Beginner</SelectItem>
                                 <SelectItem value="intermediate">Intermediate</SelectItem>
@@ -220,11 +220,11 @@ export function Workouts() {
                             </SelectContent>
                         </Select>
                         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                            <SelectTrigger className="w-full sm:w-[180px] bg-dark-800 border-dark-600 text-white">
+                            <SelectTrigger className="w-full sm:w-[180px] bg-card border-border text-foreground">
                                 <Filter className="w-4 h-4 mr-2" />
                                 <SelectValue placeholder="Category" />
                             </SelectTrigger>
-                            <SelectContent className="bg-dark-800 border-dark-600">
+                            <SelectContent className="bg-card border-border">
                                 <SelectItem value="all">All Categories</SelectItem>
                                 <SelectItem value="strength">Strength</SelectItem>
                                 <SelectItem value="cardio">Cardio</SelectItem>
@@ -240,7 +240,7 @@ export function Workouts() {
                     {templatesLoading ? (
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {[1, 2, 3, 4, 5, 6].map((i) => (
-                                <Skeleton key={i} className="h-[280px] bg-dark-800" />
+                                <Skeleton key={i} className="h-[280px] bg-card" />
                             ))}
                         </div>
                     ) : filteredTemplates.length > 0 ? (
@@ -256,8 +256,8 @@ export function Workouts() {
                     ) : (
                         <div className="text-center py-12">
                             <Dumbbell className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                            <p className="text-gray-400">No workout templates found</p>
-                            <p className="text-gray-500 text-sm mt-2">Try adjusting your filters</p>
+                            <p className="text-muted-foreground">No workout templates found</p>
+                            <p className="text-muted-foreground text-sm mt-2">Try adjusting your filters</p>
                         </div>
                     )}
                 </TabsContent>
@@ -267,7 +267,7 @@ export function Workouts() {
                     {historyLoading ? (
                         <div className="space-y-4">
                             {[1, 2, 3].map((i) => (
-                                <Skeleton key={i} className="h-[120px] bg-dark-800" />
+                                <Skeleton key={i} className="h-[120px] bg-card" />
                             ))}
                         </div>
                     ) : workoutHistory.length > 0 ? (
@@ -279,8 +279,8 @@ export function Workouts() {
                     ) : (
                         <div className="text-center py-12">
                             <History className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                            <p className="text-gray-400">No workout history yet</p>
-                            <p className="text-gray-500 text-sm mt-2">Start logging workouts to see them here</p>
+                            <p className="text-muted-foreground">No workout history yet</p>
+                            <p className="text-muted-foreground text-sm mt-2">Start logging workouts to see them here</p>
                             <Button
                                 variant="gym"
                                 className="mt-4"
@@ -304,8 +304,8 @@ export function Workouts() {
                     ) : (
                         <div className="text-center py-12">
                             <BarChart3 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                            <p className="text-gray-400">No statistics available yet</p>
-                            <p className="text-gray-500 text-sm mt-2">Complete workouts to see your progress</p>
+                            <p className="text-muted-foreground">No statistics available yet</p>
+                            <p className="text-muted-foreground text-sm mt-2">Complete workouts to see your progress</p>
                         </div>
                     )}
                 </TabsContent>

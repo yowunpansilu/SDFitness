@@ -54,7 +54,7 @@ export function PreferencesTab() {
     };
 
     return (
-        <Card className="border-dark-700">
+        <Card className="border-border">
             <CardContent className="p-6">
                 <div className="space-y-6">
                     {/* Dietary Restrictions */}
@@ -69,7 +69,7 @@ export function PreferencesTab() {
                                     disabled={!isEditing}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${formData.dietaryRestrictions.includes(option)
                                             ? 'bg-primary-500 text-white'
-                                            : 'bg-dark-700 text-gray-400 hover:bg-dark-600'
+                                            : 'bg-muted text-muted-foreground hover:bg-accent'
                                         } ${!isEditing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                                 >
                                     {option}
@@ -110,9 +110,9 @@ export function PreferencesTab() {
                                     setFormData({ ...formData, budget: e.target.value })
                                 }
                                 disabled={!isEditing}
-                                className="w-full h-2 bg-dark-700 rounded-lg appearance-none cursor-pointer accent-primary-500"
+                                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary-500"
                             />
-                            <div className="flex justify-between text-xs text-gray-500">
+                            <div className="flex justify-between text-xs text-muted-foreground">
                                 <span>$50</span>
                                 <span>$500</span>
                             </div>
@@ -156,9 +156,9 @@ export function PreferencesTab() {
                                         })
                                     }
                                     disabled={!isEditing}
-                                    className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                    className="w-4 h-4 rounded border-border bg-muted text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
                                 />
-                                <span className="text-sm text-gray-300">Email Notifications</span>
+                                <span className="text-sm text-muted-foreground">Email Notifications</span>
                             </label>
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input
@@ -171,9 +171,9 @@ export function PreferencesTab() {
                                         })
                                     }
                                     disabled={!isEditing}
-                                    className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                    className="w-4 h-4 rounded border-border bg-muted text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
                                 />
-                                <span className="text-sm text-gray-300">SMS Notifications</span>
+                                <span className="text-sm text-muted-foreground">SMS Notifications</span>
                             </label>
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input
@@ -186,9 +186,9 @@ export function PreferencesTab() {
                                         })
                                     }
                                     disabled={!isEditing}
-                                    className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                    className="w-4 h-4 rounded border-border bg-muted text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
                                 />
-                                <span className="text-sm text-gray-300">Push Notifications</span>
+                                <span className="text-sm text-muted-foreground">Push Notifications</span>
                             </label>
                         </div>
                     </div>

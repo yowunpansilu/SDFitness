@@ -24,21 +24,35 @@ export default {
                 foreground: "hsl(var(--foreground))",
                 // Gym-inspired color palette
                 primary: {
-                    DEFAULT: '#FF4500',      // Vibrant Orange-Red
-                    50: '#FFF5F2',
-                    100: '#FFE8E0',
-                    200: '#FFD1C2',
-                    300: '#FFB199',
-                    400: '#FF8566',
-                    500: '#FF4500',          // Main
-                    600: '#E63E00',
-                    700: '#CC3700',
-                    800: '#B33000',
-                    900: '#992900',
+                    DEFAULT: '#0A2540',      // Deep Professional Navy Blue
+                    50: '#F0F4F8',
+                    100: '#D9E2EC',
+                    200: '#BCCCDC',
+                    300: '#9FB3C8',
+                    400: '#829AB1',
+                    500: '#0A2540',          // Main Navy
+                    600: '#081E33',
+                    700: '#061626',
+                    800: '#040F1A',
+                    900: '#02070D',
                     foreground: '#FFFFFF',
                 },
                 secondary: {
-                    DEFAULT: '#0EA5E9',      // Electric Blue
+                    DEFAULT: '#F59E0B',      // Rich Amber / Gold
+                    50: '#FFFBEB',
+                    100: '#FEF3C7',
+                    200: '#FDE68A',
+                    300: '#FCD34D',
+                    400: '#FBBF24',
+                    500: '#F59E0B',          // Main Gold
+                    600: '#D97706',
+                    700: '#B45309',
+                    800: '#92400E',
+                    900: '#78350F',
+                    foreground: '#FFFFFF',
+                },
+                accent: {
+                    DEFAULT: '#38BDF8',      // Bright Sky Blue for subtle highlights
                     50: '#F0F9FF',
                     100: '#E0F2FE',
                     200: '#BAE6FD',
@@ -50,20 +64,6 @@ export default {
                     800: '#075985',
                     900: '#0C4A6E',
                     foreground: '#FFFFFF',
-                },
-                accent: {
-                    DEFAULT: '#FFD700',      // Gold
-                    50: '#FFFEF0',
-                    100: '#FFFCE0',
-                    200: '#FFF9C2',
-                    300: '#FFF599',
-                    400: '#FFED66',
-                    500: '#FFD700',          // Main
-                    600: '#E6C200',
-                    700: '#CCAD00',
-                    800: '#B39900',
-                    900: '#998500',
-                    foreground: '#1A1A1A',
                 },
                 success: {
                     DEFAULT: '#10B981',
@@ -105,8 +105,8 @@ export default {
                 sm: "calc(var(--radius) - 4px)",
             },
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
-                headline: ['Bebas Neue', 'Impact', 'sans-serif'],
+                sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                headline: ['Montserrat', 'sans-serif'],
             },
             keyframes: {
                 "accordion-down": {
@@ -118,8 +118,8 @@ export default {
                     to: { height: "0" },
                 },
                 "pulse-glow": {
-                    "0%, 100%": { boxShadow: "0 0 20px rgba(255, 69, 0, 0.5)" },
-                    "50%": { boxShadow: "0 0 40px rgba(255, 69, 0, 0.8)" },
+                    "0%, 100%": { boxShadow: "0 0 20px rgba(10, 37, 64, 0.5)" },
+                    "50%": { boxShadow: "0 0 40px rgba(10, 37, 64, 0.8)" },
                 },
                 "slide-up": {
                     "0%": { transform: "translateY(20px)", opacity: "0" },

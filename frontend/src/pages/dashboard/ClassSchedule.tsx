@@ -82,11 +82,11 @@ export function ClassSchedule() {
         <div className="space-y-6 animate-fade-in pt-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-headline font-bold text-white flex items-center gap-3">
-                        <Calendar className="w-8 h-8 text-primary-400" />
+                    <h1 className="text-3xl font-headline font-bold text-foreground flex items-center gap-3">
+                        <Calendar className="w-8 h-8 text-primary-800" />
                         Class Schedule
                     </h1>
-                    <p className="text-gray-400 mt-1">
+                    <p className="text-muted-foreground mt-1">
                         Find and book your favorite fitness classes
                     </p>
                 </div>
@@ -97,7 +97,7 @@ export function ClassSchedule() {
                         fetchClasses(selectedDate, selectedDate);
                         if (user?.id) fetchUserBookings(user.id);
                     }}
-                    className="border-dark-600 text-gray-400 hover:text-white"
+                    className="border-border text-muted-foreground hover:text-foreground"
                 >
                     <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                     Refresh
@@ -105,12 +105,12 @@ export function ClassSchedule() {
             </div>
 
             {/* Filters */}
-            <div className="glass-card p-4 rounded-lg border-dark-700 flex flex-col md:flex-row gap-4 items-center">
+            <div className="glass-card p-4 rounded-lg border-border flex flex-col md:flex-row gap-4 items-center">
                 <div className="relative flex-1 w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                         placeholder="Search classes or trainers..."
-                        className="pl-10 bg-dark-800 border-dark-600 text-white"
+                        className="pl-10 bg-card border-border text-foreground"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -120,11 +120,11 @@ export function ClassSchedule() {
                         value={filters.type}
                         onValueChange={(val: any) => setFilters({ type: val })}
                     >
-                        <SelectTrigger className="w-full md:w-[150px] bg-dark-800 border-dark-600 text-white">
+                        <SelectTrigger className="w-full md:w-[150px] bg-card border-border text-foreground">
                             <Filter className="w-4 h-4 mr-2" />
                             <SelectValue placeholder="Type" />
                         </SelectTrigger>
-                        <SelectContent className="bg-dark-800 border-dark-600">
+                        <SelectContent className="bg-card border-border">
                             <SelectItem value="All">All Types</SelectItem>
                             <SelectItem value="Yoga">Yoga</SelectItem>
                             <SelectItem value="HIIT">HIIT</SelectItem>

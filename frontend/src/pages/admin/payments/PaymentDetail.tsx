@@ -94,7 +94,7 @@ const STATUS_CONFIG = {
         label: 'Failed',
     },
     refunded: {
-        color: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+        color: 'bg-gray-500/20 text-muted-foreground border-gray-500/30',
         icon: RefreshCw,
         label: 'Refunded',
     },
@@ -155,13 +155,13 @@ export function PaymentDetail() {
                         variant="ghost"
                         size="icon"
                         onClick={() => navigate('/admin/payments')}
-                        className="text-gray-400 hover:text-white hover:bg-dark-800"
+                        className="text-muted-foreground hover:text-foreground hover:bg-card"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Payment #{paymentData.id}</h1>
-                        <p className="text-gray-400">{paymentData.transactionId}</p>
+                        <h1 className="text-2xl font-bold text-foreground">Payment #{paymentData.id}</h1>
+                        <p className="text-muted-foreground">{paymentData.transactionId}</p>
                     </div>
                 </div>
 
@@ -169,7 +169,7 @@ export function PaymentDetail() {
                     <Button
                         variant="outline"
                         onClick={handleDownloadInvoice}
-                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                        className="bg-card border-border text-muted-foreground hover:bg-muted"
                     >
                         <Download className="h-4 w-4 mr-2" />
                         Download Invoice
@@ -178,7 +178,7 @@ export function PaymentDetail() {
                         <Button
                             variant="outline"
                             onClick={handleRefund}
-                            className="bg-dark-800 border-dark-700 text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
+                            className="bg-card border-border text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
                         >
                             <RefreshCw className="h-4 w-4 mr-2" />
                             Issue Refund
@@ -197,10 +197,10 @@ export function PaymentDetail() {
                                     <DollarSign className="h-8 w-8 text-green-400" />
                                 </div>
                                 <div>
-                                    <div className="text-4xl font-bold text-white">
+                                    <div className="text-4xl font-bold text-foreground">
                                         {formatCurrency(paymentData.amount, paymentData.currency)}
                                     </div>
-                                    <div className="text-gray-400">Payment Amount</div>
+                                    <div className="text-muted-foreground">Payment Amount</div>
                                 </div>
                             </div>
 
@@ -209,7 +209,7 @@ export function PaymentDetail() {
                                     <StatusIcon className="h-3 w-3 mr-1" />
                                     {STATUS_CONFIG[paymentData.status].label}
                                 </Badge>
-                                <Badge variant="outline" className="bg-dark-800 text-gray-300 border-dark-700">
+                                <Badge variant="outline" className="bg-card text-muted-foreground border-border">
                                     {paymentData.paymentMethod.type === 'card' && (
                                         <>
                                             <CreditCard className="h-3 w-3 mr-1" />
@@ -223,8 +223,8 @@ export function PaymentDetail() {
                         </div>
 
                         <div className="text-right">
-                            <div className="text-sm text-gray-400">Invoice Number</div>
-                            <div className="text-xl font-semibold text-white">{paymentData.invoice}</div>
+                            <div className="text-sm text-muted-foreground">Invoice Number</div>
+                            <div className="text-xl font-semibold text-foreground">{paymentData.invoice}</div>
                         </div>
                     </div>
                 </CardContent>
@@ -232,9 +232,9 @@ export function PaymentDetail() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Member Information */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white flex items-center gap-2">
+                        <CardTitle className="text-foreground flex items-center gap-2">
                             <User className="h-5 w-5 text-purple-400" />
                             Member Information
                         </CardTitle>
@@ -243,13 +243,13 @@ export function PaymentDetail() {
                         <div className="flex items-center gap-4">
                             <Avatar className="h-16 w-16">
                                 <AvatarImage src={paymentData.member.avatar} />
-                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-lg">
+                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-foreground text-lg">
                                     {getInitials(paymentData.member.name)}
                                 </AvatarFallback>
                             </Avatar>
                             <div>
-                                <div className="font-semibold text-white">{paymentData.member.name}</div>
-                                <div className="text-sm text-gray-400">{paymentData.member.email}</div>
+                                <div className="font-semibold text-foreground">{paymentData.member.name}</div>
+                                <div className="text-sm text-muted-foreground">{paymentData.member.email}</div>
                                 <Badge
                                     variant="outline"
                                     className="mt-1 bg-purple-500/20 text-purple-400 border-purple-500/30"
@@ -258,10 +258,10 @@ export function PaymentDetail() {
                                 </Badge>
                             </div>
                         </div>
-                        <Separator className="bg-dark-700" />
+                        <Separator className="bg-muted" />
                         <Button
                             variant="outline"
-                            className="w-full bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                            className="w-full bg-card border-border text-muted-foreground hover:bg-muted"
                             onClick={() => navigate(`/admin/members/${paymentData.member.id}`)}
                         >
                             View Member Profile
@@ -270,27 +270,27 @@ export function PaymentDetail() {
                 </Card>
 
                 {/* Plan Information */}
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white flex items-center gap-2">
+                        <CardTitle className="text-foreground flex items-center gap-2">
                             <FileText className="h-5 w-5 text-purple-400" />
                             Plan Details
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <div>
-                            <div className="text-sm text-gray-400">Plan Name</div>
-                            <div className="text-white font-medium">{paymentData.plan.name}</div>
+                            <div className="text-sm text-muted-foreground">Plan Name</div>
+                            <div className="text-foreground font-medium">{paymentData.plan.name}</div>
                         </div>
-                        <Separator className="bg-dark-700" />
+                        <Separator className="bg-muted" />
                         <div>
-                            <div className="text-sm text-gray-400">Duration</div>
-                            <div className="text-white font-medium">{paymentData.plan.duration}</div>
+                            <div className="text-sm text-muted-foreground">Duration</div>
+                            <div className="text-foreground font-medium">{paymentData.plan.duration}</div>
                         </div>
-                        <Separator className="bg-dark-700" />
+                        <Separator className="bg-muted" />
                         <div>
-                            <div className="text-sm text-gray-400">Price</div>
-                            <div className="text-white font-medium">
+                            <div className="text-sm text-muted-foreground">Price</div>
+                            <div className="text-foreground font-medium">
                                 {formatCurrency(paymentData.amount, paymentData.currency)}
                             </div>
                         </div>
@@ -299,13 +299,13 @@ export function PaymentDetail() {
             </div>
 
             {/* Transaction Timeline */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
+                    <CardTitle className="text-foreground flex items-center gap-2">
                         <Calendar className="h-5 w-5 text-purple-400" />
                         Transaction Timeline
                     </CardTitle>
-                    <CardDescription className="text-gray-400">
+                    <CardDescription className="text-muted-foreground">
                         Track the payment processing history
                     </CardDescription>
                 </CardHeader>
@@ -316,8 +316,8 @@ export function PaymentDetail() {
                                 <CheckCircle2 className="h-5 w-5 text-green-400" />
                             </div>
                             <div className="flex-1">
-                                <div className="font-medium text-white">Payment Created</div>
-                                <div className="text-sm text-gray-400">{formatDate(paymentData.createdAt)}</div>
+                                <div className="font-medium text-foreground">Payment Created</div>
+                                <div className="text-sm text-muted-foreground">{formatDate(paymentData.createdAt)}</div>
                             </div>
                         </div>
 
@@ -327,9 +327,9 @@ export function PaymentDetail() {
                                     <CheckCircle2 className="h-5 w-5 text-green-400" />
                                 </div>
                                 <div className="flex-1">
-                                    <div className="font-medium text-white">Payment Processed</div>
-                                    <div className="text-sm text-gray-400">{formatDate(paymentData.processedAt)}</div>
-                                    <div className="text-sm text-gray-500 mt-1">
+                                    <div className="font-medium text-foreground">Payment Processed</div>
+                                    <div className="text-sm text-muted-foreground">{formatDate(paymentData.processedAt)}</div>
+                                    <div className="text-sm text-muted-foreground mt-1">
                                         Payment successfully processed via {paymentData.paymentMethod.cardBrand}
                                     </div>
                                 </div>
@@ -339,11 +339,11 @@ export function PaymentDetail() {
                         {paymentData.refundedAt && (
                             <div className="flex items-start gap-4">
                                 <div className="p-2 rounded-lg bg-gray-500/20">
-                                    <RefreshCw className="h-5 w-5 text-gray-400" />
+                                    <RefreshCw className="h-5 w-5 text-muted-foreground" />
                                 </div>
                                 <div className="flex-1">
-                                    <div className="font-medium text-white">Payment Refunded</div>
-                                    <div className="text-sm text-gray-400">{formatDate(paymentData.refundedAt)}</div>
+                                    <div className="font-medium text-foreground">Payment Refunded</div>
+                                    <div className="text-sm text-muted-foreground">{formatDate(paymentData.refundedAt)}</div>
                                 </div>
                             </div>
                         )}
@@ -353,12 +353,12 @@ export function PaymentDetail() {
 
             {/* Additional Notes */}
             {paymentData.notes && (
-                <Card className="bg-dark-900/50 border-dark-800">
+                <Card className="bg-background/50 border-border">
                     <CardHeader>
-                        <CardTitle className="text-white">Notes</CardTitle>
+                        <CardTitle className="text-foreground">Notes</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-gray-300">{paymentData.notes}</p>
+                        <p className="text-muted-foreground">{paymentData.notes}</p>
                     </CardContent>
                 </Card>
             )}

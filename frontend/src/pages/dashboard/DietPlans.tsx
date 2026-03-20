@@ -33,8 +33,8 @@ export function DietPlans() {
         return (
             <div className="space-y-6 animate-fade-in">
                 <div>
-                    <h1 className="text-3xl font-headline font-bold text-white">Generate Diet Plan</h1>
-                    <p className="text-gray-400 mt-2">
+                    <h1 className="text-3xl font-headline font-bold text-foreground">Generate Diet Plan</h1>
+                    <p className="text-muted-foreground mt-2">
                         Answer a few questions to get your personalized meal plan
                     </p>
                 </div>
@@ -70,8 +70,8 @@ export function DietPlans() {
             {/* Page Header */}
             <div className="flex justify-between items-start">
                 <div>
-                    <h1 className="text-3xl font-headline font-bold text-white">Diet Plans</h1>
-                    <p className="text-gray-400 mt-2">
+                    <h1 className="text-3xl font-headline font-bold text-foreground">Diet Plans</h1>
+                    <p className="text-muted-foreground mt-2">
                         AI-powered personalized meal plans for your fitness goals
                     </p>
                 </div>
@@ -84,26 +84,26 @@ export function DietPlans() {
             {/* Saved Plans */}
             {savedPlans.length > 0 ? (
                 <div className="space-y-4">
-                    <h2 className="text-xl font-semibold text-white">Your Saved Plans</h2>
+                    <h2 className="text-xl font-semibold text-foreground">Your Saved Plans</h2>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {savedPlans.map((plan) => (
                             <Card
                                 key={plan.id}
-                                className="border-dark-700 hover:border-primary-500/50 transition-all cursor-pointer"
+                                className="border-border hover:border-primary-500/50 transition-all cursor-pointer"
                                 onClick={() => handleViewPlan(plan)}
                             >
                                 <CardContent className="p-6">
                                     <div className="space-y-3">
                                         <div className="flex items-start justify-between">
                                             <div>
-                                                <h3 className="font-semibold text-white">{plan.name}</h3>
-                                                <p className="text-sm text-gray-500 mt-1">
+                                                <h3 className="font-semibold text-foreground">{plan.name}</h3>
+                                                <p className="text-sm text-muted-foreground mt-1">
                                                     {plan.createdAt.toLocaleDateString()}
                                                 </p>
                                             </div>
                                             <Target className="w-5 h-5 text-primary-500" />
                                         </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <Calendar className="w-4 h-4" />
                                             <span>7-day plan</span>
                                         </div>
@@ -112,13 +112,13 @@ export function DietPlans() {
                                                 {plan.preferences.dietary.slice(0, 2).map((pref) => (
                                                     <span
                                                         key={pref}
-                                                        className="px-2 py-1 bg-dark-800 text-xs text-gray-400 rounded"
+                                                        className="px-2 py-1 bg-card text-xs text-muted-foreground rounded"
                                                     >
                                                         {pref}
                                                     </span>
                                                 ))}
                                                 {plan.preferences.dietary.length > 2 && (
-                                                    <span className="px-2 py-1 bg-dark-800 text-xs text-gray-400 rounded">
+                                                    <span className="px-2 py-1 bg-card text-xs text-muted-foreground rounded">
                                                         +{plan.preferences.dietary.length - 2}
                                                     </span>
                                                 )}
@@ -132,14 +132,14 @@ export function DietPlans() {
                 </div>
             ) : (
                 /* Empty State */
-                <Card className="border-dark-700">
+                <Card className="border-border">
                     <CardContent className="p-12 text-center">
                         <div className="max-w-md mx-auto space-y-4">
                             <div className="w-16 h-16 bg-primary-500/10 rounded-full flex items-center justify-center mx-auto">
                                 <Target className="w-8 h-8 text-primary-500" />
                             </div>
-                            <h3 className="text-xl font-semibold text-white">No Diet Plans Yet</h3>
-                            <p className="text-gray-400">
+                            <h3 className="text-xl font-semibold text-foreground">No Diet Plans Yet</h3>
+                            <p className="text-muted-foreground">
                                 Generate your first AI-powered diet plan tailored to your fitness goals,
                                 dietary preferences, and budget.
                             </p>

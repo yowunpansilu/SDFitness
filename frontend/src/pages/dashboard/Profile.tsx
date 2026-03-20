@@ -10,8 +10,8 @@ export function Profile() {
         <div className="space-y-6 animate-fade-in">
             {/* Page Header */}
             <div>
-                <h1 className="text-3xl font-headline font-bold text-white">Profile Settings</h1>
-                <p className="text-gray-400 mt-2">
+                <h1 className="text-3xl font-headline font-bold text-foreground">Profile Settings</h1>
+                <p className="text-muted-foreground mt-2">
                     Manage your personal information, health metrics, and preferences
                 </p>
             </div>

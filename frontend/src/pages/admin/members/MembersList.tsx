@@ -83,7 +83,7 @@ const mockMembers = [
 
 const statusColors = {
     active: 'bg-green-500/20 text-green-400 border-green-500/30',
-    inactive: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    inactive: 'bg-gray-500/20 text-muted-foreground border-gray-500/30',
     suspended: 'bg-red-500/20 text-red-400 border-red-500/30',
     frozen: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
 };
@@ -114,40 +114,40 @@ export function MembersList() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold text-foreground bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                         Members Management
                     </h1>
-                    <p className="text-gray-400 mt-2">
+                    <p className="text-muted-foreground mt-2">
                         Manage all gym members, memberships, and profiles
                     </p>
                 </div>
-                <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20 transition-all duration-200 hover:shadow-purple-500/40">
+                <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-foreground shadow-lg shadow-purple-500/20 transition-all duration-200 hover:shadow-purple-500/40">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Member
                 </Button>
             </div>
 
             {/* Filters and Actions */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-background/50 border-border backdrop-blur-sm">
                 <CardContent className="p-4">
                     <div className="flex flex-col md:flex-row gap-4">
                         {/* Search */}
                         <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Search by name, email, or member number..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 bg-dark-800/50 border-dark-700 focus:border-purple-500/50 focus:ring-purple-500/20 text-white placeholder:text-gray-500"
+                                className="pl-10 bg-card/50 border-border focus:border-purple-500/50 focus:ring-purple-500/20 text-foreground placeholder:text-muted-foreground"
                             />
                         </div>
 
                         {/* Status Filter */}
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full md:w-[180px] bg-dark-800/50 border-dark-700 text-white">
+                            <SelectTrigger className="w-full md:w-[180px] bg-card/50 border-border text-foreground">
                                 <SelectValue placeholder="Filter by status" />
                             </SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700 text-white">
+                            <SelectContent className="bg-background border-border text-foreground">
                                 <SelectItem value="all">All Status</SelectItem>
                                 <SelectItem value="active">Active</SelectItem>
                                 <SelectItem value="inactive">Inactive</SelectItem>
@@ -158,10 +158,10 @@ export function MembersList() {
 
                         {/* Membership Type Filter */}
                         <Select>
-                            <SelectTrigger className="w-full md:w-[180px] bg-dark-800/50 border-dark-700 text-white">
+                            <SelectTrigger className="w-full md:w-[180px] bg-card/50 border-border text-foreground">
                                 <SelectValue placeholder="Membership type" />
                             </SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700 text-white">
+                            <SelectContent className="bg-background border-border text-foreground">
                                 <SelectItem value="all">All Types</SelectItem>
                                 <SelectItem value="basic">Basic</SelectItem>
                                 <SelectItem value="premium">Premium</SelectItem>
@@ -180,7 +180,7 @@ export function MembersList() {
                                 <Button
                                     size="sm"
                                     variant="ghost"
-                                    className="text-gray-400 hover:text-white hover:bg-dark-800"
+                                    className="text-muted-foreground hover:text-foreground hover:bg-card"
                                 >
                                     <Mail className="h-4 w-4 mr-2" />
                                     Send Email
@@ -188,7 +188,7 @@ export function MembersList() {
                                 <Button
                                     size="sm"
                                     variant="ghost"
-                                    className="text-gray-400 hover:text-white hover:bg-dark-800"
+                                    className="text-muted-foreground hover:text-foreground hover:bg-card"
                                 >
                                     <Download className="h-4 w-4 mr-2" />
                                     Export
@@ -208,20 +208,20 @@ export function MembersList() {
             </Card>
 
             {/* Members Table */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-background/50 border-border backdrop-blur-sm">
                 <CardHeader>
-                    <CardTitle className="text-white flex items-center justify-between">
+                    <CardTitle className="text-foreground flex items-center justify-between">
                         All Members
-                        <span className="text-sm font-normal text-gray-400">
+                        <span className="text-sm font-normal text-muted-foreground">
                             {mockMembers.length} total members
                         </span>
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="rounded-lg border border-dark-800 overflow-hidden">
+                    <div className="rounded-lg border border-border overflow-hidden">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-dark-950/50 border-dark-800 hover:bg-dark-950/50">
+                                <TableRow className="bg-dark-950/50 border-border hover:bg-dark-950/50">
                                     <TableHead className="w-12">
                                         <Checkbox
                                             checked={selectedMembers.length === mockMembers.length}
@@ -229,20 +229,20 @@ export function MembersList() {
                                             className="border-gray-600"
                                         />
                                     </TableHead>
-                                    <TableHead className="text-gray-400">Member</TableHead>
-                                    <TableHead className="text-gray-400">Member Number</TableHead>
-                                    <TableHead className="text-gray-400">Contact</TableHead>
-                                    <TableHead className="text-gray-400">Membership</TableHead>
-                                    <TableHead className="text-gray-400">Status</TableHead>
-                                    <TableHead className="text-gray-400">Join Date</TableHead>
-                                    <TableHead className="text-gray-400 w-12"></TableHead>
+                                    <TableHead className="text-muted-foreground">Member</TableHead>
+                                    <TableHead className="text-muted-foreground">Member Number</TableHead>
+                                    <TableHead className="text-muted-foreground">Contact</TableHead>
+                                    <TableHead className="text-muted-foreground">Membership</TableHead>
+                                    <TableHead className="text-muted-foreground">Status</TableHead>
+                                    <TableHead className="text-muted-foreground">Join Date</TableHead>
+                                    <TableHead className="text-muted-foreground w-12"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {mockMembers.map((member) => (
                                     <TableRow
                                         key={member.id}
-                                        className="border-dark-800 hover:bg-dark-800/30 transition-colors cursor-pointer"
+                                        className="border-border hover:bg-card/30 transition-colors cursor-pointer"
                                     >
                                         <TableCell>
                                             <Checkbox
@@ -255,22 +255,22 @@ export function MembersList() {
                                             <div className="flex items-center gap-3">
                                                 <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
                                                     <AvatarImage src={member.profilePhoto || undefined} />
-                                                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-sm font-semibold">
+                                                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-foreground text-sm font-semibold">
                                                         {member.firstName[0]}{member.lastName[0]}
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div>
-                                                    <p className="text-sm font-medium text-white">
+                                                    <p className="text-sm font-medium text-foreground">
                                                         {member.firstName} {member.lastName}
                                                     </p>
-                                                    <p className="text-xs text-gray-500">{member.email}</p>
+                                                    <p className="text-xs text-muted-foreground">{member.email}</p>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-gray-400 font-mono text-sm">
+                                        <TableCell className="text-muted-foreground font-mono text-sm">
                                             {member.memberNumber}
                                         </TableCell>
-                                        <TableCell className="text-gray-400 text-sm">
+                                        <TableCell className="text-muted-foreground text-sm">
                                             {member.phone}
                                         </TableCell>
                                         <TableCell>
@@ -283,7 +283,7 @@ export function MembersList() {
                                                 {member.status}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-gray-400 text-sm">
+                                        <TableCell className="text-muted-foreground text-sm">
                                             {new Date(member.joinDate).toLocaleDateString()}
                                         </TableCell>
                                         <TableCell>
@@ -292,19 +292,19 @@ export function MembersList() {
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 text-gray-400 hover:text-white hover:bg-dark-800"
+                                                        className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-card"
                                                     >
                                                         <MoreVertical className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="bg-dark-900 border-dark-700 text-white">
-                                                    <DropdownMenuItem className="focus:bg-dark-800 cursor-pointer">
+                                                <DropdownMenuContent align="end" className="bg-background border-border text-foreground">
+                                                    <DropdownMenuItem className="focus:bg-card cursor-pointer">
                                                         View Details
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="focus:bg-dark-800 cursor-pointer">
+                                                    <DropdownMenuItem className="focus:bg-card cursor-pointer">
                                                         Edit Member
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="focus:bg-dark-800 cursor-pointer">
+                                                    <DropdownMenuItem className="focus:bg-card cursor-pointer">
                                                         View Payments
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-300 cursor-pointer">
@@ -321,7 +321,7 @@ export function MembersList() {
 
                     {/* Pagination */}
                     <div className="flex items-center justify-between mt-4">
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                             Showing 1 to {mockMembers.length} of {mockMembers.length} members
                         </p>
                         <div className="flex gap-2">
@@ -329,7 +329,7 @@ export function MembersList() {
                                 variant="outline"
                                 size="sm"
                                 disabled
-                                className="border-dark-700 text-gray-400 hover:bg-dark-800 hover:text-white"
+                                className="border-border text-muted-foreground hover:bg-card hover:text-foreground"
                             >
                                 Previous
                             </Button>
@@ -337,7 +337,7 @@ export function MembersList() {
                                 variant="outline"
                                 size="sm"
                                 disabled
-                                className="border-dark-700 text-gray-400 hover:bg-dark-800 hover:text-white"
+                                className="border-border text-muted-foreground hover:bg-card hover:text-foreground"
                             >
                                 Next
                             </Button>

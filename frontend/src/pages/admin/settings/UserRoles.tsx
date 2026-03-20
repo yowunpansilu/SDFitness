@@ -191,20 +191,20 @@ export function UserRoles() {
             {/* Role Cards Overview */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-lg font-semibold text-white">User Roles</h3>
-                    <p className="text-sm text-gray-400">Manage roles and their permissions</p>
+                    <h3 className="text-lg font-semibold text-foreground">User Roles</h3>
+                    <p className="text-sm text-muted-foreground">Manage roles and their permissions</p>
                 </div>
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white">
+                        <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-foreground">
                             <Plus className="h-4 w-4 mr-2" />
                             Create Custom Role
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-dark-900 border-dark-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="bg-background border-border text-foreground max-w-2xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>Create Custom Role</DialogTitle>
-                            <DialogDescription className="text-gray-400">
+                            <DialogDescription className="text-muted-foreground">
                                 Define a new role with specific permissions
                             </DialogDescription>
                         </DialogHeader>
@@ -216,7 +216,7 @@ export function UserRoles() {
                                     value={newRole.name}
                                     onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
                                     placeholder="e.g., Front Desk Staff"
-                                    className="bg-dark-800 border-dark-700 text-white"
+                                    className="bg-card border-border text-foreground"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -226,7 +226,7 @@ export function UserRoles() {
                                     value={newRole.description}
                                     onChange={(e) => setNewRole({ ...newRole, description: e.target.value })}
                                     placeholder="Describe what this role can do"
-                                    className="bg-dark-800 border-dark-700 text-white resize-none"
+                                    className="bg-card border-border text-foreground resize-none"
                                     rows={2}
                                 />
                             </div>
@@ -234,7 +234,7 @@ export function UserRoles() {
                                 <Label>Permissions</Label>
                                 {PERMISSION_CATEGORIES.map(category => (
                                     <div key={category.id} className="space-y-2">
-                                        <div className="font-medium text-gray-300">{category.name}</div>
+                                        <div className="font-medium text-muted-foreground">{category.name}</div>
                                         <div className="flex flex-wrap gap-4 pl-4">
                                             {category.permissions.map(permission => (
                                                 <div key={permission} className="flex items-center space-x-2">
@@ -245,7 +245,7 @@ export function UserRoles() {
                                                     />
                                                     <label
                                                         htmlFor={`new-${category.id}-${permission}`}
-                                                        className="text-sm text-gray-400 capitalize cursor-pointer"
+                                                        className="text-sm text-muted-foreground capitalize cursor-pointer"
                                                     >
                                                         {permission}
                                                     </label>
@@ -260,7 +260,7 @@ export function UserRoles() {
                             <Button
                                 variant="outline"
                                 onClick={() => setIsCreateDialogOpen(false)}
-                                className="bg-dark-800 border-dark-700 text-gray-300"
+                                className="bg-card border-border text-muted-foreground"
                             >
                                 Cancel
                             </Button>
@@ -278,7 +278,7 @@ export function UserRoles() {
             {/* Roles Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {roles.map((role) => (
-                    <Card key={role.id} className="bg-dark-900/50 border-dark-800 hover:border-purple-500/30 transition-all duration-300">
+                    <Card key={role.id} className="bg-background/50 border-border hover:border-purple-500/30 transition-all duration-300">
                         <CardHeader>
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-2">
@@ -286,7 +286,7 @@ export function UserRoles() {
                                         <Shield className="h-4 w-4 text-purple-400" />
                                     </div>
                                     <div>
-                                        <CardTitle className="text-white text-base">{role.name}</CardTitle>
+                                        <CardTitle className="text-foreground text-base">{role.name}</CardTitle>
                                         {role.isCustom && (
                                             <Badge variant="outline" className="mt-1 text-xs border-purple-500/30 text-purple-400">
                                                 Custom
@@ -299,13 +299,13 @@ export function UserRoles() {
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => handleDeleteRole(role.id)}
-                                        className="h-8 w-8 text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                                        className="h-8 w-8 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 )}
                             </div>
-                            <CardDescription className="text-gray-400 text-sm">
+                            <CardDescription className="text-muted-foreground text-sm">
                                 {role.description}
                             </CardDescription>
                         </CardHeader>
@@ -314,8 +314,8 @@ export function UserRoles() {
                                 {PERMISSION_CATEGORIES.map(category => {
                                     const permissions = role.permissions[category.id] || [];
                                     return permissions.length > 0 && (
-                                        <div key={category.id} className="text-xs text-gray-500">
-                                            <span className="font-medium text-gray-400">{category.name}:</span>{' '}
+                                        <div key={category.id} className="text-xs text-muted-foreground">
+                                            <span className="font-medium text-muted-foreground">{category.name}:</span>{' '}
                                             {permissions.join(', ')}
                                         </div>
                                     );
@@ -327,10 +327,10 @@ export function UserRoles() {
             </div>
 
             {/* Permission Matrix */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
-                    <CardTitle className="text-white">Permission Matrix</CardTitle>
-                    <CardDescription className="text-gray-400">
+                    <CardTitle className="text-foreground">Permission Matrix</CardTitle>
+                    <CardDescription className="text-muted-foreground">
                         Configure permissions for each role
                     </CardDescription>
                 </CardHeader>
@@ -338,10 +338,10 @@ export function UserRoles() {
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-dark-800">
-                                    <th className="text-left py-3 px-4 text-gray-300 font-medium">Feature</th>
+                                <tr className="border-b border-border">
+                                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">Feature</th>
                                     {roles.map(role => (
-                                        <th key={role.id} className="text-center py-3 px-2 text-gray-300 font-medium min-w-[100px]">
+                                        <th key={role.id} className="text-center py-3 px-2 text-muted-foreground font-medium min-w-[100px]">
                                             {role.name}
                                         </th>
                                     ))}
@@ -349,11 +349,11 @@ export function UserRoles() {
                             </thead>
                             <tbody>
                                 {PERMISSION_CATEGORIES.map(category => (
-                                    <tr key={category.id} className="border-b border-dark-800/50">
+                                    <tr key={category.id} className="border-b border-border/50">
                                         <td className="py-3 px-4">
                                             <div>
-                                                <div className="font-medium text-white">{category.name}</div>
-                                                <div className="text-xs text-gray-500">{category.permissions.join(', ')}</div>
+                                                <div className="font-medium text-foreground">{category.name}</div>
+                                                <div className="text-xs text-muted-foreground">{category.permissions.join(', ')}</div>
                                             </div>
                                         </td>
                                         {roles.map(role => (
@@ -377,7 +377,7 @@ export function UserRoles() {
                             </tbody>
                         </table>
                     </div>
-                    <p className="text-xs text-gray-500 mt-4">
+                    <p className="text-xs text-muted-foreground mt-4">
                         Note: Admin role permissions cannot be modified
                     </p>
                 </CardContent>
@@ -387,7 +387,7 @@ export function UserRoles() {
             <div className="flex justify-end">
                 <Button
                     onClick={handleSave}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-foreground"
                 >
                     <Save className="h-4 w-4 mr-2" />
                     Save Roles

@@ -16,7 +16,7 @@ export function AdminLayout() {
 
             {/* Mobile Sidebar */}
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-                <SheetContent side="left" className="p-0 w-72 bg-dark-900 border-dark-800">
+                <SheetContent side="left" className="p-0 w-72 bg-background border-border">
                     <AdminSidebar />
                 </SheetContent>
             </Sheet>

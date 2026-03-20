@@ -12,10 +12,10 @@ export function MessagesPage() {
     }, [fetchConversations]);
 
     return (
-        <div className="h-[calc(100vh-8rem)] bg-dark-900 border border-dark-700 rounded-2xl overflow-hidden shadow-xl flex animate-fade-in">
+        <div className="h-[calc(100vh-8rem)] bg-background border border-border rounded-2xl overflow-hidden shadow-xl flex animate-fade-in">
             {/* List Sidebar - Hidden on mobile when chat is active */}
             <div className={cn(
-                "w-full md:w-80 border-r border-dark-700 flex-shrink-0 bg-dark-800 md:flex",
+                "w-full md:w-80 border-r border-border flex-shrink-0 bg-card md:flex",
                 activeConversationId ? "hidden" : "flex"
             )}>
                 <div className="w-full h-full">
@@ -25,7 +25,7 @@ export function MessagesPage() {
 
             {/* Chat Window - Hidden on mobile when no chat is selected */}
             <div className={cn(
-                "flex-1 flex flex-col min-w-0 bg-dark-900 md:flex",
+                "flex-1 flex flex-col min-w-0 bg-background md:flex",
                 !activeConversationId ? "hidden" : "flex"
             )}>
                 <ChatWindow />

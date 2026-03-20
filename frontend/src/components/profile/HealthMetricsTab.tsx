@@ -68,7 +68,7 @@ export function HealthMetricsTab() {
     };
 
     return (
-        <Card className="border-dark-700">
+        <Card className="border-border">
             <CardContent className="p-6">
                 <div className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
@@ -192,16 +192,16 @@ export function HealthMetricsTab() {
                         {/* BMI Display */}
                         <div className="space-y-2">
                             <Label>BMI (Calculated)</Label>
-                            <div className="flex h-10 items-center rounded-md border border-dark-600 bg-dark-800 px-3 py-2">
+                            <div className="flex h-10 items-center rounded-md border border-border bg-card px-3 py-2">
                                 {bmi ? (
                                     <div className="flex items-center gap-2">
-                                        <span className="text-white font-semibold">{bmi}</span>
+                                        <span className="text-foreground font-semibold">{bmi}</span>
                                         <span className={getBMICategory(bmi).color}>
                                             ({getBMICategory(bmi).text})
                                         </span>
                                     </div>
                                 ) : (
-                                    <span className="text-gray-500">Enter height and weight</span>
+                                    <span className="text-muted-foreground">Enter height and weight</span>
                                 )}
                             </div>
                         </div>

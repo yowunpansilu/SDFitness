@@ -102,27 +102,27 @@ export function GeneralSettings() {
     return (
         <div className="space-y-6">
             {/* Gym Information */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
-                    <CardTitle className="text-white">Gym Information</CardTitle>
-                    <CardDescription className="text-gray-400">
+                    <CardTitle className="text-foreground">Gym Information</CardTitle>
+                    <CardDescription className="text-muted-foreground">
                         Update your gym's basic information and contact details
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {/* Logo Upload */}
                     <div className="space-y-2">
-                        <Label className="text-gray-300">Gym Logo</Label>
+                        <Label className="text-muted-foreground">Gym Logo</Label>
                         <div className="flex items-center gap-4">
                             {logoPreview ? (
                                 <img
                                     src={logoPreview}
                                     alt="Logo preview"
-                                    className="h-20 w-20 rounded-lg object-cover border-2 border-dark-700"
+                                    className="h-20 w-20 rounded-lg object-cover border-2 border-border"
                                 />
                             ) : (
-                                <div className="h-20 w-20 rounded-lg bg-dark-800 border-2 border-dashed border-dark-700 flex items-center justify-center">
-                                    <Upload className="h-8 w-8 text-gray-500" />
+                                <div className="h-20 w-20 rounded-lg bg-card border-2 border-dashed border-border flex items-center justify-center">
+                                    <Upload className="h-8 w-8 text-muted-foreground" />
                                 </div>
                             )}
                             <div>
@@ -136,119 +136,119 @@ export function GeneralSettings() {
                                 <Button
                                     variant="outline"
                                     onClick={() => document.getElementById('logo-upload')?.click()}
-                                    className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                                    className="bg-card border-border text-muted-foreground hover:bg-muted"
                                 >
                                     <Upload className="h-4 w-4 mr-2" />
                                     Upload Logo
                                 </Button>
-                                <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 2MB</p>
+                                <p className="text-xs text-muted-foreground mt-1">PNG, JPG up to 2MB</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="gym-name" className="text-gray-300">Gym Name</Label>
+                            <Label htmlFor="gym-name" className="text-muted-foreground">Gym Name</Label>
                             <Input
                                 id="gym-name"
                                 value={gymInfo.name}
                                 onChange={(e) => setGymInfo({ ...gymInfo, name: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-gray-300">Email</Label>
+                            <Label htmlFor="email" className="text-muted-foreground">Email</Label>
                             <Input
                                 id="email"
                                 type="email"
                                 value={gymInfo.email}
                                 onChange={(e) => setGymInfo({ ...gymInfo, email: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                             />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="phone" className="text-gray-300">Phone</Label>
+                            <Label htmlFor="phone" className="text-muted-foreground">Phone</Label>
                             <Input
                                 id="phone"
                                 value={gymInfo.phone}
                                 onChange={(e) => setGymInfo({ ...gymInfo, phone: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="website" className="text-gray-300">Website</Label>
+                            <Label htmlFor="website" className="text-muted-foreground">Website</Label>
                             <Input
                                 id="website"
                                 value={gymInfo.website}
                                 onChange={(e) => setGymInfo({ ...gymInfo, website: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="street" className="text-gray-300">Street Address</Label>
+                        <Label htmlFor="street" className="text-muted-foreground">Street Address</Label>
                         <Input
                             id="street"
                             value={gymInfo.street}
                             onChange={(e) => setGymInfo({ ...gymInfo, street: e.target.value })}
-                            className="bg-dark-800 border-dark-700 text-white"
+                            className="bg-card border-border text-foreground"
                         />
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="city" className="text-gray-300">City</Label>
+                            <Label htmlFor="city" className="text-muted-foreground">City</Label>
                             <Input
                                 id="city"
                                 value={gymInfo.city}
                                 onChange={(e) => setGymInfo({ ...gymInfo, city: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="state" className="text-gray-300">State</Label>
+                            <Label htmlFor="state" className="text-muted-foreground">State</Label>
                             <Input
                                 id="state"
                                 value={gymInfo.state}
                                 onChange={(e) => setGymInfo({ ...gymInfo, state: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="zip" className="text-gray-300">ZIP Code</Label>
+                            <Label htmlFor="zip" className="text-muted-foreground">ZIP Code</Label>
                             <Input
                                 id="zip"
                                 value={gymInfo.zip}
                                 onChange={(e) => setGymInfo({ ...gymInfo, zip: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="description" className="text-gray-300">Description</Label>
+                        <Label htmlFor="description" className="text-muted-foreground">Description</Label>
                         <Textarea
                             id="description"
                             value={gymInfo.description}
                             onChange={(e) => setGymInfo({ ...gymInfo, description: e.target.value })}
                             rows={3}
-                            className="bg-dark-800 border-dark-700 text-white resize-none"
+                            className="bg-card border-border text-foreground resize-none"
                         />
                     </div>
                 </CardContent>
             </Card>
 
             {/* Business Hours */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-white">Business Hours</CardTitle>
-                            <CardDescription className="text-gray-400">
+                            <CardTitle className="text-foreground">Business Hours</CardTitle>
+                            <CardDescription className="text-muted-foreground">
                                 Set your operating hours for each day of the week
                             </CardDescription>
                         </div>
@@ -256,7 +256,7 @@ export function GeneralSettings() {
                             variant="outline"
                             size="sm"
                             onClick={handleCopyHours}
-                            className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                            className="bg-card border-border text-muted-foreground hover:bg-muted"
                         >
                             Copy Monday to All
                         </Button>
@@ -265,7 +265,7 @@ export function GeneralSettings() {
                 <CardContent className="space-y-4">
                     {DAYS_OF_WEEK.map((day) => (
                         <div key={day} className="flex items-center gap-4">
-                            <div className="w-28 text-gray-300 font-medium">{day}</div>
+                            <div className="w-28 text-muted-foreground font-medium">{day}</div>
                             <Switch
                                 checked={businessHours[day].isOpen}
                                 onCheckedChange={(checked) =>
@@ -286,9 +286,9 @@ export function GeneralSettings() {
                                                 [day]: { ...businessHours[day], openTime: e.target.value },
                                             })
                                         }
-                                        className="bg-dark-800 border-dark-700 text-white w-32"
+                                        className="bg-card border-border text-foreground w-32"
                                     />
-                                    <span className="text-gray-500">to</span>
+                                    <span className="text-muted-foreground">to</span>
                                     <Input
                                         type="time"
                                         value={businessHours[day].closeTime}
@@ -298,11 +298,11 @@ export function GeneralSettings() {
                                                 [day]: { ...businessHours[day], closeTime: e.target.value },
                                             })
                                         }
-                                        className="bg-dark-800 border-dark-700 text-white w-32"
+                                        className="bg-card border-border text-foreground w-32"
                                     />
                                 </div>
                             ) : (
-                                <div className="text-gray-500 flex-1">Closed</div>
+                                <div className="text-muted-foreground flex-1">Closed</div>
                             )}
                         </div>
                     ))}
@@ -310,29 +310,29 @@ export function GeneralSettings() {
             </Card>
 
             {/* Localization */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
-                    <CardTitle className="text-white">Localization</CardTitle>
-                    <CardDescription className="text-gray-400">
+                    <CardTitle className="text-foreground">Localization</CardTitle>
+                    <CardDescription className="text-muted-foreground">
                         Configure currency, timezone, and date formats
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid grid-cols-3 gap-4">
                         <div className="space-y-2">
-                            <Label className="text-gray-300">Currency</Label>
+                            <Label className="text-muted-foreground">Currency</Label>
                             <Select
                                 value={localization.currency}
                                 onValueChange={(value) =>
                                     setLocalization({ ...localization, currency: value })
                                 }
                             >
-                                <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                <SelectTrigger className="bg-card border-border text-foreground">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-dark-800 border-dark-700">
+                                <SelectContent className="bg-card border-border">
                                     {CURRENCIES.map((currency) => (
-                                        <SelectItem key={currency.value} value={currency.value} className="text-white">
+                                        <SelectItem key={currency.value} value={currency.value} className="text-foreground">
                                             {currency.label}
                                         </SelectItem>
                                     ))}
@@ -341,19 +341,19 @@ export function GeneralSettings() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-gray-300">Timezone</Label>
+                            <Label className="text-muted-foreground">Timezone</Label>
                             <Select
                                 value={localization.timezone}
                                 onValueChange={(value) =>
                                     setLocalization({ ...localization, timezone: value })
                                 }
                             >
-                                <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                <SelectTrigger className="bg-card border-border text-foreground">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-dark-800 border-dark-700">
+                                <SelectContent className="bg-card border-border">
                                     {TIMEZONES.map((tz) => (
-                                        <SelectItem key={tz.value} value={tz.value} className="text-white">
+                                        <SelectItem key={tz.value} value={tz.value} className="text-foreground">
                                             {tz.label}
                                         </SelectItem>
                                     ))}
@@ -362,20 +362,20 @@ export function GeneralSettings() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-gray-300">Date Format</Label>
+                            <Label className="text-muted-foreground">Date Format</Label>
                             <Select
                                 value={localization.dateFormat}
                                 onValueChange={(value) =>
                                     setLocalization({ ...localization, dateFormat: value })
                                 }
                             >
-                                <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                <SelectTrigger className="bg-card border-border text-foreground">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-dark-800 border-dark-700">
-                                    <SelectItem value="MM/DD/YYYY" className="text-white">MM/DD/YYYY</SelectItem>
-                                    <SelectItem value="DD/MM/YYYY" className="text-white">DD/MM/YYYY</SelectItem>
-                                    <SelectItem value="YYYY-MM-DD" className="text-white">YYYY-MM-DD</SelectItem>
+                                <SelectContent className="bg-card border-border">
+                                    <SelectItem value="MM/DD/YYYY" className="text-foreground">MM/DD/YYYY</SelectItem>
+                                    <SelectItem value="DD/MM/YYYY" className="text-foreground">DD/MM/YYYY</SelectItem>
+                                    <SelectItem value="YYYY-MM-DD" className="text-foreground">YYYY-MM-DD</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -387,7 +387,7 @@ export function GeneralSettings() {
             <div className="flex justify-end">
                 <Button
                     onClick={handleSave}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-foreground"
                 >
                     <Save className="h-4 w-4 mr-2" />
                     Save Settings

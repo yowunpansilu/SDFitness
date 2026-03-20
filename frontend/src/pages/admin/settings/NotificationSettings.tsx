@@ -116,13 +116,13 @@ export function NotificationSettings() {
     return (
         <div className="space-y-6">
             {/* Email Notifications */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
                     <div className="flex items-center gap-2">
                         <Mail className="h-5 w-5 text-purple-400" />
-                        <CardTitle className="text-white">Email Notifications</CardTitle>
+                        <CardTitle className="text-foreground">Email Notifications</CardTitle>
                     </div>
-                    <CardDescription className="text-gray-400">
+                    <CardDescription className="text-muted-foreground">
                         Configure which events trigger email notifications
                     </CardDescription>
                 </CardHeader>
@@ -130,8 +130,8 @@ export function NotificationSettings() {
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <Label htmlFor="email-new-member" className="flex flex-col space-y-1 cursor-pointer">
-                                <span className="text-gray-300">New Member Registration</span>
-                                <span className="font-normal text-xs text-gray-500">
+                                <span className="text-muted-foreground">New Member Registration</span>
+                                <span className="font-normal text-xs text-muted-foreground">
                                     Notify admins when a new member signs up
                                 </span>
                             </Label>
@@ -144,8 +144,8 @@ export function NotificationSettings() {
 
                         <div className="flex items-center justify-between">
                             <Label htmlFor="email-payment" className="flex flex-col space-y-1 cursor-pointer">
-                                <span className="text-gray-300">Payment Received</span>
-                                <span className="font-normal text-xs text-gray-500">
+                                <span className="text-muted-foreground">Payment Received</span>
+                                <span className="font-normal text-xs text-muted-foreground">
                                     Notify when a payment is successfully processed
                                 </span>
                             </Label>
@@ -158,8 +158,8 @@ export function NotificationSettings() {
 
                         <div className="flex items-center justify-between">
                             <Label htmlFor="email-booking" className="flex flex-col space-y-1 cursor-pointer">
-                                <span className="text-gray-300">Class Booking</span>
-                                <span className="font-normal text-xs text-gray-500">
+                                <span className="text-muted-foreground">Class Booking</span>
+                                <span className="font-normal text-xs text-muted-foreground">
                                     Notify when a member books a class
                                 </span>
                             </Label>
@@ -172,8 +172,8 @@ export function NotificationSettings() {
 
                         <div className="flex items-center justify-between">
                             <Label htmlFor="email-expiry-7" className="flex flex-col space-y-1 cursor-pointer">
-                                <span className="text-gray-300">Membership Expiry (7 Days)</span>
-                                <span className="font-normal text-xs text-gray-500">
+                                <span className="text-muted-foreground">Membership Expiry (7 Days)</span>
+                                <span className="font-normal text-xs text-muted-foreground">
                                     Send reminder 7 days before expiry
                                 </span>
                             </Label>
@@ -186,8 +186,8 @@ export function NotificationSettings() {
 
                         <div className="flex items-center justify-between">
                             <Label htmlFor="email-expiry-3" className="flex flex-col space-y-1 cursor-pointer">
-                                <span className="text-gray-300">Membership Expiry (3 Days)</span>
-                                <span className="font-normal text-xs text-gray-500">
+                                <span className="text-muted-foreground">Membership Expiry (3 Days)</span>
+                                <span className="font-normal text-xs text-muted-foreground">
                                     Send reminder 3 days before expiry
                                 </span>
                             </Label>
@@ -200,8 +200,8 @@ export function NotificationSettings() {
 
                         <div className="flex items-center justify-between">
                             <Label htmlFor="email-expiry-1" className="flex flex-col space-y-1 cursor-pointer">
-                                <span className="text-gray-300">Membership Expiry (1 Day)</span>
-                                <span className="font-normal text-xs text-gray-500">
+                                <span className="text-muted-foreground">Membership Expiry (1 Day)</span>
+                                <span className="font-normal text-xs text-muted-foreground">
                                     Send final reminder 1 day before expiry
                                 </span>
                             </Label>
@@ -214,8 +214,8 @@ export function NotificationSettings() {
 
                         <div className="flex items-center justify-between">
                             <Label htmlFor="email-equipment" className="flex flex-col space-y-1 cursor-pointer">
-                                <span className="text-gray-300">Equipment Maintenance Due</span>
-                                <span className="font-normal text-xs text-gray-500">
+                                <span className="text-muted-foreground">Equipment Maintenance Due</span>
+                                <span className="font-normal text-xs text-muted-foreground">
                                     Alert when equipment needs maintenance
                                 </span>
                             </Label>
@@ -230,21 +230,21 @@ export function NotificationSettings() {
             </Card>
 
             {/* SMS Notifications */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
                     <div className="flex items-center gap-2">
                         <Smartphone className="h-5 w-5 text-purple-400" />
-                        <CardTitle className="text-white">SMS Notifications</CardTitle>
+                        <CardTitle className="text-foreground">SMS Notifications</CardTitle>
                     </div>
-                    <CardDescription className="text-gray-400">
+                    <CardDescription className="text-muted-foreground">
                         Configure SMS gateway and notification preferences
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-dark-800/50 border border-dark-700">
+                    <div className="flex items-center justify-between p-4 rounded-lg bg-card/50 border border-border">
                         <div>
-                            <div className="font-medium text-white">Enable SMS Notifications</div>
-                            <div className="text-sm text-gray-400">Turn on SMS messaging for members</div>
+                            <div className="font-medium text-foreground">Enable SMS Notifications</div>
+                            <div className="text-sm text-muted-foreground">Turn on SMS messaging for members</div>
                         </div>
                         <Switch
                             checked={preferences.sms.enabled}
@@ -257,20 +257,20 @@ export function NotificationSettings() {
                             <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-gray-300">Provider</Label>
+                                        <Label className="text-muted-foreground">Provider</Label>
                                         <Input
                                             value={smsConfig.provider}
                                             onChange={(e) => setSmsConfig({ ...smsConfig, provider: e.target.value })}
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-card border-border text-foreground"
                                             placeholder="Twilio, Nexmo, etc."
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-gray-300">Phone Number</Label>
+                                        <Label className="text-muted-foreground">Phone Number</Label>
                                         <Input
                                             value={smsConfig.phoneNumber}
                                             onChange={(e) => setSmsConfig({ ...smsConfig, phoneNumber: e.target.value })}
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-card border-border text-foreground"
                                             placeholder="+1234567890"
                                         />
                                     </div>
@@ -278,21 +278,21 @@ export function NotificationSettings() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label className="text-gray-300">Account SID</Label>
+                                        <Label className="text-muted-foreground">Account SID</Label>
                                         <Input
                                             value={smsConfig.accountSid}
                                             onChange={(e) => setSmsConfig({ ...smsConfig, accountSid: e.target.value })}
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-card border-border text-foreground"
                                             placeholder="Enter account SID"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-gray-300">Auth Token</Label>
+                                        <Label className="text-muted-foreground">Auth Token</Label>
                                         <Input
                                             type="password"
                                             value={smsConfig.authToken}
                                             onChange={(e) => setSmsConfig({ ...smsConfig, authToken: e.target.value })}
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-card border-border text-foreground"
                                             placeholder="••••••••"
                                         />
                                     </div>
@@ -303,7 +303,7 @@ export function NotificationSettings() {
                                         variant="outline"
                                         size="sm"
                                         onClick={handleTestSMS}
-                                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                                        className="bg-card border-border text-muted-foreground hover:bg-muted"
                                     >
                                         <Send className="h-4 w-4 mr-2" />
                                         Test SMS
@@ -311,23 +311,23 @@ export function NotificationSettings() {
                                 </div>
                             </div>
 
-                            <div className="space-y-4 pt-4 border-t border-dark-700">
+                            <div className="space-y-4 pt-4 border-t border-border">
                                 <div className="flex items-center justify-between">
-                                    <Label className="text-gray-300">Class Reminders</Label>
+                                    <Label className="text-muted-foreground">Class Reminders</Label>
                                     <Switch
                                         checked={preferences.sms.classReminders}
                                         onCheckedChange={() => handleSmsToggle('classReminders')}
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <Label className="text-gray-300">Payment Confirmations</Label>
+                                    <Label className="text-muted-foreground">Payment Confirmations</Label>
                                     <Switch
                                         checked={preferences.sms.paymentConfirmations}
                                         onCheckedChange={() => handleSmsToggle('paymentConfirmations')}
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <Label className="text-gray-300">Membership Expiry</Label>
+                                    <Label className="text-muted-foreground">Membership Expiry</Label>
                                     <Switch
                                         checked={preferences.sms.membershipExpiry}
                                         onCheckedChange={() => handleSmsToggle('membershipExpiry')}
@@ -340,21 +340,21 @@ export function NotificationSettings() {
             </Card>
 
             {/* Push Notifications */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
                     <div className="flex items-center gap-2">
                         <BellIcon className="h-5 w-5 text-purple-400" />
-                        <CardTitle className="text-white">Push Notifications</CardTitle>
+                        <CardTitle className="text-foreground">Push Notifications</CardTitle>
                     </div>
-                    <CardDescription className="text-gray-400">
+                    <CardDescription className="text-muted-foreground">
                         Configure push notification service
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-dark-800/50 border border-dark-700">
+                    <div className="flex items-center justify-between p-4 rounded-lg bg-card/50 border border-border">
                         <div>
-                            <div className="font-medium text-white">Enable Push Notifications</div>
-                            <div className="text-sm text-gray-400">Send push notifications to mobile app users</div>
+                            <div className="font-medium text-foreground">Enable Push Notifications</div>
+                            <div className="text-sm text-muted-foreground">Send push notifications to mobile app users</div>
                         </div>
                         <Switch
                             checked={preferences.push.enabled}
@@ -366,32 +366,32 @@ export function NotificationSettings() {
                         <>
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label className="text-gray-300">Provider</Label>
+                                    <Label className="text-muted-foreground">Provider</Label>
                                     <Input
                                         value={pushConfig.provider}
                                         onChange={(e) => setPushConfig({ ...pushConfig, provider: e.target.value })}
-                                        className="bg-dark-800 border-dark-700 text-white"
+                                        className="bg-card border-border text-foreground"
                                         placeholder="Firebase, OneSignal, etc."
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label className="text-gray-300">Server Key</Label>
+                                    <Label className="text-muted-foreground">Server Key</Label>
                                     <Input
                                         type="password"
                                         value={pushConfig.serverKey}
                                         onChange={(e) => setPushConfig({ ...pushConfig, serverKey: e.target.value })}
-                                        className="bg-dark-800 border-dark-700 text-white"
+                                        className="bg-card border-border text-foreground"
                                         placeholder="Enter server key"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label className="text-gray-300">Sender ID</Label>
+                                    <Label className="text-muted-foreground">Sender ID</Label>
                                     <Input
                                         value={pushConfig.senderId}
                                         onChange={(e) => setPushConfig({ ...pushConfig, senderId: e.target.value })}
-                                        className="bg-dark-800 border-dark-700 text-white"
+                                        className="bg-card border-border text-foreground"
                                         placeholder="Enter sender ID"
                                     />
                                 </div>
@@ -401,7 +401,7 @@ export function NotificationSettings() {
                                         variant="outline"
                                         size="sm"
                                         onClick={handleTestPush}
-                                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                                        className="bg-card border-border text-muted-foreground hover:bg-muted"
                                     >
                                         <Send className="h-4 w-4 mr-2" />
                                         Test Push
@@ -409,23 +409,23 @@ export function NotificationSettings() {
                                 </div>
                             </div>
 
-                            <div className="space-y-4 pt-4 border-t border-dark-700">
+                            <div className="space-y-4 pt-4 border-t border-border">
                                 <div className="flex items-center justify-between">
-                                    <Label className="text-gray-300">New Bookings</Label>
+                                    <Label className="text-muted-foreground">New Bookings</Label>
                                     <Switch
                                         checked={preferences.push.newBookings}
                                         onCheckedChange={() => handlePushToggle('newBookings')}
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <Label className="text-gray-300">Payments</Label>
+                                    <Label className="text-muted-foreground">Payments</Label>
                                     <Switch
                                         checked={preferences.push.payments}
                                         onCheckedChange={() => handlePushToggle('payments')}
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <Label className="text-gray-300">Announcements</Label>
+                                    <Label className="text-muted-foreground">Announcements</Label>
                                     <Switch
                                         checked={preferences.push.announcements}
                                         onCheckedChange={() => handlePushToggle('announcements')}
@@ -441,7 +441,7 @@ export function NotificationSettings() {
             <div className="flex justify-end">
                 <Button
                     onClick={handleSave}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-foreground"
                 >
                     <Save className="h-4 w-4 mr-2" />
                     Save Settings

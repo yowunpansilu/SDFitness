@@ -138,27 +138,27 @@ export function EmailTemplates() {
     return (
         <div className="space-y-6">
             {/* Template Editor */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
-                    <CardTitle className="text-white">Email Template Editor</CardTitle>
-                    <CardDescription className="text-gray-400">
+                    <CardTitle className="text-foreground">Email Template Editor</CardTitle>
+                    <CardDescription className="text-muted-foreground">
                         Customize email templates sent to your members
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {/* Template Selector */}
                     <div className="space-y-2">
-                        <Label className="text-gray-300">Select Template</Label>
+                        <Label className="text-muted-foreground">Select Template</Label>
                         <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                            <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                            <SelectTrigger className="bg-card border-border text-foreground">
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-dark-800 border-dark-700">
+                            <SelectContent className="bg-card border-border">
                                 {EMAIL_TEMPLATES.map((template) => (
-                                    <SelectItem key={template.id} value={template.id} className="text-white">
+                                    <SelectItem key={template.id} value={template.id} className="text-foreground">
                                         <div>
                                             <div className="font-medium">{template.name}</div>
-                                            <div className="text-xs text-gray-400">{template.description}</div>
+                                            <div className="text-xs text-muted-foreground">{template.description}</div>
                                         </div>
                                     </SelectItem>
                                 ))}
@@ -168,12 +168,12 @@ export function EmailTemplates() {
 
                     {/* Subject Line */}
                     <div className="space-y-2">
-                        <Label htmlFor="email-subject" className="text-gray-300">Subject Line</Label>
+                        <Label htmlFor="email-subject" className="text-muted-foreground">Subject Line</Label>
                         <Input
                             id="email-subject"
                             value={currentTemplate.subject}
                             onChange={(e) => handleSubjectChange(e.target.value)}
-                            className="bg-dark-800 border-dark-700 text-white"
+                            className="bg-card border-border text-foreground"
                             placeholder="Enter email subject"
                         />
                     </div>
@@ -181,12 +181,12 @@ export function EmailTemplates() {
                     {/* Body */}
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="email-body" className="text-gray-300">Email Body</Label>
+                            <Label htmlFor="email-body" className="text-muted-foreground">Email Body</Label>
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setShowPreview(!showPreview)}
-                                className="text-purple-400 hover:text-purple-300 hover:bg-dark-800"
+                                className="text-purple-400 hover:text-purple-300 hover:bg-card"
                             >
                                 <Eye className="h-4 w-4 mr-2" />
                                 {showPreview ? 'Hide Preview' : 'Show Preview'}
@@ -198,11 +198,11 @@ export function EmailTemplates() {
                                 value={currentTemplate.body}
                                 onChange={(e) => handleBodyChange(e.target.value)}
                                 rows={12}
-                                className="bg-dark-800 border-dark-700 text-white resize-none font-mono text-sm"
+                                className="bg-card border-border text-foreground resize-none font-mono text-sm"
                                 placeholder="Enter email content"
                             />
                         ) : (
-                            <div className="bg-white p-6 rounded-lg border border-dark-700 min-h-[300px]">
+                            <div className="bg-white p-6 rounded-lg border border-border min-h-[300px]">
                                 <div className="mb-4 pb-4 border-b border-gray-200">
                                     <div className="text-sm text-gray-600 mb-1">Subject:</div>
                                     <div className="font-semibold text-gray-900">{preview.subject}</div>
@@ -214,7 +214,7 @@ export function EmailTemplates() {
 
                     {/* Variable Helper */}
                     <div className="space-y-2">
-                        <Label className="text-gray-300 flex items-center gap-2">
+                        <Label className="text-muted-foreground flex items-center gap-2">
                             <Code className="h-4 w-4" />
                             Available Variables
                         </Label>
@@ -223,7 +223,7 @@ export function EmailTemplates() {
                                 <Badge
                                     key={variable.key}
                                     variant="outline"
-                                    className="cursor-pointer bg-dark-800 border-dark-700 text-purple-400 hover:bg-dark-700 transition-colors"
+                                    className="cursor-pointer bg-card border-border text-purple-400 hover:bg-muted transition-colors"
                                     onClick={() => insertVariable(variable.key)}
                                     title={variable.description}
                                 >
@@ -231,41 +231,41 @@ export function EmailTemplates() {
                                 </Badge>
                             ))}
                         </div>
-                        <p className="text-xs text-gray-500">Click on a variable to insert it at cursor position</p>
+                        <p className="text-xs text-muted-foreground">Click on a variable to insert it at cursor position</p>
                     </div>
                 </CardContent>
             </Card>
 
             {/* SMTP Configuration */}
-            <Card className="bg-dark-900/50 border-dark-800">
+            <Card className="bg-background/50 border-border">
                 <CardHeader>
                     <div className="flex items-center gap-2">
                         <Mail className="h-5 w-5 text-purple-400" />
-                        <CardTitle className="text-white">SMTP Configuration</CardTitle>
+                        <CardTitle className="text-foreground">SMTP Configuration</CardTitle>
                     </div>
-                    <CardDescription className="text-gray-400">
+                    <CardDescription className="text-muted-foreground">
                         Configure your email server settings
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="smtp-host" className="text-gray-300">SMTP Host</Label>
+                            <Label htmlFor="smtp-host" className="text-muted-foreground">SMTP Host</Label>
                             <Input
                                 id="smtp-host"
                                 value={smtpConfig.host}
                                 onChange={(e) => setSmtpConfig({ ...smtpConfig, host: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                                 placeholder="smtp.gmail.com"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="smtp-port" className="text-gray-300">Port</Label>
+                            <Label htmlFor="smtp-port" className="text-muted-foreground">Port</Label>
                             <Input
                                 id="smtp-port"
                                 value={smtpConfig.port}
                                 onChange={(e) => setSmtpConfig({ ...smtpConfig, port: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                                 placeholder="587"
                             />
                         </div>
@@ -273,23 +273,23 @@ export function EmailTemplates() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="smtp-username" className="text-gray-300">Username</Label>
+                            <Label htmlFor="smtp-username" className="text-muted-foreground">Username</Label>
                             <Input
                                 id="smtp-username"
                                 value={smtpConfig.username}
                                 onChange={(e) => setSmtpConfig({ ...smtpConfig, username: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                                 placeholder="your-email@gmail.com"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="smtp-password" className="text-gray-300">Password</Label>
+                            <Label htmlFor="smtp-password" className="text-muted-foreground">Password</Label>
                             <Input
                                 id="smtp-password"
                                 type="password"
                                 value={smtpConfig.password}
                                 onChange={(e) => setSmtpConfig({ ...smtpConfig, password: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -297,23 +297,23 @@ export function EmailTemplates() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="from-name" className="text-gray-300">From Name</Label>
+                            <Label htmlFor="from-name" className="text-muted-foreground">From Name</Label>
                             <Input
                                 id="from-name"
                                 value={smtpConfig.fromName}
                                 onChange={(e) => setSmtpConfig({ ...smtpConfig, fromName: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                                 placeholder="SD Fitness"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="from-email" className="text-gray-300">From Email</Label>
+                            <Label htmlFor="from-email" className="text-muted-foreground">From Email</Label>
                             <Input
                                 id="from-email"
                                 type="email"
                                 value={smtpConfig.fromEmail}
                                 onChange={(e) => setSmtpConfig({ ...smtpConfig, fromEmail: e.target.value })}
-                                className="bg-dark-800 border-dark-700 text-white"
+                                className="bg-card border-border text-foreground"
                                 placeholder="noreply@sdfitness.com"
                             />
                         </div>
@@ -323,7 +323,7 @@ export function EmailTemplates() {
                         <Button
                             variant="outline"
                             onClick={handleTestEmail}
-                            className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                            className="bg-card border-border text-muted-foreground hover:bg-muted"
                         >
                             <Send className="h-4 w-4 mr-2" />
                             Send Test Email
@@ -336,7 +336,7 @@ export function EmailTemplates() {
             <div className="flex justify-end">
                 <Button
                     onClick={handleSave}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-foreground"
                 >
                     <Save className="h-4 w-4 mr-2" />
                     Save Templates

@@ -30,16 +30,16 @@ export function AuthLayout({
             <div className="relative z-10 w-full max-w-6xl min-h-[600px] flex flex-col md:flex-row shadow-2xl shadow-primary-900/50 rounded-2xl overflow-hidden bg-white animate-scale-in">
                 
                 {/* Left Form Section */}
-                <div className="w-full md:w-1/2 lg:w-5/12 bg-background p-8 md:p-12 flex flex-col justify-center relative">
-                    <div className="mb-10">
+                <div className="w-full md:w-1/2 lg:w-5/12 bg-background p-6 md:p-8 flex flex-col justify-center relative">
+                    <div className="mb-6">
                         <Logo />
                     </div>
                     
-                    <div className="mb-8 animate-slide-up">
-                        <h1 className="text-3xl md:text-4xl font-headline font-bold mb-3 text-primary-900">
+                    <div className="mb-4 animate-slide-up">
+                        <h1 className="text-2xl md:text-3xl font-headline font-bold mb-1 text-primary-900">
                             {title}
                         </h1>
-                        <p className="text-muted-foreground font-medium">
+                        <p className="text-muted-foreground text-sm font-medium">
                             {subtitle}
                         </p>
                     </div>
@@ -48,8 +48,8 @@ export function AuthLayout({
                         {children}
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-border">
-                        <p className="text-muted-foreground text-xs text-center">
+                    <div className="mt-4 pt-4 border-t border-border">
+                        <p className="text-muted-foreground text-[10px] text-center">
                             © 2026 SDFitness. Secure & Encrypted.
                         </p>
                     </div>

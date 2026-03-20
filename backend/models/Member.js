@@ -9,7 +9,8 @@ const memberSchema = new mongoose.Schema({
     },
     memberNumber: {
         type: String,
-        unique: true
+        unique: true,
+        sparse: true
     },
     dateOfBirth: {
         type: Date,
@@ -103,8 +104,6 @@ const memberSchema = new mongoose.Schema({
 });
 
 // Indexes
-memberSchema.index({ userId: 1 }, { unique: true });
-memberSchema.index({ memberNumber: 1 }, { unique: true, sparse: true });
 memberSchema.index({ status: 1 });
 memberSchema.index({ 'dietBudget.amount': 1 });
 

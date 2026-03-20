@@ -83,8 +83,10 @@ export function RegisterForm() {
             login(user, token);
             navigate('/dashboard');
         } catch (error: any) {
-            console.error('Registration failed', error.response?.data?.message || error.message);
-            alert(error.response?.data?.message || 'Registration failed! Please check your details.');
+            console.error('Registration failed', error.response?.data?.error || error.response?.data?.message || error.message);
+            const errorMsg = error.response?.data?.error ? `${error.response.data.message}: ${error.response.data.error}` : 
+                            (error.response?.data?.message || 'Registration failed! Please check your details.');
+            alert(errorMsg);
         } finally {
             setIsLoading(false);
         }
@@ -109,24 +111,24 @@ export function RegisterForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-3">
             {/* Progress Indicator */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-2">
                 {[1, 2, 3].map((step) => (
                     <div key={step} className="flex items-center flex-1">
                         <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${step === currentStep
-                                ? 'bg-primary-500 text-white scale-110'
+                            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${step === currentStep
+                                ? 'bg-primary-500 text-white scale-110 shadow-lg shadow-primary-500/20'
                                 : step < currentStep
                                     ? 'bg-secondary-500 text-foreground'
-                                    : 'bg-muted text-muted-foreground'
+                                    : 'bg-muted text-muted-foreground opacity-50'
                                 }`}
                         >
                             {step < currentStep ? '✓' : step}
                         </div>
                         {step < 3 && (
                             <div
-                                className={`flex-1 h-1 mx-2 transition-all ${step < currentStep ? 'bg-secondary-500' : 'bg-muted'
+                                className={`flex-1 h-0.5 mx-2 transition-all ${step < currentStep ? 'bg-secondary-500' : 'bg-muted'
                                     }`}
                             />
                         )}
@@ -136,100 +138,98 @@ export function RegisterForm() {
 
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
-                <div className="space-y-4 animate-fade-in">
-                    <h3 className="text-xl font-bold text-foreground mb-4">Basic Information</h3>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="firstName" className="text-primary-900 font-semibold text-sm">First Name</Label>
-                            <div className="relative group">
-                                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
-                                <Input
-                                    id="firstName"
-                                    placeholder="John"
-                                    value={step1Data.firstName}
-                                    onChange={(e) => setStep1Data({ ...step1Data, firstName: e.target.value })}
-                                    className="pl-11 h-12 bg-primary-50 border-primary-200 focus:border-secondary-500 focus:ring-secondary-500/20 transition-all rounded-lg"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <Label htmlFor="lastName" className="text-primary-900 font-semibold text-sm">Last Name</Label>
-                            <div className="relative group">
-                                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
-                                <Input
-                                    id="lastName"
-                                    placeholder="Doe"
-                                    value={step1Data.lastName}
-                                    onChange={(e) => setStep1Data({ ...step1Data, lastName: e.target.value })}
-                                    className="pl-11 h-12 bg-primary-50 border-primary-200 focus:border-secondary-500 focus:ring-secondary-500/20 transition-all rounded-lg"
-                                    required
-                                />
-                            </div>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2 animate-fade-in">
+                    <h3 className="col-span-2 text-sm font-bold text-foreground">Basic Information</h3>
+                    
+                    <div className="space-y-1">
+                        <Label htmlFor="firstName" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">First Name</Label>
+                        <div className="relative group">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
+                            <Input
+                                id="firstName"
+                                placeholder="John"
+                                value={step1Data.firstName}
+                                onChange={(e) => setStep1Data({ ...step1Data, firstName: e.target.value })}
+                                className="pl-9 h-9 text-xs bg-primary-50 border-primary-200 focus:border-secondary-500 rounded-lg"
+                                required
+                            />
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label htmlFor="email" className="text-primary-900 font-semibold text-sm">Email Address</Label>
+                    <div className="space-y-1">
+                        <Label htmlFor="lastName" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Last Name</Label>
                         <div className="relative group">
-                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
+                            <Input
+                                id="lastName"
+                                placeholder="Doe"
+                                value={step1Data.lastName}
+                                onChange={(e) => setStep1Data({ ...step1Data, lastName: e.target.value })}
+                                className="pl-9 h-9 text-xs bg-primary-50 border-primary-200 focus:border-secondary-500 rounded-lg"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-1 col-span-2 md:col-span-1">
+                        <Label htmlFor="email" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Email Address</Label>
+                        <div className="relative group">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
                             <Input
                                 id="email"
                                 type="email"
                                 placeholder="you@example.com"
                                 value={step1Data.email}
                                 onChange={(e) => setStep1Data({ ...step1Data, email: e.target.value })}
-                                className="pl-11 h-12 bg-primary-50 border-primary-200 focus:border-secondary-500 focus:ring-secondary-500/20 transition-all rounded-lg"
+                                className="pl-9 h-9 text-xs bg-primary-50 border-primary-200 focus:border-secondary-500 rounded-lg"
                                 required
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label htmlFor="phone" className="text-primary-900 font-semibold text-sm">Phone Number</Label>
+                    <div className="space-y-1 col-span-2 md:col-span-1">
+                        <Label htmlFor="phone" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Phone Number</Label>
                         <div className="relative group">
-                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
+                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
                             <Input
                                 id="phone"
                                 type="tel"
                                 placeholder="+1 (555) 000-0000"
                                 value={step1Data.phone}
                                 onChange={(e) => setStep1Data({ ...step1Data, phone: e.target.value })}
-                                className="pl-11 h-12 bg-primary-50 border-primary-200 focus:border-secondary-500 focus:ring-secondary-500/20 transition-all rounded-lg"
+                                className="pl-9 h-9 text-xs bg-primary-50 border-primary-200 focus:border-secondary-500 rounded-lg"
                                 required
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label htmlFor="password" className="text-primary-900 font-semibold text-sm">Password</Label>
+                    <div className="space-y-1 col-span-2 md:col-span-1">
+                        <Label htmlFor="password" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Password</Label>
                         <div className="relative group">
-                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
                             <Input
                                 id="password"
                                 type="password"
                                 placeholder="••••••••"
                                 value={step1Data.password}
                                 onChange={(e) => setStep1Data({ ...step1Data, password: e.target.value })}
-                                className="pl-11 h-12 bg-primary-50 border-primary-200 focus:border-secondary-500 focus:ring-secondary-500/20 transition-all rounded-lg"
+                                className="pl-9 h-9 text-xs bg-primary-50 border-primary-200 focus:border-secondary-500 rounded-lg"
                                 required
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label htmlFor="confirmPassword" className="text-primary-900 font-semibold text-sm">Confirm Password</Label>
+                    <div className="space-y-1 col-span-2 md:col-span-1">
+                        <Label htmlFor="confirmPassword" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Confirm Password</Label>
                         <div className="relative group">
-                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
                             <Input
                                 id="confirmPassword"
                                 type="password"
                                 placeholder="••••••••"
                                 value={step1Data.confirmPassword}
                                 onChange={(e) => setStep1Data({ ...step1Data, confirmPassword: e.target.value })}
-                                className="pl-11 h-12 bg-primary-50 border-primary-200 focus:border-secondary-500 focus:ring-secondary-500/20 transition-all rounded-lg"
+                                className="pl-9 h-9 text-xs bg-primary-50 border-primary-200 focus:border-secondary-500 rounded-lg"
                                 required
                             />
                         </div>
@@ -239,8 +239,8 @@ export function RegisterForm() {
 
             {/* Step 2: Health Metrics */}
             {currentStep === 2 && (
-                <div className="space-y-4 animate-fade-in">
-                    <h3 className="text-xl font-bold text-foreground mb-4">Health Metrics</h3>
+                <div className="space-y-2 animate-fade-in">
+                    <h3 className="text-sm font-bold text-foreground">Health Metrics</h3>
 
                     <DatePicker
                         id="dob"
@@ -250,16 +250,16 @@ export function RegisterForm() {
                         placeholder="Select your date of birth"
                     />
 
-                    <div className="space-y-1.5">
-                        <Label className="text-primary-900 font-semibold text-sm">Gender</Label>
+                    <div className="space-y-1">
+                        <Label className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Gender</Label>
                         <div className="grid grid-cols-3 gap-2">
                             {['Male', 'Female', 'Other'].map((gender) => (
                                 <button
                                     key={gender}
                                     type="button"
                                     onClick={() => setStep2Data({ ...step2Data, gender })}
-                                    className={`py-3 px-4 rounded-lg font-medium transition-all ${step2Data.gender === gender
-                                        ? 'bg-primary-500 text-white'
+                                    className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${step2Data.gender === gender
+                                        ? 'bg-primary-500 text-white shadow-md shadow-primary-500/20'
                                         : 'bg-muted text-muted-foreground hover:bg-accent'
                                         }`}
                                 >
@@ -269,26 +269,26 @@ export function RegisterForm() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="height" className="text-primary-900 font-semibold text-sm">Height</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <Label htmlFor="height" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Height</Label>
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
-                                    <Ruler className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
+                                    <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                                     <Input
                                         id="height"
                                         type="number"
                                         placeholder="170"
                                         value={step2Data.height}
                                         onChange={(e) => setStep2Data({ ...step2Data, height: e.target.value })}
-                                        className="pl-11 h-12 bg-primary-50 border-primary-200 focus:border-secondary-500 focus:ring-secondary-500/20 transition-all rounded-lg"
+                                        className="pl-8 h-8 text-xs bg-primary-50 border-primary-200"
                                         required
                                     />
                                 </div>
                                 <select
                                     value={step2Data.heightUnit}
                                     onChange={(e) => setStep2Data({ ...step2Data, heightUnit: e.target.value as 'cm' | 'ft' })}
-                                    className="px-4 py-2 bg-muted border border-border text-foreground rounded-md"
+                                    className="px-1.5 py-0.5 text-[10px] bg-muted border border-border rounded-md"
                                 >
                                     <option value="cm">cm</option>
                                     <option value="ft">ft</option>
@@ -296,25 +296,25 @@ export function RegisterForm() {
                             </div>
                         </div>
 
-                        <div className="space-y-1.5">
-                            <Label htmlFor="weight" className="text-primary-900 font-semibold text-sm">Weight</Label>
+                        <div className="space-y-1">
+                            <Label htmlFor="weight" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Weight</Label>
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
-                                    <Weight className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
+                                    <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                                     <Input
                                         id="weight"
                                         type="number"
                                         placeholder="70"
                                         value={step2Data.weight}
                                         onChange={(e) => setStep2Data({ ...step2Data, weight: e.target.value })}
-                                        className="pl-11 h-12 bg-primary-50 border-primary-200 focus:border-secondary-500 focus:ring-secondary-500/20 transition-all rounded-lg"
+                                        className="pl-8 h-8 text-xs bg-primary-50 border-primary-200"
                                         required
                                     />
                                 </div>
                                 <select
                                     value={step2Data.weightUnit}
                                     onChange={(e) => setStep2Data({ ...step2Data, weightUnit: e.target.value as 'kg' | 'lbs' })}
-                                    className="px-4 py-2 bg-muted border border-border text-foreground rounded-md"
+                                    className="px-1.5 py-0.5 text-[10px] bg-muted border border-border rounded-md"
                                 >
                                     <option value="kg">kg</option>
                                     <option value="lbs">lbs</option>
@@ -327,19 +327,19 @@ export function RegisterForm() {
 
             {/* Step 3: Goals & Preferences */}
             {currentStep === 3 && (
-                <div className="space-y-4 animate-fade-in">
-                    <h3 className="text-xl font-bold text-foreground mb-4">Goals & Preferences</h3>
+                <div className="space-y-2 animate-fade-in">
+                    <h3 className="text-sm font-bold text-foreground">Goals & Preferences</h3>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-primary-900 font-semibold text-sm">Fitness Goals (Select all that apply)</Label>
-                        <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                        <Label className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Fitness Goals</Label>
+                        <div className="grid grid-cols-3 gap-1">
                             {['Weight Loss', 'Muscle Gain', 'Endurance', 'Flexibility', 'General Fitness', 'Sports Performance'].map((goal) => (
                                 <button
                                     key={goal}
                                     type="button"
                                     onClick={() => toggleGoal(goal)}
-                                    className={`py-3 px-4 rounded-lg font-medium transition-all text-left ${step3Data.fitnessGoals.includes(goal)
-                                        ? 'bg-primary-500 text-white'
+                                    className={`py-1 px-1 rounded-lg text-[9px] font-bold transition-all text-center leading-tight h-10 flex items-center justify-center ${step3Data.fitnessGoals.includes(goal)
+                                        ? 'bg-primary-500 text-white shadow-md'
                                         : 'bg-muted text-muted-foreground hover:bg-accent'
                                         }`}
                                 >
@@ -349,21 +349,21 @@ export function RegisterForm() {
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-primary-900 font-semibold text-sm">Activity Level</Label>
-                        <div className="space-y-1.5">
+                    <div className="space-y-0.5">
+                        <Label className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Activity Level</Label>
+                        <div className="grid grid-cols-1 gap-1">
                             {[
-                                { value: 'sedentary', label: 'Sedentary (Little or no exercise)' },
-                                { value: 'light', label: 'Light (Exercise 1-3 days/week)' },
-                                { value: 'moderate', label: 'Moderate (Exercise 3-5 days/week)' },
-                                { value: 'active', label: 'Active (Exercise 6-7 days/week)' },
-                                { value: 'very_active', label: 'Very Active (Intense exercise daily)' },
+                                { value: 'sedentary', label: 'Sedentary' },
+                                { value: 'light', label: 'Light' },
+                                { value: 'moderate', label: 'Moderate' },
+                                { value: 'active', label: 'Active' },
+                                { value: 'very_active', label: 'Very Active' },
                             ].map((level) => (
                                 <button
                                     key={level.value}
                                     type="button"
                                     onClick={() => setStep3Data({ ...step3Data, activityLevel: level.value })}
-                                    className={`w-full py-3 px-4 rounded-lg font-medium transition-all text-left ${step3Data.activityLevel === level.value
+                                    className={`py-1 px-3 rounded-lg text-xs font-medium transition-all text-left ${step3Data.activityLevel === level.value
                                         ? 'bg-primary-500 text-white'
                                         : 'bg-muted text-muted-foreground hover:bg-accent'
                                         }`}
@@ -374,16 +374,16 @@ export function RegisterForm() {
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <Label className="text-primary-900 font-semibold text-sm">Dietary Preferences (Optional)</Label>
-                        <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                        <Label className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Dietary Preferences</Label>
+                        <div className="grid grid-cols-3 gap-1">
                             {['Vegetarian', 'Vegan', 'Keto', 'Paleo', 'Gluten-Free', 'Dairy-Free'].map((pref) => (
                                 <button
                                     key={pref}
                                     type="button"
                                     onClick={() => toggleDietaryPreference(pref)}
-                                    className={`py-3 px-4 rounded-lg font-medium transition-all ${step3Data.dietaryPreferences.includes(pref)
-                                        ? 'bg-secondary-500 text-white'
+                                    className={`py-1 px-1 rounded-lg text-[9px] font-bold transition-all text-center leading-tight h-8 flex items-center justify-center ${step3Data.dietaryPreferences.includes(pref)
+                                        ? 'bg-secondary-500 text-white shadow-md'
                                         : 'bg-muted text-muted-foreground hover:bg-accent'
                                         }`}
                                 >
@@ -393,22 +393,18 @@ export function RegisterForm() {
                         </div>
                     </div>
 
-                    <div className="pt-4">
-                        <label className="flex items-start gap-3 cursor-pointer">
+                    <div className="pt-2">
+                        <label className="flex items-start gap-2 cursor-pointer">
                             <input
                                 type="checkbox"
                                 required
-                                className="mt-1 w-4 h-4 rounded border-border bg-muted text-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                                className="mt-0.5 w-3 h-3 rounded border-border bg-muted text-primary-500 focus:ring-1 focus:ring-primary-500/20"
                             />
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-[10px] text-muted-foreground leading-tight">
                                 I agree to the{' '}
-                                <a href="/terms" className="text-primary-800 hover:text-secondary-500">
-                                    Terms of Service
-                                </a>{' '}
+                                <a href="/terms" className="text-primary-800 hover:text-secondary-500 underline">Terms</a>{' '}
                                 and{' '}
-                                <a href="/privacy" className="text-primary-800 hover:text-secondary-500">
-                                    Privacy Policy
-                                </a>
+                                <a href="/privacy" className="text-primary-800 hover:text-secondary-500 underline">Privacy</a>
                             </span>
                         </label>
                     </div>
@@ -416,13 +412,13 @@ export function RegisterForm() {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-2 pt-2">
                 {currentStep > 1 && (
                     <Button
                         type="button"
                         variant="outline"
                         onClick={() => setCurrentStep(currentStep - 1)}
-                        className="flex-1 border-border hover:border-primary-500 hover:bg-card"
+                        className="flex-1 border-border h-10 text-sm"
                     >
                         Back
                     </Button>
@@ -430,13 +426,13 @@ export function RegisterForm() {
                 <Button
                     type="submit"
                     variant="gym"
-                    className="flex-1 text-lg h-14 rounded-xl"
+                    className="flex-1 text-base h-10 rounded-lg"
                     disabled={isLoading}
                 >
                     {isLoading ? (
                         <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 border-2 border-primary-900/30 border-t-primary-900 rounded-full animate-spin" />
-                            <span>Creating Account...</span>
+                            <div className="w-4 h-4 border-2 border-primary-900/30 border-t-primary-900 rounded-full animate-spin" />
+                            <span>...</span>
                         </div>
                     ) : currentStep === 3 ? (
                         'Create Account'
@@ -448,7 +444,7 @@ export function RegisterForm() {
 
             {/* Sign In Link */}
             {currentStep === 1 && (
-                <p className="text-center text-muted-foreground pt-4">
+                <p className="text-center text-muted-foreground pt-2 text-xs">
                     Already have an account?{' '}
                     <a href="/login" className="text-primary-800 hover:text-secondary-500 font-semibold transition-colors">
                         Sign in
@@ -458,4 +454,3 @@ export function RegisterForm() {
         </form>
     );
 }
-

@@ -12,16 +12,27 @@ const generateToken = (id) => {
 };
 
 router.post('/register', async (req, res) => {
+    console.log('📥 STAGE 1: Register request received');
     try {
+        console.log('Payload:', JSON.stringify(req.body, null, 2));
         const { step1Data, step2Data, step3Data } = req.body;
-        
+
+        if (!step1Data || !step1Data.email || !step1Data.password || !step1Data.firstName || !step1Data.lastName) {
+            return res.status(400).json({ success: false, message: 'Basic Information (Step 1) is incomplete!' });
+        }
+
+        if (!step2Data || !step2Data.dateOfBirth || !step2Data.gender) {
+            return res.status(400).json({ success: false, message: 'Health Metrics (Step 2) is missing required fields like Date of Birth or Gender!' });
+        }
+
         // 1. Check if user already exists
         const userExists = await User.findOne({ email: step1Data.email });
         if (userExists) {
-            return res.status(400).json({ success: false, message: 'User already exists' });
+            return res.status(400).json({ success: false, message: 'A user with this email already exists!' });
         }
 
         // 2. Create the User (Auth record)
+        console.log('Creating user...');
         const user = await User.create({
             firstName: step1Data.firstName,
             lastName: step1Data.lastName,
@@ -29,8 +40,17 @@ router.post('/register', async (req, res) => {
             password: step1Data.password,
             phone: step1Data.phone
         });
+        console.log('User created:', user._id);
 
         // 3. Create the Member detailing their physical data & plan
+        console.log('Creating member with data:', JSON.stringify({
+            userId: user._id,
+            dateOfBirth: step2Data.dateOfBirth,
+            gender: step2Data.gender,
+            height: step2Data.height,
+            weight: step2Data.weight
+        }, null, 2));
+
         const member = await Member.create({
             userId: user._id,
             memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
@@ -60,6 +80,7 @@ router.post('/register', async (req, res) => {
                 return pref;
             })
         });
+        console.log('Member created successfully');
 
         res.status(201).json({
             success: true,
@@ -74,7 +95,11 @@ router.post('/register', async (req, res) => {
         });
     } catch (error) {
         console.error('Registration Error:', error);
-        res.status(500).json({ success: false, message: 'Server error during registration' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error during registration',
+            error: error.message 
+        });
     }
 });
 

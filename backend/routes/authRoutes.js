@@ -33,6 +33,7 @@ router.post('/register', async (req, res) => {
         // 3. Create the Member detailing their physical data & plan
         const member = await Member.create({
             userId: user._id,
+            memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
             dateOfBirth: step2Data.dateOfBirth,
             gender: step2Data.gender.toLowerCase(),
             height: {

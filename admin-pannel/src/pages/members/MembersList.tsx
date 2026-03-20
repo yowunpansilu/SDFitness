@@ -50,10 +50,10 @@ interface Member {
 }
 
 const statusColors: Record<string, string> = {
-    active: 'bg-green-500/20 text-green-400 border-green-500/30',
-    inactive: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-    suspended: 'bg-red-500/20 text-red-400 border-red-500/30',
-    frozen: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    active: 'bg-green-500/10 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
+    inactive: 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
+    suspended: 'bg-red-500/10 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30',
+    frozen: 'bg-blue-500/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30',
 };
 
 export function MembersList() {
@@ -112,8 +112,8 @@ export function MembersList() {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
-                <span className="ml-3 text-gray-400">Loading members...</span>
+                <Loader2 className="h-8 w-8 animate-spin text-purple-600 dark:text-purple-500" />
+                <span className="ml-3 text-gray-600 dark:text-gray-400">Loading members...</span>
             </div>
         );
     }
@@ -123,10 +123,10 @@ export function MembersList() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                         Members Management
                     </h1>
-                    <p className="text-gray-400 mt-2">
+                    <p className="text-gray-600 dark:text-gray-400 mt-2">
                         Manage all gym members, memberships, and profiles
                     </p>
                 </div>
@@ -140,7 +140,7 @@ export function MembersList() {
             </div>
 
             {/* Filters and Actions */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                 <CardContent className="p-4">
                     <div className="flex flex-col md:flex-row gap-4">
                         {/* Search */}
@@ -150,16 +150,16 @@ export function MembersList() {
                                 placeholder="Search by name or email..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 bg-dark-800/50 border-dark-700 focus:border-purple-500/50 focus:ring-purple-500/20 text-white placeholder:text-gray-500"
+                                className="pl-10 bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 focus:border-purple-500/50 focus:ring-purple-500/20 text-gray-900 dark:text-white placeholder:text-gray-500"
                             />
                         </div>
 
                         {/* Status Filter */}
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full md:w-[180px] bg-dark-800/50 border-dark-700 text-white">
+                            <SelectTrigger className="w-full md:w-[180px] bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
                                 <SelectValue placeholder="Filter by status" />
                             </SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700 text-white">
+                            <SelectContent className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
                                 <SelectItem value="all">All Status</SelectItem>
                                 <SelectItem value="active">Active</SelectItem>
                                 <SelectItem value="inactive">Inactive</SelectItem>
@@ -171,15 +171,15 @@ export function MembersList() {
 
                     {/* Bulk Actions */}
                     {selectedMembers.length > 0 && (
-                        <div className="mt-4 flex items-center gap-3 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
-                            <span className="text-sm text-purple-400 font-medium">
+                        <div className="mt-4 flex items-center gap-3 p-3 bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 rounded-lg">
+                            <span className="text-sm text-purple-700 dark:text-purple-400 font-medium">
                                 {selectedMembers.length} member{selectedMembers.length > 1 ? 's' : ''} selected
                             </span>
                             <div className="flex gap-2 ml-auto">
                                 <Button
                                     size="sm"
                                     variant="ghost"
-                                    className="text-gray-400 hover:text-white hover:bg-dark-800"
+                                    className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"
                                 >
                                     <Mail className="h-4 w-4 mr-2" />
                                     Send Email
@@ -187,7 +187,7 @@ export function MembersList() {
                                 <Button
                                     size="sm"
                                     variant="ghost"
-                                    className="text-gray-400 hover:text-white hover:bg-dark-800"
+                                    className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"
                                 >
                                     <Download className="h-4 w-4 mr-2" />
                                     Export
@@ -207,9 +207,9 @@ export function MembersList() {
             </Card>
 
             {/* Members Table */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                 <CardHeader>
-                    <CardTitle className="text-white flex items-center justify-between">
+                    <CardTitle className="text-gray-900 dark:text-white flex items-center justify-between">
                         All Members
                         <span className="text-sm font-normal text-gray-400">
                             {filteredMembers.length} total members
@@ -217,22 +217,22 @@ export function MembersList() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="rounded-lg border border-dark-800 overflow-hidden">
+                    <div className="rounded-lg border border-gray-200 dark:border-dark-800 overflow-hidden shadow-sm">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-dark-950/50 border-dark-800 hover:bg-dark-950/50">
+                                <TableRow className="bg-gray-50/50 dark:bg-dark-950/50 border-gray-200 dark:border-dark-800 hover:bg-gray-50/50 dark:hover:bg-dark-950/50">
                                     <TableHead className="w-12">
                                         <Checkbox
                                             checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
                                             onCheckedChange={toggleAllMembers}
-                                            className="border-gray-600"
+                                            className="border-gray-300 dark:border-gray-600"
                                         />
                                     </TableHead>
-                                    <TableHead className="text-gray-400">Member</TableHead>
-                                    <TableHead className="text-gray-400">Contact</TableHead>
-                                    <TableHead className="text-gray-400">Membership</TableHead>
-                                    <TableHead className="text-gray-400">Status</TableHead>
-                                    <TableHead className="text-gray-400">Join Date</TableHead>
+                                    <TableHead className="text-gray-600 dark:text-gray-400">Member</TableHead>
+                                    <TableHead className="text-gray-600 dark:text-gray-400">Contact</TableHead>
+                                    <TableHead className="text-gray-600 dark:text-gray-400">Membership</TableHead>
+                                    <TableHead className="text-gray-600 dark:text-gray-400">Status</TableHead>
+                                    <TableHead className="text-gray-600 dark:text-gray-400">Join Date</TableHead>
                                     <TableHead className="text-gray-400 w-12"></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -241,13 +241,13 @@ export function MembersList() {
                                     <TableRow
                                         key={member._id}
                                         onClick={() => navigate(`/members/${member._id}`)}
-                                        className="border-dark-800 hover:bg-dark-800/30 transition-colors cursor-pointer"
+                                        className="border-gray-200 dark:border-dark-800 hover:bg-gray-50 dark:hover:bg-dark-800/30 transition-colors cursor-pointer"
                                     >
                                         <TableCell>
                                             <Checkbox
                                                 checked={selectedMembers.includes(member._id)}
                                                 onCheckedChange={() => toggleMemberSelection(member._id)}
-                                                className="border-gray-600"
+                                                className="border-gray-300 dark:border-gray-600"
                                             />
                                         </TableCell>
                                         <TableCell>
@@ -259,18 +259,18 @@ export function MembersList() {
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div>
-                                                    <p className="text-sm font-medium text-white">
+                                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
                                                         {member.user?.firstName} {member.user?.lastName}
                                                     </p>
-                                                    <p className="text-xs text-gray-500">{member.user?.email}</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">{member.user?.email}</p>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-gray-400 text-sm">
+                                        <TableCell className="text-gray-600 dark:text-gray-400 text-sm">
                                             {member.phone || 'N/A'}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
+                                            <Badge className="bg-purple-500/10 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-purple-200 dark:border-purple-500/30">
                                                 {member.membershipType || 'Standard'}
                                             </Badge>
                                         </TableCell>
@@ -279,7 +279,7 @@ export function MembersList() {
                                                 {member.status || 'active'}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-gray-400 text-sm">
+                                        <TableCell className="text-gray-600 dark:text-gray-400 text-sm">
                                             {member.joinDate ? new Date(member.joinDate).toLocaleDateString() : 'N/A'}
                                         </TableCell>
                                         <TableCell>
@@ -288,25 +288,25 @@ export function MembersList() {
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 text-gray-400 hover:text-white hover:bg-dark-800"
+                                                        className="h-8 w-8 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"
                                                     >
                                                         <MoreVertical className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="bg-dark-900 border-dark-700 text-white">
+                                                <DropdownMenuContent align="end" className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
                                                     <DropdownMenuItem
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             navigate(`/members/${member._id}`);
                                                         }}
-                                                        className="focus:bg-dark-800 cursor-pointer"
+                                                        className="focus:bg-gray-100 dark:focus:bg-dark-800 cursor-pointer text-gray-700 dark:text-gray-300"
                                                     >
                                                         View Details
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="focus:bg-dark-800 cursor-pointer">
+                                                    <DropdownMenuItem className="focus:bg-gray-100 dark:focus:bg-dark-800 cursor-pointer text-gray-700 dark:text-gray-300">
                                                         Edit Member
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-300 cursor-pointer">
+                                                    <DropdownMenuItem className="text-red-500 dark:text-red-400 focus:bg-red-500/10 focus:text-red-600 dark:focus:text-red-300 cursor-pointer">
                                                         Delete Member
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -320,7 +320,7 @@ export function MembersList() {
 
                     {/* Pagination */}
                     <div className="flex items-center justify-between mt-4">
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                             Showing {filteredMembers.length} of {members.length} members
                         </p>
                     </div>

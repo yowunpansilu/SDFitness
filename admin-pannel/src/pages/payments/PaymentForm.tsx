@@ -148,29 +148,29 @@ export function PaymentForm() {
                     <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => navigate('/admin/payments')}
-                        className="text-gray-400 hover:text-white hover:bg-dark-800"
+                        onClick={() => navigate('/payments')}
+                        className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-bold text-white">Process Payment</h1>
-                        <p className="text-gray-400">Record a new payment transaction</p>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Process Payment</h1>
+                        <p className="text-gray-500 dark:text-gray-400">Record a new payment transaction</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
-                        onClick={() => navigate('/admin/payments')}
-                        className="bg-dark-800 border-dark-700 text-gray-300 hover:bg-dark-700"
+                        onClick={() => navigate('/payments')}
+                        className="bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-700 shadow-sm"
                     >
                         <X className="h-4 w-4 mr-2" />
                         Cancel
                     </Button>
                     <Button
                         onClick={handleSubmit(onSubmit)}
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
                     >
                         <Save className="h-4 w-4 mr-2" />
                         Process Payment
@@ -181,17 +181,17 @@ export function PaymentForm() {
             <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
                     {/* Member Selection */}
-                    <Card className="bg-dark-900/50 border-dark-800">
+                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 shadow-sm">
                         <CardHeader>
-                            <CardTitle className="text-white">Member Selection</CardTitle>
-                            <CardDescription className="text-gray-400">
+                            <CardTitle className="text-gray-900 dark:text-white">Member Selection</CardTitle>
+                            <CardDescription className="text-gray-500 dark:text-gray-400">
                                 Search and select the member
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="relative">
-                                <Label className="text-gray-300">
-                                    Search Member <span className="text-red-400">*</span>
+                                <Label className="text-gray-700 dark:text-gray-300">
+                                    Search Member <span className="text-red-500">*</span>
                                 </Label>
                                 <div className="relative mt-2">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
@@ -202,22 +202,22 @@ export function PaymentForm() {
                                             setShowMemberList(true);
                                         }}
                                         onFocus={() => setShowMemberList(true)}
-                                        className="bg-dark-800 border-dark-700 text-white pl-10"
+                                        className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white pl-10 shadow-sm"
                                         placeholder="Search by name or email..."
                                     />
                                 </div>
 
                                 {showMemberList && memberSearch && (
-                                    <div className="absolute z-10 w-full mt-2 bg-dark-800 border border-dark-700 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                                    <div className="absolute z-10 w-full mt-2 bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-2xl max-h-60 overflow-y-auto">
                                         {filteredMembers.map((member) => (
                                             <div
                                                 key={member.id}
                                                 onClick={() => selectMember(member)}
-                                                className="p-3 hover:bg-dark-700 cursor-pointer border-b border-dark-700 last:border-0"
+                                                className="p-3 hover:bg-gray-50 dark:hover:bg-dark-700 cursor-pointer border-b border-gray-100 dark:border-dark-700 last:border-0"
                                             >
-                                                <p className="text-white font-medium">{member.name}</p>
-                                                <p className="text-sm text-gray-400">{member.email}</p>
-                                                <p className="text-xs text-gray-500 mt-1">
+                                                <p className="text-gray-900 dark:text-white font-medium">{member.name}</p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">{member.email}</p>
+                                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                                     {member.plan} • {member.status}
                                                 </p>
                                             </div>
@@ -228,16 +228,14 @@ export function PaymentForm() {
                                 {errors.memberId && (
                                     <p className="text-xs text-red-400 mt-1">{errors.memberId.message}</p>
                                 )}
-                            </div>
-
-                            {selectedMember && (
-                                <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
+                            </div>                             {selectedMember && (
+                                <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/30 shadow-sm">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-white font-medium">{selectedMember.name}</p>
-                                            <p className="text-sm text-gray-400">{selectedMember.email}</p>
-                                            <p className="text-sm text-purple-400 mt-1">
-                                                Current: {selectedMember.plan}
+                                            <p className="text-gray-900 dark:text-white font-medium">{selectedMember.name}</p>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{selectedMember.email}</p>
+                                            <p className="text-sm text-purple-600 dark:text-purple-400 mt-1 font-medium">
+                                                Current Plan: {selectedMember.plan}
                                             </p>
                                         </div>
                                         <Button
@@ -248,7 +246,7 @@ export function PaymentForm() {
                                                 setSelectedMember(null);
                                                 setValue('memberId', '');
                                             }}
-                                            className="text-gray-400 hover:text-white"
+                                            className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-purple-100/50 dark:hover:bg-dark-700"
                                         >
                                             <X className="h-4 w-4" />
                                         </Button>
@@ -259,24 +257,24 @@ export function PaymentForm() {
                     </Card>
 
                     {/* Payment Details */}
-                    <Card className="bg-dark-900/50 border-dark-800">
+                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 shadow-sm">
                         <CardHeader>
-                            <CardTitle className="text-white">Payment Details</CardTitle>
-                            <CardDescription className="text-gray-400">
+                            <CardTitle className="text-gray-900 dark:text-white">Payment Details</CardTitle>
+                            <CardDescription className="text-gray-500 dark:text-gray-400">
                                 What is being paid for
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <Label htmlFor="paymentType" className="text-gray-300">
-                                        Payment Type <span className="text-red-400">*</span>
+                                    <Label htmlFor="paymentType" className="text-gray-700 dark:text-gray-300">
+                                        Payment Type <span className="text-red-500">*</span>
                                     </Label>
                                     <Select onValueChange={(value) => setValue('paymentType', value as any)}>
-                                        <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                        <SelectTrigger className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm">
                                             <SelectValue placeholder="Select type" />
                                         </SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="bg-white dark:bg-dark-950 border-gray-200 dark:border-dark-800">
                                             <SelectItem value="membership">Membership</SelectItem>
                                             <SelectItem value="personal-training">Personal Training</SelectItem>
                                             <SelectItem value="day-pass">Day Pass</SelectItem>
@@ -288,12 +286,12 @@ export function PaymentForm() {
 
                                 {paymentType === 'membership' && (
                                     <div>
-                                        <Label className="text-gray-300">Select Plan</Label>
+                                        <Label className="text-gray-700 dark:text-gray-300">Select Plan</Label>
                                         <Select onValueChange={handlePlanSelect}>
-                                            <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                            <SelectTrigger className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm">
                                                 <SelectValue placeholder="Select plan" />
                                             </SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent className="bg-white dark:bg-dark-950 border-gray-200 dark:border-dark-800">
                                                 {PLANS.map((plan) => (
                                                     <SelectItem key={plan.id} value={plan.id}>
                                                         {plan.name} - ${plan.price}
@@ -305,30 +303,30 @@ export function PaymentForm() {
                                 )}
 
                                 <div>
-                                    <Label htmlFor="amount" className="text-gray-300">
-                                        Amount ($) <span className="text-red-400">*</span>
+                                    <Label htmlFor="amount" className="text-gray-700 dark:text-gray-300">
+                                        Amount ($) <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         id="amount"
                                         type="number"
                                         step="0.01"
                                         {...register('amount', { valueAsNumber: true })}
-                                        className="bg-dark-800 border-dark-700 text-white"
+                                        className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                         placeholder="0.00"
                                     />
                                     {errors.amount && (
-                                        <p className="text-xs text-red-400 mt-1">{errors.amount.message}</p>
+                                        <p className="text-xs text-red-500 mt-1">{errors.amount.message}</p>
                                     )}
                                 </div>
 
                                 <div className="md:col-span-2">
-                                    <Label htmlFor="description" className="text-gray-300">
+                                    <Label htmlFor="description" className="text-gray-700 dark:text-gray-300">
                                         Description
                                     </Label>
                                     <Textarea
                                         id="description"
                                         {...register('description')}
-                                        className="bg-dark-800 border-dark-700 text-white"
+                                        className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                         placeholder="Additional notes..."
                                         rows={2}
                                     />
@@ -338,23 +336,23 @@ export function PaymentForm() {
                     </Card>
 
                     {/* Payment Method */}
-                    <Card className="bg-dark-900/50 border-dark-800">
+                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 shadow-sm">
                         <CardHeader>
-                            <CardTitle className="text-white">Payment Method</CardTitle>
-                            <CardDescription className="text-gray-400">
+                            <CardTitle className="text-gray-900 dark:text-white">Payment Method</CardTitle>
+                            <CardDescription className="text-gray-500 dark:text-gray-400">
                                 How the payment was made
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <Label className="text-gray-300">
-                                    Method <span className="text-red-400">*</span>
+                                <Label className="text-gray-700 dark:text-gray-300">
+                                    Method <span className="text-red-500">*</span>
                                 </Label>
                                 <Select onValueChange={(value) => setValue('paymentMethod', value as any)}>
-                                    <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                    <SelectTrigger className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm">
                                         <SelectValue placeholder="Select method" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="bg-white dark:bg-dark-950 border-gray-200 dark:border-dark-800">
                                         <SelectItem value="cash">Cash</SelectItem>
                                         <SelectItem value="card">Card</SelectItem>
                                         <SelectItem value="bank-transfer">Bank Transfer</SelectItem>
@@ -366,14 +364,14 @@ export function PaymentForm() {
                             {paymentMethod === 'card' && (
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <Label htmlFor="cardBrand" className="text-gray-300">
+                                        <Label htmlFor="cardBrand" className="text-gray-700 dark:text-gray-300">
                                             Card Brand
                                         </Label>
                                         <Select onValueChange={(value) => setValue('cardBrand', value)}>
-                                            <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                            <SelectTrigger className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm">
                                                 <SelectValue placeholder="Select brand" />
                                             </SelectTrigger>
-                                            <SelectContent>
+                                            <SelectContent className="bg-white dark:bg-dark-950 border-gray-200 dark:border-dark-800">
                                                 <SelectItem value="visa">Visa</SelectItem>
                                                 <SelectItem value="mastercard">Mastercard</SelectItem>
                                                 <SelectItem value="amex">American Express</SelectItem>
@@ -382,13 +380,13 @@ export function PaymentForm() {
                                         </Select>
                                     </div>
                                     <div>
-                                        <Label htmlFor="lastFourDigits" className="text-gray-300">
+                                        <Label htmlFor="lastFourDigits" className="text-gray-700 dark:text-gray-300">
                                             Last 4 Digits
                                         </Label>
                                         <Input
                                             id="lastFourDigits"
                                             {...register('lastFourDigits')}
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                             placeholder="1234"
                                             maxLength={4}
                                         />
@@ -398,26 +396,26 @@ export function PaymentForm() {
 
                             {paymentMethod === 'bank-transfer' && (
                                 <div>
-                                    <Label htmlFor="referenceNumber" className="text-gray-300">
+                                    <Label htmlFor="referenceNumber" className="text-gray-700 dark:text-gray-300">
                                         Reference Number
                                     </Label>
                                     <Input
                                         id="referenceNumber"
                                         {...register('referenceNumber')}
-                                        className="bg-dark-800 border-dark-700 text-white font-mono"
+                                        className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white font-mono shadow-sm"
                                         placeholder="REF-123456789"
                                     />
                                 </div>
                             )}
 
                             <div>
-                                <Label htmlFor="transactionId" className="text-gray-300">
+                                <Label htmlFor="transactionId" className="text-gray-700 dark:text-gray-300">
                                     Transaction ID
                                 </Label>
                                 <Input
                                     id="transactionId"
                                     {...register('transactionId')}
-                                    className="bg-dark-800 border-dark-700 text-white font-mono"
+                                    className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white font-mono shadow-sm"
                                     placeholder="Auto-generated or manual"
                                 />
                             </div>
@@ -425,22 +423,22 @@ export function PaymentForm() {
                     </Card>
 
                     {/* Additional Options */}
-                    <Card className="bg-dark-900/50 border-dark-800">
+                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 shadow-sm">
                         <CardHeader>
-                            <CardTitle className="text-white">Additional Options</CardTitle>
-                            <CardDescription className="text-gray-400">
+                            <CardTitle className="text-gray-900 dark:text-white">Additional Options</CardTitle>
+                            <CardDescription className="text-gray-500 dark:text-gray-400">
                                 Discounts and notifications
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <Label className="text-gray-300">Discount Type</Label>
+                                    <Label className="text-gray-700 dark:text-gray-300">Discount Type</Label>
                                     <Select onValueChange={(value) => setValue('discountType', value as any)}>
-                                        <SelectTrigger className="bg-dark-800 border-dark-700 text-white">
+                                        <SelectTrigger className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm">
                                             <SelectValue placeholder="No discount" />
                                         </SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="bg-white dark:bg-dark-950 border-gray-200 dark:border-dark-800">
                                             <SelectItem value="none">No Discount</SelectItem>
                                             <SelectItem value="percentage">Percentage</SelectItem>
                                             <SelectItem value="fixed">Fixed Amount</SelectItem>
@@ -450,7 +448,7 @@ export function PaymentForm() {
 
                                 {discountType && discountType !== 'none' && (
                                     <div>
-                                        <Label htmlFor="discountValue" className="text-gray-300">
+                                        <Label htmlFor="discountValue" className="text-gray-700 dark:text-gray-300">
                                             Discount Value {discountType === 'percentage' && '(%)'}
                                         </Label>
                                         <Input
@@ -458,7 +456,7 @@ export function PaymentForm() {
                                             type="number"
                                             step="0.01"
                                             {...register('discountValue', { valueAsNumber: true })}
-                                            className="bg-dark-800 border-dark-700 text-white"
+                                            className="bg-gray-50 dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                             placeholder="0"
                                         />
                                     </div>
@@ -471,8 +469,9 @@ export function PaymentForm() {
                                         id="sendReceipt"
                                         checked={sendReceipt}
                                         onCheckedChange={(checked) => setValue('sendReceipt', !!checked)}
+                                        className="border-gray-300 dark:border-dark-600"
                                     />
-                                    <label htmlFor="sendReceipt" className="text-sm text-gray-300 cursor-pointer">
+                                    <label htmlFor="sendReceipt" className="text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
                                         Send receipt via email
                                     </label>
                                 </div>
@@ -481,8 +480,9 @@ export function PaymentForm() {
                                         id="sendSMS"
                                         checked={sendSMS}
                                         onCheckedChange={(checked) => setValue('sendSMS', !!checked)}
+                                        className="border-gray-300 dark:border-dark-600"
                                     />
-                                    <label htmlFor="sendSMS" className="text-sm text-gray-300 cursor-pointer">
+                                    <label htmlFor="sendSMS" className="text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
                                         Send SMS notification
                                     </label>
                                 </div>
@@ -493,38 +493,38 @@ export function PaymentForm() {
 
                 {/* Summary Sidebar */}
                 <div className="lg:col-span-1">
-                    <Card className="bg-dark-900/50 border-dark-800 sticky top-6">
+                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 sticky top-6 shadow-xl">
                         <CardHeader>
-                            <CardTitle className="text-white">Payment Summary</CardTitle>
-                            <CardDescription className="text-gray-400">
+                            <CardTitle className="text-gray-900 dark:text-white">Payment Summary</CardTitle>
+                            <CardDescription className="text-gray-500 dark:text-gray-400">
                                 Review before processing
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-3">
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-gray-400">Subtotal</span>
-                                    <span className="text-white">${amount.toFixed(2)}</span>
+                                    <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
+                                    <span className="text-gray-900 dark:text-white">${amount.toFixed(2)}</span>
                                 </div>
 
                                 {discountType && discountType !== 'none' && (
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-gray-400">
+                                        <span className="text-gray-500 dark:text-gray-400">
                                             Discount
                                             {discountType === 'percentage' && ` (${discountValue}%)`}
                                         </span>
-                                        <span className="text-green-400">
+                                        <span className="text-green-600 dark:text-green-400 font-medium">
                                             -${(amount - total).toFixed(2)}
                                         </span>
                                     </div>
                                 )}
 
-                                <div className="border-t border-dark-700 pt-3">
+                                <div className="border-t border-gray-100 dark:border-dark-700 pt-3">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-gray-300 font-medium">Total</span>
+                                        <span className="text-gray-700 dark:text-gray-300 font-medium">Total</span>
                                         <div className="flex items-center gap-1">
-                                            <DollarSign className="h-5 w-5 text-purple-400" />
-                                            <span className="text-2xl font-bold text-white">
+                                            <DollarSign className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                                            <span className="text-2xl font-bold text-gray-900 dark:text-white">
                                                 {total.toFixed(2)}
                                             </span>
                                         </div>
@@ -533,31 +533,31 @@ export function PaymentForm() {
                             </div>
 
                             {selectedMember && (
-                                <div className="p-3 rounded-lg bg-dark-800/50 border border-dark-700">
+                                <div className="p-3 rounded-lg bg-gray-50 dark:bg-dark-800/50 border border-gray-100 dark:border-dark-700">
                                     <p className="text-xs text-gray-500 uppercase mb-1">Member</p>
-                                    <p className="text-sm text-white font-medium">{selectedMember.name}</p>
+                                    <p className="text-sm text-gray-900 dark:text-white font-medium">{selectedMember.name}</p>
                                 </div>
                             )}
 
                             {paymentMethod && (
-                                <div className="p-3 rounded-lg bg-dark-800/50 border border-dark-700">
+                                <div className="p-3 rounded-lg bg-gray-50 dark:bg-dark-800/50 border border-gray-100 dark:border-dark-700">
                                     <p className="text-xs text-gray-500 uppercase mb-1">Payment Method</p>
-                                    <p className="text-sm text-white font-medium capitalize">
+                                    <p className="text-sm text-gray-900 dark:text-white font-medium capitalize">
                                         {paymentMethod.replace('-', ' ')}
                                     </p>
                                 </div>
                             )}
 
-                            <div className="space-y-2 pt-4 border-t border-dark-700">
+                            <div className="space-y-2 pt-4 border-t border-gray-100 dark:border-dark-700">
                                 {sendReceipt && (
-                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
                                         Receipt will be emailed
                                     </div>
                                 )}
                                 {sendSMS && (
-                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
                                         SMS notification will be sent
                                     </div>
                                 )}

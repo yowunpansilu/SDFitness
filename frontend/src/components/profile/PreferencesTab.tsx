@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Card, CardContent } from '../ui/card';
+import { Checkbox } from '../ui/checkbox';
 import {
     Select,
     SelectContent,
@@ -11,17 +13,41 @@ import {
     SelectValue,
 } from '../ui/select';
 
+import { useAuthStore } from '@/lib/stores/authStore';
+
 export function PreferencesTab() {
+    const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    
+    // Helper to format dietary preferences from backend (snake_case) to UI (Capitalized-Hyphenated)
+    const formatPref = (p: string) => {
+        return p.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('-');
+    };
+
     const [formData, setFormData] = useState({
-        dietaryRestrictions: [] as string[],
-        allergies: '',
-        budget: '200',
+        dietaryRestrictions: (member?.dietaryPreferences || []).map(formatPref),
+        allergies: (member?.allergies || []).join(', '),
+        budget: member?.dietBudget?.amount?.toString() || '200',
         workoutTime: '',
-        emailNotifications: true,
-        smsNotifications: false,
-        pushNotifications: true,
+        emailNotifications: member?.notificationPreferences?.email ?? true,
+        smsNotifications: member?.notificationPreferences?.sms ?? false,
+        pushNotifications: member?.notificationPreferences?.push ?? true,
     });
+
+    useEffect(() => {
+        if (member) {
+            setFormData(prev => ({
+                ...prev,
+                dietaryRestrictions: (member.dietaryPreferences || []).map(formatPref),
+                allergies: (member.allergies || []).join(', '),
+                budget: member.dietBudget?.amount?.toString() || prev.budget,
+                emailNotifications: member.notificationPreferences?.email ?? prev.emailNotifications,
+                smsNotifications: member.notificationPreferences?.sms ?? prev.smsNotifications,
+                pushNotifications: member.notificationPreferences?.push ?? prev.pushNotifications,
+            }));
+        }
+    }, [member]);
 
     const dietaryOptions = [
         'Vegetarian',
@@ -39,14 +65,40 @@ export function PreferencesTab() {
         setFormData(prev => ({
             ...prev,
             dietaryRestrictions: prev.dietaryRestrictions.includes(option)
-                ? prev.dietaryRestrictions.filter(item => item !== option)
+                ? prev.dietaryRestrictions.filter((item: string) => item !== option)
                 : [...prev.dietaryRestrictions, option]
         }));
     };
 
-    const handleSave = () => {
-        // TODO: Save to backend
-        setIsEditing(false);
+    const handleSave = async () => {
+        try {
+            const response = await axios.put(`${API_URL}/api/auth/profile`, {
+                memberData: {
+                    dietaryPreferences: formData.dietaryRestrictions.map((p: string) => p.toLowerCase().replace('-', '_')),
+                    allergies: formData.allergies.split(',').map((a: string) => a.trim()).filter((a: string) => a),
+                    dietBudget: {
+                        amount: parseFloat(formData.budget),
+                        currency: member?.dietBudget?.currency || 'LKR',
+                        period: member?.dietBudget?.period || 'weekly'
+                    },
+                    notificationPreferences: {
+                        email: formData.emailNotifications,
+                        sms: formData.smsNotifications,
+                        push: formData.pushNotifications
+                    }
+                }
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.data.success && token) {
+                login(response.data.user, token, response.data.member);
+                setIsEditing(false);
+            }
+        } catch (error) {
+            console.error('Error updating preferences:', error);
+            alert('Failed to update preferences. Please try again.');
+        }
     };
 
     const handleCancel = () => {
@@ -83,7 +135,7 @@ export function PreferencesTab() {
                         <Label htmlFor="allergies">Allergies</Label>
                         <Textarea
                             id="allergies"
-                            placeholder="List any food allergies..."
+                            placeholder=""
                             value={formData.allergies}
                             onChange={(e) =>
                                 setFormData({ ...formData, allergies: e.target.value })

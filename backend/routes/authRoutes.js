@@ -21,6 +21,14 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Basic Information (Step 1) is incomplete!' });
         }
 
+        if (step1Data.password !== step1Data.confirmPassword) {
+            return res.status(400).json({ success: false, message: 'Passwords do not match!' });
+        }
+
+        if (step1Data.password.length < 6) {
+            return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long!' });
+        }
+
         if (!step2Data || !step2Data.dateOfBirth || !step2Data.gender) {
             return res.status(400).json({ success: false, message: 'Health Metrics (Step 2) is missing required fields like Date of Birth or Gender!' });
         }
@@ -51,36 +59,41 @@ router.post('/register', async (req, res) => {
             weight: step2Data.weight
         }, null, 2));
 
-        const member = await Member.create({
-            userId: user._id,
-            memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-            dateOfBirth: step2Data.dateOfBirth,
-            gender: step2Data.gender.toLowerCase(),
-            height: {
-                value: step2Data.heightUnit === 'ft' ? (parseFloat(step2Data.height) * 30.48) : parseFloat(step2Data.height),
-                unit: 'cm' // Standardize to cm to pass Mongoose minimum 50 requirement
-            },
-            currentWeight: {
-                value: parseFloat(step2Data.weight),
-                unit: step2Data.weightUnit
-            },
-            fitnessGoals: step3Data.fitnessGoals.map(g => {
-                let formatted = g.toLowerCase().replace(' ', '_');
-                if (formatted === 'sports_performance') return 'athletic_performance';
-                return formatted;
-            }),
-            activityLevel: step3Data.activityLevel === 'sedentary' ? 'sedentary' :
-                           step3Data.activityLevel === 'light' ? 'lightly_active' :
-                           step3Data.activityLevel === 'moderate' ? 'moderately_active' :
-                           step3Data.activityLevel === 'active' ? 'very_active' : 'extremely_active',
-            dietaryPreferences: step3Data.dietaryPreferences.map(p => {
-                let pref = p.toLowerCase().replace('-', '_');
-                if (pref === 'gluten_free') return 'gluten_free';
-                if (pref === 'dairy_free') return 'dairy_free';
-                return pref;
-            })
-        });
-        console.log('Member created successfully');
+        let member;
+        try {
+            member = await Member.create({
+                userId: user._id,
+                memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                dateOfBirth: step2Data.dateOfBirth,
+                gender: step2Data.gender.toLowerCase(),
+                height: {
+                    value: step2Data.heightUnit === 'ft' ? (parseFloat(step2Data.height) * 30.48) : parseFloat(step2Data.height),
+                    unit: 'cm' // Standardize to cm to pass Mongoose minimum 50 requirement
+                },
+                currentWeight: {
+                    value: parseFloat(step2Data.weight),
+                    unit: step2Data.weightUnit
+                },
+                fitnessGoals: step3Data.fitnessGoals.map(g => {
+                    let formatted = g.toLowerCase().replace(' ', '_');
+                    if (formatted === 'sports_performance') return 'athletic_performance';
+                    return formatted;
+                }),
+                activityLevel: step3Data.activityLevel ? step3Data.activityLevel.toLowerCase().replace('-', '_') : 'moderate',
+                dietaryPreferences: step3Data.dietaryPreferences.map(p => {
+                    let pref = p.toLowerCase().replace('-', '_');
+                    if (pref === 'gluten_free') return 'gluten_free';
+                    if (pref === 'dairy_free') return 'dairy_free';
+                    return pref;
+                })
+            });
+            console.log('Member created successfully');
+        } catch (memberErr) {
+            // Roll back user creation if member profile fails
+            await User.findByIdAndDelete(user._id);
+            console.error('Member validation failed, rolling back User:', memberErr.message);
+            return res.status(400).json({ success: false, message: 'Invalid profile details.', error: memberErr.message });
+        }
 
         res.status(201).json({
             success: true,
@@ -89,9 +102,11 @@ router.post('/register', async (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
+                phone: user.phone,
                 role: user.role
             },
-            token: generateToken(user._id)
+            token: generateToken(user._id),
+            member: member
         });
     } catch (error) {
         console.error('Registration Error:', error);
@@ -110,6 +125,20 @@ router.post('/login', async (req, res) => {
         const user = await User.findOne({ email });
         
         if (user && (await user.matchPassword(password))) {
+            let member = await Member.findOne({ userId: user._id });
+            if (!member) {
+                console.log('Member profile not found for user. Auto-creating a default profile.');
+                member = await Member.create({
+                    userId: user._id,
+                    memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                    dateOfBirth: new Date('2000-01-01'),
+                    gender: 'prefer_not_to_say',
+                    height: { value: 170, unit: 'cm' },
+                    currentWeight: { value: 70, unit: 'kg' },
+                    fitnessGoals: ['general_fitness'],
+                    activityLevel: 'moderate',
+                });
+            }
             res.json({
                 success: true,
                 user: {
@@ -117,8 +146,10 @@ router.post('/login', async (req, res) => {
                     firstName: user.firstName,
                     lastName: user.lastName,
                     email: user.email,
+                    phone: user.phone,
                     role: user.role
                 },
+                member: member,
                 token: generateToken(user._id)
             });
         } else {
@@ -127,6 +158,119 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         console.error('Login Error:', error);
         res.status(500).json({ success: false, message: 'Server error during login' });
+    }
+});
+// @desc    Get user profile & member data
+// @route   GET /api/auth/profile
+// @access  Private
+router.get('/profile', async (req, res) => {
+    try {
+        // Simple token check (ideally use a protect middleware, but implementing inline for now)
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'Not authorized' });
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Fetching profile for userId:', decoded.id);
+        const user = await User.findById(decoded.id).select('-password');
+        
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        let member = await Member.findOne({ userId: decoded.id });
+        if (!member) {
+            console.log('Member profile not found for user. Auto-creating a default profile.');
+            member = await Member.create({
+                userId: user._id,
+                memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                dateOfBirth: new Date('2000-01-01'),
+                gender: 'prefer_not_to_say',
+                height: { value: 170, unit: 'cm' },
+                currentWeight: { value: 70, unit: 'kg' },
+                fitnessGoals: ['general_fitness'],
+                activityLevel: 'moderate',
+            });
+        }
+
+        console.log('Profile found - User:', !!user, 'Member:', !!member);
+        if (member) console.log('Member heights/weights:', member.height?.value, member.currentWeight?.value);
+
+        res.json({
+            success: true,
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phone: user.phone,
+                role: user.role
+            },
+            member: member
+        });
+    } catch (error) {
+        console.error('Profile fetch error:', error);
+        res.status(500).json({ success: false, message: 'Server error fetching profile' });
+    }
+});
+
+// @desc    Update user profile & member data
+// @route   PUT /api/auth/profile
+// @access  Private
+router.put('/profile', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'Not authorized' });
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const { firstName, lastName, phone, memberData } = req.body;
+
+        const user = await User.findById(decoded.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Update User fields
+        if (firstName) user.firstName = firstName;
+        if (lastName) user.lastName = lastName;
+        if (phone) user.phone = phone;
+        await user.save();
+
+        let member = await Member.findOne({ userId: decoded.id });
+        if (member && memberData) {
+            // Update individual fields if provided
+            if (memberData.height) {
+                member.height = {
+                    value: memberData.height.value || member.height.value,
+                    unit: memberData.height.unit || member.height.unit
+                };
+            }
+            if (memberData.currentWeight) {
+                member.currentWeight = {
+                    value: memberData.currentWeight.value || member.currentWeight.value,
+                    unit: memberData.currentWeight.unit || member.currentWeight.unit
+                };
+            }
+            if (memberData.fitnessGoals) member.fitnessGoals = memberData.fitnessGoals;
+            if (memberData.activityLevel) member.activityLevel = memberData.activityLevel;
+            if (memberData.dietaryPreferences) member.dietaryPreferences = memberData.dietaryPreferences;
+            if (memberData.dateOfBirth) member.dateOfBirth = memberData.dateOfBirth;
+            if (memberData.gender) member.gender = memberData.gender;
+            if (memberData.bodyFatPercentage) member.bodyFatPercentage = memberData.bodyFatPercentage;
+            
+            await member.save();
+        }
+
+        res.json({
+            success: true,
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phone: user.phone,
+                role: user.role
+            },
+            member: member
+        });
+    } catch (error) {
+        console.error('Profile update error:', error);
+        res.status(500).json({ success: false, message: 'Server error updating profile' });
     }
 });
 

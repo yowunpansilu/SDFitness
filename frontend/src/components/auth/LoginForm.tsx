@@ -29,8 +29,8 @@ export function LoginForm() {
                 email: formData.email,
                 password: formData.password
             });
-            const { user, token } = response.data;
-            login(user, token);
+            const { user, token, member } = response.data;
+            login(user, token, member);
             navigate('/dashboard');
         } catch (error: any) {
             console.error('Login failed', error.response?.data?.message || error.message);

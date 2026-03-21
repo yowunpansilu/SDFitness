@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Camera } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -8,21 +9,47 @@ import { Card, CardContent } from '../ui/card';
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function PersonalInfoTab() {
-    const { user, updateUser } = useAuthStore();
+    const { user, token, updateUser, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const [formData, setFormData] = useState({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
         email: user?.email || '',
-        phone: '',
+        phone: user?.phone || '',
     });
 
-    const handleSave = () => {
-        updateUser({
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-        });
-        setIsEditing(false);
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                firstName: user.firstName || prev.firstName,
+                lastName: user.lastName || prev.lastName,
+                email: user.email || prev.email,
+                phone: user.phone || prev.phone,
+            }));
+        }
+    }, [user]);
+
+    const handleSave = async () => {
+        try {
+            const response = await axios.put(`${API_URL}/api/auth/profile`, {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phone: formData.phone
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.data.success && token) {
+                // Update local store with data from server
+                login(response.data.user, token, response.data.member);
+                setIsEditing(false);
+            }
+        } catch (error) {
+            console.error('Error updating personal info:', error);
+            alert('Failed to update profile. Please try again.');
+        }
     };
 
     const handleCancel = () => {
@@ -30,7 +57,7 @@ export function PersonalInfoTab() {
             firstName: user?.firstName || '',
             lastName: user?.lastName || '',
             email: user?.email || '',
-            phone: '',
+            phone: user?.phone || '',
         });
         setIsEditing(false);
     };
@@ -103,7 +130,7 @@ export function PersonalInfoTab() {
                             <Input
                                 id="phone"
                                 type="tel"
-                                placeholder="+1 (555) 000-0000"
+                                placeholder=""
                                 value={formData.phone}
                                 onChange={(e) =>
                                     setFormData({ ...formData, phone: e.target.value })

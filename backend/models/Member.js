@@ -67,8 +67,8 @@ const memberSchema = new mongoose.Schema({
     // Activity Level (ML input)
     activityLevel: {
         type: String,
-        enum: ['sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extremely_active'],
-        default: 'moderately_active'
+        enum: ['sedentary', 'light', 'moderate', 'active', 'very_active', 'lightly_active', 'moderately_active', 'extremely_active'],
+        default: 'moderate'
     },
 
     // Medical

@@ -67,6 +67,18 @@ export function RegisterForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Password matching validation for Step 1
+        if (currentStep === 1) {
+            if (step1Data.password !== step1Data.confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+            if (step1Data.password.length < 6) {
+                alert("Password should be at least 6 characters long");
+                return;
+            }
+        }
+
         if (currentStep < 3) {
             setCurrentStep(currentStep + 1);
             return;
@@ -79,8 +91,8 @@ export function RegisterForm() {
                 step2Data,
                 step3Data
             });
-            const { user, token } = response.data;
-            login(user, token);
+            const { user, token, member } = response.data;
+            login(user, token, member);
             navigate('/dashboard');
         } catch (error: any) {
             console.error('Registration failed', error.response?.data?.error || error.response?.data?.message || error.message);
@@ -222,17 +234,28 @@ export function RegisterForm() {
                     <div className="space-y-1 col-span-2 md:col-span-1">
                         <Label htmlFor="confirmPassword" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Confirm Password</Label>
                         <div className="relative group">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
+                            <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
+                                step1Data.confirmPassword && step1Data.password !== step1Data.confirmPassword
+                                ? 'text-orange-500'
+                                : 'text-muted-foreground group-focus-within:text-secondary-500'
+                            }`} />
                             <Input
                                 id="confirmPassword"
                                 type="password"
                                 placeholder="••••••••"
                                 value={step1Data.confirmPassword}
                                 onChange={(e) => setStep1Data({ ...step1Data, confirmPassword: e.target.value })}
-                                className="pl-9 h-9 text-xs bg-primary-50 border-primary-200 focus:border-secondary-500 rounded-lg"
+                                className={`pl-9 h-9 text-xs bg-primary-50 border-primary-200 focus:border-secondary-500 rounded-lg transition-all ${
+                                    step1Data.confirmPassword && step1Data.password !== step1Data.confirmPassword
+                                    ? 'border-orange-500 ring-1 ring-orange-500/20'
+                                    : ''
+                                }`}
                                 required
                             />
                         </div>
+                        {step1Data.confirmPassword && step1Data.password !== step1Data.confirmPassword && (
+                            <p className="text-[9px] text-orange-500 font-medium">Passwords do not match</p>
+                        )}
                     </div>
                 </div>
             )}

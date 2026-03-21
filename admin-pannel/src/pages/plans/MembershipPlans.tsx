@@ -155,10 +155,10 @@ export function MembershipPlans() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                         Membership Plans
                     </h1>
-                    <p className="text-gray-400 mt-2">
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">
                         Manage pricing plans and membership offerings
                     </p>
                 </div>
@@ -172,56 +172,56 @@ export function MembershipPlans() {
                             Add New Plan
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-dark-900 border-dark-700 text-white max-w-2xl">
+                    <DialogContent className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white max-w-2xl shadow-2xl">
                         <DialogHeader>
-                            <DialogTitle>{editingPlan ? 'Edit Plan' : 'Create New Plan'}</DialogTitle>
-                            <DialogDescription className="text-gray-400">
+                            <DialogTitle className="text-gray-900 dark:text-white">{editingPlan ? 'Edit Plan' : 'Create New Plan'}</DialogTitle>
+                            <DialogDescription className="text-gray-500 dark:text-gray-400">
                                 {editingPlan ? 'Update the membership plan details' : 'Add a new membership plan for your gym'}
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="name" className="text-gray-300">Plan Name</Label>
+                                    <Label htmlFor="name" className="text-gray-700 dark:text-gray-300">Plan Name</Label>
                                     <Input
                                         id="name"
                                         value={formName}
                                         onChange={(e) => setFormName(e.target.value)}
                                         placeholder="Premium"
-                                        className="bg-dark-800/50 border-dark-700 text-white"
+                                        className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="price" className="text-gray-300">Price in LKR (per month)</Label>
+                                    <Label htmlFor="price" className="text-gray-700 dark:text-gray-300">Price in LKR (per month)</Label>
                                     <Input
                                         id="price"
                                         type="number"
                                         value={formPrice}
                                         onChange={(e) => setFormPrice(e.target.value)}
                                         placeholder="8500"
-                                        className="bg-dark-800/50 border-dark-700 text-white"
+                                        className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                     />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="description" className="text-gray-300">Description</Label>
+                                <Label htmlFor="description" className="text-gray-700 dark:text-gray-300">Description</Label>
                                 <Textarea
                                     id="description"
                                     value={formDescription}
                                     onChange={(e) => setFormDescription(e.target.value)}
                                     placeholder="Enter plan description..."
-                                    className="bg-dark-800/50 border-dark-700 text-white"
+                                    className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                     rows={3}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="features" className="text-gray-300">Features (one per line)</Label>
+                                <Label htmlFor="features" className="text-gray-700 dark:text-gray-300">Features (one per line)</Label>
                                 <Textarea
                                     id="features"
                                     value={formFeatures}
                                     onChange={(e) => setFormFeatures(e.target.value)}
                                     placeholder={"Gym Access\nPersonal Trainer\nNutrition Plan"}
-                                    className="bg-dark-800/50 border-dark-700 text-white"
+                                    className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                     rows={5}
                                 />
                             </div>
@@ -230,13 +230,13 @@ export function MembershipPlans() {
                             <Button
                                 variant="outline"
                                 onClick={() => setOpenDialog(false)}
-                                className="border-dark-700 text-gray-400 hover:text-white hover:bg-dark-800"
+                                className="bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800 shadow-sm"
                             >
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleSave}
-                                className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
+                                className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
                             >
                                 {editingPlan ? 'Update Plan' : 'Create Plan'}
                             </Button>
@@ -247,30 +247,30 @@ export function MembershipPlans() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Total Plans</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Plans</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">{plans.length}</div>
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">{plans.length}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Active Plans</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Plans</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
                             {plans.filter(p => p.isActive).length}
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Price Range (LKR)</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Price Range (LKR)</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
                             {plans.length > 0 ? `${Math.min(...plans.map(p => p.price)).toLocaleString()} - ${Math.max(...plans.map(p => p.price)).toLocaleString()}` : '0'}
                         </div>
                     </CardContent>
@@ -283,7 +283,7 @@ export function MembershipPlans() {
                     <Card
                         key={plan._id}
                         className={cn(
-                            "bg-dark-900/50 border-dark-800 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group",
+                            "bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group shadow-sm",
                             !plan.isActive && "opacity-60"
                         )}
                     >
@@ -292,24 +292,24 @@ export function MembershipPlans() {
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className={cn(
-                                            "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center",
+                                            "w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110",
                                             plan.color
                                         )}>
                                             <DollarSign className="h-6 w-6 text-white" />
                                         </div>
                                         <div>
-                                            <CardTitle className="text-white">{plan.name}</CardTitle>
+                                            <CardTitle className="text-gray-900 dark:text-white">{plan.name}</CardTitle>
                                             <Badge className={cn(
                                                 "mt-1",
                                                 plan.isActive
-                                                    ? "bg-green-500/20 text-green-400 border-green-500/30"
-                                                    : "bg-gray-500/20 text-gray-400 border-gray-500/30"
+                                                    ? "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/30"
+                                                    : "bg-gray-100 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-500/30"
                                             )}>
                                                 {plan.isActive ? 'Active' : 'Inactive'}
                                             </Badge>
                                         </div>
                                     </div>
-                                    <CardDescription className="text-gray-400 mt-2">
+                                    <CardDescription className="text-gray-500 dark:text-gray-400 mt-2">
                                         {plan.description}
                                     </CardDescription>
                                 </div>
@@ -318,32 +318,32 @@ export function MembershipPlans() {
                         <CardContent className="space-y-4">
                             {/* Price */}
                             <div className="flex items-baseline gap-1">
-                                <span className="text-4xl font-bold text-white">LKR {plan.price.toLocaleString()}</span>
-                                <span className="text-gray-400">/{plan.durationDays} days</span>
+                                <span className="text-4xl font-bold text-gray-900 dark:text-white">LKR {plan.price.toLocaleString()}</span>
+                                <span className="text-gray-500 dark:text-gray-400">/{plan.durationDays} days</span>
                             </div>
 
                             {/* Features */}
-                            <div className="space-y-2 pt-4 border-t border-dark-700">
-                                <p className="text-sm font-semibold text-gray-300 mb-3">Features:</p>
+                            <div className="space-y-2 pt-4 border-t border-gray-100 dark:border-dark-700">
+                                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Features:</p>
                                 <div className="space-y-2">
                                     {plan.features.map((feature, index) => (
                                         <div key={index} className="flex items-start gap-2">
-                                            <Check className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                                            <span className="text-sm text-gray-400">{feature}</span>
+                                            <Check className="h-4 w-4 text-green-500 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                                            <span className="text-sm text-gray-600 dark:text-gray-400">{feature}</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center justify-between pt-4 border-t border-dark-700">
+                            <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-dark-700">
                                 <div className="flex items-center gap-2">
                                     <Switch
                                         checked={plan.isActive}
                                         onCheckedChange={() => togglePlanStatus(plan._id)}
                                         className="data-[state=checked]:bg-green-500"
                                     />
-                                    <span className="text-sm text-gray-400">
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">
                                         {plan.isActive ? 'Active' : 'Inactive'}
                                     </span>
                                 </div>
@@ -352,7 +352,7 @@ export function MembershipPlans() {
                                         size="icon"
                                         variant="ghost"
                                         onClick={() => handleEdit(plan)}
-                                        className="text-gray-400 hover:text-white hover:bg-dark-800"
+                                        className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"
                                     >
                                         <Edit className="h-4 w-4" />
                                     </Button>
@@ -360,7 +360,7 @@ export function MembershipPlans() {
                                         size="icon"
                                         variant="ghost"
                                         onClick={() => handleDelete(plan._id)}
-                                        className="text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                                        className="text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>

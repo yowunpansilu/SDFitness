@@ -32,9 +32,9 @@ interface Trainer {
 }
 
 const statusColors: Record<string, string> = {
-    active: 'bg-green-500/20 text-green-400 border-green-500/30',
-    inactive: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-    on_leave: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    active: 'bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/30',
+    inactive: 'bg-gray-500/10 dark:bg-gray-500/20 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
+    on_leave: 'bg-yellow-500/10 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30',
 };
 
 export function TrainersList() {
@@ -80,7 +80,7 @@ export function TrainersList() {
         return (
             <div className="flex items-center justify-center h-64">
                 <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
-                <span className="ml-3 text-gray-400">Loading trainers...</span>
+                <span className="ml-3 text-gray-500 dark:text-gray-400">Loading trainers...</span>
             </div>
         );
     }
@@ -90,10 +90,10 @@ export function TrainersList() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                         Trainers
                     </h1>
-                    <p className="text-gray-400 mt-2">
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">
                         Manage personal trainers and their assignments
                     </p>
                 </div>
@@ -108,30 +108,30 @@ export function TrainersList() {
 
             {/* Stats Cards */}
             <div className="grid gap-6 md:grid-cols-3">
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Total Trainers</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Trainers</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">{trainers.length}</div>
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">{trainers.length}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Specializations</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Specializations</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
                             {new Set(trainers.flatMap(t => t.specialization || [])).size}
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Avg Experience</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Experience</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
                             {trainers.length > 0
                                 ? (trainers.reduce((sum, t) => sum + (t.experienceYears || 0), 0) / trainers.length).toFixed(1)
                                 : 0} yrs
@@ -141,23 +141,23 @@ export function TrainersList() {
             </div>
 
             {/* Filters */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
                 <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                             <Input
                                 placeholder="Search trainers..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 bg-dark-800/50 border-dark-700 text-white placeholder:text-gray-500"
+                                className="pl-10 bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white placeholder:text-gray-500"
                             />
                         </div>
                         <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
-                            <SelectTrigger className="w-full md:w-[200px] bg-dark-800/50 border-dark-700 text-white">
+                            <SelectTrigger className="w-full md:w-[200px] bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
                                 <SelectValue placeholder="Specialization" />
                             </SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700">
+                            <SelectContent className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700">
                                 <SelectItem value="all">All Specializations</SelectItem>
                                 <SelectItem value="strength">Strength Training</SelectItem>
                                 <SelectItem value="cardio">Cardio</SelectItem>
@@ -176,7 +176,7 @@ export function TrainersList() {
                     <Card
                         key={trainer._id}
                         onClick={() => navigate(`/trainers/${trainer._id}`)}
-                        className="bg-dark-900/50 border-dark-800 backdrop-blur-sm hover:bg-dark-900/70 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-1 cursor-pointer group"
+                        className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-dark-900/70 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-1 cursor-pointer group"
                     >
                         <CardContent className="p-6">
                             {/* Trainer Header */}
@@ -188,10 +188,10 @@ export function TrainersList() {
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                                         {trainer.user?.firstName} {trainer.user?.lastName}
                                     </h3>
-                                    <Badge className={cn('mt-1', statusColors['active'])}>
+                                    <Badge className={cn('mt-1', statusColors['active'] || statusColors.active)}>
                                         active
                                     </Badge>
                                 </div>
@@ -199,7 +199,7 @@ export function TrainersList() {
 
                             {/* Contact Info */}
                             <div className="space-y-2 mb-4">
-                                <div className="flex items-center gap-2 text-sm text-gray-400">
+                                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                     <Mail className="h-4 w-4" />
                                     <span className="truncate">{trainer.user?.email}</span>
                                 </div>
@@ -208,17 +208,17 @@ export function TrainersList() {
                             {/* Specializations */}
                             <div className="mb-4">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <Award className="h-4 w-4 text-purple-400" />
-                                    <span className="text-sm font-medium text-gray-300">Specializations</span>
+                                    <Award className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Specializations</span>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     {(trainer.specialization || []).slice(0, 2).map((spec) => (
-                                        <Badge key={spec} className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
+                                        <Badge key={spec} className="bg-purple-500/10 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-purple-200 dark:border-purple-500/30 text-xs">
                                             {spec}
                                         </Badge>
                                     ))}
                                     {(trainer.specialization || []).length > 2 && (
-                                        <Badge className="bg-dark-800 text-gray-400 border-dark-700 text-xs">
+                                        <Badge className="bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-dark-700 text-xs">
                                             +{trainer.specialization.length - 2}
                                         </Badge>
                                     )}
@@ -226,23 +226,23 @@ export function TrainersList() {
                             </div>
 
                             {/* Stats */}
-                            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-dark-700">
+                            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-dark-700">
                                 <div className="flex items-center gap-2">
-                                    <div className="p-2 rounded-lg bg-blue-500/20">
-                                        <Users className="h-4 w-4 text-blue-400" />
+                                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-500/20">
+                                        <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-500">Experience</p>
-                                        <p className="text-sm font-semibold text-white">{trainer.experienceYears} yrs</p>
+                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{trainer.experienceYears} yrs</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="p-2 rounded-lg bg-amber-500/20">
-                                        <TrendingUp className="h-4 w-4 text-amber-400" />
+                                    <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/20">
+                                        <TrendingUp className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-500">Availability</p>
-                                        <p className="text-sm font-semibold text-white">{(trainer.availability || []).length} days</p>
+                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{(trainer.availability || []).length} days</p>
                                     </div>
                                 </div>
                             </div>
@@ -252,9 +252,9 @@ export function TrainersList() {
             </div>
 
             {filteredTrainers.length === 0 && (
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
                     <CardContent className="p-12 text-center">
-                        <p className="text-gray-400">No trainers found matching your criteria</p>
+                        <p className="text-gray-500 dark:text-gray-400">No trainers found matching your criteria</p>
                     </CardContent>
                 </Card>
             )}

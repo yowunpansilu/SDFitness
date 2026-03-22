@@ -28,27 +28,6 @@
     --radius: 0.5rem;
   }
 
-  .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 210 73% 25%; /* Slightly lighter Navy for Dark mode */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 38 92% 50%; /* Gold */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 210 20% 15%;
-    --muted-foreground: 210 20% 64%;
-    --accent: 199 89% 48%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 16 100% 50%;
-  }
 }
 
 @layer base {

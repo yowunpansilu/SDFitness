@@ -1,16 +1,32 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { User, Heart, Target, Settings } from 'lucide-react';
+import { User, Heart, Target, Settings, AlertTriangle, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PersonalInfoTab } from '@/components/profile/PersonalInfoTab';
 import { HealthMetricsTab } from '@/components/profile/HealthMetricsTab';
 import { GoalsTab } from '@/components/profile/GoalsTab';
 import { PreferencesTab } from '@/components/profile/PreferencesTab';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export function Profile() {
-    const { token, login } = useAuthStore();
+    const { token, login, logout } = useAuthStore();
+    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
+    const [isDeleting, setIsDeleting] = useState(false);
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     useEffect(() => {
@@ -34,6 +50,25 @@ export function Profile() {
             fetchProfile();
         }
     }, [token, API_URL, login]);
+
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        try {
+            const response = await axios.delete(`${API_URL}/api/auth/profile`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.data.success) {
+                logout();
+                navigate('/login');
+            }
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            alert('Failed to delete account. Please try again.');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -90,6 +125,55 @@ export function Profile() {
                     <PreferencesTab />
                 </TabsContent>
             </Tabs>
+
+            {/* Danger Zone */}
+            <Card className="border-destructive/20 bg-destructive/5 mt-10">
+                <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2 text-destructive">
+                                <AlertTriangle className="h-5 w-5" />
+                                <h3 className="font-headline font-bold">Danger Zone</h3>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                Once you delete your account, there is no going back. Please be certain.
+                            </p>
+                        </div>
+
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button 
+                                    variant="destructive" 
+                                    className="gap-2"
+                                    disabled={isDeleting}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                    {isDeleting ? 'Deleting...' : 'Delete Account'}
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-background border-border">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle className="text-foreground">Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription className="text-muted-foreground">
+                                        This action cannot be undone. This will permanently delete your
+                                        account and remove your health data, fitness goals, and progress
+                                        from our servers.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel className="bg-muted text-foreground hover:bg-muted/80">Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                        onClick={handleDeleteAccount}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                        Yes, Delete My Account
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

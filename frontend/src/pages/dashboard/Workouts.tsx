@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Dumbbell, Plus, History, BarChart3, Search, Filter } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -134,43 +135,77 @@ export function Workouts() {
 
     return (
         <div className="space-y-6 animate-fade-in">
-            {/* Header */}
-            <div className="glass-card border-border p-6 rounded-lg bg-gradient-to-br from-primary-900/20 via-dark-900 to-secondary-900/20">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-headline font-bold text-foreground mb-2 flex items-center gap-3">
-                            <Dumbbell className="w-8 h-8 text-primary-800" />
+            {/* Premium Workout Header */}
+            <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="relative h-[200px] rounded-[2.5rem] overflow-hidden group shadow-xl shadow-primary-900/5 bg-white border border-primary-50"
+            >
+                {/* Background Image with Light Overlay */}
+                <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105 opacity-30">
+                    <img 
+                        src="/assets/images/workout-bg.png" 
+                        alt="Workout Background"
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-white/20" />
+
+                {/* Content Overlay */}
+                <div className="relative h-full flex items-center justify-between px-12 z-10">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <h1 className="text-4xl font-headline font-black text-primary-900 leading-tight tracking-tight flex items-center gap-4">
+                            <div className="p-3 bg-secondary-50 border border-secondary-100 rounded-2xl shadow-sm">
+                                <Dumbbell className="w-8 h-8 text-secondary-500" />
+                            </div>
                             Workout Tracking
                         </h1>
-                        <p className="text-muted-foreground">
-                            Track your workouts, monitor progress, and crush your fitness goals
+                        <p className="text-primary-600 text-lg font-medium mt-2 max-w-md">
+                            Track your sessions, monitor PRs, and accelerate your performance.
                         </p>
-                    </div>
+                    </motion.div>
+
                     <Button
                         variant="gym"
                         size="lg"
+                        className="h-14 px-8 rounded-2xl bg-secondary-500 hover:bg-secondary-600 text-white font-bold gap-3 shadow-xl shadow-secondary-500/20 group-hover:scale-105 transition-transform"
                         onClick={() => {
                             setSelectedTemplate(null);
                             startWorkout();
                             setShowLogForm(true);
                         }}
                     >
-                        <Plus className="w-5 h-5 mr-2" />
-                        Quick Log
+                        <Plus className="w-6 h-6" />
+                        Quick Log Session
                     </Button>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Personal Records Banner */}
             {personalRecords.length > 0 && (
-                <div className="glass-card border-border p-4 rounded-lg">
-                    <h3 className="text-sm font-semibold text-muted-foreground mb-3">Recent Personal Records</h3>
-                    <div className="flex flex-wrap gap-3">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-white border border-primary-100 p-6 rounded-[2rem] shadow-sm relative overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                        <BarChart3 className="w-32 h-32 text-primary-900" />
+                    </div>
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="h-2 w-12 bg-secondary-500 rounded-full" />
+                        <h3 className="text-sm font-bold text-primary-900 uppercase tracking-widest">Performance Milestones</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-4">
                         {personalRecords.slice(0, 3).map((pr, idx) => (
                             <PersonalRecordsBadge key={idx} record={pr} animated={idx === 0} />
                         ))}
                     </div>
-                </div>
+                </motion.div>
             )}
 
             {/* Main Content Tabs */}

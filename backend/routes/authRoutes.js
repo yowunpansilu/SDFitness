@@ -103,7 +103,8 @@ router.post('/register', async (req, res) => {
                 lastName: user.lastName,
                 email: user.email,
                 phone: user.phone,
-                role: user.role
+                role: user.role,
+                avatar: user.avatar
             },
             token: generateToken(user._id),
             member: member
@@ -147,7 +148,8 @@ router.post('/login', async (req, res) => {
                     lastName: user.lastName,
                     email: user.email,
                     phone: user.phone,
-                    role: user.role
+                    role: user.role,
+                    avatar: user.avatar
                 },
                 member: member,
                 token: generateToken(user._id)
@@ -201,7 +203,8 @@ router.get('/profile', async (req, res) => {
                 lastName: user.lastName,
                 email: user.email,
                 phone: user.phone,
-                role: user.role
+                role: user.role,
+                avatar: user.avatar
             },
             member: member
         });
@@ -220,7 +223,7 @@ router.put('/profile', async (req, res) => {
         if (!token) return res.status(401).json({ message: 'Not authorized' });
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const { firstName, lastName, phone, memberData } = req.body;
+        const { firstName, lastName, phone, avatar, memberData } = req.body;
 
         const user = await User.findById(decoded.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
@@ -229,6 +232,7 @@ router.put('/profile', async (req, res) => {
         if (firstName) user.firstName = firstName;
         if (lastName) user.lastName = lastName;
         if (phone) user.phone = phone;
+        if (avatar) user.avatar = avatar;
         await user.save();
 
         let member = await Member.findOne({ userId: decoded.id });
@@ -264,13 +268,44 @@ router.put('/profile', async (req, res) => {
                 lastName: user.lastName,
                 email: user.email,
                 phone: user.phone,
-                role: user.role
+                role: user.role,
+                avatar: user.avatar
             },
             member: member
         });
     } catch (error) {
         console.error('Profile update error:', error);
         res.status(500).json({ success: false, message: 'Server error updating profile' });
+    }
+});
+
+// @desc    Delete user account & profile data
+// @route   DELETE /api/auth/profile
+// @access  Private
+router.delete('/profile', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'Not authorized' });
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // 1. Delete associated Member data
+        await Member.findOneAndDelete({ userId: decoded.id });
+
+        // 2. Delete the User record
+        const user = await User.findByIdAndDelete(decoded.id);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        res.json({
+            success: true,
+            message: 'Account and associated data deleted successfully'
+        });
+    } catch (error) {
+        console.error('Account deletion error:', error);
+        res.status(500).json({ success: false, message: 'Server error during account deletion' });
     }
 });
 

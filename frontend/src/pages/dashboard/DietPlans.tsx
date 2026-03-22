@@ -1,26 +1,56 @@
-import { useState } from 'react';
-import { Plus, Calendar, Target } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Calendar, Target, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DietPlanWizard } from '@/components/diet/DietPlanWizard';
 import { DietPlanDisplay } from '@/components/diet/DietPlanDisplay';
 import type { DietPlan } from '@/lib/api/dietPlanApi';
+import { fetchDietPlans, saveDietPlan } from '@/lib/api/dietPlanApi';
 
 export function DietPlans() {
     const [showWizard, setShowWizard] = useState(false);
     const [currentPlan, setCurrentPlan] = useState<DietPlan | null>(null);
     const [savedPlans, setSavedPlans] = useState<DietPlan[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        const loadPlans = async () => {
+            setIsLoading(true);
+            try {
+                const plans = await fetchDietPlans();
+                setSavedPlans(plans);
+            } catch (error) {
+                console.error('Error loading plans:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (!showWizard && !currentPlan) {
+            loadPlans();
+        }
+    }, [showWizard, currentPlan]);
 
     const handleWizardComplete = (plan: DietPlan) => {
         setCurrentPlan(plan);
         setShowWizard(false);
     };
 
-    const handleSavePlan = () => {
+    const handleSavePlan = async () => {
         if (currentPlan) {
-            setSavedPlans([...savedPlans, currentPlan]);
-            // Show success message
-            alert('Diet plan saved successfully!');
+            setIsSaving(true);
+            try {
+                const saved = await saveDietPlan(currentPlan);
+                setSavedPlans([saved, ...savedPlans]);
+                alert('Diet plan saved successfully!');
+                setCurrentPlan(null); // Return to list after saving
+            } catch (error) {
+                console.error('Error saving plan:', error);
+                alert('Failed to save diet plan. Please try again.');
+            } finally {
+                setIsSaving(false);
+            }
         }
     };
 
@@ -59,7 +89,16 @@ export function DietPlans() {
                 <DietPlanDisplay
                     plan={currentPlan}
                     onSave={handleSavePlan}
+                    isSaving={isSaving}
                 />
+            </div>
+        );
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
             </div>
         );
     }
@@ -96,9 +135,9 @@ export function DietPlans() {
                                     <div className="space-y-3">
                                         <div className="flex items-start justify-between">
                                             <div>
-                                                <h3 className="font-semibold text-foreground">{plan.name}</h3>
+                                                <h3 className="font-semibold text-foreground">{plan.name || 'Plan'}</h3>
                                                 <p className="text-sm text-muted-foreground mt-1">
-                                                    {plan.createdAt.toLocaleDateString()}
+                                                    {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString() : 'N/A'}
                                                 </p>
                                             </div>
                                             <Target className="w-5 h-5 text-primary-500" />
@@ -107,7 +146,7 @@ export function DietPlans() {
                                             <Calendar className="w-4 h-4" />
                                             <span>7-day plan</span>
                                         </div>
-                                        {plan.preferences.dietary.length > 0 && (
+                                        {plan.preferences?.dietary && plan.preferences.dietary.length > 0 && (
                                             <div className="flex flex-wrap gap-1">
                                                 {plan.preferences.dietary.slice(0, 2).map((pref) => (
                                                     <span

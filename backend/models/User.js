@@ -31,6 +31,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['member', 'trainer', 'admin'],
         default: 'member'
+    },
+    avatar: {
+        type: String
     }
 }, {
     timestamps: true

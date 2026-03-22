@@ -139,15 +139,17 @@ export interface WizardFormData {
  * Generate a diet plan via the ML-first pipeline
  */
 export async function generateDietPlan(formData: WizardFormData): Promise<DietPlan> {
-    // For now, we need a memberId. In production this comes from auth.
-    // Using a mock memberId if none exists.
-    const memberId = localStorage.getItem('memberId') || 'demo';
+    const authData = JSON.parse(localStorage.getItem('auth-storage') || '{}');
+    const memberId = authData.state?.member?._id;
+    if (!memberId) {
+        console.warn('No memberId found in localStorage. Ensure user is logged in.');
+    }
 
     try {
         const response = await fetch(`${API_BASE}/diet-plans/generate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ memberId, ...formData })
+            body: JSON.stringify({ memberId: memberId || 'demo', ...formData })
         });
 
         if (!response.ok) {
@@ -170,6 +172,52 @@ export async function generateDietPlan(formData: WizardFormData): Promise<DietPl
     } catch (error) {
         console.warn('⚠️ Backend unreachable, using mock data:', error);
         return generateMockDietPlan(formData);
+    }
+}
+
+/**
+ * Persist a generated diet plan to the database
+ */
+export async function saveDietPlan(plan: DietPlan): Promise<DietPlan> {
+    const response = await fetch(`${API_BASE}/diet-plans`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(plan)
+    });
+
+    if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return { ...result.data, id: result.data._id };
+}
+
+/**
+ * Fetch all diet plans for the current user
+ */
+export async function fetchDietPlans(): Promise<DietPlan[]> {
+    const authData = JSON.parse(localStorage.getItem('auth-storage') || '{}');
+    const memberId = authData.state?.member?._id;
+    if (!memberId) return [];
+
+    try {
+        const response = await fetch(`${API_BASE}/diet-plans?memberId=${memberId}`);
+        if (!response.ok) return [];
+
+        const result = await response.json();
+        if (result.success) {
+            return result.data.map((plan: any) => ({
+                ...plan,
+                id: plan._id,
+                name: plan.planName,
+                createdAt: new Date(plan.createdAt)
+            }));
+        }
+        return [];
+    } catch (error) {
+        console.error('Error fetching diet plans:', error);
+        return [];
     }
 }
 

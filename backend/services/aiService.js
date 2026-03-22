@@ -175,7 +175,7 @@ Return ONLY valid JSON, no markdown, no code blocks.`;
 /**
  * MAIN: Generate a diet plan using the ML-first pipeline
  */
-const generateDietPlan = async (memberId) => {
+const generateDietPlan = async (memberId, shouldSave = true) => {
     // 1. Fetch member profile
     const member = await Member.findById(memberId);
     if (!member) throw new Error('Member not found');
@@ -274,8 +274,10 @@ const generateDietPlan = async (memberId) => {
         status: 'completed'
     });
 
-    await dietPlan.save();
-    console.log(`💾 Diet plan saved: ${dietPlan._id}`);
+    if (shouldSave) {
+        await dietPlan.save();
+        console.log(`💾 Diet plan saved: ${dietPlan._id}`);
+    }
 
     return dietPlan;
 };

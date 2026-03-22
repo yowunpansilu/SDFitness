@@ -6,13 +6,34 @@ const DietPlan = require('../models/DietPlan');
 router.get('/', async (req, res) => {
     try {
         const { memberId, active } = req.query;
-        const filter = {};
-        if (memberId) filter.memberId = memberId;
+        if (!memberId) {
+            return res.status(400).json({ success: false, error: 'memberId is required' });
+        }
+
+        const filter = { memberId };
         if (active !== undefined) filter.isActive = active === 'true';
 
-        const plans = await DietPlan.find(filter).sort({ generatedAt: -1 }).limit(20);
+        const plans = await DietPlan.find(filter).sort({ createdAt: -1 });
         res.json({ success: true, count: plans.length, data: plans });
     } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// POST /api/diet-plans — save a generated plan
+router.post('/', async (req, res) => {
+    try {
+        const planData = req.body;
+        if (!planData.memberId) {
+            return res.status(400).json({ success: false, error: 'memberId is required' });
+        }
+
+        const dietPlan = new DietPlan(planData);
+        await dietPlan.save();
+
+        res.status(201).json({ success: true, data: dietPlan });
+    } catch (error) {
+        console.error('❌ Diet plan save error:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -79,9 +100,9 @@ router.post('/generate', async (req, res) => {
 
     try {
         const { generateDietPlan } = require('../services/aiService');
-        const plan = await generateDietPlan(memberId);
+        const plan = await generateDietPlan(memberId, false); // false = do not save to DB
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             data: plan,
             metadata: {

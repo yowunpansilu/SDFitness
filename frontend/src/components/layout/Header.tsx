@@ -47,7 +47,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
                 {/* Page title or breadcrumbs */}
                 <div className="flex-1">
-                    <h1 className="text-xl font-headline font-bold text-foreground">
+                    <h1 className="text-2xl font-headline font-black bg-gradient-to-r from-primary-900 to-secondary-500 bg-clip-text text-transparent leading-none tracking-tight">
                         Welcome back, {user?.firstName}!
                     </h1>
                 </div>

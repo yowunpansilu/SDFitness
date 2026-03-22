@@ -16,7 +16,7 @@ export function MessageBubble({ message, isOwn }: Props) {
                     "relative max-w-[70%] px-4 py-2 rounded-2xl text-sm",
                     isOwn
                         ? "bg-primary-500 text-white rounded-br-none"
-                        : "bg-dark-700 text-gray-100 rounded-bl-none"
+                        : "bg-muted text-gray-100 rounded-bl-none"
                 )}
             >
                 {message.type === 'text' && (
@@ -25,7 +25,7 @@ export function MessageBubble({ message, isOwn }: Props) {
 
                 <div className={cn(
                     "flex items-center gap-1 text-[10px] mt-1 opacity-70",
-                    isOwn ? "justify-end text-white" : "justify-start text-gray-400"
+                    isOwn ? "justify-end text-foreground" : "justify-start text-muted-foreground"
                 )}>
                     <span>{format(new Date(message.timestamp), "h:mm a")}</span>
                     {isOwn && (

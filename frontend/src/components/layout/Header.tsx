@@ -33,13 +33,13 @@ export function Header({ onMenuClick }: HeaderProps) {
     };
 
     return (
-        <header className="sticky top-0 z-40 border-b border-dark-700 bg-dark-900/95 backdrop-blur supports-[backdrop-filter]:bg-dark-900/60">
+        <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-16 items-center gap-4 px-6">
                 {/* Mobile menu button */}
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="lg:hidden text-gray-400 hover:text-white"
+                    className="lg:hidden text-muted-foreground hover:text-foreground"
                     onClick={onMenuClick}
                 >
                     <Menu className="h-6 w-6" />
@@ -47,7 +47,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
                 {/* Page title or breadcrumbs */}
                 <div className="flex-1">
-                    <h1 className="text-xl font-headline font-bold text-white">
+                    <h1 className="text-2xl font-headline font-black bg-gradient-to-r from-primary-900 to-secondary-500 bg-clip-text text-transparent leading-none tracking-tight">
                         Welcome back, {user?.firstName}!
                     </h1>
                 </div>
@@ -71,7 +71,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                                 <p className="text-sm font-medium leading-none">
                                     {user?.firstName} {user?.lastName}
                                 </p>
-                                <p className="text-xs leading-none text-gray-400">
+                                <p className="text-xs leading-none text-muted-foreground">
                                     {user?.email}
                                 </p>
                             </div>

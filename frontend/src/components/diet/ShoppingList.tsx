@@ -1,7 +1,21 @@
-import type { ShoppingItem, ShoppingListData } from '@/lib/api/dietPlanApi';
+import { useState } from 'react';
+import { 
+    Package, 
+    Apple, 
+    Beef, 
+    Milk, 
+    Wheat, 
+    CheckCircle2,
+    ChevronDown,
+    ChevronUp,
+    Printer,
+    TrendingUp,
+    TrendingDown
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { Download, TrendingUp, TrendingDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { ShoppingItem, ShoppingListData } from '@/lib/api/dietPlanApi';
 
 interface ShoppingListProps {
     items: ShoppingItem[];
@@ -10,129 +24,177 @@ interface ShoppingListProps {
 }
 
 export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListProps) {
+    const [expandedCategories, setExpandedCategories] = useState<string[]>(['Produce', 'Meat & Fish', 'Dairy', 'Protein', 'Vegetables']);
+
+    // Map categories with icons
+    const getCategoryIcon = (category: string) => {
+        const cat = category.toLowerCase();
+        if (cat.includes('fruit') || cat.includes('produce') || cat.includes('veg')) return <Apple className="w-5 h-5 text-green-500" />;
+        if (cat.includes('protein') || cat.includes('meat') || cat.includes('fish')) return <Beef className="w-5 h-5 text-red-500" />;
+        if (cat.includes('dairy') || cat.includes('milk')) return <Milk className="w-5 h-5 text-blue-500" />;
+        if (cat.includes('grain') || cat.includes('carb') || cat.includes('bread')) return <Wheat className="w-5 h-5 text-amber-600" />;
+        return <Package className="w-5 h-5 text-muted-foreground" />;
+    };
+
     // Group items by category
     const groupedItems = items.reduce((acc, item) => {
         const cat = item.category || 'Other';
-        if (!acc[cat]) acc[cat] = [];
-        acc[cat].push(item);
+        const displayCat = cat.charAt(0).toUpperCase() + cat.slice(1);
+        if (!acc[displayCat]) acc[displayCat] = [];
+        acc[displayCat].push(item);
         return acc;
     }, {} as Record<string, ShoppingItem[]>);
 
-    const categoryLabels: Record<string, string> = {
-        protein: '🥩 Protein',
-        carbs: '🌾 Carbs & Grains',
-        vegetable: '🥬 Vegetables',
-        fruit: '🍌 Fruits',
-        dairy: '🥛 Dairy',
-        fats: '🫒 Fats & Oils',
-        Other: '📦 Other',
-        Grains: '🌾 Grains',
-        Supplements: '💊 Supplements',
-        Fruits: '🍌 Fruits',
-        Spreads: '🧈 Spreads',
-        Protein: '🥩 Protein',
-        Vegetables: '🥬 Vegetables',
-        Produce: '🥑 Produce',
-        Dairy: '🥛 Dairy',
+    const toggleCategory = (category: string) => {
+        setExpandedCategories(prev => 
+            prev.includes(category) 
+                ? prev.filter(c => c !== category) 
+                : [...prev, category]
+        );
     };
 
-    const handleExport = () => {
-        const lines: string[] = [];
-        if (priceData) {
-            lines.push(`Shopping List — ${priceData.currency} ${priceData.currentTotal?.toLocaleString()} total`);
-            lines.push('');
-        }
-
-        Object.entries(groupedItems).forEach(([category, categoryItems]) => {
-            lines.push(`${categoryLabels[category] || category}:`);
-            categoryItems.forEach(item => {
-                const price = item.currentPrice ? ` — ${priceData?.currency || 'LKR'} ${item.currentPrice.toFixed(0)}` : '';
-                lines.push(`  ${item.checked ? '✓' : '○'} ${item.name} (${item.quantity}${item.unit || ''})${price}`);
-            });
-            lines.push('');
-        });
-
-        const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'shopping-list.txt';
-        a.click();
-        URL.revokeObjectURL(url);
+    const handlePrint = () => {
+        window.print();
     };
 
     return (
-        <Card className="border-dark-700">
-            <CardHeader>
-                <div className="flex justify-between items-center">
-                    <div>
-                        <CardTitle className="text-white">Shopping List</CardTitle>
-                        {priceData && (
-                            <p className="text-sm text-gray-400 mt-1">
-                                {priceData.currency} {priceData.currentTotal?.toLocaleString()} total for 7 days
-                                {priceData.priceChanged && (
-                                    <span className="text-yellow-500 ml-2">• Prices have changed</span>
+        <div className="space-y-6 flex flex-col h-full bg-white/50 rounded-3xl p-6 border border-primary-50">
+            {/* Header */}
+            <div className="flex justify-between items-center px-2">
+                <div>
+                    <h2 className="text-2xl font-bold text-primary-900 tracking-tight">
+                        Interactive Weekly Shopping List
+                    </h2>
+                    {priceData && (
+                        <p className="text-sm font-medium text-muted-foreground mt-1">
+                            {items.filter(i => i.checked).length} of {items.length} items checked
+                        </p>
+                    )}
+                </div>
+                <Button 
+                    onClick={handlePrint}
+                    className="bg-secondary-500 hover:bg-secondary-600 text-white font-bold px-6 h-12 rounded-2xl gap-3 shadow-lg shadow-secondary-500/20 shadow-amber-500/20"
+                >
+                    <Printer className="w-5 h-5" />
+                    Printable/Export List
+                </Button>
+            </div>
+
+            {/* Category Groups */}
+            <div className="flex-1 overflow-y-auto pr-2 space-y-4 no-scrollbar">
+                {Object.entries(groupedItems).map(([category, categoryItems]) => {
+                    const isExpanded = expandedCategories.includes(category);
+                    return (
+                        <div key={category} className="group animate-fade-in">
+                            {/* Category Header */}
+                            <button 
+                                onClick={() => toggleCategory(category)}
+                                className={cn(
+                                    "w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300",
+                                    isExpanded ? "bg-primary-50/50" : "hover:bg-primary-50/30"
                                 )}
-                            </p>
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="p-2.5 rounded-xl bg-white shadow-sm ring-1 ring-primary-100">
+                                        {getCategoryIcon(category)}
+                                    </div>
+                                    <span className="text-lg font-bold text-primary-900">{category}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-sm font-bold text-muted-foreground mr-2">{categoryItems.length} items</span>
+                                    {isExpanded ? <ChevronUp className="w-5 h-5 text-primary-400" /> : <ChevronDown className="w-5 h-5 text-primary-400" />}
+                                </div>
+                            </button>
+
+                            {/* Category Items */}
+                            {isExpanded && (
+                                <div className="mt-2 ml-4 space-y-1 pl-4 border-l-2 border-primary-100">
+                                    {categoryItems.map((item) => {
+                                        const priceChanged = item.currentPrice && item.priceAtGeneration &&
+                                            item.currentPrice !== item.priceAtGeneration;
+                                        const priceIncreased = priceChanged && (item.currentPrice || 0) > (item.priceAtGeneration || 0);
+
+                                        return (
+                                            <div 
+                                                key={item.id}
+                                                className={cn(
+                                                    "flex items-center justify-between p-3 rounded-xl transition-all group/item",
+                                                    item.checked ? "opacity-60" : "hover:bg-white hover:shadow-md hover:shadow-primary-900/5 group/item"
+                                                )}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <button 
+                                                        onClick={() => onToggleItem(item.id)}
+                                                        className={cn(
+                                                            "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
+                                                            item.checked 
+                                                                ? "bg-primary-900 border-primary-900 text-white" 
+                                                                : "border-primary-100 bg-white group-hover/item:border-primary-300"
+                                                        )}
+                                                    >
+                                                        {item.checked && <CheckCircle2 className="w-4 h-4 ml-0.5" />}
+                                                    </button>
+                                                    <span className={cn(
+                                                        "text-sm font-bold text-primary-900",
+                                                        item.checked && "line-through"
+                                                    )}>
+                                                        {item.name}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex items-center gap-8">
+                                                    {item.currentPrice != null && (
+                                                        <div className="flex flex-col items-end min-w-[100px]">
+                                                            <div className={cn(
+                                                                "text-sm font-bold flex items-center gap-1",
+                                                                priceChanged 
+                                                                    ? (priceIncreased ? 'text-red-500' : 'text-green-600')
+                                                                    : 'text-primary-800'
+                                                            )}>
+                                                                {priceData?.currency || 'LKR'} {item.currentPrice.toLocaleString()}
+                                                            </div>
+                                                            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                                                                Price
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex flex-col items-end min-w-[80px]">
+                                                        <span className="text-sm font-bold text-primary-900">{item.quantity}{item.unit || ''}</span>
+                                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Quantity</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Financial Summary Overlay */}
+            {priceData && (
+                <div className="mt-4 p-5 rounded-3xl bg-white border-2 border-secondary-500 text-primary-900 shadow-xl shadow-secondary-500/5 transform hover:scale-[1.02] transition-transform">
+                    <div className="flex justify-between items-center mb-4">
+                        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Total Weekly Investment</span>
+                        {priceData.priceChanged && (
+                            <div className={cn(
+                                "p-1.5 rounded-lg bg-secondary-50 text-[10px] font-bold flex items-center gap-1 border border-secondary-100",
+                                priceData.currentTotal > priceData.totalAtGeneration ? "text-red-500" : "text-green-600"
+                            )}>
+                                {priceData.currentTotal > priceData.totalAtGeneration ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                                PRICE UPDATED
+                            </div>
                         )}
                     </div>
-                    <Button variant="outline" size="sm" onClick={handleExport} className="gap-2">
-                        <Download className="w-4 h-4" />
-                        Export
-                    </Button>
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-black text-secondary-600">{priceData.currency} {priceData.currentTotal?.toLocaleString()}</span>
+                        <span className="text-muted-foreground text-sm font-medium">for 7 days</span>
+                    </div>
                 </div>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-6">
-                    {Object.entries(groupedItems).map(([category, categoryItems]) => (
-                        <div key={category}>
-                            <h3 className="font-semibold text-white mb-3">
-                                {categoryLabels[category] || category}
-                            </h3>
-                            <div className="space-y-2">
-                                {categoryItems.map((item) => {
-                                    const priceChanged = item.currentPrice && item.priceAtGeneration &&
-                                        item.currentPrice !== item.priceAtGeneration;
-                                    const priceIncreased = priceChanged && (item.currentPrice || 0) > (item.priceAtGeneration || 0);
-
-                                    return (
-                                        <label
-                                            key={item.id}
-                                            className="flex items-center gap-3 p-2 rounded hover:bg-dark-800 cursor-pointer transition-colors"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                checked={item.checked}
-                                                onChange={() => onToggleItem(item.id)}
-                                                className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
-                                            />
-                                            <span className={`flex-1 text-sm ${item.checked ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
-                                                {item.name}
-                                            </span>
-                                            <span className="text-sm text-gray-500">
-                                                {item.quantity}{item.unit ? item.unit : ''}
-                                            </span>
-                                            {item.currentPrice != null && (
-                                                <span className={`text-sm font-medium min-w-[70px] text-right ${priceChanged
-                                                        ? (priceIncreased ? 'text-red-400' : 'text-green-400')
-                                                        : 'text-gray-400'
-                                                    }`}>
-                                                    {priceData?.currency || 'LKR'} {item.currentPrice.toFixed(0)}
-                                                    {priceChanged && (
-                                                        priceIncreased
-                                                            ? <TrendingUp className="w-3 h-3 inline ml-1" />
-                                                            : <TrendingDown className="w-3 h-3 inline ml-1" />
-                                                    )}
-                                                </span>
-                                            )}
-                                        </label>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
+            )}
+        </div>
     );
 }
+

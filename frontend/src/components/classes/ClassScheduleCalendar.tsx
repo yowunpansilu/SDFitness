@@ -42,13 +42,13 @@ export function ClassScheduleCalendar({
     return (
         <div className="space-y-6">
             {/* Calendar Controls */}
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-dark-800 p-4 rounded-lg border border-dark-700">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-card p-4 rounded-lg border border-border">
                 <div className="flex items-center gap-2">
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={view === 'week' ? handlePrevWeek : handlePrevDay}
-                        className="text-gray-400 hover:text-white"
+                        className="text-muted-foreground hover:text-foreground"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </Button>
@@ -59,7 +59,7 @@ export function ClassScheduleCalendar({
                                 <Button
                                     variant="outline"
                                     className={cn(
-                                        "w-[240px] justify-start text-left font-normal bg-dark-900 border-dark-600 text-white hover:bg-dark-800",
+                                        "w-[240px] justify-start text-left font-normal bg-background border-border text-foreground hover:bg-card",
                                         !selectedDate && "text-muted-foreground"
                                     )}
                                 >
@@ -73,13 +73,13 @@ export function ClassScheduleCalendar({
                                     )}
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 bg-dark-900 border-dark-700">
+                            <PopoverContent className="w-auto p-0 bg-background border-border">
                                 <Calendar
                                     mode="single"
                                     selected={selectedDate}
                                     onSelect={(date) => date && onDateChange(date)}
                                     initialFocus
-                                    className="bg-dark-900 text-white"
+                                    className="bg-background text-foreground"
                                 />
                             </PopoverContent>
                         </Popover>
@@ -89,19 +89,19 @@ export function ClassScheduleCalendar({
                         variant="ghost"
                         size="icon"
                         onClick={view === 'week' ? handleNextWeek : handleNextDay}
-                        className="text-gray-400 hover:text-white"
+                        className="text-muted-foreground hover:text-foreground"
                     >
                         <ChevronRight className="w-5 h-5" />
                     </Button>
                 </div>
 
-                <div className="flex items-center bg-dark-900 p-1 rounded-md border border-dark-600">
+                <div className="flex items-center bg-background p-1 rounded-md border border-border">
                     <Button
                         variant={view === 'week' ? 'secondary' : 'ghost'}
                         size="sm"
                         onClick={() => setView('week')}
                         className={cn(
-                            view === 'week' ? "bg-primary-600 text-white" : "text-gray-400 hover:text-white"
+                            view === 'week' ? "bg-primary-600 text-white" : "text-muted-foreground hover:text-foreground"
                         )}
                     >
                         Week
@@ -111,7 +111,7 @@ export function ClassScheduleCalendar({
                         size="sm"
                         onClick={() => setView('day')}
                         className={cn(
-                            view === 'day' ? "bg-primary-600 text-white" : "text-gray-400 hover:text-white"
+                            view === 'day' ? "bg-primary-600 text-white" : "text-muted-foreground hover:text-foreground"
                         )}
                     >
                         Day
@@ -134,21 +134,21 @@ export function ClassScheduleCalendar({
                     return (
                         <div key={day.toISOString()} className={cn(
                             "flex flex-col gap-3 min-h-[200px]",
-                            view === 'week' ? "border-t md:border-t-0 md:border-r border-dark-700 last:border-0 md:pr-4" : ""
+                            view === 'week' ? "border-t md:border-t-0 md:border-r border-border last:border-0 md:pr-4" : ""
                         )}>
                             <div className={cn(
                                 "flex flex-col items-center justify-center p-2 rounded-lg mb-2",
-                                isTodayDate ? "bg-primary-900/40 border border-primary-600/30" : "bg-dark-800/50"
+                                isTodayDate ? "bg-primary-900/40 border border-primary-600/30" : "bg-card/50"
                             )}>
                                 <span className={cn(
                                     "text-xs font-semibold uppercase",
-                                    isTodayDate ? "text-primary-400" : "text-gray-500"
+                                    isTodayDate ? "text-primary-800" : "text-muted-foreground"
                                 )}>
                                     {format(day, "EEE")}
                                 </span>
                                 <span className={cn(
                                     "text-lg font-bold",
-                                    isTodayDate ? "text-white" : "text-gray-300"
+                                    isTodayDate ? "text-foreground" : "text-muted-foreground"
                                 )}>
                                     {format(day, "d")}
                                 </span>
@@ -156,7 +156,7 @@ export function ClassScheduleCalendar({
 
                             <div className="flex flex-col gap-4 flex-1">
                                 {loading ? (
-                                    <div className="h-24 bg-dark-800 animate-pulse rounded-lg" />
+                                    <div className="h-24 bg-card animate-pulse rounded-lg" />
                                 ) : daysClasses.length > 0 ? (
                                     daysClasses.map(gymClass => (
                                         <ClassCard
@@ -168,7 +168,7 @@ export function ClassScheduleCalendar({
                                         />
                                     ))
                                 ) : (
-                                    <div className="flex-1 flex items-center justify-center text-center p-4 border-2 border-dashed border-dark-700 rounded-lg">
+                                    <div className="flex-1 flex items-center justify-center text-center p-4 border-2 border-dashed border-border rounded-lg">
                                         <p className="text-xs text-gray-600">No classes</p>
                                     </div>
                                 )}

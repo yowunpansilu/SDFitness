@@ -15,13 +15,13 @@ export function ConversationList() {
     );
 
     return (
-        <div className="flex flex-col h-full border-r border-dark-700 bg-dark-800">
-            <div className="p-4 border-b border-dark-700">
+        <div className="flex flex-col h-full border-r border-border bg-card">
+            <div className="p-4 border-b border-border">
                 <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search chats..."
-                        className="pl-8 bg-dark-900 border-dark-600 text-white placeholder:text-gray-400 focus-visible:ring-primary-500"
+                        className="pl-8 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary-500"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
@@ -38,8 +38,8 @@ export function ConversationList() {
                             key={conv.id}
                             onClick={() => selectConversation(conv.id)}
                             className={cn(
-                                "flex items-center gap-4 p-4 cursor-pointer transition-colors hover:bg-dark-700/50",
-                                isActive && "bg-dark-700/80 relative"
+                                "flex items-center gap-4 p-4 cursor-pointer transition-colors hover:bg-muted/50",
+                                isActive && "bg-muted/80 relative"
                             )}
                         >
                             {isActive && (
@@ -47,12 +47,12 @@ export function ConversationList() {
                             )}
 
                             <div className="relative">
-                                <Avatar className="h-10 w-10 border border-dark-600">
+                                <Avatar className="h-10 w-10 border border-border">
                                     <AvatarImage src={participant.avatar} />
-                                    <AvatarFallback className="bg-dark-600 text-white">{participant.name[0]}</AvatarFallback>
+                                    <AvatarFallback className="bg-accent text-foreground">{participant.name[0]}</AvatarFallback>
                                 </Avatar>
                                 <span className={cn(
-                                    "absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-dark-800",
+                                    "absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-border",
                                     participant.status === 'online' ? "bg-green-500" :
                                         participant.status === 'busy' ? "bg-red-500" : "bg-gray-400"
                                 )} />
@@ -60,9 +60,9 @@ export function ConversationList() {
 
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-baseline mb-1">
-                                    <span className="font-medium text-white truncate">{participant.name}</span>
+                                    <span className="font-medium text-foreground truncate">{participant.name}</span>
                                     {conv.lastMessage && (
-                                        <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
                                             {formatDistanceToNow(new Date(conv.lastMessage.timestamp), { addSuffix: false })}
                                         </span>
                                     )}
@@ -70,12 +70,12 @@ export function ConversationList() {
                                 <div className="flex justify-between items-center">
                                     <p className={cn(
                                         "text-xs truncate max-w-[140px]",
-                                        conv.unreadCount > 0 ? "text-white font-medium" : "text-gray-400"
+                                        conv.unreadCount > 0 ? "text-foreground font-medium" : "text-muted-foreground"
                                     )}>
                                         {conv.lastMessage?.content || "Start a conversation"}
                                     </p>
                                     {conv.unreadCount > 0 && (
-                                        <span className="flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-primary-500 text-[10px] font-medium text-white">
+                                        <span className="flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-primary-500 text-[10px] font-medium text-foreground">
                                             {conv.unreadCount}
                                         </span>
                                     )}

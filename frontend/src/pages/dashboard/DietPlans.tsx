@@ -1,41 +1,61 @@
 import { useState, useEffect } from 'react';
 import { Plus, Calendar, Target, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { DietPlanWizard } from '@/components/diet/DietPlanWizard';
-import { getDietPlans } from '@/lib/api/dietPlanApi';
+import { DietPlanDisplay } from '@/components/diet/DietPlanDisplay';
 import type { DietPlan } from '@/lib/api/dietPlanApi';
+import { fetchDietPlans, saveDietPlan } from '@/lib/api/dietPlanApi';
 
 export function DietPlans() {
-    const navigate = useNavigate();
     const [showWizard, setShowWizard] = useState(false);
+    const [currentPlan, setCurrentPlan] = useState<DietPlan | null>(null);
     const [savedPlans, setSavedPlans] = useState<DietPlan[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        loadPlans();
-    }, []);
-
-    const loadPlans = async () => {
-        try {
+        const loadPlans = async () => {
             setIsLoading(true);
-            const plans = await getDietPlans();
-            setSavedPlans(plans);
-        } catch (error) {
-            console.error('Failed to load diet plans:', error);
-        } finally {
-            setIsLoading(false);
+            try {
+                const plans = await fetchDietPlans();
+                setSavedPlans(plans);
+            } catch (error) {
+                console.error('Error loading plans:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (!showWizard && !currentPlan) {
+            loadPlans();
+        }
+    }, [showWizard, currentPlan]);
+
+    const handleWizardComplete = (plan: DietPlan) => {
+        setCurrentPlan(plan);
+        setShowWizard(false);
+    };
+
+    const handleSavePlan = async () => {
+        if (currentPlan) {
+            setIsSaving(true);
+            try {
+                const saved = await saveDietPlan(currentPlan);
+                setSavedPlans([saved, ...savedPlans]);
+                alert('Diet plan saved successfully!');
+                setCurrentPlan(null); // Return to list after saving
+            } catch (error) {
+                console.error('Error saving plan:', error);
+                alert('Failed to save diet plan. Please try again.');
+            } finally {
+                setIsSaving(false);
+            }
         }
     };
 
-    const handleWizardComplete = (plan: DietPlan) => {
-        setShowWizard(false);
-        navigate(`/dashboard/diet-plans/${plan.id || plan._id}`);
-    };
-
     const handleViewPlan = (plan: DietPlan) => {
-        navigate(`/dashboard/diet-plans/${plan.id || plan._id}`);
+        setCurrentPlan(plan);
     };
 
     // If showing wizard
@@ -43,8 +63,8 @@ export function DietPlans() {
         return (
             <div className="space-y-6 animate-fade-in">
                 <div>
-                    <h1 className="text-3xl font-headline font-bold text-white">Generate Diet Plan</h1>
-                    <p className="text-gray-400 mt-2">
+                    <h1 className="text-3xl font-headline font-bold text-foreground">Generate Diet Plan</h1>
+                    <p className="text-muted-foreground mt-2">
                         Answer a few questions to get your personalized meal plan
                     </p>
                 </div>
@@ -56,7 +76,32 @@ export function DietPlans() {
         );
     }
 
+    // If viewing a plan
+    if (currentPlan) {
+        return (
+            <div className="space-y-6 animate-fade-in">
+                <Button
+                    variant="outline"
+                    onClick={() => setCurrentPlan(null)}
+                >
+                    ← Back to Diet Plans
+                </Button>
+                <DietPlanDisplay
+                    plan={currentPlan}
+                    onSave={handleSavePlan}
+                    isSaving={isSaving}
+                />
+            </div>
+        );
+    }
 
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+            </div>
+        );
+    }
 
     // Main diet plans page
     return (
@@ -64,9 +109,9 @@ export function DietPlans() {
             {/* Page Header */}
             <div className="flex justify-between items-start">
                 <div>
-                    <h1 className="text-3xl font-headline font-bold text-white">Diet Plans</h1>
-                    <p className="text-gray-400 mt-2">
-                        FitGenius AI-powered personalized meal plans for your fitness goals
+                    <h1 className="text-3xl font-headline font-bold text-foreground">Diet Plans</h1>
+                    <p className="text-muted-foreground mt-2">
+                        AI-powered personalized meal plans for your fitness goals
                     </p>
                 </div>
                 <Button variant="gym" onClick={() => setShowWizard(true)} className="gap-2">
@@ -75,33 +120,29 @@ export function DietPlans() {
                 </Button>
             </div>
 
-            {/* Loading State */}
-            {isLoading ? (
-                <div className="flex justify-center p-12">
-                    <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-                </div>
-            ) : savedPlans.length > 0 ? (
+            {/* Saved Plans */}
+            {savedPlans.length > 0 ? (
                 <div className="space-y-4">
-                    <h2 className="text-xl font-semibold text-white">Your Saved Plans</h2>
+                    <h2 className="text-xl font-semibold text-foreground">Your Saved Plans</h2>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {savedPlans.map((plan) => (
                             <Card
                                 key={plan.id}
-                                className="border-dark-700 hover:border-primary-500/50 transition-all cursor-pointer"
+                                className="border-border hover:border-primary-500/50 transition-all cursor-pointer"
                                 onClick={() => handleViewPlan(plan)}
                             >
                                 <CardContent className="p-6">
                                     <div className="space-y-3">
                                         <div className="flex items-start justify-between">
                                             <div>
-                                                <h3 className="font-semibold text-white">{plan.name}</h3>
-                                                <p className="text-sm text-gray-500 mt-1">
-                                                    {new Date(plan.createdAt).toLocaleDateString()}
+                                                <h3 className="font-semibold text-foreground">{plan.name || 'Plan'}</h3>
+                                                <p className="text-sm text-muted-foreground mt-1">
+                                                    {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString() : 'N/A'}
                                                 </p>
                                             </div>
                                             <Target className="w-5 h-5 text-primary-500" />
                                         </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <Calendar className="w-4 h-4" />
                                             <span>7-day plan</span>
                                         </div>
@@ -110,13 +151,13 @@ export function DietPlans() {
                                                 {plan.preferences.dietary.slice(0, 2).map((pref) => (
                                                     <span
                                                         key={pref}
-                                                        className="px-2 py-1 bg-dark-800 text-xs text-gray-400 rounded"
+                                                        className="px-2 py-1 bg-card text-xs text-muted-foreground rounded"
                                                     >
                                                         {pref}
                                                     </span>
                                                 ))}
                                                 {plan.preferences.dietary.length > 2 && (
-                                                    <span className="px-2 py-1 bg-dark-800 text-xs text-gray-400 rounded">
+                                                    <span className="px-2 py-1 bg-card text-xs text-muted-foreground rounded">
                                                         +{plan.preferences.dietary.length - 2}
                                                     </span>
                                                 )}
@@ -130,15 +171,15 @@ export function DietPlans() {
                 </div>
             ) : (
                 /* Empty State */
-                <Card className="border-dark-700">
+                <Card className="border-border">
                     <CardContent className="p-12 text-center">
                         <div className="max-w-md mx-auto space-y-4">
                             <div className="w-16 h-16 bg-primary-500/10 rounded-full flex items-center justify-center mx-auto">
                                 <Target className="w-8 h-8 text-primary-500" />
                             </div>
-                            <h3 className="text-xl font-semibold text-white">No Diet Plans Yet</h3>
-                            <p className="text-gray-400">
-                                Generate your first FitGenius AI-powered diet plan tailored to your fitness goals,
+                            <h3 className="text-xl font-semibold text-foreground">No Diet Plans Yet</h3>
+                            <p className="text-muted-foreground">
+                                Generate your first AI-powered diet plan tailored to your fitness goals,
                                 dietary preferences, and budget.
                             </p>
                             <Button variant="gym" onClick={() => setShowWizard(true)} className="gap-2">

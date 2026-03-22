@@ -1,146 +1,113 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, Clock, Coins } from 'lucide-react';
+import { ChefHat, Info, Clock, Loader2, RefreshCw, MoreHorizontal } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
+import { Button } from '../ui/button';
 import type { Meal } from '@/lib/api/dietPlanApi';
 
 interface MealCardProps {
     meal: Meal;
+    onSwap?: (meal: Meal) => void;
+    isSwapping?: boolean;
 }
 
-export function MealCard({ meal }: MealCardProps) {
-    const [isExpanded, setIsExpanded] = useState(false);
-
+export function MealCard({ meal, onSwap, isSwapping }: MealCardProps) {
     // Support both old (flat macros) and new (nested macros) format
     const protein = meal.macros?.protein ?? meal.protein ?? 0;
     const carbs = meal.macros?.carbs ?? meal.carbs ?? 0;
     const fats = meal.macros?.fats ?? meal.fats ?? 0;
-    const fiber = meal.macros?.fiber ?? 0;
 
-    // Support both old (ingredients[]) and new (items[]) format
-    const hasItems = meal.items && meal.items.length > 0;
-    const hasIngredients = meal.ingredients && meal.ingredients.length > 0;
+    // Default images based on meal type for better aesthetics
+    const getMealImage = (type: string) => {
+        const t = (type || 'dinner').toLowerCase();
+        if (t.includes('breakfast')) return 'https://images.unsplash.com/photo-1484723088339-fe7838eb0d3d?q=80&w=200&h=200&auto=format&fit=crop';
+        if (t.includes('lunch')) return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200&h=200&auto=format&fit=crop';
+        if (t.includes('snack')) return 'https://images.unsplash.com/photo-1614735241165-6756e1df61ab?q=80&w=200&h=200&auto=format&fit=crop';
+        return 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=200&h=200&auto=format&fit=crop'; // Dinner
+    };
 
     return (
-        <Card className="border-dark-700 hover:border-primary-500/50 transition-all">
-            <CardContent className="p-6">
-                <div className="space-y-4">
-                    {/* Meal Header */}
+        <Card 
+            className="group relative border-border bg-white overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary-900/5 hover:border-primary-100"
+        >
+            <CardContent className="p-4 flex items-center gap-6">
+                {/* Meal Image */}
+                <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 shadow-lg shadow-black/10">
+                    <img 
+                        src={getMealImage(meal.mealType || meal.type || '')} 
+                        alt={meal.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                </div>
+
+                {/* Meal Content */}
+                <div className="flex-1 space-y-3">
                     <div className="flex justify-between items-start">
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-1">{meal.name}</h3>
-                            {meal.description && (
-                                <p className="text-sm text-gray-400 mb-2">{meal.description}</p>
-                            )}
-                            <div className="flex items-center gap-4 text-sm text-gray-400">
-                                {(meal.prepTime || meal.cookTime) && (
-                                    <span className="flex items-center gap-1">
-                                        <Clock className="w-4 h-4" />
-                                        {(meal.prepTime || 0) + (meal.cookTime || 0)} min
-                                    </span>
-                                )}
-                                {meal.estimatedCost && (
-                                    <span className="flex items-center gap-1">
-                                        <Coins className="w-4 h-4" />
-                                        {meal.estimatedCost.currency} {meal.estimatedCost.amount?.toFixed(0)}
+                            <h3 className="text-lg font-bold text-primary-900 leading-tight group-hover:text-primary-600 transition-colors">
+                                {meal.name}
+                            </h3>
+                            <div className="flex items-center gap-4 mt-1">
+                                <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                                    <Clock className="w-3.5 h-3.5" />
+                                    {(meal.prepTime || 15) + (meal.cookTime || 10)} min
+                                </span>
+                                {meal.calories && (
+                                    <span className="px-2 py-0.5 rounded-full bg-primary-50 text-[10px] uppercase font-bold text-primary-600">
+                                        {meal.calories} kcal
                                     </span>
                                 )}
                             </div>
                         </div>
-                        <div className="text-right">
-                            <div className="text-2xl font-bold text-primary-500">{meal.calories}</div>
-                            <div className="text-xs text-gray-500">calories</div>
-                        </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary-600">
+                            <MoreHorizontal className="w-4 h-4" />
+                        </Button>
                     </div>
 
-                    {/* Macros */}
-                    <div className="grid grid-cols-3 gap-3">
-                        <div className="bg-dark-800 rounded-lg p-3 text-center">
-                            <div className="text-lg font-bold text-blue-500">{typeof protein === 'number' ? protein.toFixed(0) : protein}g</div>
-                            <div className="text-xs text-gray-500">Protein</div>
+                    {/* Macro Stats */}
+                    <div className="flex items-center gap-6">
+                        <div className="flex flex-col">
+                            <span className="text-sm font-bold text-primary-900">{protein}g</span>
+                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-tight">Protein</span>
                         </div>
-                        <div className="bg-dark-800 rounded-lg p-3 text-center">
-                            <div className="text-lg font-bold text-orange-500">{typeof carbs === 'number' ? carbs.toFixed(0) : carbs}g</div>
-                            <div className="text-xs text-gray-500">Carbs</div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-bold text-primary-900">{carbs}g</span>
+                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-tight">Carbs</span>
                         </div>
-                        <div className="bg-dark-800 rounded-lg p-3 text-center">
-                            <div className="text-lg font-bold text-yellow-500">{typeof fats === 'number' ? fats.toFixed(0) : fats}g</div>
-                            <div className="text-xs text-gray-500">Fats</div>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-bold text-primary-900">{fats}g</span>
+                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-tight">Fats</span>
                         </div>
                     </div>
+                </div>
 
-                    {/* Expandable Section */}
-                    <button
-                        onClick={() => setIsExpanded(!isExpanded)}
-                        className="w-full flex items-center justify-between text-sm text-gray-400 hover:text-white transition-colors"
+                {/* Action Column */}
+                <div className="flex flex-col gap-2">
+                    <Button 
+                        size="sm"
+                        variant="gym"
+                        onClick={() => onSwap?.(meal)}
+                        disabled={isSwapping}
+                        className="bg-secondary-500 hover:bg-secondary-600 text-white gap-2 text-xs font-bold rounded-xl h-10 shadow-lg shadow-secondary-500/20"
                     >
-                        <span>{isExpanded ? 'Hide' : 'Show'} Details</span>
-                        {isExpanded ? (
-                            <ChevronUp className="w-4 h-4" />
-                        ) : (
-                            <ChevronDown className="w-4 h-4" />
-                        )}
-                    </button>
-
-                    {isExpanded && (
-                        <div className="space-y-4 pt-4 border-t border-dark-700">
-
-                            {/* Food Items (new ML format) */}
-                            {hasItems && (
-                                <div>
-                                    <h4 className="font-semibold text-white mb-2">Ingredients</h4>
-                                    <ul className="space-y-1">
-                                        {meal.items.map((item, index) => (
-                                            <li key={index} className="text-sm text-gray-400 flex items-start gap-2">
-                                                <span className="text-primary-500 mt-1">•</span>
-                                                <span>{item.food} — {item.quantity}{item.unit}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            {/* Legacy ingredients */}
-                            {!hasItems && hasIngredients && (
-                                <div>
-                                    <h4 className="font-semibold text-white mb-2">Ingredients</h4>
-                                    <ul className="space-y-1">
-                                        {meal.ingredients!.map((ingredient, index) => (
-                                            <li key={index} className="text-sm text-gray-400 flex items-start gap-2">
-                                                <span className="text-primary-500 mt-1">•</span>
-                                                <span>{ingredient}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            {/* Instructions */}
-                            {meal.instructions && meal.instructions.length > 0 && (
-                                <div>
-                                    <h4 className="font-semibold text-white mb-2">Instructions</h4>
-                                    <ol className="space-y-2">
-                                        {meal.instructions.map((instruction, index) => (
-                                            <li key={index} className="text-sm text-gray-400 flex gap-3">
-                                                <span className="font-semibold text-primary-500 min-w-[20px]">
-                                                    {index + 1}.
-                                                </span>
-                                                <span>{instruction}</span>
-                                            </li>
-                                        ))}
-                                    </ol>
-                                </div>
-                            )}
-
-                            {/* Extra nutrition info */}
-                            {fiber > 0 && (
-                                <div className="text-sm text-gray-500">
-                                    Fiber: {fiber.toFixed(1)}g
-                                </div>
-                            )}
-                        </div>
-                    )}
+                        {isSwapping ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                        AI Alternative Swap
+                    </Button>
+                    <div className="flex justify-center gap-4">
+                        <button className="text-muted-foreground hover:text-primary-600 transition-colors">
+                            <ChefHat className="w-4 h-4" />
+                        </button>
+                        <button className="text-muted-foreground hover:text-primary-600 transition-colors">
+                            <Info className="w-4 h-4" />
+                        </button>
+                    </div>
                 </div>
             </CardContent>
+
+            {/* Subtle Progress Bar Placeholder at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-50 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="h-full bg-secondary-500 w-1/3 rounded-r-full" />
+            </div>
         </Card>
     );
 }
+

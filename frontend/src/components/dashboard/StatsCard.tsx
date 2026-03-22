@@ -21,12 +21,12 @@ export function StatsCard({
     className,
 }: StatsCardProps) {
     return (
-        <Card className={cn('glass-card border-dark-700 hover:border-primary-500/50 transition-all', className)}>
+        <Card className={cn('glass-card border-border hover:border-primary-500/50 transition-all', className)}>
             <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                     <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-400">{title}</p>
-                        <p className="text-3xl font-bold text-white mt-2">{value}</p>
+                        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+                        <p className="text-3xl font-bold text-foreground mt-2">{value}</p>
 
                         {trend && trendValue && (
                             <div className="flex items-center gap-1 mt-2">
@@ -43,7 +43,7 @@ export function StatsCard({
                                 >
                                     {trendValue}
                                 </span>
-                                <span className="text-sm text-gray-500">vs last week</span>
+                                <span className="text-sm text-muted-foreground">vs last week</span>
                             </div>
                         )}
                     </div>

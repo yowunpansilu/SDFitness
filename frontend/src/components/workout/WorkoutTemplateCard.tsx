@@ -19,7 +19,7 @@ export function WorkoutTemplateCard({ template, onStartWorkout }: WorkoutTemplat
             case 'advanced':
                 return 'bg-red-500/20 text-red-400 border-red-500/30';
             default:
-                return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+                return 'bg-gray-500/20 text-muted-foreground border-gray-500/30';
         }
     };
 
@@ -35,14 +35,14 @@ export function WorkoutTemplateCard({ template, onStartWorkout }: WorkoutTemplat
             lower_body: 'bg-lime-500/20 text-lime-400 border-lime-500/30',
             core: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
         };
-        return colors[category] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+        return colors[category] || 'bg-gray-500/20 text-muted-foreground border-gray-500/30';
     };
 
     return (
-        <Card className="glass-card border-dark-700 hover:border-primary-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/10 group">
+        <Card className="glass-card border-border hover:border-primary-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/10 group">
             <CardHeader>
                 <div className="flex items-start justify-between gap-2 mb-2">
-                    <CardTitle className="text-xl font-bold text-white group-hover:text-primary-400 transition-colors">
+                    <CardTitle className="text-xl font-bold text-foreground group-hover:text-primary-800 transition-colors">
                         {template.name}
                     </CardTitle>
                     {template.rating && template.rating.count > 0 && (
@@ -62,7 +62,7 @@ export function WorkoutTemplateCard({ template, onStartWorkout }: WorkoutTemplat
                     </Badge>
                 </div>
                 {template.description && (
-                    <CardDescription className="text-gray-400 mt-2 line-clamp-2">
+                    <CardDescription className="text-muted-foreground mt-2 line-clamp-2">
                         {template.description}
                     </CardDescription>
                 )}
@@ -70,24 +70,24 @@ export function WorkoutTemplateCard({ template, onStartWorkout }: WorkoutTemplat
 
             <CardContent>
                 <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div className="flex items-center gap-2 text-gray-300">
-                        <Clock className="w-4 h-4 text-primary-400" />
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                        <Clock className="w-4 h-4 text-primary-800" />
                         <div>
-                            <p className="text-xs text-gray-500">Duration</p>
+                            <p className="text-xs text-muted-foreground">Duration</p>
                             <p className="font-semibold">{template.duration} min</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-300">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                         <Flame className="w-4 h-4 text-orange-400" />
                         <div>
-                            <p className="text-xs text-gray-500">Calories</p>
+                            <p className="text-xs text-muted-foreground">Calories</p>
                             <p className="font-semibold">~{template.estimatedCaloriesBurned}</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-300">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                         <Dumbbell className="w-4 h-4 text-secondary-400" />
                         <div>
-                            <p className="text-xs text-gray-500">Exercises</p>
+                            <p className="text-xs text-muted-foreground">Exercises</p>
                             <p className="font-semibold">{template.exercises.length}</p>
                         </div>
                     </div>

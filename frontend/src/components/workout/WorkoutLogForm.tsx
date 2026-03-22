@@ -155,19 +155,19 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="max-w-4xl max-h-[90vh] bg-dark-900 border-dark-700">
+            <DialogContent className="max-w-4xl max-h-[90vh] bg-background border-border">
                 <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-white flex items-center justify-between">
+                    <DialogTitle className="text-2xl font-bold text-foreground flex items-center justify-between">
                         <span>Log Workout</span>
-                        <div className="flex items-center gap-2 text-primary-400">
+                        <div className="flex items-center gap-2 text-primary-800">
                             <Timer className="w-5 h-5" />
                             <span className="text-xl font-mono">{formatTime(elapsedTime)}</span>
                         </div>
                     </DialogTitle>
-                    <DialogDescription className="text-gray-400">
+                    <DialogDescription className="text-muted-foreground">
                         {template ? `Logging: ${template.name}` : 'Custom workout'}
                         {' • '}
-                        <span className="text-primary-400">
+                        <span className="text-primary-800">
                             {completedSets}/{totalSets} sets completed
                         </span>
                     </DialogDescription>
@@ -179,14 +179,14 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
                         {exercises.map((exercise, exerciseIndex) => (
                             <div key={exerciseIndex} className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-semibold text-white">
+                                    <h3 className="text-lg font-semibold text-foreground">
                                         {exercise.name || `Exercise ${exerciseIndex + 1}`}
                                     </h3>
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => handleAddSet(exerciseIndex)}
-                                        className="text-primary-400 hover:text-primary-300"
+                                        className="text-primary-800 hover:text-secondary-500"
                                     >
                                         <Plus className="w-4 h-4 mr-1" />
                                         Add Set
@@ -219,16 +219,16 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
                         ))}
 
                         {/* Workout Feedback */}
-                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-dark-700">
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                             <div className="space-y-2">
-                                <Label htmlFor="difficulty" className="text-gray-300">
+                                <Label htmlFor="difficulty" className="text-muted-foreground">
                                     How was the difficulty?
                                 </Label>
                                 <Select value={difficulty} onValueChange={(value: any) => setDifficulty(value)}>
-                                    <SelectTrigger id="difficulty" className="bg-dark-800 border-dark-600 text-white">
+                                    <SelectTrigger id="difficulty" className="bg-card border-border text-foreground">
                                         <SelectValue placeholder="Select difficulty" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-dark-800 border-dark-600">
+                                    <SelectContent className="bg-card border-border">
                                         <SelectItem value="too_easy">Too Easy</SelectItem>
                                         <SelectItem value="just_right">Just Right</SelectItem>
                                         <SelectItem value="too_hard">Too Hard</SelectItem>
@@ -237,14 +237,14 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="energy" className="text-gray-300">
+                                <Label htmlFor="energy" className="text-muted-foreground">
                                     Energy Level
                                 </Label>
                                 <Select value={energyLevel} onValueChange={(value: any) => setEnergyLevel(value)}>
-                                    <SelectTrigger id="energy" className="bg-dark-800 border-dark-600 text-white">
+                                    <SelectTrigger id="energy" className="bg-card border-border text-foreground">
                                         <SelectValue placeholder="Select energy level" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-dark-800 border-dark-600">
+                                    <SelectContent className="bg-card border-border">
                                         <SelectItem value="low">Low</SelectItem>
                                         <SelectItem value="medium">Medium</SelectItem>
                                         <SelectItem value="high">High</SelectItem>
@@ -255,7 +255,7 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
 
                         {/* Notes */}
                         <div className="space-y-2">
-                            <Label htmlFor="notes" className="text-gray-300">
+                            <Label htmlFor="notes" className="text-muted-foreground">
                                 Notes (optional)
                             </Label>
                             <Textarea
@@ -263,7 +263,7 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
                                 placeholder="How did you feel? Any observations?"
-                                className="bg-dark-800 border-dark-600 text-white min-h-[100px]"
+                                className="bg-card border-border text-foreground min-h-[100px]"
                             />
                         </div>
                     </div>

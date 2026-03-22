@@ -15,7 +15,7 @@ export function Logo({ className = '', showText = true }: LogoProps) {
             {showText && (
                 <span className="text-2xl font-headline font-bold tracking-wider">
                     <span className="text-gradient">SD</span>
-                    <span className="text-white">FITNESS</span>
+                    <span className="text-foreground">FITNESS</span>
                 </span>
             )}
         </div>

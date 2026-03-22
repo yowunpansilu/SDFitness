@@ -1,4 +1,3 @@
-import api from './axios';
 
 // Types
 export interface PaymentMethod {
@@ -27,36 +26,90 @@ export interface BillingSummary {
     currency: string;
 }
 
-// API Functions — try real endpoints, fall back gracefully
-export const getPaymentMethods = async (): Promise<PaymentMethod[]> => {
-    try {
-        const res = await api.get('/billing/payment-methods');
-        return res.data;
-    } catch {
-        // Billing module not yet implemented in backend — return empty
-        return [];
+// Mock Data
+export const MOCK_PAYMENT_METHODS: PaymentMethod[] = [
+    {
+        id: 'pm_1',
+        brand: 'visa',
+        last4: '4242',
+        expiryMonth: 12,
+        expiryYear: 2028,
+        isDefault: true
+    },
+    {
+        id: 'pm_2',
+        brand: 'mastercard',
+        last4: '8888',
+        expiryMonth: 5,
+        expiryYear: 2027,
+        isDefault: false
     }
+];
+
+export const MOCK_TRANSACTIONS: Transaction[] = [
+    {
+        id: 'tx_1',
+        date: '2024-01-15T10:00:00Z',
+        amount: 59.99,
+        description: 'Pro Plan - Monthly Subscription',
+        status: 'paid',
+        invoiceUrl: '#'
+    },
+    {
+        id: 'tx_2',
+        date: '2023-12-15T10:00:00Z',
+        amount: 59.99,
+        description: 'Pro Plan - Monthly Subscription',
+        status: 'paid',
+        invoiceUrl: '#'
+    },
+    {
+        id: 'tx_3',
+        date: '2023-11-15T10:00:00Z',
+        amount: 59.99,
+        description: 'Pro Plan - Monthly Subscription',
+        status: 'paid',
+        invoiceUrl: '#'
+    },
+    {
+        id: 'tx_4',
+        date: '2023-10-15T10:00:00Z',
+        amount: 59.99,
+        description: 'Pro Plan - Monthly Subscription',
+        status: 'failed',
+        invoiceUrl: '#'
+    }
+];
+
+// Service
+export const getPaymentMethods = async (): Promise<PaymentMethod[]> => {
+    return new Promise((resolve) => setTimeout(() => resolve(MOCK_PAYMENT_METHODS), 600));
 };
 
 export const getTransactions = async (): Promise<Transaction[]> => {
-    try {
-        const res = await api.get('/billing/transactions');
-        return res.data;
-    } catch {
-        // Billing module not yet implemented in backend — return empty
-        return [];
-    }
+    return new Promise((resolve) => setTimeout(() => resolve(MOCK_TRANSACTIONS), 800));
 };
 
 export const addPaymentMethod = async (method: Omit<PaymentMethod, 'id'>): Promise<PaymentMethod> => {
-    const res = await api.post('/billing/payment-methods', method);
-    return res.data;
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                ...method,
+                id: `pm_${Math.random().toString(36).substr(2, 9)}`
+            });
+        }, 1200);
+    });
 };
 
+
 export const deletePaymentMethod = async (id: string): Promise<void> => {
-    await api.delete(`/billing/payment-methods/${id}`);
+    // Mock deletion
+    console.log('Deleting payment method', id);
+    return new Promise((resolve) => setTimeout(resolve, 800));
 };
 
 export const setDefaultPaymentMethod = async (id: string): Promise<void> => {
-    await api.patch(`/billing/payment-methods/${id}/default`);
+    // Mock set default
+    console.log('Setting default payment method', id);
+    return new Promise((resolve) => setTimeout(resolve, 600));
 };

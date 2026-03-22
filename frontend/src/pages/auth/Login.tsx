@@ -6,7 +6,7 @@ export function Login() {
         <AuthLayout
             title="Welcome Back"
             subtitle="Sign in to continue your fitness journey"
-            backgroundImage="/images/workout-bg.png"
+            backgroundImage="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=2070&auto=format&fit=crop"
             quote="Every Rep Counts. Every Day Matters."
         >
             <LoginForm />

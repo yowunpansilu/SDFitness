@@ -2,12 +2,18 @@
 > frontend@0.0.0 dev
 > vite --port 3000
 
+failed to load config from /Users/yowunpansilu/Documents/GitHub/SDFitness/frontend/vite.config.ts
+error when starting dev server:
+Error: Build failed with 1 error:
 
-  ROLLDOWN-VITE v7.2.5  ready in 105 ms
+[31m[UNLOADABLE_DEPENDENCY] Error:[0m Could not load vite.config.ts - Operation timed out (os error 60).
 
-  ➜  Local:   http://localhost:3000/
-  ➜  Network: use --host to expose
-5:57:42 AM [vite] (client) hmr update /src/components/auth/RegisterForm.tsx, /src/index.css
-6:24:46 AM [vite] (client) hmr update /src/pages/dashboard/diet/WeeklyPlan.tsx, /src/index.css
-6:24:58 AM [vite] (client) hmr update /src/pages/dashboard/diet/DailyPlan.tsx, /src/index.css
-6:25:08 AM [vite] (client) hmr update /src/pages/dashboard/diet/MealRecipe.tsx, /src/index.css
+    at aggregateBindingErrorsIntoJsError (file:///Users/yowunpansilu/Documents/GitHub/SDFitness/frontend/node_modules/rolldown/dist/shared/src-CYkh2Ybc.mjs:2659:18)
+    at unwrapBindingResult (file:///Users/yowunpansilu/Documents/GitHub/SDFitness/frontend/node_modules/rolldown/dist/shared/src-CYkh2Ybc.mjs:2634:128)
+    at #build (file:///Users/yowunpansilu/Documents/GitHub/SDFitness/frontend/node_modules/rolldown/dist/shared/src-CYkh2Ybc.mjs:4433:34)
+    at async bundleConfigFile (file:///Users/yowunpansilu/Documents/GitHub/SDFitness/frontend/node_modules/vite/dist/node/chunks/node.js:36093:17)
+    at async bundleAndLoadConfigFile (file:///Users/yowunpansilu/Documents/GitHub/SDFitness/frontend/node_modules/vite/dist/node/chunks/node.js:36009:18)
+    at async loadConfigFromFile (file:///Users/yowunpansilu/Documents/GitHub/SDFitness/frontend/node_modules/vite/dist/node/chunks/node.js:35978:42)
+    at async resolveConfig (file:///Users/yowunpansilu/Documents/GitHub/SDFitness/frontend/node_modules/vite/dist/node/chunks/node.js:35597:22)
+    at async _createServer (file:///Users/yowunpansilu/Documents/GitHub/SDFitness/frontend/node_modules/vite/dist/node/chunks/node.js:26929:67)
+    at async CAC.<anonymous> (file:///Users/yowunpansilu/Documents/GitHub/SDFitness/frontend/node_modules/vite/dist/node/cli.js:572:18)

@@ -22,6 +22,16 @@ import { WeeklyPlan } from './pages/dashboard/diet/WeeklyPlan';
 import { DailyPlan } from './pages/dashboard/diet/DailyPlan';
 import { GroceryList } from './pages/dashboard/diet/GroceryList';
 import { MealRecipe } from './pages/dashboard/diet/MealRecipe';
+import TrainerList from './pages/trainers/TrainerList';
+import TrainerDetail from './pages/trainers/TrainerDetail';
+import TrainerForm from './pages/trainers/TrainerForm';
+import AnalyticsDashboard from './pages/analytics/AnalyticsDashboard';
+import MemberList from './pages/members/MemberList';
+import MemberDetail from './pages/members/MemberDetail';
+import MemberForm from './pages/members/MemberForm';
+import EquipmentList from './pages/equipment/EquipmentList';
+import EquipmentDetail from './pages/equipment/EquipmentDetail';
+import Settings from './pages/settings/Settings';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -94,6 +104,24 @@ function App() {
             <Route path="attendance" element={<AttendancePage />} />
             <Route path="messages" element={<MessagesPage />} />
             <Route path="settings/notifications" element={<NotificationSettings />} />
+
+            {/* New Management Routes */}
+            <Route path="trainers" element={<TrainerList />} />
+            <Route path="trainers/new" element={<TrainerForm />} />
+            <Route path="trainers/:id" element={<TrainerDetail />} />
+            <Route path="trainers/:id/edit" element={<TrainerForm />} />
+
+            <Route path="analytics" element={<AnalyticsDashboard />} />
+
+            <Route path="members" element={<MemberList />} />
+            <Route path="members/new" element={<MemberForm />} />
+            <Route path="members/:id" element={<MemberDetail />} />
+            <Route path="members/:id/edit" element={<MemberForm />} />
+
+            <Route path="equipment" element={<EquipmentList />} />
+            <Route path="equipment/:id" element={<EquipmentDetail />} />
+
+            <Route path="settings/global" element={<Settings />} />
           </Route>
 
           {/* Default redirect */}

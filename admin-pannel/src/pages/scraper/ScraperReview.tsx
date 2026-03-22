@@ -1,39 +1,51 @@
-import { useState } from 'react';
-import { Link2, X, Check, ChevronDown, AlertCircle, PackageSearch } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link2, X, Check, ChevronDown, AlertCircle, PackageSearch, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import api from '@/lib/api/axios';
 
 interface ReviewItem {
-    id: string;
-    scrapedName: string;
-    scrapedPrice: number;
+    _id: string;
+    rawName: string;
+    price: number;
     store: string;
     scrapedAt: string;
     status: 'pending' | 'matched' | 'ignored';
     suggestedMatch?: string;
-    confidence?: number;
+    matchConfidence?: number;
 }
 
-const initialItems: ReviewItem[] = [
-    { id: '1', scrapedName: 'KEELLS Chicken Drumstick 500g', scrapedPrice: 890, store: 'Keells', scrapedAt: '2h ago', status: 'pending', suggestedMatch: 'chicken_breast', confidence: 0.72 },
-    { id: '2', scrapedName: 'Anchor Butter Unsalted 200g', scrapedPrice: 680, store: 'Keells', scrapedAt: '2h ago', status: 'pending', suggestedMatch: 'butter', confidence: 0.91 },
-    { id: '3', scrapedName: 'Cargills Magic Basmati Rice 1kg', scrapedPrice: 490, store: 'Cargills', scrapedAt: '3h ago', status: 'pending', suggestedMatch: 'rice', confidence: 0.85 },
-    { id: '4', scrapedName: 'Vim Dishwash Liquid 500ml', scrapedPrice: 350, store: 'Keells', scrapedAt: '2h ago', status: 'pending' },
-    { id: '5', scrapedName: 'Ambewela Fresh Milk 1L', scrapedPrice: 310, store: 'Cargills', scrapedAt: '3h ago', status: 'pending', suggestedMatch: 'milk', confidence: 0.94 },
-    { id: '6', scrapedName: 'Signal Toothpaste 120g', scrapedPrice: 280, store: 'Arpico', scrapedAt: '4h ago', status: 'pending' },
-    { id: '7', scrapedName: 'Lanka Soy Meat 90g', scrapedPrice: 95, store: 'Sathosa', scrapedAt: '5h ago', status: 'pending', suggestedMatch: 'soy_meat', confidence: 0.88 },
-];
-
-const existingFoods = [
-    'rice', 'brown_rice', 'chicken_breast', 'eggs', 'banana', 'red_lentils', 'spinach',
-    'coconut_oil', 'yogurt', 'sweet_potato', 'oats', 'tuna', 'milk', 'butter', 'soy_meat',
-    'bread', 'dhal', 'coconut_milk', 'tofu', 'papaya',
-];
-
 export function ScraperReview() {
-    const [items, setItems] = useState(initialItems);
+    const [items, setItems] = useState<ReviewItem[]>([]);
+    const [foodList, setFoodList] = useState<{ foodId: string; category: string }[]>([]);
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const [queueRes, pricesRes] = await Promise.all([
+                api.get('/scraper/review-queue?status=pending'),
+                api.get('/prices')
+            ]);
+            setItems(queueRes.data.data || []);
+            const foods = (pricesRes.data.data || []).map((f: any) => ({
+                foodId: f.foodId,
+                category: f.category || 'other',
+            }));
+            setFoodList(foods);
+        } catch (err: any) {
+            setError(err.message || 'Failed to load data');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const pending = items.filter(i => i.status === 'pending');
     const foodItems = pending.filter(i => i.suggestedMatch);
@@ -41,35 +53,82 @@ export function ScraperReview() {
     const matched = items.filter(i => i.status === 'matched').length;
     const ignored = items.filter(i => i.status === 'ignored').length;
 
-    const handleMatch = (id: string, foodId: string) => {
-        setItems(prev => prev.map(item => item.id === id ? { ...item, status: 'matched' as const, suggestedMatch: foodId } : item));
+    const handleMatch = async (id: string, foodId: string) => {
+        try {
+            const food = foodList.find(f => f.foodId === foodId);
+            await api.patch(`/scraper/review-queue/${id}/approve`, {
+                foodId,
+                category: food?.category || 'other',
+            });
+            setItems(prev => prev.map(item =>
+                item._id === id ? { ...item, status: 'matched' as const, suggestedMatch: foodId } : item
+            ));
+        } catch (err) {
+            console.error('Failed to approve item:', err);
+        }
         setOpenDropdown(null);
     };
 
-    const handleIgnore = (id: string) => {
-        setItems(prev => prev.map(item => item.id === id ? { ...item, status: 'ignored' as const } : item));
+    const handleIgnore = async (id: string) => {
+        try {
+            await api.patch(`/scraper/review-queue/${id}/dismiss`);
+            setItems(prev => prev.map(item =>
+                item._id === id ? { ...item, status: 'ignored' as const } : item
+            ));
+        } catch (err) {
+            console.error('Failed to dismiss item:', err);
+        }
+    };
+
+    const formatTime = (dateStr: string) => {
+        const diff = Date.now() - new Date(dateStr).getTime();
+        const hours = Math.floor(diff / 3600000);
+        if (hours < 1) return 'Just now';
+        if (hours < 24) return `${hours}h ago`;
+        return `${Math.floor(hours / 24)}d ago`;
     };
 
     const DropdownMenu = ({ item }: { item: ReviewItem }) => (
         <div className="relative">
             <button
-                onClick={() => setOpenDropdown(openDropdown === item.id ? null : item.id)}
+                onClick={() => setOpenDropdown(openDropdown === item._id ? null : item._id)}
                 className="p-1.5 rounded-lg hover:bg-dark-700 text-gray-400 transition-colors"
             >
                 <ChevronDown className="w-4 h-4" />
             </button>
-            {openDropdown === item.id && (
+            {openDropdown === item._id && (
                 <div className="absolute right-0 top-full mt-1 w-48 bg-dark-800 border border-dark-700 rounded-lg shadow-xl z-10 max-h-48 overflow-y-auto">
-                    {existingFoods.map(f => (
-                        <button key={f} onClick={() => handleMatch(item.id, f)}
+                    {foodList.map(f => (
+                        <button key={f.foodId} onClick={() => handleMatch(item._id, f.foodId)}
                             className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-dark-700 hover:text-white transition-colors">
-                            {f.replace(/_/g, ' ')}
+                            {f.foodId.replace(/_/g, ' ')}
                         </button>
                     ))}
                 </div>
             )}
         </div>
     );
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                <CardContent className="p-12 text-center">
+                    <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+                    <h3 className="text-xl font-semibold text-white mb-1">Error Loading Data</h3>
+                    <p className="text-gray-400">{error}</p>
+                    <Button onClick={fetchData} className="mt-4 bg-purple-600 hover:bg-purple-700">Retry</Button>
+                </CardContent>
+            </Card>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -108,15 +167,15 @@ export function ScraperReview() {
                     <CardContent className="p-0">
                         <div className="divide-y divide-dark-700">
                             {foodItems.map(item => (
-                                <div key={item.id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 hover:bg-dark-800/30 transition-colors">
+                                <div key={item._id} className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 hover:bg-dark-800/30 transition-colors">
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-white font-medium truncate">{item.scrapedName}</div>
+                                        <div className="text-white font-medium truncate">{item.rawName}</div>
                                         <div className="flex items-center gap-3 mt-1 text-sm text-gray-400">
-                                            <span>LKR {item.scrapedPrice}</span>
+                                            <span>LKR {item.price}</span>
                                             <span>•</span>
                                             <span>{item.store}</span>
                                             <span>•</span>
-                                            <span>{item.scrapedAt}</span>
+                                            <span>{formatTime(item.scrapedAt)}</span>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -124,15 +183,15 @@ export function ScraperReview() {
                                             <Link2 className="w-3 h-3 text-purple-400" />
                                             <span className="text-sm text-purple-300">{item.suggestedMatch}</span>
                                             <Badge className="bg-purple-500/30 text-purple-300 border-0 text-xs">
-                                                {Math.round((item.confidence || 0) * 100)}%
+                                                {Math.round((item.matchConfidence || 0) * 100)}%
                                             </Badge>
                                         </div>
                                         <DropdownMenu item={item} />
-                                        <Button size="sm" variant="ghost" onClick={() => handleMatch(item.id, item.suggestedMatch!)}
+                                        <Button size="sm" variant="ghost" onClick={() => handleMatch(item._id, item.suggestedMatch!)}
                                             className="gap-1 text-green-400 hover:text-green-300 hover:bg-green-500/10">
                                             <Check className="w-3 h-3" /> Accept
                                         </Button>
-                                        <Button size="sm" variant="ghost" onClick={() => handleIgnore(item.id)}
+                                        <Button size="sm" variant="ghost" onClick={() => handleIgnore(item._id)}
                                             className="text-gray-500 hover:text-red-400 hover:bg-red-500/10">
                                             <X className="w-3 h-3" />
                                         </Button>
@@ -156,14 +215,14 @@ export function ScraperReview() {
                     <CardContent className="p-0">
                         <div className="divide-y divide-dark-700">
                             {nonFoodItems.map(item => (
-                                <div key={item.id} className="p-4 flex items-center gap-3 hover:bg-dark-800/30 transition-colors">
+                                <div key={item._id} className="p-4 flex items-center gap-3 hover:bg-dark-800/30 transition-colors">
                                     <div className="flex-1">
-                                        <div className="text-gray-300">{item.scrapedName}</div>
-                                        <div className="text-sm text-gray-500 mt-0.5">LKR {item.scrapedPrice} • {item.store} • {item.scrapedAt}</div>
+                                        <div className="text-gray-300">{item.rawName}</div>
+                                        <div className="text-sm text-gray-500 mt-0.5">LKR {item.price} • {item.store} • {formatTime(item.scrapedAt)}</div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <DropdownMenu item={item} />
-                                        <Button size="sm" variant="ghost" onClick={() => handleIgnore(item.id)}
+                                        <Button size="sm" variant="ghost" onClick={() => handleIgnore(item._id)}
                                             className="gap-1 text-red-400 hover:bg-red-500/10">
                                             <X className="w-3 h-3" /> Dismiss
                                         </Button>

@@ -139,10 +139,10 @@ export interface WizardFormData {
  * Generate a diet plan via the ML-first pipeline
  */
 export async function generateDietPlan(formData: WizardFormData): Promise<DietPlan> {
-    const memberId = useAuthStore.getState().user?.memberId;
-    if (!memberId) throw new Error('User is not a registered member');
-
     try {
+        const memberId = useAuthStore.getState().user?.memberId;
+        if (!memberId) throw new Error('User is not a registered member');
+
         const response = await api.post('/diet-plans/generate', {
             memberId,
             ...formData
@@ -167,7 +167,10 @@ export async function generateDietPlan(formData: WizardFormData): Promise<DietPl
  */
 export async function getDietPlans(): Promise<DietPlan[]> {
     const memberId = useAuthStore.getState().user?.memberId;
-    if (!memberId) throw new Error('User is not a registered member');
+    if (!memberId) {
+        console.warn('⚠️ User has no memberId, returning empty diet plans');
+        return [];
+    }
 
     const response = await api.get(`/diet-plans?memberId=${memberId}`);
     return response.data.data;

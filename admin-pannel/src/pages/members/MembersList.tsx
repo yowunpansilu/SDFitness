@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Download, Mail, UserX, Plus } from 'lucide-react';
+import { Search, Download, Mail, UserX, Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,60 +29,27 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreVertical } from 'lucide-react';
+import api from '@/lib/api/axios';
 
-// Mock data - will be replaced with API calls
-const mockMembers = [
-    {
-        id: '1',
-        memberNumber: 'GYM-2026-0001',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        phone: '+1 234 567 8900',
-        status: 'active',
-        membershipType: 'Premium',
-        joinDate: '2024-01-15',
-        profilePhoto: null,
-    },
-    {
-        id: '2',
-        memberNumber: 'GYM-2026-0002',
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane.smith@example.com',
-        phone: '+1 234 567 8901',
-        status: 'active',
-        membershipType: 'Basic',
-        joinDate: '2024-02-20',
-        profilePhoto: null,
-    },
-    {
-        id: '3',
-        memberNumber: 'GYM-2026-0003',
-        firstName: 'Mike',
-        lastName: 'Johnson',
-        email: 'mike.j@example.com',
-        phone: '+1 234 567 8902',
-        status: 'frozen',
-        membershipType: 'Premium',
-        joinDate: '2023-11-10',
-        profilePhoto: null,
-    },
-    {
-        id: '4',
-        memberNumber: 'GYM-2026-0004',
-        firstName: 'Sarah',
-        lastName: 'Williams',
-        email: 'sarah.w@example.com',
-        phone: '+1 234 567 8903',
-        status: 'inactive',
-        membershipType: 'Elite',
-        joinDate: '2023-08-05',
-        profilePhoto: null,
-    },
-];
+interface Member {
+    _id: string;
+    user: {
+        _id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+    };
+    membershipType: string;
+    joinDate: string;
+    status: string;
+    phone: string;
+    healthMetrics?: {
+        weight: number;
+        height: number;
+    };
+}
 
-const statusColors = {
+const statusColors: Record<string, string> = {
     active: 'bg-green-500/20 text-green-400 border-green-500/30',
     inactive: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
     suspended: 'bg-red-500/20 text-red-400 border-red-500/30',
@@ -91,9 +58,40 @@ const statusColors = {
 
 export function MembersList() {
     const navigate = useNavigate();
+    const [members, setMembers] = useState<Member[]>([]);
+    const [loading, setLoading] = useState(true);
     const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+
+    useEffect(() => {
+        const fetchMembers = async () => {
+            try {
+                const response = await api.get('/members');
+                setMembers(response.data);
+            } catch (err) {
+                console.error('Failed to fetch members:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchMembers();
+    }, []);
+
+    const filteredMembers = members.filter((member) => {
+        const firstName = member.user?.firstName || '';
+        const lastName = member.user?.lastName || '';
+        const email = member.user?.email || '';
+        const matchesSearch =
+            firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            email.toLowerCase().includes(searchQuery.toLowerCase());
+
+        const matchesStatus =
+            statusFilter === 'all' || member.status === statusFilter;
+
+        return matchesSearch && matchesStatus;
+    });
 
     const toggleMemberSelection = (memberId: string) => {
         setSelectedMembers(prev =>
@@ -105,11 +103,20 @@ export function MembersList() {
 
     const toggleAllMembers = () => {
         setSelectedMembers(prev =>
-            prev.length === mockMembers.length
+            prev.length === filteredMembers.length
                 ? []
-                : mockMembers.map(m => m.id)
+                : filteredMembers.map(m => m._id)
         );
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+                <span className="ml-3 text-gray-400">Loading members...</span>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -140,7 +147,7 @@ export function MembersList() {
                         <div className="flex-1 relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                             <Input
-                                placeholder="Search by name, email, or member number..."
+                                placeholder="Search by name or email..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="pl-10 bg-dark-800/50 border-dark-700 focus:border-purple-500/50 focus:ring-purple-500/20 text-white placeholder:text-gray-500"
@@ -158,19 +165,6 @@ export function MembersList() {
                                 <SelectItem value="inactive">Inactive</SelectItem>
                                 <SelectItem value="frozen">Frozen</SelectItem>
                                 <SelectItem value="suspended">Suspended</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                        {/* Membership Type Filter */}
-                        <Select>
-                            <SelectTrigger className="w-full md:w-[180px] bg-dark-800/50 border-dark-700 text-white">
-                                <SelectValue placeholder="Membership type" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700 text-white">
-                                <SelectItem value="all">All Types</SelectItem>
-                                <SelectItem value="basic">Basic</SelectItem>
-                                <SelectItem value="premium">Premium</SelectItem>
-                                <SelectItem value="elite">Elite</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -218,7 +212,7 @@ export function MembersList() {
                     <CardTitle className="text-white flex items-center justify-between">
                         All Members
                         <span className="text-sm font-normal text-gray-400">
-                            {mockMembers.length} total members
+                            {filteredMembers.length} total members
                         </span>
                     </CardTitle>
                 </CardHeader>
@@ -229,13 +223,12 @@ export function MembersList() {
                                 <TableRow className="bg-dark-950/50 border-dark-800 hover:bg-dark-950/50">
                                     <TableHead className="w-12">
                                         <Checkbox
-                                            checked={selectedMembers.length === mockMembers.length}
+                                            checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
                                             onCheckedChange={toggleAllMembers}
                                             className="border-gray-600"
                                         />
                                     </TableHead>
                                     <TableHead className="text-gray-400">Member</TableHead>
-                                    <TableHead className="text-gray-400">Member Number</TableHead>
                                     <TableHead className="text-gray-400">Contact</TableHead>
                                     <TableHead className="text-gray-400">Membership</TableHead>
                                     <TableHead className="text-gray-400">Status</TableHead>
@@ -244,53 +237,50 @@ export function MembersList() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {mockMembers.map((member) => (
+                                {filteredMembers.map((member) => (
                                     <TableRow
-                                        key={member.id}
-                                        onClick={() => navigate(`/members/${member.id}`)}
+                                        key={member._id}
+                                        onClick={() => navigate(`/members/${member._id}`)}
                                         className="border-dark-800 hover:bg-dark-800/30 transition-colors cursor-pointer"
                                     >
                                         <TableCell>
                                             <Checkbox
-                                                checked={selectedMembers.includes(member.id)}
-                                                onCheckedChange={() => toggleMemberSelection(member.id)}
+                                                checked={selectedMembers.includes(member._id)}
+                                                onCheckedChange={() => toggleMemberSelection(member._id)}
                                                 className="border-gray-600"
                                             />
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
-                                                    <AvatarImage src={member.profilePhoto || undefined} />
+                                                    <AvatarImage src={undefined} />
                                                     <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-sm font-semibold">
-                                                        {member.firstName[0]}{member.lastName[0]}
+                                                        {(member.user?.firstName || '?')[0]}{(member.user?.lastName || '?')[0]}
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div>
                                                     <p className="text-sm font-medium text-white">
-                                                        {member.firstName} {member.lastName}
+                                                        {member.user?.firstName} {member.user?.lastName}
                                                     </p>
-                                                    <p className="text-xs text-gray-500">{member.email}</p>
+                                                    <p className="text-xs text-gray-500">{member.user?.email}</p>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-gray-400 font-mono text-sm">
-                                            {member.memberNumber}
-                                        </TableCell>
                                         <TableCell className="text-gray-400 text-sm">
-                                            {member.phone}
+                                            {member.phone || 'N/A'}
                                         </TableCell>
                                         <TableCell>
                                             <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-                                                {member.membershipType}
+                                                {member.membershipType || 'Standard'}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge className={statusColors[member.status as keyof typeof statusColors]}>
-                                                {member.status}
+                                            <Badge className={statusColors[member.status] || statusColors['active']}>
+                                                {member.status || 'active'}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-gray-400 text-sm">
-                                            {new Date(member.joinDate).toLocaleDateString()}
+                                            {member.joinDate ? new Date(member.joinDate).toLocaleDateString() : 'N/A'}
                                         </TableCell>
                                         <TableCell>
                                             <DropdownMenu>
@@ -307,7 +297,7 @@ export function MembersList() {
                                                     <DropdownMenuItem
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            navigate(`/members/${member.id}`);
+                                                            navigate(`/members/${member._id}`);
                                                         }}
                                                         className="focus:bg-dark-800 cursor-pointer"
                                                     >
@@ -315,9 +305,6 @@ export function MembersList() {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem className="focus:bg-dark-800 cursor-pointer">
                                                         Edit Member
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem className="focus:bg-dark-800 cursor-pointer">
-                                                        View Payments
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-300 cursor-pointer">
                                                         Delete Member
@@ -334,26 +321,8 @@ export function MembersList() {
                     {/* Pagination */}
                     <div className="flex items-center justify-between mt-4">
                         <p className="text-sm text-gray-400">
-                            Showing 1 to {mockMembers.length} of {mockMembers.length} members
+                            Showing {filteredMembers.length} of {members.length} members
                         </p>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled
-                                className="border-dark-700 text-gray-400 hover:bg-dark-800 hover:text-white"
-                            >
-                                Previous
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled
-                                className="border-dark-700 text-gray-400 hover:bg-dark-800 hover:text-white"
-                            >
-                                Next
-                            </Button>
-                        </div>
                     </div>
                 </CardContent>
             </Card>

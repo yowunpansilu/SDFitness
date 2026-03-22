@@ -8,6 +8,7 @@ const dietPlanSchema = new mongoose.Schema({
     },
 
     planName: { type: String, default: 'Custom Diet Plan' },
+    goal: String,
     generatedAt: { type: Date, default: Date.now },
     validUntil: Date,
 
@@ -96,8 +97,8 @@ const dietPlanSchema = new mongoose.Schema({
         gptPromptVersion: String,
         generationMethod: {
             type: String,
-            enum: ['ml_plus_gpt', 'ml_plus_gemini', 'gpt_only_fallback', 'gemini_only_fallback'],
-            default: 'ml_plus_gemini'
+            enum: ['ml_plus_gpt', 'ml_plus_gemini', 'gpt_only_fallback', 'gemini_only_fallback', 'ml_plus_nvidia', 'llm_only_fallback'],
+            default: 'ml_plus_nvidia'
         },
         featureImportance: [{
             feature: String,
@@ -112,6 +113,13 @@ const dietPlanSchema = new mongoose.Schema({
         type: String,
         enum: ['generating', 'completed', 'failed'],
         default: 'generating'
+    },
+
+    // Preferences used for generation
+    preferences: {
+        dietary: [String],
+        allergies: [String],
+        budget: Number
     },
 
     // Member Feedback (feeds collaborative filtering)

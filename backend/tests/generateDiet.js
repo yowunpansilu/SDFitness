@@ -1,13 +1,13 @@
 const axios = require('axios');
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3005';
-const MEMBER_ID = "69a3e51e8b563456b8ec8f24";
+const MEMBER_ID = "69a733b4b4e70c77947f4ce2";
 
 async function runTest() {
     console.log("🚀 Testing POST /api/diet-plans/generate");
     console.log(`   Member: ${MEMBER_ID} `);
-    console.log("   Pipeline: ML model → Gemini formatting → MongoDB save");
-    console.log("   (This may take 15-30s for Gemini to respond...)\n");
+    console.log("   Pipeline: ML model → NVIDIA API formatting → MongoDB save");
+    console.log("   (This may take 15-30s for NVIDIA to respond...)\n");
 
     const startTime = Date.now();
 
@@ -15,7 +15,7 @@ async function runTest() {
         const response = await axios.post(`${BACKEND_URL}/api/diet-plans/generate`, {
             memberId: MEMBER_ID
         }, {
-            timeout: 120000 // 2 minutes timeout for Gemini
+            timeout: 120000 // 2 minutes timeout for NVIDIA API
         });
 
         const elapsed = (Date.now() - startTime) / 1000;
@@ -64,6 +64,11 @@ async function runTest() {
                     console.log(`     [${meal.mealType.padEnd(18)}] "${name}"`);
                     console.log(`       ${cals} kcal | LKR ${cost} | ${items}`);
                     console.log(`       ${instrCount} cooking steps, prep:${meal.prepTime || '?'}m cook:${meal.cookTime || '?'}m`);
+                    if (meal.instructions && meal.instructions.length > 0) {
+                        meal.instructions.forEach((step, idx) => {
+                            console.log(`         ${idx + 1}. ${step}`);
+                        });
+                    }
                 }
                 console.log();
             }
@@ -81,7 +86,7 @@ async function runTest() {
             }
         }
 
-        console.log("\n✅ Full pipeline OK:\n   ML model → Gemini → MongoDB → API response");
+        console.log("\n✅ Full pipeline OK:\n   ML model → NVIDIA API → MongoDB → API response");
 
     } catch (error) {
         console.error(`\n❌ Request Failed: ${error.message}`);

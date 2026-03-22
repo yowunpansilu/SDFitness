@@ -89,7 +89,7 @@ router.post('/review-queue', async (req, res) => {
 
 
 // ─── PATCH /api/scraper/review-queue/:id/approve
-//     Admin links an unmatched item to a food_id → persists alias to DB
+//     Admin links an unmatched item to a food_id → persists alias + updates FoodPrice
 router.patch('/review-queue/:id/approve', async (req, res) => {
     try {
         const { foodId, category } = req.body;
@@ -102,7 +102,7 @@ router.patch('/review-queue/:id/approve', async (req, res) => {
             return res.status(404).json({ success: false, error: 'Item not found' });
         }
 
-        // Save the alias to DB so future scrapes auto-match
+        // 1. Save the alias to DB so future scrapes auto-match
         const aliasText = item.rawName.toLowerCase();
         await FoodAlias.findOneAndUpdate(
             { alias: aliasText },
@@ -110,12 +110,66 @@ router.patch('/review-queue/:id/approve', async (req, res) => {
             { upsert: true, new: true }
         );
 
-        // Mark reviewed item as matched
+        // 2. Update FoodPrice with the scraped price data
+        const FoodPrice = mongoose.model('FoodPrice');
+        const foodDoc = await FoodPrice.findOne({ foodId });
+
+        if (foodDoc && item.price) {
+            // Parse weight from rawName (e.g. "1kg", "200g", "1L")
+            let weightInGrams = 1000; // default 1kg
+            const weightMatch = item.rawName.match(/(\d+(?:\.\d+)?)\s*(kg|g|l|ml)/i);
+            if (weightMatch) {
+                const value = parseFloat(weightMatch[1]);
+                const unit = weightMatch[2].toLowerCase();
+                if (unit === 'kg' || unit === 'l') weightInGrams = value * 1000;
+                else weightInGrams = value; // g or ml
+            }
+
+            const pricePerGram = parseFloat((item.price / weightInGrams).toFixed(4));
+
+            // Find existing store entry or add new one
+            const storeIndex = foodDoc.prices.findIndex(
+                (p) => p.store.toLowerCase() === item.store.toLowerCase()
+            );
+
+            if (storeIndex >= 0) {
+                foodDoc.prices[storeIndex].pricePerUnit = item.price;
+                foodDoc.prices[storeIndex].pricePerGram = pricePerGram;
+                foodDoc.prices[storeIndex].lastUpdated = new Date();
+                foodDoc.prices[storeIndex].source = 'scraper_catalog';
+                foodDoc.prices[storeIndex].isAvailable = true;
+            } else {
+                foodDoc.prices.push({
+                    store: item.store,
+                    pricePerUnit: item.price,
+                    unit: 'kg',
+                    pricePerGram,
+                    isAvailable: true,
+                    source: 'scraper_catalog',
+                    lastUpdated: new Date(),
+                });
+            }
+
+            // Add alias if not already present
+            if (!foodDoc.aliases.includes(aliasText)) {
+                foodDoc.aliases.push(aliasText);
+            }
+
+            // Save triggers pre-save hook → recalculates averagePricePerGram
+            await foodDoc.save();
+        }
+
+        // 3. Mark reviewed item as matched
         item.status = 'matched';
         item.linkedFoodId = foodId;
         await item.save();
 
-        res.json({ success: true, message: `Linked "${item.rawName}" → ${foodId}`, aliasAdded: aliasText });
+        res.json({
+            success: true,
+            message: `Linked "${item.rawName}" → ${foodId}`,
+            aliasAdded: aliasText,
+            priceUpdated: !!(foodDoc && item.price),
+        });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

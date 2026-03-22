@@ -26,8 +26,10 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import { MoreVertical } from 'lucide-react';
 
 // Mock data - will be replaced with API calls
@@ -83,10 +85,10 @@ const mockMembers = [
 ];
 
 const statusColors = {
-    active: 'bg-green-500/20 text-green-400 border-green-500/30',
-    inactive: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-    suspended: 'bg-red-500/20 text-red-400 border-red-500/30',
-    frozen: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    active: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
+    inactive: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
+    suspended: 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20',
+    frozen: 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
 };
 
 export function MembersList() {
@@ -112,99 +114,88 @@ export function MembersList() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                        Members Management
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                        Members <span className="text-indigo-600 italic">Management</span>
                     </h1>
-                    <p className="text-gray-400 mt-2">
-                        Manage all gym members, memberships, and profiles
+                    <p className="text-slate-500 font-medium mt-1">
+                        View, organize and maintain your gym membership community.
                     </p>
                 </div>
                 <Button
                     onClick={() => navigate('/members/add')}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none h-11 px-6 font-bold transition-all hover:scale-105 active:scale-95"
                 >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Member
+                    New Member
                 </Button>
             </div>
 
             {/* Filters and Actions */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                <CardContent className="p-4">
-                    <div className="flex flex-col md:flex-row gap-4">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-3xl overflow-hidden">
+                <CardContent className="p-6">
+                    <div className="flex flex-col lg:flex-row gap-4 items-center">
                         {/* Search */}
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <div className="flex-1 w-full relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                             <Input
                                 placeholder="Search by name, email, or member number..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 bg-dark-800/50 border-dark-700 focus:border-purple-500/50 focus:ring-purple-500/20 text-white placeholder:text-gray-500"
+                                className="w-full pl-11 h-11 bg-slate-50 border-transparent focus:bg-white focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 rounded-xl transition-all"
                             />
                         </div>
 
-                        {/* Status Filter */}
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full md:w-[180px] bg-dark-800/50 border-dark-700 text-white">
-                                <SelectValue placeholder="Filter by status" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700 text-white">
-                                <SelectItem value="all">All Status</SelectItem>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
-                                <SelectItem value="frozen">Frozen</SelectItem>
-                                <SelectItem value="suspended">Suspended</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <div className="flex flex-wrap gap-4 w-full lg:w-auto">
+                            {/* Status Filter */}
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-[160px] h-11 bg-slate-50 border-transparent rounded-xl focus:ring-indigo-500/10">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                                    <SelectItem value="all">All Status</SelectItem>
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="inactive">Inactive</SelectItem>
+                                    <SelectItem value="frozen">Frozen</SelectItem>
+                                    <SelectItem value="suspended">Suspended</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                        {/* Membership Type Filter */}
-                        <Select>
-                            <SelectTrigger className="w-full md:w-[180px] bg-dark-800/50 border-dark-700 text-white">
-                                <SelectValue placeholder="Membership type" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700 text-white">
-                                <SelectItem value="all">All Types</SelectItem>
-                                <SelectItem value="basic">Basic</SelectItem>
-                                <SelectItem value="premium">Premium</SelectItem>
-                                <SelectItem value="elite">Elite</SelectItem>
-                            </SelectContent>
-                        </Select>
+                            {/* Membership Type Filter */}
+                            <Select>
+                                <SelectTrigger className="w-[160px] h-11 bg-slate-50 border-transparent rounded-xl focus:ring-indigo-500/10">
+                                    <SelectValue placeholder="Membership" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                                    <SelectItem value="all">All Types</SelectItem>
+                                    <SelectItem value="basic">Basic</SelectItem>
+                                    <SelectItem value="premium">Premium</SelectItem>
+                                    <SelectItem value="elite">Elite</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <Button variant="outline" className="h-11 px-5 rounded-xl border-slate-200 font-bold text-xs text-slate-600">
+                                <Download className="h-4 w-4 mr-2" /> Export
+                            </Button>
+                        </div>
                     </div>
 
                     {/* Bulk Actions */}
                     {selectedMembers.length > 0 && (
-                        <div className="mt-4 flex items-center gap-3 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
-                            <span className="text-sm text-purple-400 font-medium">
-                                {selectedMembers.length} member{selectedMembers.length > 1 ? 's' : ''} selected
+                        <div className="mt-6 flex items-center gap-4 p-3 bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20 rounded-2xl animate-in fade-in slide-in-from-top-2">
+                            <span className="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 px-3">
+                                {selectedMembers.length} selected
                             </span>
-                            <div className="flex gap-2 ml-auto">
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="text-gray-400 hover:text-white hover:bg-dark-800"
-                                >
-                                    <Mail className="h-4 w-4 mr-2" />
-                                    Send Email
+                            <div className="h-4 w-px bg-indigo-200 dark:bg-indigo-500/20" />
+                            <div className="flex gap-2">
+                                <Button size="sm" variant="ghost" className="text-indigo-600 hover:bg-white font-bold text-xs rounded-lg transition-all">
+                                    <Mail className="h-3.5 w-3.5 mr-2" /> Email
                                 </Button>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="text-gray-400 hover:text-white hover:bg-dark-800"
-                                >
-                                    <Download className="h-4 w-4 mr-2" />
-                                    Export
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                                >
-                                    <UserX className="h-4 w-4 mr-2" />
-                                    Deactivate
+                                <Button size="sm" variant="ghost" className="text-rose-600 hover:bg-rose-50 font-bold text-xs rounded-lg transition-all">
+                                    <UserX className="h-3.5 w-3.5 mr-2" /> Deactivate
                                 </Button>
                             </div>
                         </div>
@@ -213,34 +204,34 @@ export function MembersList() {
             </Card>
 
             {/* Members Table */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-white flex items-center justify-between">
-                        All Members
-                        <span className="text-sm font-normal text-gray-400">
-                            {mockMembers.length} total members
+            <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-3xl overflow-hidden">
+                <CardHeader className="border-b border-slate-100 dark:border-slate-800/50 pb-6 flex flex-row items-center justify-between bg-slate-50/30 dark:bg-slate-900/30">
+                    <CardTitle className="text-slate-900 dark:text-white font-black text-xl flex items-center gap-2">
+                        Member List
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+                            {mockMembers.length}
                         </span>
                     </CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <div className="rounded-lg border border-dark-800 overflow-hidden">
+                <CardContent className="p-0">
+                    <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-dark-950/50 border-dark-800 hover:bg-dark-950/50">
-                                    <TableHead className="w-12">
+                                <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                                    <TableHead className="w-16 pl-6">
                                         <Checkbox
                                             checked={selectedMembers.length === mockMembers.length}
                                             onCheckedChange={toggleAllMembers}
-                                            className="border-gray-600"
+                                            className="rounded-md border-slate-300 data-[state=checked]:bg-indigo-600"
                                         />
                                     </TableHead>
-                                    <TableHead className="text-gray-400">Member</TableHead>
-                                    <TableHead className="text-gray-400">Member Number</TableHead>
-                                    <TableHead className="text-gray-400">Contact</TableHead>
-                                    <TableHead className="text-gray-400">Membership</TableHead>
-                                    <TableHead className="text-gray-400">Status</TableHead>
-                                    <TableHead className="text-gray-400">Join Date</TableHead>
-                                    <TableHead className="text-gray-400 w-12"></TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4">Member Info</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4">ID Number</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4">Contact</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4">Membership</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4">Status</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4">Joined</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4 text-right pr-6">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -248,78 +239,79 @@ export function MembersList() {
                                     <TableRow
                                         key={member.id}
                                         onClick={() => navigate(`/members/${member.id}`)}
-                                        className="border-dark-800 hover:bg-dark-800/30 transition-colors cursor-pointer"
+                                        className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all cursor-pointer group"
                                     >
-                                        <TableCell>
+                                        <TableCell className="pl-6" onClick={(e) => e.stopPropagation()}>
                                             <Checkbox
                                                 checked={selectedMembers.includes(member.id)}
                                                 onCheckedChange={() => toggleMemberSelection(member.id)}
-                                                className="border-gray-600"
+                                                className="rounded-md border-slate-300 data-[state=checked]:bg-indigo-600"
                                             />
                                         </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
+                                        <TableCell className="p-4">
+                                            <div className="flex items-center gap-4">
+                                                <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-800 shadow-sm transition-transform group-hover:scale-95">
                                                     <AvatarImage src={member.profilePhoto || undefined} />
-                                                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-sm font-semibold">
+                                                    <AvatarFallback className="bg-indigo-600 text-white text-xs font-bold">
                                                         {member.firstName[0]}{member.lastName[0]}
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div>
-                                                    <p className="text-sm font-medium text-white">
+                                                    <p className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
                                                         {member.firstName} {member.lastName}
                                                     </p>
-                                                    <p className="text-xs text-gray-500">{member.email}</p>
+                                                    <p className="text-xs font-medium text-slate-400 group-hover:text-slate-500">{member.email}</p>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-gray-400 font-mono text-sm">
-                                            {member.memberNumber}
+                                        <TableCell className="p-4">
+                                            <span className="text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md">
+                                                {member.memberNumber}
+                                            </span>
                                         </TableCell>
-                                        <TableCell className="text-gray-400 text-sm">
+                                        <TableCell className="p-4 text-xs font-bold text-slate-600 dark:text-slate-400">
                                             {member.phone}
                                         </TableCell>
-                                        <TableCell>
-                                            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
+                                        <TableCell className="p-4">
+                                            <Badge variant="outline" className="font-black text-[10px] uppercase tracking-wider rounded-lg border-indigo-100 text-indigo-600 bg-indigo-50/30">
                                                 {member.membershipType}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell>
-                                            <Badge className={statusColors[member.status as keyof typeof statusColors]}>
+                                        <TableCell className="p-4">
+                                            <Badge className={cn("font-black text-[10px] uppercase tracking-widest rounded-lg border shadow-none px-2", statusColors[member.status as keyof typeof statusColors])}>
                                                 {member.status}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-gray-400 text-sm">
-                                            {new Date(member.joinDate).toLocaleDateString()}
+                                        <TableCell className="p-4 text-xs font-bold text-slate-500">
+                                            {new Date(member.joinDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className="p-4 text-right pr-6">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 text-gray-400 hover:text-white hover:bg-dark-800"
+                                                        className="h-9 w-9 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                                                        onClick={(e) => e.stopPropagation()}
                                                     >
                                                         <MoreVertical className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="bg-dark-900 border-dark-700 text-white">
+                                                <DropdownMenuContent align="end" className="p-2 w-48 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl">
                                                     <DropdownMenuItem
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            navigate(`/members/${member.id}`);
-                                                        }}
-                                                        className="focus:bg-dark-800 cursor-pointer"
+                                                        onClick={(e) => { e.stopPropagation(); navigate(`/members/${member.id}`); }}
+                                                        className="p-3 rounded-xl focus:bg-slate-50 dark:focus:bg-slate-800 cursor-pointer text-sm font-medium"
                                                     >
-                                                        View Details
+                                                        View Profile
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="focus:bg-dark-800 cursor-pointer">
-                                                        Edit Member
+                                                    <DropdownMenuItem className="p-3 rounded-xl focus:bg-slate-50 dark:focus:bg-slate-800 cursor-pointer text-sm font-medium">
+                                                        Edit Details
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="focus:bg-dark-800 cursor-pointer">
-                                                        View Payments
+                                                    <DropdownMenuItem className="p-3 rounded-xl focus:bg-slate-50 dark:focus:bg-slate-800 cursor-pointer text-sm font-medium">
+                                                        Billing History
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-300 cursor-pointer">
+                                                    <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800 my-1" />
+                                                    <DropdownMenuItem className="p-3 rounded-xl focus:bg-rose-50 dark:focus:bg-rose-500/10 text-rose-600 dark:text-rose-400 cursor-pointer text-sm font-bold">
                                                         Delete Member
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -332,16 +324,16 @@ export function MembersList() {
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex items-center justify-between mt-4">
-                        <p className="text-sm text-gray-400">
-                            Showing 1 to {mockMembers.length} of {mockMembers.length} members
+                    <div className="flex items-center justify-between p-6 bg-slate-50/50 dark:bg-slate-900/50">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            Showing <span className="text-slate-900 dark:text-white">{mockMembers.length}</span> of <span className="text-slate-900 dark:text-white">{mockMembers.length}</span> members
                         </p>
                         <div className="flex gap-2">
                             <Button
                                 variant="outline"
                                 size="sm"
                                 disabled
-                                className="border-dark-700 text-gray-400 hover:bg-dark-800 hover:text-white"
+                                className="h-10 px-4 rounded-xl border-slate-200 font-bold text-xs"
                             >
                                 Previous
                             </Button>
@@ -349,7 +341,7 @@ export function MembersList() {
                                 variant="outline"
                                 size="sm"
                                 disabled
-                                className="border-dark-700 text-gray-400 hover:bg-dark-800 hover:text-white"
+                                className="h-10 px-4 rounded-xl border-slate-200 font-bold text-xs"
                             >
                                 Next
                             </Button>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Clock, Users, MapPin, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Clock, Users, MapPin, Calendar as CalendarIcon, ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -112,13 +112,13 @@ const mockClasses: ClassSession[] = [
     },
 ];
 
-const classTypeColors = {
-    yoga: 'from-purple-500 to-pink-600',
-    hiit: 'from-orange-500 to-red-600',
-    spin: 'from-blue-500 to-cyan-600',
-    strength: 'from-amber-500 to-orange-600',
-    cardio: 'from-green-500 to-emerald-600',
-    pilates: 'from-indigo-500 to-purple-600',
+const classTypeColors: Record<string, string> = {
+    yoga: 'bg-purple-50 text-purple-600 border-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20',
+    hiit: 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20',
+    spin: 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
+    strength: 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
+    cardio: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
+    pilates: 'bg-sky-50 text-sky-600 border-sky-100 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20',
 };
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -134,85 +134,103 @@ export function ClassSchedule() {
     const today = new Date().getDay();
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                        Class Schedule
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                        Class <span className="text-indigo-600 italic">Schedule</span>
                     </h1>
-                    <p className="text-gray-400 mt-2">
-                        Manage group fitness classes and schedules
+                    <p className="text-slate-500 font-medium mt-1">
+                        Organize group sessions, manage capacity and trainer assignments.
                     </p>
                 </div>
                 <Button
                     onClick={() => navigate('/classes/add')}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none h-11 px-6 font-bold transition-all hover:scale-105 active:scale-95"
                 >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Class
+                    New Session
                 </Button>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid gap-6 md:grid-cols-4">
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Total Classes</CardTitle>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Classes</CardTitle>
+                        <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 transition-transform group-hover:scale-110">
+                            <CalendarIcon className="h-4 w-4" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">{mockClasses.length}</div>
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">{mockClasses.length}</div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">In system active</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">This Week</CardTitle>
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-indigo-500">This Week</CardTitle>
+                        <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 transition-transform group-hover:scale-110">
+                            <Clock className="h-4 w-4" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">42</div>
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">42</div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Planned sessions</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Total Enrolled</CardTitle>
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-emerald-500">Enrollment</CardTitle>
+                        <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 transition-transform group-hover:scale-110">
+                            <Users className="h-4 w-4" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">
                             {mockClasses.reduce((sum, c) => sum + c.enrolled, 0)}
                         </div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Total bookers</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Avg Attendance</CardTitle>
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-500">Utilization</CardTitle>
+                        <div className="p-2 rounded-xl bg-amber-50 text-amber-600 transition-transform group-hover:scale-110">
+                            <TrendingUp className="h-4 w-4" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">87%</div>
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">87%</div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Avg attendance</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Week Navigation */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                <CardContent className="p-4">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-3xl overflow-hidden">
+                <CardContent className="p-4 px-6">
                     <div className="flex items-center justify-between">
                         <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => setCurrentWeek(currentWeek - 1)}
-                            className="text-gray-400 hover:text-white hover:bg-dark-800"
+                            className="h-10 w-10 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-xl transition-all"
                         >
                             <ChevronLeft className="h-5 w-5" />
                         </Button>
-                        <div className="flex items-center gap-2 text-white font-semibold">
-                            <CalendarIcon className="h-5 w-5 text-purple-400" />
-                            <span>Current Week</span>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+                                <CalendarIcon className="h-4 w-4" />
+                            </div>
+                            <span className="text-slate-900 dark:text-white font-black uppercase text-xs tracking-widest">March 2024 • Week {currentWeek + 10}</span>
                         </div>
                         <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => setCurrentWeek(currentWeek + 1)}
-                            className="text-gray-400 hover:text-white hover:bg-dark-800"
+                            className="h-10 w-10 text-slate-400 hover:text-indigo-600 hover:bg-slate-50 rounded-xl transition-all"
                         >
                             <ChevronRight className="h-5 w-5" />
                         </Button>
@@ -221,33 +239,39 @@ export function ClassSchedule() {
             </Card>
 
             {/* Weekly Schedule Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
                 {daysOfWeek.map((day, index) => {
                     const dayClasses = getClassesForDay(index);
                     const isToday = index === today;
 
                     return (
-                        <div key={day} className="space-y-3">
+                        <div key={day} className="space-y-4">
                             {/* Day Header */}
                             <div className={cn(
-                                "text-center p-3 rounded-lg",
+                                "text-center p-4 rounded-2xl shadow-sm border transition-all",
                                 isToday
-                                    ? "bg-gradient-to-r from-purple-500 to-pink-600"
-                                    : "bg-dark-900/50 border border-dark-800"
+                                    ? "bg-indigo-600 border-indigo-600 ring-4 ring-indigo-500/10 scale-105 z-10"
+                                    : "bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800"
                             )}>
                                 <p className={cn(
-                                    "font-semibold",
-                                    isToday ? "text-white" : "text-gray-400"
+                                    "font-black uppercase text-[10px] tracking-[0.2em]",
+                                    isToday ? "text-indigo-100" : "text-slate-400"
                                 )}>
-                                    {day}
+                                    {day.slice(0, 3)}
+                                </p>
+                                <p className={cn(
+                                    "text-xl font-black mt-0.5",
+                                    isToday ? "text-white" : "text-slate-900 dark:text-white"
+                                )}>
+                                    {15 + index}
                                 </p>
                                 {isToday && (
-                                    <p className="text-xs text-white/80 mt-1">Today</p>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-white mx-auto mt-2 animate-pulse" />
                                 )}
                             </div>
 
                             {/* Classes for this day */}
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 {dayClasses.length > 0 ? (
                                     dayClasses.map((classSession) => {
                                         const isFull = classSession.enrolled >= classSession.capacity;
@@ -256,65 +280,59 @@ export function ClassSchedule() {
                                             <Card
                                                 key={classSession.id}
                                                 onClick={() => navigate(`/classes/${classSession.id}`)}
-                                                className="bg-dark-900/50 border-dark-800 backdrop-blur-sm hover:bg-dark-900/70 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5 cursor-pointer group"
+                                                className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-500 cursor-pointer group group rounded-3xl overflow-hidden"
                                             >
-                                                <CardContent className="p-4 space-y-3">
-                                                    {/* Class Name & Type */}
+                                                <CardContent className="p-4 space-y-4">
                                                     <div>
-                                                        <h3 className="font-semibold text-white group-hover:text-purple-400 transition-colors text-sm mb-1">
-                                                            {classSession.name}
-                                                        </h3>
                                                         <Badge className={cn(
-                                                            "text-xs bg-gradient-to-r text-white",
+                                                            "text-[9px] font-black uppercase tracking-widest border-none px-2 rounded-lg mb-2 shadow-none",
                                                             classTypeColors[classSession.type]
                                                         )}>
                                                             {classSession.type}
                                                         </Badge>
+                                                        <h3 className="font-black text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors text-sm leading-tight">
+                                                            {classSession.name}
+                                                        </h3>
                                                     </div>
 
-                                                    {/* Time & Duration */}
-                                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                        <Clock className="h-3 w-3" />
-                                                        <span>{classSession.time} ({classSession.duration}min)</span>
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 group-hover:text-slate-600 transition-colors">
+                                                            <Clock className="h-3 w-3" />
+                                                            <span>{classSession.time} • {classSession.duration}m</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 group-hover:text-slate-600 transition-colors">
+                                                            <MapPin className="h-3 w-3" />
+                                                            <span className="uppercase tracking-widest">{classSession.location}</span>
+                                                        </div>
                                                     </div>
 
-                                                    {/* Trainer */}
-                                                    <div className="flex items-center gap-2">
-                                                        <Avatar className="h-6 w-6">
+                                                    <div className="flex items-center gap-2 pt-2 border-t border-slate-50 dark:border-slate-800">
+                                                        <Avatar className="h-6 w-6 border-2 border-white dark:border-slate-800 shadow-sm">
                                                             <AvatarImage src={classSession.trainer.photoUrl} />
-                                                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
+                                                            <AvatarFallback className="bg-indigo-600 text-white text-[8px] font-black">
                                                                 {classSession.trainer.name.split(' ').map(n => n[0]).join('')}
                                                             </AvatarFallback>
                                                         </Avatar>
-                                                        <span className="text-xs text-gray-400">{classSession.trainer.name}</span>
+                                                        <span className="text-[10px] font-bold text-slate-500 truncate">{classSession.trainer.name}</span>
                                                     </div>
 
-                                                    {/* Location */}
-                                                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                                                        <MapPin className="h-3 w-3" />
-                                                        <span>{classSession.location}</span>
-                                                    </div>
-
-                                                    {/* Enrollment */}
-                                                    <div className="pt-2 border-t border-dark-700">
-                                                        <div className="flex items-center justify-between mb-1">
-                                                            <div className="flex items-center gap-1 text-xs text-gray-400">
-                                                                <Users className="h-3 w-3" />
-                                                                <span>{classSession.enrolled}/{classSession.capacity}</span>
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">
+                                                                <Users className="h-3 w-3 text-indigo-500" />
+                                                                <span>{classSession.enrolled} Enrolled</span>
                                                             </div>
                                                             {isFull && (
-                                                                <Badge className="text-xs bg-red-500/20 text-red-400 border-red-500/30">
-                                                                    Full
-                                                                </Badge>
+                                                                <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">Full</span>
                                                             )}
                                                         </div>
-                                                        <div className="w-full bg-dark-800 rounded-full h-1.5">
+                                                        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
                                                             <div
                                                                 className={cn(
-                                                                    "h-1.5 rounded-full transition-all",
+                                                                    "h-full rounded-full transition-all duration-1000",
                                                                     isFull
-                                                                        ? "bg-gradient-to-r from-red-500 to-orange-600"
-                                                                        : "bg-gradient-to-r from-purple-500 to-pink-600"
+                                                                        ? "bg-rose-500"
+                                                                        : "bg-indigo-600"
                                                                 )}
                                                                 style={{ width: `${(classSession.enrolled / classSession.capacity) * 100}%` }}
                                                             />
@@ -325,11 +343,9 @@ export function ClassSchedule() {
                                         );
                                     })
                                 ) : (
-                                    <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm border-dashed">
-                                        <CardContent className="p-8 text-center">
-                                            <p className="text-gray-500 text-sm">No classes scheduled</p>
-                                        </CardContent>
-                                    </Card>
+                                    <div className="p-8 text-center rounded-3xl border-2 border-dashed border-slate-100 dark:border-slate-800 bg-slate-50/10">
+                                        <p className="text-slate-300 font-black uppercase text-[9px] tracking-[0.2em]">Empty</p>
+                                    </div>
                                 )}
                             </div>
                         </div>

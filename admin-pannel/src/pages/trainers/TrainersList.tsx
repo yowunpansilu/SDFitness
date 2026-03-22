@@ -91,9 +91,9 @@ const mockTrainers: Trainer[] = [
 ];
 
 const statusColors = {
-    active: 'bg-green-500/20 text-green-400 border-green-500/30',
-    inactive: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-    on_leave: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    active: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
+    inactive: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
+    on_leave: 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
 };
 
 export function TrainersList() {
@@ -117,20 +117,20 @@ export function TrainersList() {
     });
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                        Trainers
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                        Elite <span className="text-indigo-600 italic">Trainers</span>
                     </h1>
-                    <p className="text-gray-400 mt-2">
-                        Manage personal trainers and their assignments
+                    <p className="text-slate-500 font-medium mt-1">
+                        Oversee your professional coaching staff and their portfolio.
                     </p>
                 </div>
                 <Button
                     onClick={() => navigate('/trainers/add')}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none h-11 px-6 font-bold transition-all hover:scale-105 active:scale-95"
                 >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Trainer
@@ -138,65 +138,81 @@ export function TrainersList() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid gap-6 md:grid-cols-4">
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Total Trainers</CardTitle>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Staff</CardTitle>
+                        <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 transition-transform group-hover:scale-110">
+                            <Plus className="h-4 w-4" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">{mockTrainers.length}</div>
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">{mockTrainers.length}</div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Professionals onboarded</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Active</CardTitle>
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-emerald-500">Active duty</CardTitle>
+                        <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 transition-transform group-hover:scale-110">
+                            <Users className="h-4 w-4" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">
                             {mockTrainers.filter((t) => t.status === 'active').length}
                         </div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Currently teaching</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Total Members</CardTitle>
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-indigo-500">Clientele</CardTitle>
+                        <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 transition-transform group-hover:scale-110">
+                            <Award className="h-4 w-4" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">
                             {mockTrainers.reduce((sum, t) => sum + t.assignedMembers, 0)}
                         </div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Assigned members</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Avg Rating</CardTitle>
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-500">Avg Rating</CardTitle>
+                        <div className="p-2 rounded-xl bg-amber-50 text-amber-600 transition-transform group-hover:scale-110">
+                            <TrendingUp className="h-4 w-4" />
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">
                             {(mockTrainers.reduce((sum, t) => sum + t.rating, 0) / mockTrainers.length).toFixed(1)}
                         </div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Service quality</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Filters */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-3xl overflow-hidden">
                 <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <div className="flex-1 relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                             <Input
-                                placeholder="Search trainers..."
+                                placeholder="Search trainers by name or specialization..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 bg-dark-800/50 border-dark-700 text-white placeholder:text-gray-500"
+                                className="w-full pl-11 h-11 bg-slate-50 border-transparent focus:bg-white focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 rounded-xl transition-all"
                             />
                         </div>
                         <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
-                            <SelectTrigger className="w-full md:w-[200px] bg-dark-800/50 border-dark-700 text-white">
-                                <SelectValue placeholder="Specialization" />
+                            <SelectTrigger className="w-full md:w-[220px] h-11 bg-slate-50 border-transparent rounded-xl focus:ring-indigo-500/10 shadow-none">
+                                <SelectValue placeholder="All Specializations" />
                             </SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700">
+                            <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
                                 <SelectItem value="all">All Specializations</SelectItem>
                                 <SelectItem value="strength">Strength Training</SelectItem>
                                 <SelectItem value="cardio">Cardio</SelectItem>
@@ -209,58 +225,69 @@ export function TrainersList() {
             </Card>
 
             {/* Trainers Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredTrainers.map((trainer) => (
                     <Card
                         key={trainer.id}
                         onClick={() => navigate(`/trainers/${trainer.id}`)}
-                        className="bg-dark-900/50 border-dark-800 backdrop-blur-sm hover:bg-dark-900/70 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-1 cursor-pointer group"
+                        className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 hover:-translate-y-2 transition-all duration-500 cursor-pointer group rounded-[2.5rem] overflow-hidden p-2"
                     >
-                        <CardContent className="p-6">
+                        <CardContent className="p-6 space-y-6">
                             {/* Trainer Header */}
-                            <div className="flex items-start gap-4 mb-4">
-                                <Avatar className="h-16 w-16 ring-2 ring-purple-500/20 group-hover:ring-purple-500/40 transition-all">
-                                    <AvatarImage src={trainer.photoUrl} />
-                                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-lg font-semibold">
-                                        {trainer.firstName[0]}{trainer.lastName[0]}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="text-lg font-semibold text-white group-hover:text-purple-400 transition-colors">
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="relative">
+                                    <Avatar className="h-24 w-24 ring-4 ring-indigo-50 dark:ring-indigo-900/20 group-hover:ring-indigo-100 dark:group-hover:ring-indigo-900/40 transition-all duration-500 hvr-pulse-grow">
+                                        <AvatarImage src={trainer.photoUrl} className="object-cover" />
+                                        <AvatarFallback className="bg-indigo-600 text-white text-2xl font-black">
+                                            {trainer.firstName[0]}{trainer.lastName[0]}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="absolute -bottom-1 -right-1">
+                                        <div className="h-6 w-6 rounded-full bg-white dark:bg-slate-900 p-1 shadow-sm">
+                                            <div className={cn("w-full h-full rounded-full ring-2 ring-white dark:ring-slate-900", trainer.status === 'active' ? 'bg-emerald-500 animate-pulse' : trainer.status === 'on_leave' ? 'bg-amber-500' : 'bg-slate-300')} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
                                         {trainer.firstName} {trainer.lastName}
                                     </h3>
-                                    <Badge className={cn('mt-1', statusColors[trainer.status])}>
+                                    <Badge className={cn('mt-2 font-black text-[9px] uppercase tracking-widest rounded-lg border shadow-none px-2', statusColors[trainer.status])}>
                                         {trainer.status.replace('_', ' ')}
                                     </Badge>
                                 </div>
                             </div>
 
-                            {/* Contact Info */}
-                            <div className="space-y-2 mb-4">
-                                <div className="flex items-center gap-2 text-sm text-gray-400">
-                                    <Mail className="h-4 w-4" />
+                            {/* Info Rows */}
+                            <div className="space-y-3 bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-3xl">
+                                <div className="flex items-center gap-3 text-[11px] font-bold text-slate-500 group-hover:text-slate-600 transition-colors">
+                                    <div className="p-1.5 rounded-lg bg-white dark:bg-slate-800 shadow-sm">
+                                        <Mail className="h-3 w-3 text-indigo-500" />
+                                    </div>
                                     <span className="truncate">{trainer.email}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-gray-400">
-                                    <Phone className="h-4 w-4" />
+                                <div className="flex items-center gap-3 text-[11px] font-bold text-slate-500 group-hover:text-slate-600 transition-colors">
+                                    <div className="p-1.5 rounded-lg bg-white dark:bg-slate-800 shadow-sm">
+                                        <Phone className="h-3 w-3 text-indigo-500" />
+                                    </div>
                                     <span>{trainer.phone}</span>
                                 </div>
                             </div>
 
                             {/* Specializations */}
-                            <div className="mb-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Award className="h-4 w-4 text-purple-400" />
-                                    <span className="text-sm font-medium text-gray-300">Specializations</span>
+                            <div>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Award className="h-4 w-4 text-indigo-600" />
+                                    <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">Expertise</span>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     {trainer.specializations.slice(0, 2).map((spec) => (
-                                        <Badge key={spec} className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
+                                        <Badge key={spec} variant="outline" className="border-indigo-100 text-indigo-600 bg-indigo-50/30 font-black text-[9px] uppercase tracking-widest py-0.5 rounded-lg">
                                             {spec}
                                         </Badge>
                                     ))}
                                     {trainer.specializations.length > 2 && (
-                                        <Badge className="bg-dark-800 text-gray-400 border-dark-700 text-xs">
+                                        <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-none font-black text-[9px] uppercase tracking-widest rounded-lg">
                                             +{trainer.specializations.length - 2}
                                         </Badge>
                                     )}
@@ -268,23 +295,19 @@ export function TrainersList() {
                             </div>
 
                             {/* Stats */}
-                            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-dark-700">
-                                <div className="flex items-center gap-2">
-                                    <div className="p-2 rounded-lg bg-blue-500/20">
-                                        <Users className="h-4 w-4 text-blue-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500">Members</p>
-                                        <p className="text-sm font-semibold text-white">{trainer.assignedMembers}</p>
+                            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Members</p>
+                                    <div className="flex items-center gap-2">
+                                        <Users className="h-3.5 w-3.5 text-indigo-500" />
+                                        <p className="text-sm font-black text-slate-900 dark:text-white">{trainer.assignedMembers}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="p-2 rounded-lg bg-amber-500/20">
-                                        <TrendingUp className="h-4 w-4 text-amber-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500">Rating</p>
-                                        <p className="text-sm font-semibold text-white">{trainer.rating} / 5.0</p>
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Rating</p>
+                                    <div className="flex items-center gap-2">
+                                        <TrendingUp className="h-3.5 w-3.5 text-amber-500" />
+                                        <p className="text-sm font-black text-slate-900 dark:text-white">{trainer.rating}<span className="text-[10px] font-normal text-slate-400 ml-0.5">/ 5.0</span></p>
                                     </div>
                                 </div>
                             </div>
@@ -294,11 +317,13 @@ export function TrainersList() {
             </div>
 
             {filteredTrainers.length === 0 && (
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardContent className="p-12 text-center">
-                        <p className="text-gray-400">No trainers found matching your criteria</p>
-                    </CardContent>
-                </Card>
+                <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-dashed border-slate-100 dark:border-slate-800">
+                    <div className="inline-flex p-6 rounded-full bg-slate-50 dark:bg-slate-800 mb-6">
+                        <Users className="h-10 w-10 text-slate-300" />
+                    </div>
+                    <h3 className="text-slate-900 dark:text-white font-black text-xl uppercase tracking-tight">No trainers found</h3>
+                    <p className="text-slate-400 font-medium">Try refining your search or specialization filter</p>
+                </div>
             )}
         </div>
     );

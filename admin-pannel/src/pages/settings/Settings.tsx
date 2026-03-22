@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building2, Mail, Bell, Shield, Save, X, AlertCircle } from 'lucide-react';
+import { Building2, Mail, Bell, Shield, Save, AlertCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useSettingsStore } from '@/lib/stores/settingsStore';
@@ -14,8 +14,6 @@ import {
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
@@ -85,108 +83,125 @@ export function Settings() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 font-sans">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                        Settings
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                        System <span className="text-indigo-600 italic">Configuration</span>
                     </h1>
-                    <p className="text-gray-400 mt-2">
-                        Manage your gym's configuration and preferences
+                    <p className="text-slate-500 font-medium mt-1">
+                        Orchestrate organizational parameters, communication protocols and security matrices.
                     </p>
                 </div>
 
                 <div className="flex items-center gap-3">
                     {hasUnsavedChanges && (
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-                            <AlertCircle className="h-4 w-4 text-yellow-400" />
-                            <span className="text-sm text-yellow-400">Unsaved changes</span>
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 border border-amber-100 animate-pulse">
+                            <AlertCircle className="h-4 w-4 text-amber-600" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-amber-600">Pending Changes</span>
                         </div>
                     )}
 
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         onClick={handleDiscardChanges}
                         disabled={!hasUnsavedChanges || isLoading}
-                        className="border-dark-700 text-gray-400 hover:text-white hover:bg-dark-800"
+                        className="h-11 px-6 rounded-xl font-black uppercase text-xs tracking-widest text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all disabled:opacity-30"
                     >
-                        <X className="h-4 w-4 mr-2" />
                         Discard
                     </Button>
 
                     <Button
                         onClick={handleSaveSettings}
                         disabled={!hasUnsavedChanges || isLoading}
-                        className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
+                        className="h-11 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase text-xs tracking-widest shadow-lg shadow-indigo-200 dark:shadow-none transition-all hover:scale-105 active:scale-95 disabled:grayscale disabled:opacity-50"
                     >
-                        <Save className="h-4 w-4 mr-2" />
-                        {isLoading ? 'Saving...' : 'Save Changes'}
+                        {isLoading ? (
+                            <div className="flex items-center gap-2">
+                                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>Syncing...</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <Save className="h-4 w-4" />
+                                <span>Commit Changes</span>
+                            </div>
+                        )}
                     </Button>
                 </div>
             </div>
 
             {/* Tabs */}
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-                <TabsList className="w-full justify-start overflow-x-auto">
-                    <TabsTrigger value="general" className="gap-2">
-                        <Building2 className="h-4 w-4" />
-                        General
-                    </TabsTrigger>
-                    <TabsTrigger value="email" className="gap-2">
-                        <Mail className="h-4 w-4" />
-                        Email Templates
-                    </TabsTrigger>
-                    <TabsTrigger value="notifications" className="gap-2">
-                        <Bell className="h-4 w-4" />
-                        Notifications
-                    </TabsTrigger>
-                    <TabsTrigger value="roles" className="gap-2">
-                        <Shield className="h-4 w-4" />
-                        Roles & Permissions
-                    </TabsTrigger>
-                </TabsList>
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-10">
+                <div className="p-1 w-fit bg-slate-100 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <TabsList className="bg-transparent gap-1">
+                        <TabsTrigger value="general" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 transition-all">
+                            <Building2 className="h-3.5 w-3.5 mr-2" />
+                            General
+                        </TabsTrigger>
+                        <TabsTrigger value="email" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 transition-all">
+                            <Mail className="h-3.5 w-3.5 mr-2" />
+                            Templates
+                        </TabsTrigger>
+                        <TabsTrigger value="notifications" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 transition-all">
+                            <Bell className="h-3.5 w-3.5 mr-2" />
+                            Alerts
+                        </TabsTrigger>
+                        <TabsTrigger value="roles" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 transition-all">
+                            <Shield className="h-3.5 w-3.5 mr-2" />
+                            Security
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
 
-                <TabsContent value="general">
-                    <GeneralSettings />
-                </TabsContent>
+                <div className="animate-in fade-in slide-in-from-top-4 duration-500">
+                    <TabsContent value="general" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                        <GeneralSettings />
+                    </TabsContent>
 
-                <TabsContent value="email">
-                    <EmailTemplates />
-                </TabsContent>
+                    <TabsContent value="email" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                        <EmailTemplates />
+                    </TabsContent>
 
-                <TabsContent value="notifications">
-                    <NotificationSettings />
-                </TabsContent>
+                    <TabsContent value="notifications" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                        <NotificationSettings />
+                    </TabsContent>
 
-                <TabsContent value="roles">
-                    <RolesPermissions />
-                </TabsContent>
+                    <TabsContent value="roles" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                        <RolesPermissions />
+                    </TabsContent>
+                </div>
             </Tabs>
 
             {/* Unsaved Changes Warning Dialog */}
             <AlertDialog open={showUnsavedWarning} onOpenChange={setShowUnsavedWarning}>
-                <AlertDialogContent className="bg-dark-900 border-dark-700">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle className="text-white">Unsaved Changes</AlertDialogTitle>
-                        <AlertDialogDescription className="text-gray-400">
-                            You have unsaved changes. Are you sure you want to leave this section? Your changes will be lost.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel
-                            onClick={handleCancelWarning}
-                            className="bg-dark-800 border-dark-700 text-white hover:bg-dark-700"
-                        >
-                            Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleDiscardChanges}
-                            className="bg-red-500 hover:bg-red-600 text-white"
-                        >
-                            Discard Changes
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
+                <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-[2.5rem] shadow-2xl p-8 max-w-md">
+                    <div className="flex flex-col items-center text-center space-y-6">
+                        <div className="h-20 w-20 rounded-[2rem] bg-rose-50 text-rose-500 flex items-center justify-center shadow-inner">
+                            <AlertCircle className="h-10 w-10" />
+                        </div>
+                        <div className="space-y-2">
+                            <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Uncommitted Data</AlertDialogTitle>
+                            <AlertDialogDescription className="text-slate-500 font-medium italic">
+                                You have pending configuration changes. Leaving this matrix will result in permanent data loss.
+                            </AlertDialogDescription>
+                        </div>
+                        <div className="flex items-center gap-3 w-full">
+                            <AlertDialogCancel
+                                onClick={handleCancelWarning}
+                                className="flex-1 h-12 rounded-2xl bg-slate-50 hover:bg-slate-100 border-none text-slate-600 font-black uppercase text-xs tracking-widest transition-all"
+                            >
+                                Stay Here
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleDiscardChanges}
+                                className="flex-1 h-12 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase text-xs tracking-widest shadow-lg shadow-rose-200 dark:shadow-none transition-all"
+                            >
+                                Discard
+                            </AlertDialogAction>
+                        </div>
+                    </div>
                 </AlertDialogContent>
             </AlertDialog>
         </div>

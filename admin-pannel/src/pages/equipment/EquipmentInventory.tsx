@@ -121,25 +121,25 @@ const mockEquipment: Equipment[] = [
     },
 ];
 
-const statusConfig = {
+const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
     working: {
         label: 'Working',
-        color: 'bg-green-500/20 text-green-400 border-green-500/30',
+        color: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
         icon: CheckCircle,
     },
     maintenance: {
         label: 'Maintenance',
-        color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+        color: 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
         icon: Wrench,
     },
     broken: {
         label: 'Broken',
-        color: 'bg-red-500/20 text-red-400 border-red-500/30',
+        color: 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20',
         icon: XCircle,
     },
     retired: {
         label: 'Retired',
-        color: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+        color: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
         icon: AlertTriangle,
     },
 };
@@ -175,194 +175,209 @@ export function EquipmentInventory() {
     const brokenCount = mockEquipment.filter(e => e.status === 'broken').length;
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                        Equipment Inventory
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                        Gym <span className="text-indigo-600 italic">Inventory</span>
                     </h1>
-                    <p className="text-gray-400 mt-2">
-                        Manage gym equipment and maintenance schedules
+                    <p className="text-slate-500 font-medium mt-1">
+                        Track equipment health, maintenance cycles and facility assets.
                     </p>
                 </div>
                 <Button
                     onClick={() => navigate('/equipment/add')}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none h-11 px-6 font-bold transition-all hover:scale-105 active:scale-95"
                 >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Equipment
+                    New Asset
                 </Button>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid gap-6 md:grid-cols-4">
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <div className="flex items-center justify-between">
-                            <CardTitle className="text-sm font-medium text-gray-400">Total Equipment</CardTitle>
-                            <CheckCircle className="h-4 w-4 text-blue-400" />
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Units</CardTitle>
+                        <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 transition-transform group-hover:scale-110">
+                            <Plus className="h-4 w-4" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">{mockEquipment.length}</div>
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">{mockEquipment.length}</div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Active in facility</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <div className="flex items-center justify-between">
-                            <CardTitle className="text-sm font-medium text-gray-400">Working</CardTitle>
-                            <CheckCircle className="h-4 w-4 text-green-400" />
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-emerald-500">Fully Functional</CardTitle>
+                        <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 transition-transform group-hover:scale-110">
+                            <CheckCircle className="h-4 w-4" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">{workingCount}</div>
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">{workingCount}</div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Safe for use</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <div className="flex items-center justify-between">
-                            <CardTitle className="text-sm font-medium text-gray-400">In Maintenance</CardTitle>
-                            <Wrench className="h-4 w-4 text-yellow-400" />
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-500">Maintenance</CardTitle>
+                        <div className="p-2 rounded-xl bg-amber-50 text-amber-600 transition-transform group-hover:scale-110">
+                            <Wrench className="h-4 w-4" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">{maintenanceCount}</div>
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">{maintenanceCount}</div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Being serviced</p>
                     </CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <div className="flex items-center justify-between">
-                            <CardTitle className="text-sm font-medium text-gray-400">Broken</CardTitle>
-                            <XCircle className="h-4 w-4 text-red-400" />
+                <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden group">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-rose-500">Out of Order</CardTitle>
+                        <div className="p-2 rounded-xl bg-rose-50 text-rose-600 transition-transform group-hover:scale-110">
+                            <AlertTriangle className="h-4 w-4" />
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">{brokenCount}</div>
+                        <div className="text-3xl font-black text-slate-900 dark:text-white">{brokenCount}</div>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-wider font-bold">Urgent attention</p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Filters */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-3xl overflow-hidden">
                 <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <div className="flex flex-col lg:flex-row gap-4">
+                        <div className="flex-1 relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                             <Input
-                                placeholder="Search equipment..."
+                                placeholder="Search by name, brand, or serial..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 bg-dark-800/50 border-dark-700 text-white placeholder:text-gray-500"
+                                className="w-full pl-11 h-11 bg-slate-50 border-transparent focus:bg-white focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 rounded-xl transition-all"
                             />
                         </div>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full md:w-[180px] bg-dark-800/50 border-dark-700 text-white">
-                                <SelectValue placeholder="Status" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700">
-                                <SelectItem value="all">All Status</SelectItem>
-                                <SelectItem value="working">Working</SelectItem>
-                                <SelectItem value="maintenance">Maintenance</SelectItem>
-                                <SelectItem value="broken">Broken</SelectItem>
-                                <SelectItem value="retired">Retired</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                            <SelectTrigger className="w-full md:w-[180px] bg-dark-800/50 border-dark-700 text-white">
-                                <SelectValue placeholder="Category" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700">
-                                <SelectItem value="all">All Categories</SelectItem>
-                                <SelectItem value="cardio">Cardio</SelectItem>
-                                <SelectItem value="strength">Strength</SelectItem>
-                                <SelectItem value="free_weights">Free Weights</SelectItem>
-                                <SelectItem value="functional">Functional</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <div className="flex gap-4">
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="w-[160px] h-11 bg-slate-50 border-transparent rounded-xl focus:ring-indigo-500/10 shadow-none">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                                    <SelectItem value="all">All Status</SelectItem>
+                                    <SelectItem value="working">Working</SelectItem>
+                                    <SelectItem value="maintenance">Maintenance</SelectItem>
+                                    <SelectItem value="broken">Broken</SelectItem>
+                                    <SelectItem value="retired">Retired</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                                <SelectTrigger className="w-[160px] h-11 bg-slate-50 border-transparent rounded-xl focus:ring-indigo-500/10 shadow-none">
+                                    <SelectValue placeholder="Category" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                                    <SelectItem value="all">All Categories</SelectItem>
+                                    <SelectItem value="cardio">Cardio</SelectItem>
+                                    <SelectItem value="strength">Strength</SelectItem>
+                                    <SelectItem value="free_weights">Free Weights</SelectItem>
+                                    <SelectItem value="functional">Functional</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
 
             {/* Equipment Table */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-white">Equipment List</CardTitle>
+            <Card className="bg-white dark:bg-slate-900 border-slate-200/60 dark:border-slate-800 shadow-sm rounded-3xl overflow-hidden font-medium">
+                <CardHeader className="border-b border-slate-100 dark:border-slate-800/50 pb-6 bg-slate-50/30 dark:bg-slate-900/30">
+                    <CardTitle className="text-slate-900 dark:text-white font-black text-xl">Asset Inventory</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-dark-700 hover:bg-transparent">
-                                <TableHead className="text-gray-400">Equipment</TableHead>
-                                <TableHead className="text-gray-400">Category</TableHead>
-                                <TableHead className="text-gray-400">Serial Number</TableHead>
-                                <TableHead className="text-gray-400">Location</TableHead>
-                                <TableHead className="text-gray-400">Status</TableHead>
-                                <TableHead className="text-gray-400">Next Maintenance</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredEquipment.map((equipment) => {
-                                const StatusIcon = statusConfig[equipment.status].icon;
-                                const isMaintenanceDue = equipment.nextMaintenance &&
-                                    new Date(equipment.nextMaintenance) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+                <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4 pl-6">Equipment</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4">Category</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4">Serial Number</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4">Location</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4">Status</TableHead>
+                                    <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 p-4 pr-6">Maintenance</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredEquipment.map((equipment) => {
+                                    const statusCfg = statusConfig[equipment.status];
+                                    const StatusIcon = statusCfg.icon;
+                                    const isMaintenanceDue = equipment.nextMaintenance &&
+                                        new Date(equipment.nextMaintenance) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-                                return (
-                                    <TableRow
-                                        key={equipment.id}
-                                        onClick={() => navigate(`/equipment/${equipment.id}`)}
-                                        className="border-dark-700 hover:bg-dark-800/50 cursor-pointer"
-                                    >
-                                        <TableCell>
-                                            <div>
-                                                <p className="text-white font-medium">{equipment.name}</p>
-                                                <p className="text-sm text-gray-500">{equipment.brand} - {equipment.model}</p>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                                                {categoryLabels[equipment.category]}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="font-mono text-sm text-gray-400">
-                                            {equipment.serialNumber}
-                                        </TableCell>
-                                        <TableCell className="text-gray-400">{equipment.location}</TableCell>
-                                        <TableCell>
-                                            <Badge className={cn(statusConfig[equipment.status].color, 'flex items-center gap-1 w-fit')}>
-                                                <StatusIcon className="h-3 w-3" />
-                                                {statusConfig[equipment.status].label}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            {equipment.nextMaintenance ? (
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar className="h-4 w-4 text-gray-400" />
-                                                    <span className={cn(
-                                                        "text-sm",
-                                                        isMaintenanceDue ? "text-yellow-400 font-semibold" : "text-gray-400"
-                                                    )}>
-                                                        {new Date(equipment.nextMaintenance).toLocaleDateString()}
-                                                    </span>
-                                                    {isMaintenanceDue && (
-                                                        <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs">
-                                                            Due Soon
-                                                        </Badge>
-                                                    )}
+                                    return (
+                                        <TableRow
+                                            key={equipment.id}
+                                            onClick={() => navigate(`/equipment/${equipment.id}`)}
+                                            className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all cursor-pointer group"
+                                        >
+                                            <TableCell className="p-4 pl-6">
+                                                <div>
+                                                    <p className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">{equipment.name}</p>
+                                                    <p className="text-xs font-medium text-slate-400">{equipment.brand} • {equipment.model}</p>
                                                 </div>
-                                            ) : (
-                                                <span className="text-gray-500 text-sm">Not scheduled</span>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
+                                            </TableCell>
+                                            <TableCell className="p-4">
+                                                <Badge variant="outline" className="font-black text-[10px] uppercase tracking-wider rounded-lg border-indigo-100 text-indigo-600 bg-indigo-50/30">
+                                                    {categoryLabels[equipment.category]}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="p-4">
+                                                <span className="text-[10px] font-black font-mono text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                                                    {equipment.serialNumber}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell className="p-4 text-xs font-bold text-slate-600 dark:text-slate-400">{equipment.location}</TableCell>
+                                            <TableCell className="p-4">
+                                                <Badge className={cn(statusCfg.color, 'font-black text-[10px] uppercase tracking-widest rounded-lg border shadow-none px-2 flex items-center gap-1.5 w-fit')}>
+                                                    <StatusIcon className="h-3 w-3" />
+                                                    {statusCfg.label}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="p-4 pr-6">
+                                                {equipment.nextMaintenance ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <Calendar className="h-4 w-4 text-slate-400" />
+                                                        <div className="flex flex-col">
+                                                            <span className={cn(
+                                                                "text-xs font-bold",
+                                                                isMaintenanceDue ? "text-amber-600" : "text-slate-400"
+                                                            )}>
+                                                                {new Date(equipment.nextMaintenance).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}
+                                                            </span>
+                                                            {isMaintenanceDue && (
+                                                                <span className="text-[10px] font-black text-amber-500 uppercase tracking-tighter">Due soon</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-slate-300 text-[10px] font-black uppercase tracking-widest italic">No schedule</span>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                    </div>
 
                     {filteredEquipment.length === 0 && (
-                        <div className="text-center py-12">
-                            <p className="text-gray-400">No equipment found matching your criteria</p>
+                        <div className="text-center py-20 bg-slate-50/20">
+                            <div className="inline-flex p-4 rounded-full bg-slate-100 mb-4 transition-transform hover:rotate-12">
+                                <Search className="h-8 w-8 text-slate-400" />
+                            </div>
+                            <h3 className="text-slate-900 dark:text-white font-black text-lg">No assets found</h3>
+                            <p className="text-slate-400 text-sm font-medium">Try adjusting your search or filters</p>
                         </div>
                     )}
                 </CardContent>

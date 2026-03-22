@@ -7,7 +7,10 @@ PROJECT="/Users/yowunpansilu/Documents/GitHub/SDFitness"
 
 echo "🚀 Starting SDFitness services..."
 
-# Kill any existing
+# Kill any existing processes on our ports
+for port in 5001 3005 3000 3001; do
+    lsof -ti :$port | xargs kill -9 2>/dev/null
+done
 pkill -f "python app.py" 2>/dev/null
 pkill -f "node server.js" 2>/dev/null
 pkill -f "vite" 2>/dev/null
@@ -44,7 +47,7 @@ echo "$BE_PID" > "$PROJECT/logs/backend.pid"
 echo "$FE_PID" > "$PROJECT/logs/frontend.pid"
 echo "$AP_PID" > "$PROJECT/logs/admin-pannel.pid"
 
-sleep 4
+sleep 8
 echo ""
 echo "  Checking ports..."
 lsof -i :5001 | grep LISTEN && echo "  🐍 ML service :5001 UP" || echo "  ❌ ML service DOWN — check logs/ml-service.log"

@@ -8,29 +8,94 @@
  *   4. Call Gemini API → add recipes, descriptions, cooking instructions
  *   5. Merge ML data + Gemini content → save to MongoDB
  *
- * Fallback: If ML service is down, Gemini generates the full plan.
+ * Fallback: If ML service is down, NVIDIA Llama 3.1 generates the full plan.
  */
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const axios = require('axios');
 const Member = require('../models/Member');
 const DietPlan = require('../models/DietPlan');
 const FoodPrice = require('../models/FoodPrice');
 const { getMLRecommendation } = require('./mlService');
 
-// Initialize Gemini keys support for basic rotation (comma-separated keys)
-const geminiKeys = (process.env.GEMINI_API_KEY || '').split(',').map(k => k.trim()).filter(Boolean);
-let currentGeminiKeyIndex = 0;
+// Load all NVIDIA keys from env (comma-separated)
+const nvidiaKeys = (process.env.NVIDIA_API_KEY || '')
+    .split(',')
+    .map(k => k.trim())
+    .filter(k => k.startsWith('nvapi-'));
+let currentNvidiaKeyIndex = 0;
 
-const getNextGenAI = () => {
-    if (geminiKeys.length === 0) {
-        throw new Error("GEMINI_API_KEY is not configured in the environment variables.");
+if (nvidiaKeys.length === 0) {
+    console.warn('⚠️  No NVIDIA_API_KEY configured. Text generation will fail.');
+} else {
+    console.log(`🔑 Loaded ${nvidiaKeys.length} NVIDIA API Key(s).`);
+}
+
+/**
+ * Call NVIDIA API (OpenAI-compatible) with retry logic for 429 rate limits.
+ *
+ * @param {string} prompt - The prompt to send
+ * @param {string} [modelName] - NVIDIA Model (default: meta/llama-3.1-8b-instruct)
+ * @returns {string} Raw text response
+ */
+const callNvidia = async (prompt, modelName = 'meta/llama-3.1-8b-instruct') => {
+    if (nvidiaKeys.length === 0) {
+        throw new Error('NVIDIA_API_KEY is not configured in environment variables.');
     }
-    const key = geminiKeys[currentGeminiKeyIndex];
-    currentGeminiKeyIndex = (currentGeminiKeyIndex + 1) % geminiKeys.length;
-    // Log masked key for debugging
-    const maskedKey = key.substring(0, 4) + '...' + key.slice(-4);
-    console.log(`🔑 Using Gemini API Key ${currentGeminiKeyIndex === 0 ? geminiKeys.length : currentGeminiKeyIndex}/${geminiKeys.length} (${maskedKey})`);
-    return new GoogleGenerativeAI(key);
+
+    const MAX_RETRIES = 3;
+    let attempt = 0;
+    
+    // Store where we started so we can try all keys
+    const startIndex = currentNvidiaKeyIndex;
+    
+    while (attempt < MAX_RETRIES) {
+        // Find which key to use on this attempt
+        const keyIndex = (startIndex + attempt) % nvidiaKeys.length;
+        const key = nvidiaKeys[keyIndex];
+        const masked = key.substring(0, 10) + '...' + key.slice(-4);
+        
+        try {
+            const response = await axios.post(
+                'https://integrate.api.nvidia.com/v1/chat/completions',
+                {
+                    model: modelName,
+                    messages: [{ role: 'user', content: prompt }],
+                    max_tokens: 6000,
+                    response_format: { type: 'json_object' }
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${key}`,
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 120000 
+                }
+            );
+
+            const text = response.data?.choices?.[0]?.message?.content;
+            if (!text) throw new Error('NVIDIA returned empty response');
+            
+            // Advance the index for the next request so we round-robin
+            currentNvidiaKeyIndex = (keyIndex + 1) % nvidiaKeys.length;
+            
+            return text;
+
+        } catch (err) {
+            const status = err.response?.status;
+            if (status === 429) {
+                attempt++;
+                if (attempt >= MAX_RETRIES || attempt >= nvidiaKeys.length) {
+                    console.error(`❌ NVIDIA API exhausted all ${nvidiaKeys.length} key(s) (429 Rate Limit).`);
+                    throw err;
+                }
+                console.warn(`⚠️  NVIDIA key ${keyIndex + 1} (${masked}) rate-limited (429). Trying next key...`);
+                continue;
+            }
+            
+            // Re-throw immediately for non-429 errors
+            throw err;
+        }
+    }
 };
 
 /**
@@ -48,16 +113,13 @@ const getLivePrices = async () => {
 };
 
 /**
- * Call Gemini to format the ML recommendations into a polished plan
+ * Call NVIDIA API to format the ML recommendations into a polished plan
  * with recipes, descriptions, and cooking instructions.
  *
- * CRITICAL: Gemini CANNOT change the food items, portions, or macros.
+ * CRITICAL: LLM CANNOT change the food items, portions, or macros.
  * It only adds the human-readable layer on top.
  */
-const formatWithGemini = async (mlRecommendation, userProfile) => {
-    const genAI = getNextGenAI();
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
+const formatWithNvidia = async (mlRecommendation, userProfile) => {
     const prompt = `You are a professional nutritionist and recipe writer for SDFitness, a gym management app in Sri Lanka.
 
 I have a 7-day meal plan generated by our ML model. The foods, portions, and macros are LOCKED — do NOT change them.
@@ -104,32 +166,25 @@ RULES:
 - Return ONLY the JSON, no markdown, no code blocks`;
 
     try {
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
+        const text = await callNvidia(prompt);
 
-        // Parse JSON from response (strip markdown code blocks if present)
+        // Strip markdown code fences if present
         let jsonStr = text;
         const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (jsonMatch) {
-            jsonStr = jsonMatch[1];
-        }
+        if (jsonMatch) jsonStr = jsonMatch[1];
 
-        const parsedGemini = JSON.parse(jsonStr.trim());
-        console.log("Raw Gemini JSON:", JSON.stringify(parsedGemini, null, 2));
-        return parsedGemini;
+        const parsedAI = JSON.parse(jsonStr.trim());
+        return parsedAI;
     } catch (error) {
-        console.error('❌ Gemini formatting error:', error.message);
+        console.error('❌ NVIDIA formatting error:', error.message);
         return null;
     }
 };
 
 /**
- * Gemini-only fallback — generates entire plan without ML model
+ * NVIDIA-only fallback — generates entire plan without ML model
  */
-const generateWithGeminiOnly = async (userProfile) => {
-    const genAI = getNextGenAI();
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
+const generateWithNvidiaOnly = async (userProfile) => {
     const prompt = `You are a professional nutritionist for SDFitness gym in Sri Lanka.
 
 Generate a detailed 7-day meal plan for this user:
@@ -173,19 +228,16 @@ RESPOND IN VALID JSON ONLY with this structure:
 Return ONLY valid JSON, no markdown, no code blocks.`;
 
     try {
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
+        const text = await callNvidia(prompt);
 
         let jsonStr = text;
         const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (jsonMatch) {
-            jsonStr = jsonMatch[1];
-        }
+        if (jsonMatch) jsonStr = jsonMatch[1];
 
         return JSON.parse(jsonStr.trim());
     } catch (error) {
-        console.error('❌ Gemini fallback error:', error.message);
-        throw new Error('Both ML service and Gemini failed to generate diet plan');
+        console.error('❌ NVIDIA fallback error:', error.message);
+        throw new Error('Both ML service and NVIDIA API failed to generate diet plan');
     }
 };
 
@@ -234,34 +286,34 @@ const generateDietPlan = async (memberId, formData = {}) => {
         mlResult = mlResponse.data;
         console.log(`✅ ML recommendation received (confidence: ${mlResult.aiMetadata.mlConfidenceScore})`);
     } else {
-        console.warn(`⚠️  ML service failed: ${mlResponse.error}. Falling back to Gemini-only.`);
-        generationMethod = 'gemini_only_fallback';
+        console.warn(`⚠️  ML service failed: ${mlResponse.error}. Falling back to NVIDIA-only.`);
+        generationMethod = 'llm_only_fallback';
     }
 
     // 4. Generate the plan
     let planData;
 
     if (mlResult) {
-        // ML-first: format with Gemini
-        const geminiFormatted = await formatWithGemini(mlResult, userProfile);
+        // ML-first: format with NVIDIA
+        const aiFormatted = await formatWithNvidia(mlResult, userProfile);
 
-        // Merge: ML structure + Gemini recipes
+        // Merge: ML structure + NVIDIA recipes
         planData = {
             targetCalories: mlResult.targetCalories,
             macroSplit: mlResult.macroSplit,
             days: mlResult.days.map((day, i) => {
-                const geminiDay = geminiFormatted?.days?.find(d => d.dayOfWeek === day.dayOfWeek || d.dayName === day.dayName) || geminiFormatted?.days?.[i];
+                const aiDay = aiFormatted?.days?.find(d => d.dayOfWeek === day.dayOfWeek || d.dayName === day.dayName) || aiFormatted?.days?.[i];
                 return {
                     ...day,
                     meals: day.meals.map((meal) => {
-                        const geminiMeal = geminiDay?.meals?.find(m => m.mealType === meal.mealType);
+                        const aiMeal = aiDay?.meals?.find(m => m.mealType === meal.mealType);
                         return {
                             ...meal,
-                            name: geminiMeal?.name || `${meal.mealType.replace('_', ' ')} meal`,
-                            description: geminiMeal?.description || '',
-                            instructions: geminiMeal?.instructions || [],
-                            prepTime: geminiMeal?.prepTime || 10,
-                            cookTime: geminiMeal?.cookTime || 15
+                            name: aiMeal?.name || `${meal.mealType.replace('_', ' ')} meal`,
+                            description: aiMeal?.description || '',
+                            instructions: aiMeal?.instructions || [],
+                            prepTime: aiMeal?.prepTime || 10,
+                            cookTime: aiMeal?.cookTime || 15
                         };
                     })
                 };
@@ -269,19 +321,19 @@ const generateDietPlan = async (memberId, formData = {}) => {
             shoppingList: mlResult.shoppingList,
             aiMetadata: {
                 ...mlResult.aiMetadata,
-                generationMethod: 'ml_plus_gemini',
-                gptModel: 'gemini-2.0-flash'
+                generationMethod: 'ml_plus_nvidia',
+                gptModel: 'meta/llama-3.1-8b-instruct'
             }
         };
     } else {
-        // Fallback: Gemini generates everything
-        const geminiPlan = await generateWithGeminiOnly(userProfile);
+        // Fallback: NVIDIA generates everything
+        const llmPlan = await generateWithNvidiaOnly(userProfile);
         planData = {
-            ...geminiPlan,
+            ...llmPlan,
             shoppingList: { items: [], totalAtGeneration: 0, currentTotal: 0 },
             aiMetadata: {
-                generationMethod: 'gemini_only_fallback',
-                gptModel: 'gemini-2.0-flash',
+                generationMethod: 'llm_only_fallback',
+                gptModel: 'meta/llama-3.1-8b-instruct',
                 mlConfidenceScore: 0
             }
         };
@@ -316,4 +368,4 @@ const generateDietPlan = async (memberId, formData = {}) => {
     return dietPlan;
 };
 
-module.exports = { generateDietPlan, getLivePrices, formatWithGemini };
+module.exports = { generateDietPlan, getLivePrices, formatWithNvidia };

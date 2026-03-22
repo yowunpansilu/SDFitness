@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import {
     type Notification,
     getNotifications,
-    markNotificationRead,
+    markAsRead as markNotificationRead,
     clearAllNotifications
 } from '@/lib/api/notificationService';
 import { produce } from 'immer';

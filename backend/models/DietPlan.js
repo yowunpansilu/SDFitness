@@ -97,8 +97,8 @@ const dietPlanSchema = new mongoose.Schema({
         gptPromptVersion: String,
         generationMethod: {
             type: String,
-            enum: ['ml_plus_gpt', 'ml_plus_gemini', 'gpt_only_fallback', 'gemini_only_fallback'],
-            default: 'ml_plus_gemini'
+            enum: ['ml_plus_gpt', 'ml_plus_gemini', 'gpt_only_fallback', 'gemini_only_fallback', 'ml_plus_nvidia', 'llm_only_fallback'],
+            default: 'ml_plus_nvidia'
         },
         featureImportance: [{
             feature: String,

@@ -71,6 +71,10 @@ class MessageEventService {
     emit(event: string, data: any) {
         this.listeners.get(event)?.forEach(cb => cb(data));
     }
+
+    simulateIncomingMessage(conversationId: string) {
+        console.log(`Simulated incoming message for ${conversationId}`);
+    }
 }
 
 export const socketService = new MessageEventService();

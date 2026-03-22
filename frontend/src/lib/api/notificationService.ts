@@ -21,3 +21,7 @@ export const markAsRead = async (notificationId: string): Promise<Notification> 
     const response = await api.put(`/communications/notifications/${notificationId}/read`);
     return response.data;
 };
+
+export const clearAllNotifications = async (): Promise<void> => {
+    await api.delete('/communications/notifications');
+};

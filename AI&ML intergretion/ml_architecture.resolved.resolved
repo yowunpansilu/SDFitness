@@ -154,7 +154,7 @@ Once deployed, collect star ratings on generated plans. This feeds your collabor
                     Sent to React frontend
 ```
 
-### New Files You'll Add
+### New Files
 
 ```
 SDFitness/
@@ -208,15 +208,6 @@ SDFitness/
 11. Once completed, Node.js saves the final merged plan to MongoDB.
 ```
 
----
-
-
-## What You Present to the Panel (Updated Narrative)
-
-> *"Our core AI component is a custom-trained Gradient Boosting Recommendation Model, trained on 300,000+ food items from the USDA FoodData Central dataset. The model takes a user's biometric profile, fitness goals, dietary constraints, and budget, and recommends the optimal food selections and portion sizes. This structured recommendation is then passed to GPT-4, which serves as a natural language formatter, adding recipes and cooking instructions without changing the nutritional selections our model made. This architecture ensures our AI's nutritional and budget accuracy is fully verifiable, explainable, and testable — which a pure GPT approach cannot guarantee."*
-
----
-
 ## Technical Stack for ML Service
 
 ```
@@ -230,29 +221,3 @@ joblib               # Save/load trained model
 jupyter              # For exploration notebooks
 matplotlib/seaborn   # For training visualizations
 ```
-
----
-
-## Timeline for Adding ML (Fits Your 16-Week Plan)
-
-| Week | ML Work |
-|---|---|
-| 1-2 | Download USDA dataset, explore in Jupyter, define features |
-| 3-4 | Data preprocessing, feature engineering, synthetic profile generation |
-| 5-6 | Train GBM model, evaluate on test set, tune hyperparameters |
-| 7-8 | Build Flask microservice, test `/recommend` endpoint |
-| 9-10 | Integrate with Node.js backend, end-to-end test |
-| 11-12 | Connect to full system, test with real user flows |
-| 13-14 | Evaluate model quality, document accuracy metrics |
-| 15-16 | Final demo with live model, present training results |
-
----
-
-## Key Academic Selling Points
-
-1. **Custom Training Data Pipeline** — You processed, cleaned, and engineered features from a real nutrition dataset
-2. **Model Evaluation** — You have train/test split, RMSE / macro accuracy metrics, loss curves
-3. **Explainability** — Feature importance: "Budget is the #1 predictor of meal selection" is a real insight
-4. **Comparison** — You can show: ML model plan vs. pure GPT plan side-by-side, prove yours is more budget-accurate
-5. **Bias Detection** — Member 6 checks if the model unfairly recommends different nutritional quality for different budget ranges
-6. **Iterative Improvement** — As real users rate plans, the model can be retrained — you have a learning loop

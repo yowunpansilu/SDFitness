@@ -53,23 +53,23 @@ export function AdminSidebar() {
         : 'AD';
 
     return (
-        <div className="flex h-full flex-col bg-gradient-to-b from-dark-900 to-dark-950 light:from-white light:to-gray-50 border-r border-dark-800 light:border-gray-200 light:shadow-lg dark:shadow-none transition-colors duration-200">
+        <div className="flex h-full flex-col bg-white dark:bg-gradient-to-b dark:from-dark-900 dark:to-dark-950 border-r border-gray-200 dark:border-dark-800 shadow-lg dark:shadow-none transition-colors duration-200">
             {/* Logo/Brand */}
-            <div className="flex h-16 items-center justify-center px-6 border-b border-dark-800 light:border-gray-200">
+            <div className="flex h-16 items-center justify-center px-6 border-b border-gray-200 dark:border-dark-800">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
                         <Dumbbell className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex flex-col">
-                        <h1 className="text-lg font-bold text-white light:text-gray-900">SD Fitness</h1>
-                        <p className="text-xs text-gray-400 light:text-gray-500">Admin Panel</p>
+                        <h1 className="text-lg font-bold text-gray-900 dark:text-white">SD Fitness</h1>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Admin Panel</p>
                     </div>
                 </div>
             </div>
 
             {/* User Profile Section */}
             <div className="p-4">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-dark-800/50 light:bg-gray-100 backdrop-blur-sm border border-dark-700 light:border-gray-200 hover:bg-dark-800 light:hover:bg-gray-200 transition-all duration-300">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-100 dark:bg-dark-800/50 backdrop-blur-sm border border-gray-200 dark:border-dark-700 hover:bg-gray-200 dark:hover:bg-dark-800 transition-all duration-300">
                     <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
                         <AvatarImage src={user?.profilePhoto} alt={user?.firstName} />
                         <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white font-semibold">
@@ -77,15 +77,15 @@ export function AdminSidebar() {
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white light:text-gray-900 truncate">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                             {user?.firstName} {user?.lastName}
                         </p>
-                        <p className="text-xs text-gray-400 light:text-gray-500 capitalize">{user?.role}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
                     </div>
                 </div>
             </div>
 
-            <Separator className="bg-dark-800 light:bg-gray-200" />
+            <Separator className="bg-gray-200 dark:bg-dark-800" />
 
             {/* Navigation Links */}
             <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-dark-700 scrollbar-track-transparent">
@@ -100,8 +100,8 @@ export function AdminSidebar() {
                                 cn(
                                     'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative overflow-hidden',
                                     isActive
-                                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-white light:text-gray-900 shadow-lg shadow-purple-500/10'
-                                        : 'text-gray-400 light:text-gray-600 hover:text-white light:hover:text-gray-900 hover:bg-dark-800/50 light:hover:bg-gray-100'
+                                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-gray-900 dark:text-white shadow-lg shadow-purple-500/10'
+                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800/50'
                                 )
                             }
                         >
@@ -141,8 +141,8 @@ export function AdminSidebar() {
                                     cn(
                                         'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative overflow-hidden',
                                         isActive
-                                            ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-white light:text-gray-900 shadow-lg shadow-purple-500/10'
-                                            : 'text-gray-400 light:text-gray-600 hover:text-white light:hover:text-gray-900 hover:bg-dark-800/50 light:hover:bg-gray-100'
+                                            ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-gray-900 dark:text-white shadow-lg shadow-purple-500/10'
+                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800/50'
                                     )
                                 }
                             >
@@ -164,14 +164,14 @@ export function AdminSidebar() {
                 </nav>
             </div>
 
-            <Separator className="bg-dark-800 light:bg-gray-200" />
+            <Separator className="bg-gray-200 dark:bg-dark-800" />
 
             {/* Logout Button */}
             <div className="p-4">
                 <Button
                     onClick={handleLogout}
                     variant="ghost"
-                    className="w-full justify-start gap-3 text-gray-400 light:text-gray-600 hover:text-white light:hover:text-red-600 hover:bg-red-500/10 light:hover:bg-red-50 hover:border-red-500/20 light:hover:border-red-300 border border-dark-700 light:border-gray-200 transition-all duration-200"
+                    className="w-full justify-start gap-3 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-white hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-300 dark:hover:border-red-500/20 border border-gray-200 dark:border-dark-700 transition-all duration-200"
                 >
                     <LogOut className="h-5 w-5" />
                     <span>Logout</span>

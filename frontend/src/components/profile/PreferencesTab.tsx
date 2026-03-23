@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Card, CardContent } from '../ui/card';
+import { Checkbox } from '../ui/checkbox';
 import {
     Select,
     SelectContent,
@@ -11,17 +13,41 @@ import {
     SelectValue,
 } from '../ui/select';
 
+import { useAuthStore } from '@/lib/stores/authStore';
+
 export function PreferencesTab() {
+    const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    
+    // Helper to format dietary preferences from backend (snake_case) to UI (Capitalized-Hyphenated)
+    const formatPref = (p: string) => {
+        return p.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('-');
+    };
+
     const [formData, setFormData] = useState({
-        dietaryRestrictions: [] as string[],
-        allergies: '',
-        budget: '200',
+        dietaryRestrictions: (member?.dietaryPreferences || []).map(formatPref),
+        allergies: (member?.allergies || []).join(', '),
+        budget: member?.dietBudget?.amount?.toString() || '200',
         workoutTime: '',
-        emailNotifications: true,
-        smsNotifications: false,
-        pushNotifications: true,
+        emailNotifications: member?.notificationPreferences?.email ?? true,
+        smsNotifications: member?.notificationPreferences?.sms ?? false,
+        pushNotifications: member?.notificationPreferences?.push ?? true,
     });
+
+    useEffect(() => {
+        if (member) {
+            setFormData(prev => ({
+                ...prev,
+                dietaryRestrictions: (member.dietaryPreferences || []).map(formatPref),
+                allergies: (member.allergies || []).join(', '),
+                budget: member.dietBudget?.amount?.toString() || prev.budget,
+                emailNotifications: member.notificationPreferences?.email ?? prev.emailNotifications,
+                smsNotifications: member.notificationPreferences?.sms ?? prev.smsNotifications,
+                pushNotifications: member.notificationPreferences?.push ?? prev.pushNotifications,
+            }));
+        }
+    }, [member]);
 
     const dietaryOptions = [
         'Vegetarian',
@@ -39,14 +65,40 @@ export function PreferencesTab() {
         setFormData(prev => ({
             ...prev,
             dietaryRestrictions: prev.dietaryRestrictions.includes(option)
-                ? prev.dietaryRestrictions.filter(item => item !== option)
+                ? prev.dietaryRestrictions.filter((item: string) => item !== option)
                 : [...prev.dietaryRestrictions, option]
         }));
     };
 
-    const handleSave = () => {
-        // TODO: Save to backend
-        setIsEditing(false);
+    const handleSave = async () => {
+        try {
+            const response = await axios.put(`${API_URL}/api/auth/profile`, {
+                memberData: {
+                    dietaryPreferences: formData.dietaryRestrictions.map((p: string) => p.toLowerCase().replace('-', '_')),
+                    allergies: formData.allergies.split(',').map((a: string) => a.trim()).filter((a: string) => a),
+                    dietBudget: {
+                        amount: parseFloat(formData.budget),
+                        currency: member?.dietBudget?.currency || 'LKR',
+                        period: member?.dietBudget?.period || 'weekly'
+                    },
+                    notificationPreferences: {
+                        email: formData.emailNotifications,
+                        sms: formData.smsNotifications,
+                        push: formData.pushNotifications
+                    }
+                }
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.data.success && token) {
+                login(response.data.user, token, response.data.member);
+                setIsEditing(false);
+            }
+        } catch (error) {
+            console.error('Error updating preferences:', error);
+            alert('Failed to update preferences. Please try again.');
+        }
     };
 
     const handleCancel = () => {
@@ -54,7 +106,7 @@ export function PreferencesTab() {
     };
 
     return (
-        <Card className="border-dark-700">
+        <Card className="border-border">
             <CardContent className="p-6">
                 <div className="space-y-6">
                     {/* Dietary Restrictions */}
@@ -69,7 +121,7 @@ export function PreferencesTab() {
                                     disabled={!isEditing}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${formData.dietaryRestrictions.includes(option)
                                             ? 'bg-primary-500 text-white'
-                                            : 'bg-dark-700 text-gray-400 hover:bg-dark-600'
+                                            : 'bg-muted text-muted-foreground hover:bg-accent'
                                         } ${!isEditing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                                 >
                                     {option}
@@ -83,7 +135,7 @@ export function PreferencesTab() {
                         <Label htmlFor="allergies">Allergies</Label>
                         <Textarea
                             id="allergies"
-                            placeholder="List any food allergies..."
+                            placeholder=""
                             value={formData.allergies}
                             onChange={(e) =>
                                 setFormData({ ...formData, allergies: e.target.value })
@@ -110,9 +162,9 @@ export function PreferencesTab() {
                                     setFormData({ ...formData, budget: e.target.value })
                                 }
                                 disabled={!isEditing}
-                                className="w-full h-2 bg-dark-700 rounded-lg appearance-none cursor-pointer accent-primary-500"
+                                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary-500"
                             />
-                            <div className="flex justify-between text-xs text-gray-500">
+                            <div className="flex justify-between text-xs text-muted-foreground">
                                 <span>$50</span>
                                 <span>$500</span>
                             </div>
@@ -156,9 +208,9 @@ export function PreferencesTab() {
                                         })
                                     }
                                     disabled={!isEditing}
-                                    className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                    className="w-4 h-4 rounded border-border bg-muted text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
                                 />
-                                <span className="text-sm text-gray-300">Email Notifications</span>
+                                <span className="text-sm text-muted-foreground">Email Notifications</span>
                             </label>
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input
@@ -171,9 +223,9 @@ export function PreferencesTab() {
                                         })
                                     }
                                     disabled={!isEditing}
-                                    className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                    className="w-4 h-4 rounded border-border bg-muted text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
                                 />
-                                <span className="text-sm text-gray-300">SMS Notifications</span>
+                                <span className="text-sm text-muted-foreground">SMS Notifications</span>
                             </label>
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input
@@ -186,9 +238,9 @@ export function PreferencesTab() {
                                         })
                                     }
                                     disabled={!isEditing}
-                                    className="w-4 h-4 rounded border-dark-600 bg-dark-700 text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
+                                    className="w-4 h-4 rounded border-border bg-muted text-primary-500 focus:ring-primary-500 focus:ring-offset-dark-900"
                                 />
-                                <span className="text-sm text-gray-300">Push Notifications</span>
+                                <span className="text-sm text-muted-foreground">Push Notifications</span>
                             </label>
                         </div>
                     </div>

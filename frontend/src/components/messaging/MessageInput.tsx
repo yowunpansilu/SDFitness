@@ -29,9 +29,9 @@ export function MessageInput() {
     };
 
     return (
-        <div className="p-4 border-t border-dark-700 bg-dark-800">
+        <div className="p-4 border-t border-border bg-card">
             <div className="flex items-end gap-2">
-                <Button variant="ghost" size="icon" className="shrink-0 text-gray-400 hover:text-white hover:bg-dark-700">
+                <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted">
                     <Paperclip className="h-5 w-5" />
                     <span className="sr-only">Attach file</span>
                 </Button>
@@ -43,14 +43,14 @@ export function MessageInput() {
                         onChange={(e) => setMessage(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Type a message..."
-                        className="min-h-[44px] max-h-[120px] resize-none pr-10 py-3 bg-dark-900 border-dark-600 text-white placeholder:text-gray-400 focus-visible:ring-primary-500"
+                        className="min-h-[44px] max-h-[120px] resize-none pr-10 py-3 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary-500"
                         rows={1}
                     />
 
                     <div className="absolute right-2 bottom-2">
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-400 hover:text-white hover:bg-transparent">
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-transparent">
                                     <Smile className="h-4 w-4" />
                                 </Button>
                             </PopoverTrigger>

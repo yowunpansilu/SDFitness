@@ -89,10 +89,10 @@ export function Settings() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                         Settings
                     </h1>
-                    <p className="text-gray-400 mt-2">
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">
                         Manage your gym's configuration and preferences
                     </p>
                 </div>
@@ -109,7 +109,7 @@ export function Settings() {
                         variant="outline"
                         onClick={handleDiscardChanges}
                         disabled={!hasUnsavedChanges || isLoading}
-                        className="border-dark-700 text-gray-400 hover:text-white hover:bg-dark-800"
+                        className="bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800 shadow-sm"
                     >
                         <X className="h-4 w-4 mr-2" />
                         Discard
@@ -166,23 +166,23 @@ export function Settings() {
 
             {/* Unsaved Changes Warning Dialog */}
             <AlertDialog open={showUnsavedWarning} onOpenChange={setShowUnsavedWarning}>
-                <AlertDialogContent className="bg-dark-900 border-dark-700">
+                <AlertDialogContent className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700 shadow-2xl">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-white">Unsaved Changes</AlertDialogTitle>
-                        <AlertDialogDescription className="text-gray-400">
+                        <AlertDialogTitle className="text-gray-900 dark:text-white">Unsaved Changes</AlertDialogTitle>
+                        <AlertDialogDescription className="text-gray-500 dark:text-gray-400">
                             You have unsaved changes. Are you sure you want to leave this section? Your changes will be lost.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel
                             onClick={handleCancelWarning}
-                            className="bg-dark-800 border-dark-700 text-white hover:bg-dark-700"
+                            className="bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-dark-700"
                         >
                             Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDiscardChanges}
-                            className="bg-red-500 hover:bg-red-600 text-white"
+                            className="bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20"
                         >
                             Discard Changes
                         </AlertDialogAction>

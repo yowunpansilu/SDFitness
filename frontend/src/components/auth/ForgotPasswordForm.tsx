@@ -28,17 +28,17 @@ export function ForgotPasswordForm() {
                 </div>
 
                 <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">Check Your Email</h3>
-                    <p className="text-gray-400">
-                        We've sent password reset instructions to <strong className="text-white">{email}</strong>
+                    <h3 className="text-2xl font-bold text-foreground mb-2">Check Your Email</h3>
+                    <p className="text-muted-foreground">
+                        We've sent password reset instructions to <strong className="text-primary-900 font-semibold text-sm">{email}</strong>
                     </p>
                 </div>
 
-                <div className="bg-dark-700 border border-dark-600 rounded-lg p-4 text-left">
-                    <p className="text-sm text-gray-300 mb-2">
-                        <strong className="text-white">Didn't receive the email?</strong>
+                <div className="bg-muted border border-border rounded-lg p-4 text-left">
+                    <p className="text-sm text-muted-foreground mb-2">
+                        <strong className="text-primary-900 font-semibold text-sm">Didn't receive the email?</strong>
                     </p>
-                    <ul className="text-sm text-gray-400 space-y-1 list-disc list-inside">
+                    <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                         <li>Check your spam folder</li>
                         <li>Make sure you entered the correct email</li>
                         <li>Wait a few minutes and check again</li>
@@ -57,7 +57,7 @@ export function ForgotPasswordForm() {
 
                     <a
                         href="/login"
-                        className="flex items-center justify-center gap-2 text-gray-400 hover:text-white transition-colors"
+                        className="flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
                     >
                         <ArrowLeft className="w-4 h-4" />
                         Back to Login
@@ -70,24 +70,24 @@ export function ForgotPasswordForm() {
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="text-center mb-6">
-                <p className="text-gray-400">
+                <p className="text-muted-foreground">
                     Enter your email address and we'll send you instructions to reset your password.
                 </p>
             </div>
 
-            <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-200">
+            <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-primary-900 font-semibold text-sm">
                     Email Address
                 </Label>
-                <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <div className="relative group">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
                     <Input
                         id="email"
                         type="email"
                         placeholder="you@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10"
+                        className="pl-11 h-12 bg-primary-50 border-primary-200 focus:border-secondary-500 focus:ring-secondary-500/20 transition-all rounded-lg"
                         required
                     />
                 </div>
@@ -96,12 +96,12 @@ export function ForgotPasswordForm() {
             <Button
                 type="submit"
                 variant="gym"
-                className="w-full text-lg py-6"
+                className="w-full text-lg h-14 rounded-xl"
                 disabled={isLoading}
             >
                 {isLoading ? (
                     <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-5 h-5 border-2 border-primary-900/30 border-t-primary-900 rounded-full animate-spin" />
                         <span>Sending...</span>
                     </div>
                 ) : (
@@ -111,7 +111,7 @@ export function ForgotPasswordForm() {
 
             <a
                 href="/login"
-                className="flex items-center justify-center gap-2 text-gray-400 hover:text-white transition-colors"
+                className="flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Login
@@ -119,3 +119,4 @@ export function ForgotPasswordForm() {
         </form>
     );
 }
+

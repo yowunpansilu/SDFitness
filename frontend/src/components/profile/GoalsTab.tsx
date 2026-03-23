@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -12,19 +13,57 @@ import {
     SelectValue,
 } from '../ui/select';
 
+import { useAuthStore } from '@/lib/stores/authStore';
+
 export function GoalsTab() {
+    const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
     const [formData, setFormData] = useState({
-        fitnessGoal: '',
-        targetWeight: '',
+        fitnessGoal: member?.fitnessGoals?.[0] || '',
+        targetWeight: member?.targetWeight?.value || '',
         timeline: '',
-        activityLevel: '',
-        notes: '',
+        activityLevel: member?.activityLevel || '',
+        notes: member?.notes || '',
     });
 
-    const handleSave = () => {
-        // TODO: Save to backend
-        setIsEditing(false);
+    useEffect(() => {
+        if (member) {
+            setFormData(prev => ({
+                ...prev,
+                fitnessGoal: (member.fitnessGoals?.[0] || prev.fitnessGoal)?.replace('_', '-'),
+                targetWeight: member.targetWeight?.value || prev.targetWeight,
+                activityLevel: member.activityLevel || prev.activityLevel,
+                notes: member.notes || prev.notes,
+            }));
+        }
+    }, [member]);
+
+    const handleSave = async () => {
+        try {
+            const response = await axios.put(`${API_URL}/api/auth/profile`, {
+                memberData: {
+                    fitnessGoals: [formData.fitnessGoal.replace('-', '_')],
+                    targetWeight: {
+                        value: formData.targetWeight ? parseFloat(formData.targetWeight.toString()) : undefined,
+                        unit: member?.targetWeight?.unit || 'kg'
+                    },
+                    activityLevel: formData.activityLevel,
+                    notes: formData.notes
+                }
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.data.success && token) {
+                login(response.data.user, token, response.data.member);
+                setIsEditing(false);
+            }
+        } catch (error) {
+            console.error('Error updating goals:', error);
+            alert('Failed to update goals. Please try again.');
+        }
     };
 
     const handleCancel = () => {
@@ -32,7 +71,7 @@ export function GoalsTab() {
     };
 
     return (
-        <Card className="border-dark-700">
+        <Card className="border-border">
             <CardContent className="p-6">
                 <div className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
@@ -65,7 +104,7 @@ export function GoalsTab() {
                             <Input
                                 id="targetWeight"
                                 type="number"
-                                placeholder="65"
+                                placeholder=""
                                 value={formData.targetWeight}
                                 onChange={(e) =>
                                     setFormData({ ...formData, targetWeight: e.target.value })
@@ -125,7 +164,7 @@ export function GoalsTab() {
                         <Label htmlFor="notes">Notes</Label>
                         <Textarea
                             id="notes"
-                            placeholder="Any additional notes about your fitness goals..."
+                            placeholder=""
                             value={formData.notes}
                             onChange={(e) =>
                                 setFormData({ ...formData, notes: e.target.value })

@@ -15,7 +15,7 @@ const FieldLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <label
         ref={ref}
-        className={cn("text-sm font-medium text-gray-200", className)}
+        className={cn("text-sm font-medium text-foreground", className)}
         {...props}
     />
 ))

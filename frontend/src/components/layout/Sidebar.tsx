@@ -30,9 +30,9 @@ export function Sidebar() {
     const location = useLocation();
 
     return (
-        <div className="flex h-full flex-col bg-dark-900 border-r border-dark-700">
+        <div className="flex h-full flex-col bg-background border-r border-border">
             {/* Logo */}
-            <div className="p-6 border-b border-dark-700">
+            <div className="p-6 border-b border-border">
                 <Logo />
             </div>
 
@@ -50,7 +50,7 @@ export function Sidebar() {
                                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
                                 isActive
                                     ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20'
-                                    : 'text-gray-400 hover:text-white hover:bg-dark-800'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-card'
                             )}
                         >
                             <Icon className="w-5 h-5" />
@@ -61,8 +61,8 @@ export function Sidebar() {
             </nav>
 
             {/* Footer */}
-            <div className="p-4 border-t border-dark-700">
-                <p className="text-xs text-gray-500 text-center">
+            <div className="p-4 border-t border-border">
+                <p className="text-xs text-muted-foreground text-center">
                     © 2026 SDFitness
                 </p>
             </div>

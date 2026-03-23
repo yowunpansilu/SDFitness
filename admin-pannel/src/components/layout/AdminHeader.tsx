@@ -26,13 +26,13 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
         : 'AD';
 
     return (
-        <header className="sticky top-0 z-40 border-b border-dark-800 light:border-gray-200 bg-dark-900/95 light:bg-white/95 backdrop-blur-xl supports-[backdrop-filter]:bg-dark-900/75 light:supports-[backdrop-filter]:bg-white/75 light:shadow-sm transition-colors duration-200">
+        <header className="sticky top-0 z-40 border-b border-gray-200 dark:border-dark-800 bg-white/95 dark:bg-dark-900/95 backdrop-blur-xl supports-[backdrop-filter]:bg-white/75 dark:supports-[backdrop-filter]:bg-dark-900/75 shadow-sm transition-colors duration-200">
             <div className="flex h-16 items-center gap-4 px-6">
                 {/* Mobile Menu Button */}
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="lg:hidden text-gray-400 light:text-gray-600 hover:text-white light:hover:text-gray-900 hover:bg-dark-800 light:hover:bg-gray-100"
+                    className="lg:hidden text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"
                     onClick={onMenuClick}
                 >
                     <Menu className="h-5 w-5" />
@@ -45,7 +45,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                         <Input
                             type="search"
                             placeholder="Search members, trainers, classes..."
-                            className="pl-10 bg-dark-800/50 light:bg-gray-50 border-dark-700 light:border-gray-200 focus:border-purple-500/50 focus:ring-purple-500/20 text-white light:text-gray-900 placeholder:text-gray-500 light:placeholder:text-gray-400 transition-all duration-200"
+                            className="pl-10 bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 focus:border-purple-500/50 focus:ring-purple-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-200"
                         />
                     </div>
                 </div>
@@ -57,7 +57,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                         variant="ghost"
                         size="icon"
                         onClick={toggleTheme}
-                        className="text-gray-400 hover:text-white dark:hover:text-white hover:bg-gray-200 dark:hover:bg-dark-800 transition-all duration-200"
+                        className="text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-dark-800 transition-all duration-200"
                     >
                         {theme === 'dark' ? (
                             <Moon className="h-5 w-5" />
@@ -101,7 +101,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                                 </DropdownMenuItem>
                             </div>
                             <DropdownMenuSeparator className="bg-gray-200 dark:bg-dark-700" />
-                            <DropdownMenuItem className="justify-center text-xs text-purple-400 hover:text-purple-300 focus:bg-gray-100 dark:focus:bg-dark-800 cursor-pointer">
+                            <DropdownMenuItem className="justify-center text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 focus:bg-gray-100 dark:focus:bg-dark-800 cursor-pointer">
                                 View all notifications
                             </DropdownMenuItem>
                         </DropdownMenuContent>

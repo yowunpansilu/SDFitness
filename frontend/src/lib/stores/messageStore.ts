@@ -4,7 +4,7 @@ import {
     type Conversation,
     getConversations,
     getMessages,
-    sendMessage as sendMessageAPI,
+    sendMessageAPI,
     socketService
 } from '@/lib/api/messageService';
 import { produce } from 'immer';

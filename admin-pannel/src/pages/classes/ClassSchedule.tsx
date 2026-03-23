@@ -96,10 +96,10 @@ export function ClassSchedule() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                         Class Schedule
                     </h1>
-                    <p className="text-gray-400 mt-2">
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">
                         Manage group fitness classes and schedules
                     </p>
                 </div>
@@ -114,12 +114,12 @@ export function ClassSchedule() {
 
             {/* Stats Cards */}
             <div className="grid gap-6 md:grid-cols-4">
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Total Classes</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Classes</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">{classes.length}</div>
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">{classes.length}</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
@@ -127,7 +127,7 @@ export function ClassSchedule() {
                         <CardTitle className="text-sm font-medium text-gray-400">Categories</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
                             {new Set(classes.map(c => c.name.split(' ')[0] || 'General')).size}
                         </div>
                     </CardContent>
@@ -137,7 +137,7 @@ export function ClassSchedule() {
                         <CardTitle className="text-sm font-medium text-gray-400">Total Capacity</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
                             {classes.reduce((sum, c) => sum + (c.capacity || 0), 0)}
                         </div>
                     </CardContent>
@@ -147,7 +147,7 @@ export function ClassSchedule() {
                         <CardTitle className="text-sm font-medium text-gray-400">Enrolled</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
                             {classes.reduce((sum, c) => sum + (c.enrolled || 0), 0)}
                         </div>
                     </CardContent>
@@ -155,7 +155,7 @@ export function ClassSchedule() {
             </div>
 
             {/* Week Navigation */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
                 <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                         <Button
@@ -166,8 +166,8 @@ export function ClassSchedule() {
                         >
                             <ChevronLeft className="h-5 w-5" />
                         </Button>
-                        <div className="flex items-center gap-2 text-white font-semibold">
-                            <CalendarIcon className="h-5 w-5 text-purple-400" />
+                        <div className="flex items-center gap-2 text-gray-900 dark:text-white font-semibold">
+                            <CalendarIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                             <span>Current Week</span>
                         </div>
                         <Button
@@ -194,12 +194,12 @@ export function ClassSchedule() {
                             <div className={cn(
                                 "text-center p-3 rounded-lg",
                                 isToday
-                                    ? "bg-gradient-to-r from-purple-500 to-pink-600"
-                                    : "bg-dark-900/50 border border-dark-800"
+                                    ? "bg-gradient-to-r from-purple-500 to-pink-600 shadow-md"
+                                    : "bg-white dark:bg-dark-900/50 border border-gray-200 dark:border-dark-800 shadow-sm"
                             )}>
                                 <p className={cn(
                                     "font-semibold",
-                                    isToday ? "text-white" : "text-gray-400"
+                                    isToday ? "text-white" : "text-gray-700 dark:text-gray-400"
                                 )}>
                                     {day}
                                 </p>
@@ -220,12 +220,12 @@ export function ClassSchedule() {
                                             <Card
                                                 key={classSession._id}
                                                 onClick={() => navigate(`/classes/${classSession._id}`)}
-                                                className="bg-dark-900/50 border-dark-800 backdrop-blur-sm hover:bg-dark-900/70 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5 cursor-pointer group"
+                                                className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-dark-900/70 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5 cursor-pointer group"
                                             >
                                                 <CardContent className="p-4 space-y-3">
                                                     {/* Class Name & Type */}
                                                     <div>
-                                                        <h3 className="font-semibold text-white group-hover:text-purple-400 transition-colors text-sm mb-1">
+                                                        <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors text-sm mb-1">
                                                             {classSession.name}
                                                         </h3>
                                                         <Badge className={cn(
@@ -237,7 +237,7 @@ export function ClassSchedule() {
                                                     </div>
 
                                                     {/* Time */}
-                                                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                                                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                                         <Clock className="h-3 w-3" />
                                                         <span>{classSession.schedule?.startTime} - {classSession.schedule?.endTime}</span>
                                                     </div>
@@ -249,13 +249,13 @@ export function ClassSchedule() {
                                                                 {getTrainerInitials(classSession.trainer)}
                                                             </AvatarFallback>
                                                         </Avatar>
-                                                        <span className="text-xs text-gray-400">{getTrainerName(classSession.trainer)}</span>
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">{getTrainerName(classSession.trainer)}</span>
                                                     </div>
 
                                                     {/* Enrollment */}
                                                     <div className="pt-2 border-t border-dark-700">
                                                         <div className="flex items-center justify-between mb-1">
-                                                            <div className="flex items-center gap-1 text-xs text-gray-400">
+                                                            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                                                                 <Users className="h-3 w-3" />
                                                                 <span>{classSession.enrolled || 0}/{classSession.capacity || 0}</span>
                                                             </div>
@@ -265,7 +265,7 @@ export function ClassSchedule() {
                                                                 </Badge>
                                                             )}
                                                         </div>
-                                                        <div className="w-full bg-dark-800 rounded-full h-1.5">
+                                                        <div className="w-full bg-gray-100 dark:bg-dark-800 rounded-full h-1.5">
                                                             <div
                                                                 className={cn(
                                                                     "h-1.5 rounded-full transition-all",
@@ -282,7 +282,7 @@ export function ClassSchedule() {
                                         );
                                     })
                                 ) : (
-                                    <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm border-dashed">
+                                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm border-dashed">
                                         <CardContent className="p-8 text-center">
                                             <p className="text-gray-500 text-sm">No classes scheduled</p>
                                         </CardContent>

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import { Camera } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -8,21 +9,49 @@ import { Card, CardContent } from '../ui/card';
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function PersonalInfoTab() {
-    const { user, updateUser } = useAuthStore();
+    const { user, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
+    const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const [formData, setFormData] = useState({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
         email: user?.email || '',
-        phone: '',
+        phone: user?.phone || '',
     });
 
-    const handleSave = () => {
-        updateUser({
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-        });
-        setIsEditing(false);
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                firstName: user.firstName || prev.firstName,
+                lastName: user.lastName || prev.lastName,
+                email: user.email || prev.email,
+                phone: user.phone || prev.phone,
+            }));
+        }
+    }, [user]);
+
+    const handleSave = async () => {
+        try {
+            const response = await axios.put(`${API_URL}/api/auth/profile`, {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phone: formData.phone
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.data.success && token) {
+                // Update local store with data from server
+                login(response.data.user, token, response.data.member);
+                setIsEditing(false);
+            }
+        } catch (error) {
+            console.error('Error updating personal info:', error);
+            alert('Failed to update profile. Please try again.');
+        }
     };
 
     const handleCancel = () => {
@@ -30,13 +59,54 @@ export function PersonalInfoTab() {
             firstName: user?.firstName || '',
             lastName: user?.lastName || '',
             email: user?.email || '',
-            phone: '',
+            phone: user?.phone || '',
         });
         setIsEditing(false);
     };
 
+    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Check if file is an image
+        if (!file.type.startsWith('image/')) {
+            alert('Please upload an image file (JPG, PNG or GIF).');
+            return;
+        }
+
+        // Check size (2MB max)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('File is too large. Max size is 2MB.');
+            return;
+        }
+
+        setIsUploadingPhoto(true);
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const base64String = reader.result;
+            try {
+                const response = await axios.put(`${API_URL}/api/auth/profile`, {
+                    avatar: base64String
+                }, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (response.data.success && token) {
+                    login(response.data.user, token, response.data.member);
+                }
+            } catch (error) {
+                console.error('Error uploading photo:', error);
+                alert('Failed to upload photo. Please try again.');
+            } finally {
+                setIsUploadingPhoto(false);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
     return (
-        <Card className="border-dark-700">
+        <Card className="border-border">
             <CardContent className="p-6">
                 <div className="space-y-6">
                     {/* Profile Photo */}
@@ -44,15 +114,28 @@ export function PersonalInfoTab() {
                         <Avatar className="h-24 w-24">
                             <AvatarImage src={user?.avatar} />
                             <AvatarFallback className="text-2xl">
-                                {user?.firstName[0]}{user?.lastName[0]}
+                                {user?.firstName?.[0]}{user?.lastName?.[0]}
                             </AvatarFallback>
                         </Avatar>
                         <div>
-                            <Button variant="outline" size="sm" className="gap-2">
+                            <input 
+                                type="file" 
+                                accept="image/jpeg, image/png, image/gif" 
+                                className="hidden" 
+                                ref={fileInputRef} 
+                                onChange={handlePhotoUpload} 
+                            />
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="gap-2"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploadingPhoto}
+                            >
                                 <Camera className="h-4 w-4" />
-                                Change Photo
+                                {isUploadingPhoto ? 'Uploading...' : 'Change Photo'}
                             </Button>
-                            <p className="text-xs text-gray-500 mt-2">
+                            <p className="text-xs text-muted-foreground mt-2">
                                 JPG, PNG or GIF. Max size 2MB.
                             </p>
                         </div>
@@ -93,7 +176,7 @@ export function PersonalInfoTab() {
                                 disabled
                                 className="opacity-60"
                             />
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                                 Email cannot be changed
                             </p>
                         </div>
@@ -103,7 +186,7 @@ export function PersonalInfoTab() {
                             <Input
                                 id="phone"
                                 type="tel"
-                                placeholder="+1 (555) 000-0000"
+                                placeholder=""
                                 value={formData.phone}
                                 onChange={(e) =>
                                     setFormData({ ...formData, phone: e.target.value })

@@ -72,13 +72,13 @@ export function GeneralSettings() {
     return (
         <div className="space-y-6">
             {/* Gym Information */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                 <CardHeader>
                     <div className="flex items-center gap-2">
-                        <Building2 className="h-5 w-5 text-purple-400" />
-                        <CardTitle className="text-white">Gym Information</CardTitle>
+                        <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        <CardTitle className="text-gray-900 dark:text-white">Gym Information</CardTitle>
                     </div>
-                    <CardDescription className="text-gray-400">
+                    <CardDescription className="text-gray-500 dark:text-gray-400">
                         Basic information about your gym
                     </CardDescription>
                 </CardHeader>
@@ -86,25 +86,25 @@ export function GeneralSettings() {
                     <div className="grid gap-6 md:grid-cols-2">
                         {/* Gym Name */}
                         <div className="space-y-2">
-                            <Label htmlFor="gymName" className="text-gray-300">Gym Name</Label>
+                            <Label htmlFor="gymName" className="text-gray-700 dark:text-gray-300">Gym Name</Label>
                             <Input
                                 id="gymName"
                                 value={generalSettings.gymName}
                                 onChange={(e) => handleChange('gymName', e.target.value)}
-                                className="bg-dark-800/50 border-dark-700 text-white"
+                                className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                             />
                         </div>
 
                         {/* Website */}
                         <div className="space-y-2">
-                            <Label htmlFor="website" className="text-gray-300">Website</Label>
+                            <Label htmlFor="website" className="text-gray-700 dark:text-gray-300">Website</Label>
                             <div className="relative">
-                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                                 <Input
                                     id="website"
                                     value={generalSettings.website}
                                     onChange={(e) => handleChange('website', e.target.value)}
-                                    className="pl-10 bg-dark-800/50 border-dark-700 text-white"
+                                    className="pl-10 bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                     placeholder="https://example.com"
                                 />
                             </div>
@@ -113,7 +113,7 @@ export function GeneralSettings() {
 
                     {/* Logo Upload */}
                     <div className="space-y-2">
-                        <Label className="text-gray-300">Gym Logo</Label>
+                        <Label className="text-gray-700 dark:text-gray-300">Gym Logo</Label>
                         <ImageUpload
                             value={generalSettings.logoUrl}
                             onChange={(value) => handleChange('logoUrl', value)}
@@ -123,13 +123,13 @@ export function GeneralSettings() {
             </Card>
 
             {/* Contact Information */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                 <CardHeader>
                     <div className="flex items-center gap-2">
-                        <Mail className="h-5 w-5 text-blue-400" />
-                        <CardTitle className="text-white">Contact Information</CardTitle>
+                        <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        <CardTitle className="text-gray-900 dark:text-white">Contact Information</CardTitle>
                     </div>
-                    <CardDescription className="text-gray-400">
+                    <CardDescription className="text-gray-500 dark:text-gray-400">
                         How members can reach you
                     </CardDescription>
                 </CardHeader>
@@ -137,29 +137,29 @@ export function GeneralSettings() {
                     <div className="grid gap-6 md:grid-cols-2">
                         {/* Email */}
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-gray-300">Email Address</Label>
+                            <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email Address</Label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                                 <Input
                                     id="email"
                                     type="email"
                                     value={generalSettings.email}
                                     onChange={(e) => handleChange('email', e.target.value)}
-                                    className="pl-10 bg-dark-800/50 border-dark-700 text-white"
+                                    className="pl-10 bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                 />
                             </div>
                         </div>
 
                         {/* Phone */}
                         <div className="space-y-2">
-                            <Label htmlFor="phone" className="text-gray-300">Phone Number</Label>
+                            <Label htmlFor="phone" className="text-gray-700 dark:text-gray-300">Phone Number</Label>
                             <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
                                 <Input
                                     id="phone"
                                     value={generalSettings.phone}
                                     onChange={(e) => handleChange('phone', e.target.value)}
-                                    className="pl-10 bg-dark-800/50 border-dark-700 text-white"
+                                    className="pl-10 bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                 />
                             </div>
                         </div>
@@ -167,32 +167,32 @@ export function GeneralSettings() {
 
                     {/* Address */}
                     <div className="space-y-4">
-                        <Label className="text-gray-300">Physical Address</Label>
+                        <Label className="text-gray-700 dark:text-gray-300">Physical Address</Label>
                         <div className="space-y-4">
                             <Input
                                 placeholder="Street Address"
                                 value={generalSettings.address.street}
                                 onChange={(e) => handleChange('address.street', e.target.value)}
-                                className="bg-dark-800/50 border-dark-700 text-white"
+                                className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                             />
                             <div className="grid gap-4 md:grid-cols-3">
                                 <Input
                                     placeholder="City"
                                     value={generalSettings.address.city}
                                     onChange={(e) => handleChange('address.city', e.target.value)}
-                                    className="bg-dark-800/50 border-dark-700 text-white"
+                                    className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                 />
                                 <Input
                                     placeholder="State"
                                     value={generalSettings.address.state}
                                     onChange={(e) => handleChange('address.state', e.target.value)}
-                                    className="bg-dark-800/50 border-dark-700 text-white"
+                                    className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                 />
                                 <Input
                                     placeholder="Zip Code"
                                     value={generalSettings.address.zipCode}
                                     onChange={(e) => handleChange('address.zipCode', e.target.value)}
-                                    className="bg-dark-800/50 border-dark-700 text-white"
+                                    className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                 />
                             </div>
                         </div>
@@ -200,25 +200,25 @@ export function GeneralSettings() {
 
                     {/* Social Media */}
                     <div className="space-y-4">
-                        <Label className="text-gray-300">Social Media Links</Label>
+                        <Label className="text-gray-700 dark:text-gray-300">Social Media Links</Label>
                         <div className="space-y-3">
                             <Input
                                 placeholder="Facebook URL"
                                 value={generalSettings.socialMedia.facebook}
                                 onChange={(e) => handleChange('socialMedia.facebook', e.target.value)}
-                                className="bg-dark-800/50 border-dark-700 text-white"
+                                className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                             />
                             <Input
                                 placeholder="Instagram URL"
                                 value={generalSettings.socialMedia.instagram}
                                 onChange={(e) => handleChange('socialMedia.instagram', e.target.value)}
-                                className="bg-dark-800/50 border-dark-700 text-white"
+                                className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                             />
                             <Input
                                 placeholder="Twitter URL"
                                 value={generalSettings.socialMedia.twitter}
                                 onChange={(e) => handleChange('socialMedia.twitter', e.target.value)}
-                                className="bg-dark-800/50 border-dark-700 text-white"
+                                className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                             />
                         </div>
                     </div>
@@ -226,13 +226,13 @@ export function GeneralSettings() {
             </Card>
 
             {/* Business Hours */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                 <CardHeader>
                     <div className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-green-400" />
-                        <CardTitle className="text-white">Business Hours</CardTitle>
+                        <Clock className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <CardTitle className="text-gray-900 dark:text-white">Business Hours</CardTitle>
                     </div>
-                    <CardDescription className="text-gray-400">
+                    <CardDescription className="text-gray-500 dark:text-gray-400">
                         Set your operating hours for each day
                     </CardDescription>
                 </CardHeader>
@@ -246,8 +246,8 @@ export function GeneralSettings() {
                                     className={cn(
                                         'flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-lg border transition-all',
                                         hours.isOpen
-                                            ? 'bg-dark-800/30 border-dark-700'
-                                            : 'bg-dark-900/30 border-dark-800 opacity-60'
+                                            ? 'bg-gray-50 dark:bg-dark-800/30 border-gray-200 dark:border-dark-700'
+                                            : 'bg-gray-100 dark:bg-dark-900/30 border-gray-100 dark:border-dark-800 opacity-60'
                                     )}
                                 >
                                     <div className="flex items-center gap-3 sm:w-48">
@@ -257,7 +257,7 @@ export function GeneralSettings() {
                                                 handleBusinessHoursChange(key, 'isOpen', checked)
                                             }
                                         />
-                                        <Label className="text-white font-medium">{label}</Label>
+                                        <Label className="text-gray-900 dark:text-white font-medium">{label}</Label>
                                     </div>
 
                                     {hours.isOpen ? (
@@ -268,16 +268,16 @@ export function GeneralSettings() {
                                                 onChange={(e) =>
                                                     handleBusinessHoursChange(key, 'openTime', e.target.value)
                                                 }
-                                                className="bg-dark-800/50 border-dark-700 text-white"
+                                                className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                             />
-                                            <span className="text-gray-400">to</span>
+                                            <span className="text-gray-500 dark:text-gray-400">to</span>
                                             <Input
                                                 type="time"
                                                 value={hours.closeTime}
                                                 onChange={(e) =>
                                                     handleBusinessHoursChange(key, 'closeTime', e.target.value)
                                                 }
-                                                className="bg-dark-800/50 border-dark-700 text-white"
+                                                className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"
                                             />
                                         </div>
                                     ) : (
@@ -291,10 +291,10 @@ export function GeneralSettings() {
             </Card>
 
             {/* Localization */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                 <CardHeader>
-                    <CardTitle className="text-white">Localization</CardTitle>
-                    <CardDescription className="text-gray-400">
+                    <CardTitle className="text-gray-900 dark:text-white">Localization</CardTitle>
+                    <CardDescription className="text-gray-500 dark:text-gray-400">
                         Currency and timezone settings
                     </CardDescription>
                 </CardHeader>
@@ -302,15 +302,15 @@ export function GeneralSettings() {
                     <div className="grid gap-6 md:grid-cols-2">
                         {/* Currency */}
                         <div className="space-y-2">
-                            <Label className="text-gray-300">Currency</Label>
+                            <Label className="text-gray-700 dark:text-gray-300">Currency</Label>
                             <Select
                                 value={generalSettings.currency}
                                 onValueChange={(value) => handleChange('currency', value)}
                             >
-                                <SelectTrigger className="bg-dark-800/50 border-dark-700 text-white">
+                                <SelectTrigger className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-dark-900 border-dark-700">
+                                <SelectContent className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700">
                                     {CURRENCIES.map((currency) => (
                                         <SelectItem key={currency.value} value={currency.value}>
                                             {currency.label}
@@ -322,15 +322,15 @@ export function GeneralSettings() {
 
                         {/* Timezone */}
                         <div className="space-y-2">
-                            <Label className="text-gray-300">Timezone</Label>
+                            <Label className="text-gray-700 dark:text-gray-300">Timezone</Label>
                             <Select
                                 value={generalSettings.timezone}
                                 onValueChange={(value) => handleChange('timezone', value)}
                             >
-                                <SelectTrigger className="bg-dark-800/50 border-dark-700 text-white">
+                                <SelectTrigger className="bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-dark-900 border-dark-700">
+                                <SelectContent className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700">
                                     {TIMEZONES.map((timezone) => (
                                         <SelectItem key={timezone.value} value={timezone.value}>
                                             {timezone.label}

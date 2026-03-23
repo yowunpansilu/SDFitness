@@ -27,13 +27,13 @@ interface Payment {
 }
 
 const statusColors: Record<string, string> = {
-    completed: 'bg-green-500/20 text-green-400 border-green-500/30',
-    paid: 'bg-green-500/20 text-green-400 border-green-500/30',
-    active: 'bg-green-500/20 text-green-400 border-green-500/30',
-    pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    failed: 'bg-red-500/20 text-red-400 border-red-500/30',
-    refunded: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-    cancelled: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    completed: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
+    paid: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
+    active: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
+    pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30',
+    failed: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30',
+    refunded: 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
+    cancelled: 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
 };
 
 const paymentTypeLabels: Record<string, string> = {
@@ -118,41 +118,41 @@ export function PaymentsList() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Payments</h1>
-                    <p className="text-gray-400 mt-2">Manage transactions and payment records</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Payments</h1>
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">Manage transactions and payment records</p>
                 </div>
                 <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"><Download className="h-4 w-4 mr-2" /> Export Report</Button>
             </div>
 
             <div className="grid gap-6 md:grid-cols-4">
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-400">Total Revenue</CardTitle><DollarSign className="h-4 w-4 text-green-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-white">LKR {totalRevenue.toLocaleString()}</div><p className="text-xs text-gray-500 mt-1">{completedCount} completed</p></CardContent>
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
+                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</CardTitle><DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" /></div></CardHeader>
+                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">LKR {totalRevenue.toLocaleString()}</div><p className="text-xs text-gray-500 mt-1">{completedCount} completed</p></CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-400">Pending</CardTitle><CreditCard className="h-4 w-4 text-yellow-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-white">LKR {pendingAmount.toLocaleString()}</div><p className="text-xs text-gray-500 mt-1">{payments.filter(p => p.status === 'pending').length} transactions</p></CardContent>
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
+                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Pending</CardTitle><CreditCard className="h-4 w-4 text-yellow-600 dark:text-yellow-400" /></div></CardHeader>
+                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">LKR {pendingAmount.toLocaleString()}</div><p className="text-xs text-gray-500 mt-1">{payments.filter(p => p.status === 'pending').length} transactions</p></CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-400">Completed</CardTitle><TrendingUp className="h-4 w-4 text-blue-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-white">{completedCount}</div><p className="text-xs text-gray-500 mt-1">Transactions</p></CardContent>
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
+                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Completed</CardTitle><TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" /></div></CardHeader>
+                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">{completedCount}</div><p className="text-xs text-gray-500 mt-1">Transactions</p></CardContent>
                 </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-400">Failed</CardTitle><AlertCircle className="h-4 w-4 text-red-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-white">{failedCount}</div><p className="text-xs text-gray-500 mt-1">Requires attention</p></CardContent>
+                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
+                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Failed</CardTitle><AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" /></div></CardHeader>
+                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">{failedCount}</div><p className="text-xs text-gray-500 mt-1">Requires attention</p></CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                 <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <Input placeholder="Search by member or transaction ID..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 bg-dark-800/50 border-dark-700 text-white placeholder:text-gray-500" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                            <Input placeholder="Search by member or transaction ID..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white placeholder:text-gray-500 shadow-sm" />
                         </div>
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full md:w-[180px] bg-dark-800/50 border-dark-700 text-white"><div className="flex items-center gap-2"><Filter className="h-4 w-4" /><SelectValue placeholder="Status" /></div></SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700">
+                            <SelectTrigger className="w-full md:w-[180px] bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"><div className="flex items-center gap-2"><Filter className="h-4 w-4" /><SelectValue placeholder="Status" /></div></SelectTrigger>
+                            <SelectContent className="bg-white dark:bg-dark-950 border-gray-200 dark:border-dark-800">
                                 <SelectItem value="all">All Status</SelectItem>
                                 <SelectItem value="completed">Completed</SelectItem>
                                 <SelectItem value="active">Active</SelectItem>
@@ -162,8 +162,8 @@ export function PaymentsList() {
                             </SelectContent>
                         </Select>
                         <Select value={typeFilter} onValueChange={setTypeFilter}>
-                            <SelectTrigger className="w-full md:w-[180px] bg-dark-800/50 border-dark-700 text-white"><SelectValue placeholder="Type" /></SelectTrigger>
-                            <SelectContent className="bg-dark-900 border-dark-700">
+                            <SelectTrigger className="w-full md:w-[180px] bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"><SelectValue placeholder="Type" /></SelectTrigger>
+                            <SelectContent className="bg-white dark:bg-dark-950 border-gray-200 dark:border-dark-800">
                                 <SelectItem value="all">All Types</SelectItem>
                                 <SelectItem value="membership">Membership</SelectItem>
                                 <SelectItem value="personal_training">Personal Training</SelectItem>
@@ -174,43 +174,43 @@ export function PaymentsList() {
                 </CardContent>
             </Card>
 
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                <CardHeader><CardTitle className="text-white">Recent Transactions</CardTitle></CardHeader>
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
+                <CardHeader><CardTitle className="text-gray-900 dark:text-white">Recent Transactions</CardTitle></CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-dark-700 hover:bg-transparent">
-                                <TableHead className="text-gray-400">Transaction ID</TableHead>
-                                <TableHead className="text-gray-400">Member</TableHead>
-                                <TableHead className="text-gray-400">Type</TableHead>
-                                <TableHead className="text-gray-400">Amount</TableHead>
-                                <TableHead className="text-gray-400">Method</TableHead>
-                                <TableHead className="text-gray-400">Status</TableHead>
-                                <TableHead className="text-gray-400">Date</TableHead>
-                                <TableHead className="text-gray-400">Actions</TableHead>
+                            <TableRow className="border-gray-200 dark:border-dark-700 hover:bg-transparent">
+                                <TableHead className="text-gray-500 dark:text-gray-400">Transaction ID</TableHead>
+                                <TableHead className="text-gray-500 dark:text-gray-400">Member</TableHead>
+                                <TableHead className="text-gray-500 dark:text-gray-400">Type</TableHead>
+                                <TableHead className="text-gray-500 dark:text-gray-400">Amount</TableHead>
+                                <TableHead className="text-gray-500 dark:text-gray-400">Method</TableHead>
+                                <TableHead className="text-gray-500 dark:text-gray-400">Status</TableHead>
+                                <TableHead className="text-gray-500 dark:text-gray-400">Date</TableHead>
+                                <TableHead className="text-gray-500 dark:text-gray-400">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {filteredPayments.map((payment) => (
-                                <TableRow key={payment._id} onClick={() => navigate(`/payments/${payment._id}`)} className="border-dark-700 hover:bg-dark-800/50 cursor-pointer">
-                                    <TableCell className="font-mono text-sm text-gray-400">{payment.transactionId || payment._id?.slice(-8)}</TableCell>
-                                    <TableCell className="text-white">{payment.memberName || '—'}</TableCell>
-                                    <TableCell><Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">{paymentTypeLabels[payment.type] || payment.type}</Badge></TableCell>
-                                    <TableCell className="text-white font-semibold">LKR {payment.amount.toLocaleString()}</TableCell>
-                                    <TableCell className="text-gray-400 capitalize">{(payment.paymentMethod || '—').replace('_', ' ')}</TableCell>
-                                    <TableCell><Badge className={cn(statusColors[payment.status] || statusColors.pending)}>{payment.status}</Badge></TableCell>
-                                    <TableCell className="text-gray-400">{payment.date ? new Date(payment.date).toLocaleDateString() : '—'}</TableCell>
+                                <TableRow key={payment._id} onClick={() => navigate(`/payments/${payment._id}`)} className="border-gray-200 dark:border-dark-700 hover:bg-gray-50 dark:hover:bg-dark-800/50 cursor-pointer">
+                                    <TableCell className="font-mono text-sm text-gray-500 dark:text-gray-400">{payment.transactionId || payment._id?.slice(-8)}</TableCell>
+                                    <TableCell className="text-gray-900 dark:text-white font-medium">{payment.memberName || '—'}</TableCell>
+                                    <TableCell><Badge className="bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30 shadow-sm">{paymentTypeLabels[payment.type] || payment.type}</Badge></TableCell>
+                                    <TableCell className="text-gray-900 dark:text-white font-semibold">LKR {payment.amount.toLocaleString()}</TableCell>
+                                    <TableCell className="text-gray-500 dark:text-gray-400 capitalize">{(payment.paymentMethod || '—').replace('_', ' ')}</TableCell>
+                                    <TableCell><Badge className={cn('shadow-sm', statusColors[payment.status] || statusColors.pending)}>{payment.status}</Badge></TableCell>
+                                    <TableCell className="text-gray-500 dark:text-gray-400">{payment.date ? new Date(payment.date).toLocaleDateString() : '—'}</TableCell>
                                     <TableCell>
                                         <div className="flex gap-2">
-                                            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white hover:bg-dark-800"><Eye className="h-4 w-4" /></Button>
-                                            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white hover:bg-dark-800"><Download className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"><Eye className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"><Download className="h-4 w-4" /></Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
-                    {filteredPayments.length === 0 && <div className="text-center py-12"><p className="text-gray-400">No payments found matching your criteria</p></div>}
+                    {filteredPayments.length === 0 && <div className="text-center py-12"><p className="text-gray-500 dark:text-gray-400">No payments found matching your criteria</p></div>}
                 </CardContent>
             </Card>
         </div>

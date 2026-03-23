@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -11,17 +12,51 @@ import {
     SelectValue,
 } from '../ui/select';
 
+import { useAuthStore } from '@/lib/stores/authStore';
+
 export function HealthMetricsTab() {
+    const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const [formData, setFormData] = useState({
-        height: '',
-        heightUnit: 'cm',
-        weight: '',
-        weightUnit: 'kg',
-        age: '',
-        gender: '',
-        bodyFat: '',
+        height: member?.height?.value || '',
+        heightUnit: member?.height?.unit || 'cm',
+        weight: member?.currentWeight?.value || '',
+        weightUnit: member?.currentWeight?.unit || 'kg',
+        age: '', // Age is handled via DOB calculation usually, but I'll add a helper or just leave for now
+        gender: member?.gender || '',
+        bodyFat: member?.bodyFatPercentage || '',
     });
+
+    // Sync form data with member when it becomes available
+    useEffect(() => {
+        if (member) {
+            setFormData(prev => ({
+                ...prev,
+                height: member.height?.value || prev.height,
+                heightUnit: member.height?.unit || prev.heightUnit,
+                weight: member.currentWeight?.value || prev.weight,
+                weightUnit: member.currentWeight?.unit || prev.weightUnit,
+                gender: member.gender || prev.gender,
+                bodyFat: member.bodyFatPercentage || prev.bodyFat,
+            }));
+        }
+    }, [member]);
+
+    // Handle Age calculation if dateOfBirth exists
+    useEffect(() => {
+        if (member?.dateOfBirth) {
+            const birthDate = new Date(member.dateOfBirth);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            setFormData(prev => ({ ...prev, age: age.toString() }));
+        }
+    }, [member]);
+
     const [bmi, setBmi] = useState<number | null>(null);
 
     // Calculate BMI whenever height or weight changes
@@ -58,9 +93,36 @@ export function HealthMetricsTab() {
         return { text: 'Obese', color: 'text-red-500' };
     };
 
-    const handleSave = () => {
-        // TODO: Save to backend
-        setIsEditing(false);
+    const handleSave = async () => {
+        try {
+            const h = parseFloat(formData.height.toString());
+            const w = parseFloat(formData.weight.toString());
+            
+            const response = await axios.put(`${API_URL}/api/auth/profile`, {
+                memberData: {
+                    height: {
+                        value: h,
+                        unit: formData.heightUnit
+                    },
+                    currentWeight: {
+                        value: w,
+                        unit: formData.weightUnit
+                    },
+                    gender: formData.gender,
+                    bodyFatPercentage: formData.bodyFat ? parseFloat(formData.bodyFat.toString()) : undefined
+                }
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.data.success && token) {
+                login(response.data.user, token, response.data.member);
+                setIsEditing(false);
+            }
+        } catch (error) {
+            console.error('Error updating health metrics:', error);
+            alert('Failed to update health metrics. Please try again.');
+        }
     };
 
     const handleCancel = () => {
@@ -68,7 +130,7 @@ export function HealthMetricsTab() {
     };
 
     return (
-        <Card className="border-dark-700">
+        <Card className="border-border">
             <CardContent className="p-6">
                 <div className="space-y-6">
                     <div className="grid gap-6 md:grid-cols-2">
@@ -79,7 +141,7 @@ export function HealthMetricsTab() {
                                 <Input
                                     id="height"
                                     type="number"
-                                    placeholder="170"
+                                    placeholder=""
                                     value={formData.height}
                                     onChange={(e) =>
                                         setFormData({ ...formData, height: e.target.value })
@@ -112,7 +174,7 @@ export function HealthMetricsTab() {
                                 <Input
                                     id="weight"
                                     type="number"
-                                    placeholder="70"
+                                    placeholder=""
                                     value={formData.weight}
                                     onChange={(e) =>
                                         setFormData({ ...formData, weight: e.target.value })
@@ -144,7 +206,7 @@ export function HealthMetricsTab() {
                             <Input
                                 id="age"
                                 type="number"
-                                placeholder="25"
+                                placeholder=""
                                 value={formData.age}
                                 onChange={(e) =>
                                     setFormData({ ...formData, age: e.target.value })
@@ -180,7 +242,7 @@ export function HealthMetricsTab() {
                             <Input
                                 id="bodyFat"
                                 type="number"
-                                placeholder="15"
+                                placeholder=""
                                 value={formData.bodyFat}
                                 onChange={(e) =>
                                     setFormData({ ...formData, bodyFat: e.target.value })
@@ -192,16 +254,16 @@ export function HealthMetricsTab() {
                         {/* BMI Display */}
                         <div className="space-y-2">
                             <Label>BMI (Calculated)</Label>
-                            <div className="flex h-10 items-center rounded-md border border-dark-600 bg-dark-800 px-3 py-2">
+                            <div className="flex h-10 items-center rounded-md border border-border bg-card px-3 py-2">
                                 {bmi ? (
                                     <div className="flex items-center gap-2">
-                                        <span className="text-white font-semibold">{bmi}</span>
+                                        <span className="text-foreground font-semibold">{bmi}</span>
                                         <span className={getBMICategory(bmi).color}>
                                             ({getBMICategory(bmi).text})
                                         </span>
                                     </div>
                                 ) : (
-                                    <span className="text-gray-500">Enter height and weight</span>
+                                    <span className="text-muted-foreground">Enter height and weight</span>
                                 )}
                             </div>
                         </div>

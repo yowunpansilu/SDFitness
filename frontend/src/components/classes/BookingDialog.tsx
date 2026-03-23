@@ -25,43 +25,43 @@ export function BookingDialog({ gymClass, open, onOpenChange, onConfirm, loading
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="bg-dark-900 border-dark-700 text-white">
+            <AlertDialogContent className="bg-background border-border text-foreground">
                 <AlertDialogHeader>
-                    <AlertDialogTitle className="text-xl font-headline text-white">Confirm Booking</AlertDialogTitle>
-                    <AlertDialogDescription className="text-gray-400">
+                    <AlertDialogTitle className="text-xl font-headline text-foreground">Confirm Booking</AlertDialogTitle>
+                    <AlertDialogDescription className="text-muted-foreground">
                         You are about to book a spot in the following class:
                     </AlertDialogDescription>
                 </AlertDialogHeader>
 
                 <div className="py-4 space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-dark-800 rounded-lg border border-dark-700">
+                    <div className="flex items-center justify-between p-3 bg-card rounded-lg border border-border">
                         <div className="space-y-1">
-                            <h3 className="font-bold text-lg text-primary-400">{gymClass.name}</h3>
-                            <div className="flex items-center text-sm text-gray-400">
+                            <h3 className="font-bold text-lg text-primary-800">{gymClass.name}</h3>
+                            <div className="flex items-center text-sm text-muted-foreground">
                                 <User className="w-4 h-4 mr-2" />
                                 {gymClass.trainerName}
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="flex items-center justify-end text-sm text-gray-300 mb-1">
+                            <div className="flex items-center justify-end text-sm text-muted-foreground mb-1">
                                 <Calendar className="w-4 h-4 mr-2" />
                                 {format(new Date(gymClass.startTime), "EEE, MMM d")}
                             </div>
-                            <div className="flex items-center justify-end text-sm text-gray-300">
+                            <div className="flex items-center justify-end text-sm text-muted-foreground">
                                 <Clock className="w-4 h-4 mr-2" />
                                 {format(new Date(gymClass.startTime), "h:mm a")}
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-gray-400 px-1">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground px-1">
                         <MapPin className="w-4 h-4" />
                         {gymClass.location}
                     </div>
                 </div>
 
                 <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-dark-800 border-dark-600 text-white hover:bg-dark-700 hover:text-white">Cancel</AlertDialogCancel>
+                    <AlertDialogCancel className="bg-card border-border text-foreground hover:bg-muted hover:text-foreground">Cancel</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={(e) => {
                             e.preventDefault();

@@ -125,15 +125,15 @@ export function AddMember() {
                     variant="ghost"
                     size="icon"
                     onClick={() => navigate('/members')}
-                    className="text-gray-400 hover:text-white hover:bg-dark-800"
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"
                 >
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                         Add New Member
                     </h1>
-                    <p className="text-gray-400 mt-1">Fill in the member details</p>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1">Fill in the member details</p>
                 </div>
             </div>
 
@@ -146,10 +146,10 @@ export function AddMember() {
                                 className={cn(
                                     'w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300',
                                     currentStep > step.id
-                                        ? 'bg-green-500 border-green-500 text-white'
+                                        ? 'bg-green-500 border-green-500 text-white shadow-lg shadow-green-500/20'
                                         : currentStep === step.id
-                                            ? 'bg-purple-500 border-purple-500 text-white'
-                                            : 'bg-dark-900 border-dark-700 text-gray-400'
+                                            ? 'bg-purple-600 dark:bg-purple-500 border-purple-600 dark:border-purple-500 text-white shadow-lg shadow-purple-500/20'
+                                            : 'bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700 text-gray-400 dark:text-gray-500'
                                 )}
                             >
                                 {currentStep > step.id ? <Check className="h-5 w-5" /> : step.id}
@@ -157,7 +157,7 @@ export function AddMember() {
                             <div className="mt-2 text-center">
                                 <p className={cn(
                                     'text-sm font-medium transition-colors',
-                                    currentStep >= step.id ? 'text-white' : 'text-gray-500'
+                                    currentStep >= step.id ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'
                                 )}>
                                     {step.name}
                                 </p>
@@ -168,7 +168,7 @@ export function AddMember() {
                             <div
                                 className={cn(
                                     'flex-1 h-0.5 mx-2 transition-all duration-300',
-                                    currentStep > step.id ? 'bg-green-500' : 'bg-dark-700'
+                                    currentStep > step.id ? 'bg-green-500' : 'bg-gray-200 dark:bg-dark-700'
                                 )}
                             />
                         )}
@@ -177,10 +177,10 @@ export function AddMember() {
             </div>
 
             {/* Form Card */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
+            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
                 <CardHeader>
-                    <CardTitle className="text-white">{steps[currentStep - 1].name}</CardTitle>
-                    <CardDescription className="text-gray-400">
+                    <CardTitle className="text-gray-900 dark:text-white">{steps[currentStep - 1].name}</CardTitle>
+                    <CardDescription className="text-gray-600 dark:text-gray-400">
                         {steps[currentStep - 1].description}
                     </CardDescription>
                 </CardHeader>
@@ -191,11 +191,11 @@ export function AddMember() {
                             {currentStep === 1 && (
                                 <div className="space-y-6">
                                     <div className="flex flex-col items-center gap-4">
-                                        <div className="w-32 h-32 rounded-full bg-dark-800 border-2 border-dark-700 flex items-center justify-center overflow-hidden">
+                                        <div className="w-32 h-32 rounded-full bg-gray-50 dark:bg-dark-800 border-2 border-gray-100 dark:border-dark-700 flex items-center justify-center overflow-hidden">
                                             {profilePhoto ? (
                                                 <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
                                             ) : (
-                                                <Upload className="h-8 w-8 text-gray-400" />
+                                                <Upload className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                                             )}
                                         </div>
                                         <label htmlFor="photo-upload" className="cursor-pointer">
@@ -206,7 +206,7 @@ export function AddMember() {
                                                 onChange={handlePhotoUpload}
                                                 className="hidden"
                                             />
-                                            <Button type="button" variant="outline" className="border-dark-700 text-gray-400 hover:text-white hover:bg-dark-800" asChild>
+                                            <Button type="button" variant="outline" className="border-gray-200 dark:border-dark-700 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-dark-800" asChild>
                                                 <span>Upload Photo</span>
                                             </Button>
                                         </label>
@@ -218,9 +218,9 @@ export function AddMember() {
                                             name="firstName"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">First Name</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">First Name</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} placeholder="John" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                        <Input {...field} placeholder="John" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -231,9 +231,9 @@ export function AddMember() {
                                             name="lastName"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">Last Name</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">Last Name</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} placeholder="Doe" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                        <Input {...field} placeholder="Doe" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -244,9 +244,9 @@ export function AddMember() {
                                             name="dateOfBirth"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">Date of Birth</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">Date of Birth</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} type="date" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                        <Input {...field} type="date" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -257,14 +257,14 @@ export function AddMember() {
                                             name="gender"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">Gender</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">Gender</FormLabel>
                                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                         <FormControl>
-                                                            <SelectTrigger className="bg-dark-800/50 border-dark-700 text-white">
+                                                            <SelectTrigger className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
                                                                 <SelectValue placeholder="Select gender" />
                                                             </SelectTrigger>
                                                         </FormControl>
-                                                        <SelectContent className="bg-dark-900 border-dark-700">
+                                                        <SelectContent className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
                                                             <SelectItem value="male">Male</SelectItem>
                                                             <SelectItem value="female">Female</SelectItem>
                                                             <SelectItem value="other">Other</SelectItem>
@@ -287,9 +287,9 @@ export function AddMember() {
                                             name="email"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">Email</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">Email</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} type="email" placeholder="john.doe@example.com" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                        <Input {...field} type="email" placeholder="john.doe@example.com" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -300,9 +300,9 @@ export function AddMember() {
                                             name="phone"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">Phone</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">Phone</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} placeholder="+1 234 567 8900" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                        <Input {...field} placeholder="+1 234 567 8900" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -315,26 +315,26 @@ export function AddMember() {
                                         name="address"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-gray-300">Address</FormLabel>
+                                                <FormLabel className="text-gray-700 dark:text-gray-300">Address</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} placeholder="123 Main St, City, State ZIP" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                    <Input {...field} placeholder="123 Main St, City, State ZIP" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
                                     />
 
-                                    <div className="border-t border-dark-700 pt-6 mt-6">
-                                        <h3 className="text-lg font-semibold text-white mb-4">Emergency Contact</h3>
+                                    <div className="border-t border-gray-200 dark:border-dark-700 pt-6 mt-6">
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Emergency Contact</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             <FormField
                                                 control={form.control}
                                                 name="emergencyContactName"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className="text-gray-300">Name</FormLabel>
+                                                        <FormLabel className="text-gray-700 dark:text-gray-300">Name</FormLabel>
                                                         <FormControl>
-                                                            <Input {...field} placeholder="Jane Doe" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                            <Input {...field} placeholder="Jane Doe" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -345,9 +345,9 @@ export function AddMember() {
                                                 name="emergencyContactPhone"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className="text-gray-300">Phone</FormLabel>
+                                                        <FormLabel className="text-gray-700 dark:text-gray-300">Phone</FormLabel>
                                                         <FormControl>
-                                                            <Input {...field} placeholder="+1 234 567 8901" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                            <Input {...field} placeholder="+1 234 567 8901" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -358,9 +358,9 @@ export function AddMember() {
                                                 name="emergencyContactRelationship"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        <FormLabel className="text-gray-300">Relationship</FormLabel>
+                                                        <FormLabel className="text-gray-700 dark:text-gray-300">Relationship</FormLabel>
                                                         <FormControl>
-                                                            <Input {...field} placeholder="Spouse" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                            <Input {...field} placeholder="Spouse" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -380,14 +380,14 @@ export function AddMember() {
                                             name="membershipPlan"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">Membership Plan</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">Membership Plan</FormLabel>
                                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                         <FormControl>
-                                                            <SelectTrigger className="bg-dark-800/50 border-dark-700 text-white">
+                                                            <SelectTrigger className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
                                                                 <SelectValue placeholder="Select plan" />
                                                             </SelectTrigger>
                                                         </FormControl>
-                                                        <SelectContent className="bg-dark-900 border-dark-700">
+                                                        <SelectContent className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
                                                             <SelectItem value="basic">Basic - $49/month</SelectItem>
                                                             <SelectItem value="premium">Premium - $99/month</SelectItem>
                                                             <SelectItem value="vip">VIP - $149/month</SelectItem>
@@ -402,20 +402,20 @@ export function AddMember() {
                                             name="trainer"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">Assign Trainer (Optional)</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">Assign Trainer (Optional)</FormLabel>
                                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                         <FormControl>
-                                                            <SelectTrigger className="bg-dark-800/50 border-dark-700 text-white">
+                                                            <SelectTrigger className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
                                                                 <SelectValue placeholder="Select trainer" />
                                                             </SelectTrigger>
                                                         </FormControl>
-                                                        <SelectContent className="bg-dark-900 border-dark-700">
+                                                        <SelectContent className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
                                                             <SelectItem value="sarah">Sarah Johnson - Strength Training</SelectItem>
                                                             <SelectItem value="mike">Mike Ross - HIIT & Cardio</SelectItem>
                                                             <SelectItem value="emma">Emma Wilson - Yoga & Flexibility</SelectItem>
                                                         </SelectContent>
                                                     </Select>
-                                                    <FormDescription className="text-gray-500">
+                                                    <FormDescription className="text-gray-500 dark:text-gray-400">
                                                         Assign a personal trainer to this member
                                                     </FormDescription>
                                                     <FormMessage />
@@ -435,9 +435,9 @@ export function AddMember() {
                                             name="height"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">Height (cm)</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">Height (cm)</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} type="number" placeholder="175" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                        <Input {...field} type="number" placeholder="175" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -448,9 +448,9 @@ export function AddMember() {
                                             name="weight"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">Current Weight (kg)</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">Current Weight (kg)</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} type="number" placeholder="75" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                        <Input {...field} type="number" placeholder="75" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -461,9 +461,9 @@ export function AddMember() {
                                             name="targetWeight"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel className="text-gray-300">Target Weight (kg)</FormLabel>
+                                                    <FormLabel className="text-gray-700 dark:text-gray-300">Target Weight (kg)</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} type="number" placeholder="70" className="bg-dark-800/50 border-dark-700 text-white" />
+                                                        <Input {...field} type="number" placeholder="70" className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -476,11 +476,11 @@ export function AddMember() {
                                         name="fitnessGoals"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-gray-300">Fitness Goals</FormLabel>
+                                                <FormLabel className="text-gray-700 dark:text-gray-300">Fitness Goals</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} placeholder="Weight loss, muscle gain, endurance..." className="bg-dark-800/50 border-dark-700 text-white" />
+                                                    <Input {...field} placeholder="Weight loss, muscle gain, endurance..." className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                 </FormControl>
-                                                <FormDescription className="text-gray-500">
+                                                <FormDescription className="text-gray-500 dark:text-gray-400">
                                                     Describe the member's fitness objectives
                                                 </FormDescription>
                                                 <FormMessage />
@@ -493,11 +493,11 @@ export function AddMember() {
                                         name="medicalConditions"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-gray-300">Medical Conditions (Optional)</FormLabel>
+                                                <FormLabel className="text-gray-700 dark:text-gray-300">Medical Conditions (Optional)</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} placeholder="Any medical conditions or injuries..." className="bg-dark-800/50 border-dark-700 text-white" />
+                                                    <Input {...field} placeholder="Any medical conditions or injuries..." className="bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white" />
                                                 </FormControl>
-                                                <FormDescription className="text-gray-500">
+                                                <FormDescription className="text-gray-500 dark:text-gray-400">
                                                     Any health conditions trainers should be aware of
                                                 </FormDescription>
                                                 <FormMessage />
@@ -508,13 +508,13 @@ export function AddMember() {
                             )}
 
                             {/* Navigation Buttons */}
-                            <div className="flex justify-between pt-6 border-t border-dark-700">
+                            <div className="flex justify-between pt-6 border-t border-gray-200 dark:border-dark-700">
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={prevStep}
                                     disabled={currentStep === 1}
-                                    className="border-dark-700 text-gray-400 hover:text-white hover:bg-dark-800"
+                                    className="border-gray-200 dark:border-dark-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-dark-800"
                                 >
                                     Previous
                                 </Button>

@@ -119,27 +119,40 @@ router.post('/register', async (req, res) => {
     }
 });
 
+const Admin = require('../models/Admin');
+
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+        const trimmedEmail = email ? email.trim().toLowerCase() : '';
 
-        const user = await User.findOne({ email });
+        // Check Admin collection first
+        let user = await Admin.findOne({ email: trimmedEmail });
+        let isAdmin = !!user;
+
+        if (!user) {
+            user = await User.findOne({ email: trimmedEmail });
+        }
         
         if (user && (await user.matchPassword(password))) {
-            let member = await Member.findOne({ userId: user._id });
-            if (!member) {
-                console.log('Member profile not found for user. Auto-creating a default profile.');
-                member = await Member.create({
-                    userId: user._id,
-                    memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-                    dateOfBirth: new Date('2000-01-01'),
-                    gender: 'prefer_not_to_say',
-                    height: { value: 170, unit: 'cm' },
-                    currentWeight: { value: 70, unit: 'kg' },
-                    fitnessGoals: ['general_fitness'],
-                    activityLevel: 'moderate',
-                });
+            let member = null;
+            if (!isAdmin) {
+                member = await Member.findOne({ userId: user._id });
+                if (!member) {
+                    console.log('Member profile not found for user. Auto-creating a default profile.');
+                    member = await Member.create({
+                        userId: user._id,
+                        memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                        dateOfBirth: new Date('2000-01-01'),
+                        gender: 'prefer_not_to_say',
+                        height: { value: 170, unit: 'cm' },
+                        currentWeight: { value: 70, unit: 'kg' },
+                        fitnessGoals: ['general_fitness'],
+                        activityLevel: 'moderate',
+                    });
+                }
             }
+            
             res.json({
                 success: true,
                 user: {
@@ -147,7 +160,7 @@ router.post('/login', async (req, res) => {
                     firstName: user.firstName,
                     lastName: user.lastName,
                     email: user.email,
-                    phone: user.phone,
+                    phone: user.phone || '',
                     role: user.role,
                     avatar: user.avatar
                 },

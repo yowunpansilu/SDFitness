@@ -3,543 +3,539 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { ArrowLeft, Upload, Check } from 'lucide-react';
+import { ArrowLeft, Upload, Check, Loader2, UserPlus, Info, PhoneCall, ShieldCheck, HeartPulse } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { memberService } from '@/services/memberService';
 
-// Form schema
+// Form schema updated to match backend expectations
 const memberFormSchema = z.object({
-    firstName: z.string().min(2, 'First name must be at least 2 characters'),
-    lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
-    phone: z.string().min(10, 'Phone number must be at least 10 digits'),
-    dateOfBirth: z.string().min(1, 'Date of birth is required'),
-    gender: z.enum(['male', 'female', 'other']),
-    address: z.string().min(5, 'Address must be at least 5 characters'),
-    emergencyContactName: z.string().min(2, 'Emergency contact name is required'),
-    emergencyContactPhone: z.string().min(10, 'Emergency contact phone is required'),
-    emergencyContactRelationship: z.string().min(2, 'Relationship is required'),
-    membershipPlan: z.string().min(1, 'Please select a membership plan'),
-    trainer: z.string().optional(),
-    height: z.string().optional(),
-    weight: z.string().optional(),
-    targetWeight: z.string().optional(),
-    fitnessGoals: z.string().optional(),
-    medicalConditions: z.string().optional(),
+  firstName: z.string().min(2, 'First name must be at least 2 characters'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().optional(),
+  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']),
+  membershipPlan: z.string().min(1, 'Please select a membership plan'),
+  height: z.string().optional(),
+  weight: z.string().optional(),
+  targetWeight: z.string().optional(),
+  fitnessGoals: z.string().optional(),
+  medicalConditions: z.string().optional(),
+  emergencyContactName: z.string().optional(),
+  emergencyContactRelationship: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
 });
 
 type MemberFormValues = z.infer<typeof memberFormSchema>;
 
 const steps = [
-    { id: 1, name: 'Personal Info', description: 'Basic member information' },
-    { id: 2, name: 'Contact Details', description: 'Contact and emergency info' },
-    { id: 3, name: 'Membership', description: 'Plan and trainer assignment' },
-    { id: 4, name: 'Health Info', description: 'Fitness goals and metrics' },
+  { id: 1, name: 'Personal', icon: Info },
+  { id: 2, name: 'Communication', icon: PhoneCall },
+  { id: 3, name: 'Membership', icon: ShieldCheck },
+  { id: 4, name: 'Health Lab', icon: HeartPulse },
 ];
 
 export function AddMember() {
-    const navigate = useNavigate();
-    const { toast } = useToast();
-    const [currentStep, setCurrentStep] = useState(1);
-    const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const form = useForm<MemberFormValues>({
-        resolver: zodResolver(memberFormSchema),
-        defaultValues: {
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            dateOfBirth: '',
-            gender: 'male',
-            address: '',
-            emergencyContactName: '',
-            emergencyContactPhone: '',
-            emergencyContactRelationship: '',
-            membershipPlan: '',
-            trainer: '',
-            height: '',
-            weight: '',
-            targetWeight: '',
-            fitnessGoals: '',
-            medicalConditions: '',
-        },
-    });
+  const form = useForm<MemberFormValues>({
+    resolver: zodResolver(memberFormSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      dateOfBirth: '',
+      gender: 'prefer_not_to_say',
+      membershipPlan: 'standard',
+      height: '',
+      weight: '',
+      targetWeight: '',
+      fitnessGoals: '',
+      medicalConditions: '',
+      emergencyContactName: '',
+      emergencyContactRelationship: '',
+      emergencyContactPhone: '',
+    },
+  });
 
-    const onSubmit = (data: MemberFormValues) => {
-        console.log(data);
+  const onSubmit = async (data: MemberFormValues) => {
+    try {
+      setIsSubmitting(true);
+      const response = await memberService.createMember(data);
+      if (response.success) {
         toast({
-            title: 'Success!',
-            description: 'Member added successfully.',
+          title: 'Member Added',
+          description: `${data.firstName} ${data.lastName} has been enrolled successfully.`,
         });
         navigate('/members');
-    };
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Enrollment Failed',
+        description: error.response?.data?.message || 'Failed to create new member.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setProfilePhoto(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePhoto(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    const nextStep = () => {
-        if (currentStep < steps.length) {
-            setCurrentStep(currentStep + 1);
-        }
-    };
+  const nextStep = (e: any) => {
+    e.preventDefault();
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
 
-    const prevStep = () => {
-        if (currentStep > 1) {
-            setCurrentStep(currentStep - 1);
-        }
-    };
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
-    return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center gap-4">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigate('/members')}
-                    className="text-gray-400 hover:text-white hover:bg-dark-800"
-                >
-                    <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <div>
-                    <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                        Add New Member
-                    </h1>
-                    <p className="text-gray-400 mt-1">Fill in the member details</p>
-                </div>
-            </div>
-
-            {/* Steps Progress */}
-            <div className="flex justify-between items-center">
-                {steps.map((step, index) => (
-                    <div key={step.id} className="flex flex-1 items-center">
-                        <div className="flex flex-col items-center flex-1">
-                            <div
-                                className={cn(
-                                    'w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300',
-                                    currentStep > step.id
-                                        ? 'bg-green-500 border-green-500 text-white'
-                                        : currentStep === step.id
-                                            ? 'bg-purple-500 border-purple-500 text-white'
-                                            : 'bg-dark-900 border-dark-700 text-gray-400'
-                                )}
-                            >
-                                {currentStep > step.id ? <Check className="h-5 w-5" /> : step.id}
-                            </div>
-                            <div className="mt-2 text-center">
-                                <p className={cn(
-                                    'text-sm font-medium transition-colors',
-                                    currentStep >= step.id ? 'text-white' : 'text-gray-500'
-                                )}>
-                                    {step.name}
-                                </p>
-                                <p className="text-xs text-gray-500 hidden sm:block">{step.description}</p>
-                            </div>
-                        </div>
-                        {index < steps.length - 1 && (
-                            <div
-                                className={cn(
-                                    'flex-1 h-0.5 mx-2 transition-all duration-300',
-                                    currentStep > step.id ? 'bg-green-500' : 'bg-dark-700'
-                                )}
-                            />
-                        )}
-                    </div>
-                ))}
-            </div>
-
-            {/* Form Card */}
-            <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-white">{steps[currentStep - 1].name}</CardTitle>
-                    <CardDescription className="text-gray-400">
-                        {steps[currentStep - 1].description}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                            {/* Step 1: Personal Info */}
-                            {currentStep === 1 && (
-                                <div className="space-y-6">
-                                    <div className="flex flex-col items-center gap-4">
-                                        <div className="w-32 h-32 rounded-full bg-dark-800 border-2 border-dark-700 flex items-center justify-center overflow-hidden">
-                                            {profilePhoto ? (
-                                                <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-                                            ) : (
-                                                <Upload className="h-8 w-8 text-gray-400" />
-                                            )}
-                                        </div>
-                                        <label htmlFor="photo-upload" className="cursor-pointer">
-                                            <input
-                                                id="photo-upload"
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={handlePhotoUpload}
-                                                className="hidden"
-                                            />
-                                            <Button type="button" variant="outline" className="border-dark-700 text-gray-400 hover:text-white hover:bg-dark-800" asChild>
-                                                <span>Upload Photo</span>
-                                            </Button>
-                                        </label>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <FormField
-                                            control={form.control}
-                                            name="firstName"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">First Name</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} placeholder="John" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="lastName"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">Last Name</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} placeholder="Doe" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="dateOfBirth"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">Date of Birth</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} type="date" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="gender"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">Gender</FormLabel>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className="bg-dark-800/50 border-dark-700 text-white">
-                                                                <SelectValue placeholder="Select gender" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent className="bg-dark-900 border-dark-700">
-                                                            <SelectItem value="male">Male</SelectItem>
-                                                            <SelectItem value="female">Female</SelectItem>
-                                                            <SelectItem value="other">Other</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Step 2: Contact Details */}
-                            {currentStep === 2 && (
-                                <div className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <FormField
-                                            control={form.control}
-                                            name="email"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">Email</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} type="email" placeholder="john.doe@example.com" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="phone"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">Phone</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} placeholder="+1 234 567 8900" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="address"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-gray-300">Address</FormLabel>
-                                                <FormControl>
-                                                    <Input {...field} placeholder="123 Main St, City, State ZIP" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <div className="border-t border-dark-700 pt-6 mt-6">
-                                        <h3 className="text-lg font-semibold text-white mb-4">Emergency Contact</h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            <FormField
-                                                control={form.control}
-                                                name="emergencyContactName"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-gray-300">Name</FormLabel>
-                                                        <FormControl>
-                                                            <Input {...field} placeholder="Jane Doe" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name="emergencyContactPhone"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-gray-300">Phone</FormLabel>
-                                                        <FormControl>
-                                                            <Input {...field} placeholder="+1 234 567 8901" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name="emergencyContactRelationship"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-gray-300">Relationship</FormLabel>
-                                                        <FormControl>
-                                                            <Input {...field} placeholder="Spouse" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Step 3: Membership */}
-                            {currentStep === 3 && (
-                                <div className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <FormField
-                                            control={form.control}
-                                            name="membershipPlan"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">Membership Plan</FormLabel>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className="bg-dark-800/50 border-dark-700 text-white">
-                                                                <SelectValue placeholder="Select plan" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent className="bg-dark-900 border-dark-700">
-                                                            <SelectItem value="basic">Basic - $49/month</SelectItem>
-                                                            <SelectItem value="premium">Premium - $99/month</SelectItem>
-                                                            <SelectItem value="vip">VIP - $149/month</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="trainer"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">Assign Trainer (Optional)</FormLabel>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className="bg-dark-800/50 border-dark-700 text-white">
-                                                                <SelectValue placeholder="Select trainer" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent className="bg-dark-900 border-dark-700">
-                                                            <SelectItem value="sarah">Sarah Johnson - Strength Training</SelectItem>
-                                                            <SelectItem value="mike">Mike Ross - HIIT & Cardio</SelectItem>
-                                                            <SelectItem value="emma">Emma Wilson - Yoga & Flexibility</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormDescription className="text-gray-500">
-                                                        Assign a personal trainer to this member
-                                                    </FormDescription>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Step 4: Health Info */}
-                            {currentStep === 4 && (
-                                <div className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <FormField
-                                            control={form.control}
-                                            name="height"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">Height (cm)</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} type="number" placeholder="175" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="weight"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">Current Weight (kg)</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} type="number" placeholder="75" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="targetWeight"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-300">Target Weight (kg)</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} type="number" placeholder="70" className="bg-dark-800/50 border-dark-700 text-white" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="fitnessGoals"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-gray-300">Fitness Goals</FormLabel>
-                                                <FormControl>
-                                                    <Input {...field} placeholder="Weight loss, muscle gain, endurance..." className="bg-dark-800/50 border-dark-700 text-white" />
-                                                </FormControl>
-                                                <FormDescription className="text-gray-500">
-                                                    Describe the member's fitness objectives
-                                                </FormDescription>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="medicalConditions"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-gray-300">Medical Conditions (Optional)</FormLabel>
-                                                <FormControl>
-                                                    <Input {...field} placeholder="Any medical conditions or injuries..." className="bg-dark-800/50 border-dark-700 text-white" />
-                                                </FormControl>
-                                                <FormDescription className="text-gray-500">
-                                                    Any health conditions trainers should be aware of
-                                                </FormDescription>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Navigation Buttons */}
-                            <div className="flex justify-between pt-6 border-t border-dark-700">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={prevStep}
-                                    disabled={currentStep === 1}
-                                    className="border-dark-700 text-gray-400 hover:text-white hover:bg-dark-800"
-                                >
-                                    Previous
-                                </Button>
-                                {currentStep < steps.length ? (
-                                    <Button
-                                        type="button"
-                                        onClick={nextStep}
-                                        className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
-                                    >
-                                        Next Step
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        type="submit"
-                                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
-                                    >
-                                        <Check className="h-4 w-4 mr-2" />
-                                        Complete & Add Member
-                                    </Button>
-                                )}
-                            </div>
-                        </form>
-                    </Form>
-                </CardContent>
-            </Card>
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="flex items-center gap-6">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate('/members')}
+          className="h-12 w-12 rounded-2xl border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 hover:bg-indigo-50 transition-all shadow-sm"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">
+            Enroll <span className="text-indigo-600 italic">Member</span>
+          </h1>
+          <p className="text-slate-500 font-medium mt-1 uppercase text-xs tracking-widest">
+            New Membership Onboarding Process
+          </p>
         </div>
-    );
+      </div>
+
+      {/* Steps Progress */}
+      <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
+        <div className="flex justify-between items-center max-w-3xl mx-auto px-4 relative">
+          {/* Background line */}
+          <div className="absolute top-[21px] left-0 right-0 h-0.5 bg-slate-100 -z-0 mx-10" />
+          
+          {steps.map((step, _index) => {
+            const Icon = step.icon;
+            const isActive = currentStep === step.id;
+            const isCompleted = currentStep > step.id;
+
+            return (
+              <div key={step.id} className="relative z-10 flex flex-col items-center">
+                <div
+                  className={cn(
+                    'w-11 h-11 rounded-2xl flex items-center justify-center border-2 transition-all duration-500',
+                    isCompleted
+                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100'
+                      : isActive
+                        ? 'bg-white border-indigo-600 text-indigo-600 shadow-xl shadow-indigo-50 scale-110'
+                        : 'bg-white border-slate-200 text-slate-300'
+                  )}
+                >
+                  {isCompleted ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                </div>
+                <div className="mt-3 text-center">
+                  <p className={cn(
+                    'text-[10px] font-black uppercase tracking-widest transition-colors',
+                    isActive || isCompleted ? 'text-slate-900' : 'text-slate-400'
+                  )}>
+                    {step.name}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Form Card */}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <Card className="bg-white border-slate-200 shadow-sm rounded-[3rem] overflow-hidden">
+            <CardHeader className="bg-slate-50/50 p-10 pb-6 border-b border-slate-100">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
+                  {steps[currentStep-1].id}
+                </div>
+                <div>
+                  <CardTitle className="text-2xl font-black text-slate-900 uppercase tracking-tight italic">
+                    {steps[currentStep - 1].name} <span className="text-slate-400 not-italic">Phase</span>
+                  </CardTitle>
+                  <CardDescription className="text-slate-500 font-bold text-xs uppercase tracking-widest">
+                    Phase {currentStep} of {steps.length}
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-10">
+              {/* Step 1: Personal Info */}
+              {currentStep === 1 && (
+                <div className="space-y-10 animate-in slide-in-from-right-4 duration-500">
+                  <div className="flex flex-col items-center gap-6">
+                    <div className="relative group">
+                      <div className="w-32 h-32 rounded-[2rem] bg-slate-50 border-4 border-white shadow-inner flex items-center justify-center overflow-hidden transition-all group-hover:shadow-indigo-50">
+                        {profilePhoto ? (
+                          <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          <Upload className="h-8 w-8 text-slate-300 group-hover:text-indigo-400 transition-colors" />
+                        )}
+                      </div>
+                      <label htmlFor="photo-upload" className="absolute -bottom-2 -right-2 cursor-pointer">
+                        <input id="photo-upload" type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                        <div className="h-10 w-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg hover:bg-indigo-700 transition-colors">
+                          <Upload className="h-4 w-4" />
+                        </div>
+                      </label>
+                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Headshot Profile Matrix</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Legal First Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="John" className="h-12 rounded-xl border-slate-200 bg-slate-50/30 focus:bg-white transition-all text-sm font-bold" />
+                          </FormControl>
+                          <FormMessage className="text-[10px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Legal Last Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Doe" className="h-12 rounded-xl border-slate-200 bg-slate-50/30 focus:bg-white transition-all text-sm font-bold" />
+                          </FormControl>
+                          <FormMessage className="text-[10px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="dateOfBirth"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Date of Birth</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="date" className="h-12 rounded-xl border-slate-200 bg-slate-50/30 focus:bg-white transition-all text-sm font-bold" />
+                          </FormControl>
+                          <FormMessage className="text-[10px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Gender Identity</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-12 rounded-xl border-slate-200 bg-slate-50/30 focus:bg-white transition-all text-sm font-bold">
+                                <SelectValue placeholder="Select" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                              <SelectItem value="male">Male</SelectItem>
+                              <SelectItem value="female">Female</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                              <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage className="text-[10px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Communication */}
+              {currentStep === 2 && (
+                <div className="space-y-10 animate-in slide-in-from-right-4 duration-500">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Professional Email</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="email" placeholder="john.doe@matrix.com" className="h-12 rounded-xl border-slate-200 bg-slate-50/30 focus:bg-white transition-all text-sm font-bold" />
+                          </FormControl>
+                          <FormMessage className="text-[10px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Secure Phone Line</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="+1 000 000 0000" className="h-12 rounded-xl border-slate-200 bg-slate-50/30 focus:bg-white transition-all text-sm font-bold" />
+                          </FormControl>
+                          <FormMessage className="text-[10px] font-bold" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-10">
+                    <h3 className="text-xl font-black text-slate-900 mb-6 italic">Emergency Protocols</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <FormField
+                        control={form.control}
+                        name="emergencyContactName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Contact Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Full legal name" className="h-12 rounded-xl border-slate-200 bg-slate-50/30 font-bold" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="emergencyContactPhone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Contact Phone</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Emergency number" className="h-12 rounded-xl border-slate-200 bg-slate-50/30 font-bold" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="emergencyContactRelationship"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Relationship</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Relationship status" className="h-12 rounded-xl border-slate-200 bg-slate-50/30 font-bold" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Membership */}
+              {currentStep === 3 && (
+                <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
+                  <FormField
+                    control={form.control}
+                    name="membershipPlan"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Select Access Tier</FormLabel>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {[
+                            { id: 'standard', name: 'Standard', price: '49', features: ['Gym Access', 'Lockers'] },
+                            { id: 'premium', name: 'Premium', price: '99', features: ['Pool Access', 'Classes', 'Sauna'] },
+                            { id: 'vip', name: 'VIP Matrix', price: '149', features: ['Personal Trainer', 'Diet Plan', 'All-Access'] }
+                          ].map((plan) => (
+                            <div 
+                              key={plan.id}
+                              onClick={() => field.onChange(plan.id)}
+                              className={cn(
+                                "p-6 rounded-3xl border-2 transition-all cursor-pointer group",
+                                field.value === plan.id 
+                                  ? "border-indigo-600 bg-indigo-50/20 shadow-lg shadow-indigo-50" 
+                                  : "border-slate-100 bg-slate-50/50 hover:border-slate-200"
+                              )}
+                            >
+                              <div className="flex justify-between items-start mb-4">
+                                <CardTitle className="text-lg font-black uppercase tracking-tight">{plan.name}</CardTitle>
+                                {field.value === plan.id && <Check className="h-5 w-5 text-indigo-600" />}
+                              </div>
+                              <p className="text-2xl font-black text-slate-900 mb-6 italic">${plan.price}<span className="text-xs not-italic text-slate-400 font-bold tracking-widest ml-1">/MO</span></p>
+                              <ul className="space-y-2">
+                                {plan.features.map(f => (
+                                  <li key={f} className="text-[10px] font-bold text-slate-500 flex items-center gap-2">
+                                    <div className="h-1 w-1 rounded-full bg-slate-300" /> {f}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+
+              {/* Step 4: Health Info */}
+              {currentStep === 4 && (
+                <div className="space-y-10 animate-in slide-in-from-right-4 duration-500">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <FormField
+                      control={form.control}
+                      name="height"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Height (cm)</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="number" placeholder="175" className="h-12 rounded-xl border-slate-200 bg-slate-50 font-bold" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="weight"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Weight (kg)</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="number" placeholder="75" className="h-12 rounded-xl border-slate-200 bg-slate-50 font-bold" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="targetWeight"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Target (kg)</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="number" placeholder="70" className="h-12 rounded-xl border-slate-200 bg-slate-50 font-bold" />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="fitnessGoals"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Strategic Fitness Goals</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="E.g., Weight loss, Muscle gain, Endurance" className="h-12 rounded-xl border-slate-200 bg-slate-50 font-bold" />
+                        </FormControl>
+                        <FormDescription className="text-[10px] font-bold text-slate-400">Comma separated objectives</FormDescription>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="medicalConditions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-slate-700 font-black uppercase text-[10px] tracking-[0.15em]">Critical Medical Data</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="E.g., Asthma, Leg injury, Hypertension" className="h-12 rounded-xl border-slate-200 bg-slate-50 font-bold" />
+                        </FormControl>
+                        <FormDescription className="text-[10px] font-bold text-slate-400 font-bold uppercase tracking-widest text-rose-400">Privacy ensured via encryption</FormDescription>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+            </CardContent>
+
+            {/* Navigation Footer */}
+            <div className="bg-slate-50/80 backdrop-blur-sm p-10 flex justify-between items-center border-t border-slate-100">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={prevStep}
+                disabled={currentStep === 1 || isSubmitting}
+                className="h-14 px-10 rounded-2xl border-slate-200 font-black uppercase text-[10px] tracking-[0.2em] text-slate-400 hover:text-slate-600 hover:bg-white disabled:opacity-30 transition-all"
+              >
+                Revert Phase
+              </Button>
+              
+              {currentStep < steps.length ? (
+                <Button
+                  type="button"
+                  onClick={nextStep}
+                  className="h-14 px-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-indigo-100 active:scale-95 transition-all text-white"
+                >
+                  Proceed Phase <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="h-14 px-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-indigo-200 active:scale-95 transition-all text-white"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <UserPlus className="h-4 w-4 mr-2" />
+                  )}
+                  Finalize Enrollment
+                </Button>
+              )}
+            </div>
+          </Card>
+        </form>
+      </Form>
+    </div>
+  );
 }

@@ -82,6 +82,7 @@ const memberSchema = new mongoose.Schema({
 
     // Membership
     membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
+    membershipType: { type: String, enum: ['basic', 'standard', 'premium', 'elite'], default: 'standard' },
     assignedTrainerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trainer', default: null },
 
     qrCode: { type: String, unique: true, sparse: true },

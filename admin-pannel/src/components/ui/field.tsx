@@ -2,22 +2,22 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const Field = React.forwardRef<
-    HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-    <div ref={ref} className={cn("space-y-2", className)} {...props} />
+  <div ref={ref} className={cn("space-y-2", className)} {...props} />
 ))
 Field.displayName = "Field"
 
 const FieldLabel = React.forwardRef<
-    HTMLLabelElement,
-    React.LabelHTMLAttributes<HTMLLabelElement>
+  HTMLLabelElement,
+  React.LabelHTMLAttributes<HTMLLabelElement>
 >(({ className, ...props }, ref) => (
-    <label
-        ref={ref}
-        className={cn("text-sm font-medium text-gray-200", className)}
-        {...props}
-    />
+  <label
+    ref={ref}
+    className={cn("text-sm font-medium text-gray-200", className)}
+    {...props}
+  />
 ))
 FieldLabel.displayName = "FieldLabel"
 

@@ -8,6 +8,7 @@ async function testRegister() {
                 lastName: 'User',
                 email: 'test' + Date.now() + '@example.com',
                 password: 'password123',
+                confirmPassword: 'password123',
                 phone: '1234567890'
             },
             step2Data: {

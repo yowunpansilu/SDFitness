@@ -25,28 +25,6 @@
     --ring: 262.1 83.3% 57.8%;
     --radius: 0.75rem;
   }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 263.4 70% 50.4%;
-  }
 }
 
 @layer base {
@@ -55,123 +33,75 @@
   }
 
   body {
-    @apply bg-background text-foreground transition-colors duration-200;
-  }
-
-  /* Light mode specific */
-  .light {
+    @apply bg-background text-foreground transition-colors duration-200 antialiased;
     background: linear-gradient(to bottom, #ffffff, #f8fafc);
   }
 
-  .light body {
+  body {
     color: rgb(15, 23, 42);
-  }
-
-  /* Dark mode specific */
-  .dark {
-    background: linear-gradient(to bottom, rgb(3, 7, 18), rgb(15, 23, 42));
-  }
-
-  .dark body {
-    color: rgb(226, 232, 240);
   }
 }
 
-/* Custom scrollbar - Light mode */
-.light .scrollbar-thin::-webkit-scrollbar {
+/* Custom scrollbar - Clean Light Design */
+.scrollbar-thin::-webkit-scrollbar {
   width: 8px;
 }
 
-.light .scrollbar-thin::-webkit-scrollbar-track {
+.scrollbar-thin::-webkit-scrollbar-track {
   background: rgb(241, 245, 249);
-  border-radius: 4px;
+  border-radius: 10px;
 }
 
-.light .scrollbar-thin::-webkit-scrollbar-thumb {
+.scrollbar-thin::-webkit-scrollbar-thumb {
   background: rgb(203, 213, 225);
-  border-radius: 4px;
+  border-radius: 10px;
+  border: 2px solid rgb(241, 245, 249);
 }
 
-.light .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: rgb(148, 163, 184);
 }
 
-/* Custom scrollbar - Dark mode */
-.dark .scrollbar-thin::-webkit-scrollbar {
-  width: 8px;
+/* Professional shadows for Light Theme */
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.dark .scrollbar-thin::-webkit-scrollbar-track {
-  background: rgb(30, 41, 59);
-  border-radius: 4px;
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
 }
 
-.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgb(51, 65, 85);
-  border-radius: 4px;
+.shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
 }
 
-.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgb(71, 85, 105);
+.shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
 }
 
-/* Dark theme utility classes */
-.bg-dark-950 {
-  background-color: rgb(3, 7, 18);
-}
-
-.bg-dark-900 {
-  background-color: rgb(15, 23, 42);
-}
-
-.bg-dark-800 {
-  background-color: rgb(30, 41, 59);
-}
-
-.bg-dark-700 {
-  background-color: rgb(51, 65, 85);
-}
-
-.bg-dark-600 {
-  background-color: rgb(71, 85, 105);
-}
-
-.border-dark-800 {
-  border-color: rgb(30, 41, 59);
-}
-
-.border-dark-700 {
-  border-color: rgb(51, 65, 85);
-}
-
-.text-dark-400 {
-  color: rgb(148, 163, 184);
-}
-
-.text-dark-300 {
-  color: rgb(203, 213, 225);
-}
-
-/* Professional shadows */
-.light .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.dark .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-}
-
-.light .shadow-xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-.dark .shadow-xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-}
-
-/* Smooth transitions for theme switching */
+/* Base smooth transitions */
 * {
-  transition-property: background-color, border-color, color, fill, stroke;
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
+}
+
+/* Premium Gradients and Effects */
+.bg-glass {
+  @apply bg-white/70 backdrop-blur-xl border border-white/20;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600;
+}
+
+/* Animation utilities */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }

@@ -1,0 +1,409 @@
+Department of IT
+Faculty of Computing
+Sri Lanka Institute of Information Technology
+IT2021: AIML Project
+2nd Year, Semester 2, 2026
+Assignment Title Assignment 02 – Progress 1
+Learning outcomes covered LO1, LO3, LO4, LO5
+Assignment Mode Presentation, Support document
+Maximum Marks 25
+Contribution to the Final Grade 25%
+Date published Week 2
+Deadline for submissions Week 6
+Mode of Submission Instructions will be available in Courseweb
+Assignment Description:
+This assessment evaluates students’ initial progress in system development and project
+planning. Students are required to clearly identify system requirements, design the overall
+system structure using appropriate diagrams, design and develop the database.
+In addition, students must create mock-ups or low-fidelity prototypes and begin
+implementing their assigned system components.
+Other Details:
+Department of IT
+Faculty of Computing
+Sri Lanka Institute of Information Technology
+Evaluation
+Criteria The following areas are assessed
+• SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis to
+determine whether it is realistic and achievable
+- Possible risks and how they are handled.
+- Design and implementation decisions.
+• System Diagrams
+- Illustrate the intended structure and behavior of the system. These
+may include system architecture diagrams, process or data flow
+diagrams, and use-case diagrams.
+- Identify key system components, and interactions
+- Demonstrate understanding of the system’s logic, functionality, and
+how individual components work together to form a cohesive
+solution.
+• Detailed project requirements and planned functionality based on
+priority
+- Correct implementation of functionality reflecting the system
+requirements and design specifications (35% of product completion)
+- Clear evidence of progress and the work completed aligns closely
+with each student’s assigned responsibilities.
+• Database design
+- A well-structured database reflecting the requirements of the system.
+- Tables that represent all necessary entities with correct relationships.
+- Design decisions justified and aligned with system requirements,
+• User Interface
+- Well-designed user interface (UI) mock-ups or low-fidelity prototypes
+that represent the system’s intended interface.
+- UIs are user-friendly, allowing users to navigate and interact with the
+system.
+- Maintain consistency in layout and design elements.
+- Align the UI design with user needs and expectations and overall
+system design.
+Guidelines Presentation Guidelines
+Department of IT
+Faculty of Computing
+Sri Lanka Institute of Information Technology
+1. 2. 3. 4. 5. The presentation must not exceed 20 minutes.
+Each group must be present at the presentation venue at least 10 minutes
+before their scheduled time.
+Failure to attend the presentation will result in zero marks for this
+assessment.
+Clearly present the project's technical and functional details.
+Each team member must demonstrate his/her assigned component.
+Documentation Guidelines
+1. 2. 3. Students are required to submit system diagrams, database design, and
+relevant documentation to Courseweb. Presentation slides are also
+acceptable.
+The submission must be provided as a single PDF document. If presentation
+slides, they should be formatted with six slides per page
+The document has to be named with the group number. One member of the
+team has to submit the document.
+Marking Scheme
+Criteria Excellent Good Average Satisfactory Poor
+SWOT
+Analysis
+(4%)
+(Group Mark)
+Thorough and well-
+structured SWOT analysis
+with meaningful insights.
+Strengths, weaknesses,
+opportunities, and threats
+are clearly linked to
+project requirements,
+risks, and early design or
+implementation
+decisions.
+Good SWOT
+analysis with
+relevant points
+and some clear
+insights, though
+linkages to project
+decisions or
+priorities are
+limited.
+Basic SWOT
+elements
+identified, but
+analysis is
+shallow or
+descriptive with
+limited relevance
+to project
+direction.
+Superficial
+SWOT analysis
+with missing
+elements or
+weak relevance
+to the project.
+SWOT analysis is
+incorrect,
+incomplete,
+irrelevant, or not
+submitted.
+Department of IT
+Faculty of Computing
+Sri Lanka Institute of Information Technology
+System
+Diagram
+(4%)
+(Group Mark)
+Clear, accurate, and well-
+labeled system diagrams
+(e.g., architecture, flow, or
+use-case) showing the
+intended system
+structure, components,
+and interactions.
+Diagrams demonstrate
+strong understanding of
+overall system logic.
+Mostly accurate
+diagrams with
+good clarity;
+minor omissions
+or errors in
+structure or
+labelling.
+Progress of
+Responsible
+Components
+(≈35%)
+(4%)
+(Individual Mark)
+Planned functionality for
+this stage is implemented
+correctly. Clear evidence
+of meaningful progress
+aligned with assigned
+individual responsibilities;
+work demonstrates good
+quality and
+understanding.
+Most planned
+functionality for
+this stage is
+implemented,
+with minor errors,
+gaps, or delays.
+Responsibilities
+are largely met.
+Database
+Design for
+Individual
+Components
+(3%)
+(Individual Mark)
+Well-structured database
+design with appropriate
+tables, correct
+relationships, and
+accurate field definitions.
+Design decisions are
+clearly justified and
+aligned with system
+requirements.
+Mostly correct
+database design
+with minor issues
+in structure,
+relationships, or
+justification.
+Basic diagrams
+provided, but
+some
+components,
+relationships, or
+logic are unclear
+or inaccurate.
+Partial
+implementation
+of planned
+functionality;
+progress is
+evident but
+uneven, with
+several errors or
+incomplete
+elements.
+Basic database
+design provided,
+but some tables,
+relationships, or
+fields are
+incorrect or
+missing.
+Minimal
+diagrams with
+unclear
+structure, poor
+labelling, or
+multiple
+inaccuracies.
+Minimal
+progress beyond
+initial setup;
+significant
+issues or limited
+alignment with
+assigned
+responsibilities.
+Minimal
+database design
+with several
+inaccuracies or
+unclear
+structure.
+Diagrams are
+incorrect,
+confusing, or not
+provided.
+Little or no
+meaningful
+progress;
+assigned
+components are
+not implemented
+or are largely
+incorrect.
+Database design
+is incorrect,
+inappropriate, or
+not provided.
+Department of IT
+Faculty of Computing
+Sri Lanka Institute of Information Technology
+UI Mock-ups for
+Individual
+Components
+(4%)
+(Individual Mark)
+Clear and well-designed
+UI mock-ups or low-
+fidelity prototypes that are
+intuitive, consistent, and
+aligned with user needs
+and overall system design.
+Good UI mock-
+ups with minor
+usability,
+consistency, or
+alignment issues.
+Communication
+Skills
+(3%)
+(Individual Mark)
+Communicate clearly,
+confidently, and
+professionally during the
+presentation and
+discussions. Technical
+ideas are well explained
+using appropriate
+terminology.
+Good
+communication
+overall, with minor
+issues in clarity,
+structure, or
+technical
+explanation.
+Professionalism
+& Time
+Management
+(2%)
+(Individual Mark)
+Demonstrate exemplary
+professionalism during
+the presentation. Is
+punctual, well prepared,
+respectful, and fully
+engaged. Manages
+allocated speaking time
+effectively and
+contributes appropriately
+without overrunning or
+underutilizing time.
+Demonstrates
+good
+professionalism
+during the
+presentation. Is
+punctual and
+prepared, with
+minor issues in
+time usage or
+presentation
+conduct.
+Peer Evaluation
+(1%)
+(Individual Mark)
+Consistently rated highly
+by peers. Strong
+collaboration, reliability,
+and contribution to group
+work.
+Generally positive
+peer feedback
+with minor
+concerns.
+Basic UI mock-
+ups are provided,
+but usability,
+layout, or
+consistency is
+limited.
+Adequate
+communication,
+but explanations
+lack consistency,
+confidence, or
+precision.
+Demonstrates
+acceptable
+professionalism,
+but shows some
+issues with
+preparedness,
+engagement, or
+time
+management
+during the
+presentation.
+Average peer
+ratings. Moderate
+and inconsistent
+contribution.
+Basic UI mock-
+ups are
+provided, but
+usability, layout,
+or consistency
+is limited.
+Limited clarity in
+explanations.
+Presentation is
+difficult to follow
+at times.
+Demonstrates
+limited
+professionalism
+during the
+presentation.
+Appears
+underprepared,
+disengaged, or
+struggles
+significantly
+with time
+management.
+Below-average
+peer ratings.
+Contribution or
+teamwork
+issues evident.
+UI mock-ups are
+missing,
+inappropriate, or
+irrelevant.
+Poor or
+ineffective
+communication.
+Inability to
+clearly explain
+work or respond
+to questions.
+Demonstrates
+unprofessional
+behavior during
+the presentation,
+such as lateness,
+lack of
+preparation,
+inappropriate
+conduct, or
+inability to
+manage
+allocated
+speaking time.
+Poor peer ratings.
+Minimal
+contribution or
+negative impact
+on the team.

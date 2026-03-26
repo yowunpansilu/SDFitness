@@ -94,7 +94,7 @@ const foodPriceSchema = new mongoose.Schema({
 });
 
 // Auto-calculate averagePricePerGram and lowestPricePerGram before save
-foodPriceSchema.pre('save', function (next) {
+foodPriceSchema.pre('save', function () {
     if (this.prices && this.prices.length > 0) {
         const availablePrices = this.prices.filter(p => p.isAvailable);
         if (availablePrices.length > 0) {
@@ -103,7 +103,6 @@ foodPriceSchema.pre('save', function (next) {
             this.lowestPricePerGram = Math.min(...availablePrices.map(p => p.pricePerGram));
         }
     }
-    next();
 });
 
 // Indexes

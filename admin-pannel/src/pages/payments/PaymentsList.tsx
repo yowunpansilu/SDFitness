@@ -1,218 +1,384 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Download, Eye, Filter, DollarSign, CreditCard, TrendingUp, AlertCircle, Loader2 } from 'lucide-react';
+import { Search, Download, Eye, Filter, DollarSign, CreditCard, TrendingUp, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import api from '@/lib/api/axios';
 
 interface Payment {
-    _id: string;
-    transactionId?: string;
-    memberName?: string;
-    memberId?: string;
-    amount: number;
-    type: string;
-    status: string;
-    paymentMethod?: string;
-    date?: string;
-    createdAt?: string;
-    description?: string;
-    user?: any;
-    plan?: any;
+  id: string;
+  transactionId: string;
+  memberName: string;
+  memberId: string;
+  amount: number;
+  type: 'membership' | 'personal_training' | 'class_package' | 'merchandise' | 'other';
+  status: 'completed' | 'pending' | 'failed' | 'refunded';
+  paymentMethod: 'credit_card' | 'debit_card' | 'cash' | 'bank_transfer' | 'upi';
+  date: string;
+  description: string;
 }
 
-const statusColors: Record<string, string> = {
-    completed: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
-    paid: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
-    active: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
-    pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30',
-    failed: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30',
-    refunded: 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
-    cancelled: 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
+// Mock data
+const mockPayments: Payment[] = [
+  {
+    id: '1',
+    transactionId: 'TXN-2024-001234',
+    memberName: 'Michael Brown',
+    memberId: '1',
+    amount: 99.00,
+    type: 'membership',
+    status: 'completed',
+    paymentMethod: 'credit_card',
+    date: '2024-02-03',
+    description: 'Monthly Premium Membership',
+  },
+  {
+    id: '2',
+    transactionId: 'TXN-2024-001235',
+    memberName: 'Emily Davis',
+    memberId: '2',
+    amount: 149.00,
+    type: 'membership',
+    status: 'completed',
+    paymentMethod: 'debit_card',
+    date: '2024-02-03',
+    description: 'Monthly VIP Membership',
+  },
+  {
+    id: '3',
+    transactionId: 'TXN-2024-001236',
+    memberName: 'James Wilson',
+    memberId: '3',
+    amount: 200.00,
+    type: 'personal_training',
+    status: 'completed',
+    paymentMethod: 'upi',
+    date: '2024-02-02',
+    description: 'Personal Training Package (8 sessions)',
+  },
+  {
+    id: '4',
+    transactionId: 'TXN-2024-001237',
+    memberName: 'Sarah Parker',
+    memberId: '4',
+    amount: 49.00,
+    type: 'membership',
+    status: 'pending',
+    paymentMethod: 'bank_transfer',
+    date: '2024-02-02',
+    description: 'Monthly Basic Membership',
+  },
+  {
+    id: '5',
+    transactionId: 'TXN-2024-001238',
+    memberName: 'David Kim',
+    memberId: '5',
+    amount: 99.00,
+    type: 'membership',
+    status: 'failed',
+    paymentMethod: 'credit_card',
+    date: '2024-02-01',
+    description: 'Monthly Premium Membership',
+  },
+  {
+    id: '6',
+    transactionId: 'TXN-2024-001239',
+    memberName: 'Lisa Anderson',
+    memberId: '6',
+    amount: 150.00,
+    type: 'class_package',
+    status: 'completed',
+    paymentMethod: 'cash',
+    date: '2024-02-01',
+    description: 'Yoga Class Package (10 sessions)',
+  },
+  {
+    id: '7',
+    transactionId: 'TXN-2024-001240',
+    memberName: 'Tom Martinez',
+    memberId: '7',
+    amount: 99.00,
+    type: 'membership',
+    status: 'refunded',
+    paymentMethod: 'credit_card',
+    date: '2024-01-31',
+    description: 'Monthly Premium Membership (Refunded)',
+  },
+];
+
+const statusColors = {
+  completed: 'bg-emerald-50 text-emerald-600 border-emerald-100  ',
+  pending: 'bg-amber-50 text-amber-600 border-amber-100  ',
+  failed: 'bg-rose-50 text-rose-600 border-rose-100  ',
+  refunded: 'bg-slate-100 text-slate-600 border-slate-200  ',
 };
 
-const paymentTypeLabels: Record<string, string> = {
-    membership: 'Membership',
-    personal_training: 'Personal Training',
-    class_package: 'Class Package',
-    merchandise: 'Merchandise',
-    subscription: 'Subscription',
-    other: 'Other',
+const paymentTypeLabels = {
+  membership: 'Membership',
+  personal_training: 'Personal Training',
+  class_package: 'Class Package',
+  merchandise: 'Merchandise',
+  other: 'Other',
 };
 
 export function PaymentsList() {
-    const navigate = useNavigate();
-    const [payments, setPayments] = useState<Payment[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [typeFilter, setTypeFilter] = useState('all');
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
 
-    useEffect(() => {
-        const fetchPayments = async () => {
-            try {
-                // Try /billing/transactions first, fall back to /subscriptions
-                let data: Payment[] = [];
-                try {
-                    const res = await api.get('/billing/transactions');
-                    data = res.data || [];
-                } catch {
-                    // If billing module isn't available, build payment list from subscriptions + members
-                    try {
-                        const [subsRes, membersRes] = await Promise.all([
-                            api.get('/membership/subscriptions'),
-                            api.get('/members'),
-                        ]);
-                        const subs = subsRes.data || [];
-                        const membersMap = new Map((membersRes.data || []).map((m: any) => [m._id, m]));
+  const filteredPayments = mockPayments.filter((payment) => {
+    const matchesSearch =
+      payment.memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      payment.transactionId.toLowerCase().includes(searchQuery.toLowerCase());
 
-                        data = subs.map((sub: any, i: number) => {
-                            const member = membersMap.get(sub.member) as any;
-                            const user = member?.user || {};
-                            return {
-                                _id: sub._id || `sub-${i}`,
-                                transactionId: `SUB-${sub._id?.slice(-6) || i}`,
-                                memberName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown',
-                                memberId: sub.member,
-                                amount: sub.amount || sub.plan?.price || 0,
-                                type: 'membership',
-                                status: sub.status || 'active',
-                                paymentMethod: sub.paymentMethod || 'card',
-                                date: sub.startDate || sub.createdAt,
-                                description: sub.plan?.name || 'Membership',
-                            };
-                        });
-                    } catch {
-                        data = [];
-                    }
-                }
-                setPayments(data);
-            } catch { setPayments([]); }
-            setLoading(false);
-        };
-        fetchPayments();
-    }, []);
+    const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
+    const matchesType = typeFilter === 'all' || payment.type === typeFilter;
 
-    const filteredPayments = payments.filter((payment) => {
-        const name = payment.memberName || '';
-        const txnId = payment.transactionId || '';
-        const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) || txnId.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
-        const matchesType = typeFilter === 'all' || payment.type === typeFilter;
-        return matchesSearch && matchesStatus && matchesType;
-    });
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
-    const totalRevenue = payments.filter(p => ['completed', 'paid', 'active'].includes(p.status)).reduce((sum, p) => sum + p.amount, 0);
-    const pendingAmount = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
-    const failedCount = payments.filter(p => p.status === 'failed').length;
-    const completedCount = payments.filter(p => ['completed', 'paid', 'active'].includes(p.status)).length;
+  const totalRevenue = mockPayments
+    .filter(p => p.status === 'completed')
+    .reduce((sum, p) => sum + p.amount, 0);
 
-    if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-purple-500 animate-spin" /></div>;
+  const pendingAmount = mockPayments
+    .filter(p => p.status === 'pending')
+    .reduce((sum, p) => sum + p.amount, 0);
 
-    return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Payments</h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2">Manage transactions and payment records</p>
-                </div>
-                <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"><Download className="h-4 w-4 mr-2" /> Export Report</Button>
-            </div>
+  const failedCount = mockPayments.filter(p => p.status === 'failed').length;
 
-            <div className="grid gap-6 md:grid-cols-4">
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</CardTitle><DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">LKR {totalRevenue.toLocaleString()}</div><p className="text-xs text-gray-500 mt-1">{completedCount} completed</p></CardContent>
-                </Card>
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Pending</CardTitle><CreditCard className="h-4 w-4 text-yellow-600 dark:text-yellow-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">LKR {pendingAmount.toLocaleString()}</div><p className="text-xs text-gray-500 mt-1">{payments.filter(p => p.status === 'pending').length} transactions</p></CardContent>
-                </Card>
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Completed</CardTitle><TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">{completedCount}</div><p className="text-xs text-gray-500 mt-1">Transactions</p></CardContent>
-                </Card>
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Failed</CardTitle><AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">{failedCount}</div><p className="text-xs text-gray-500 mt-1">Requires attention</p></CardContent>
-                </Card>
-            </div>
-
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                            <Input placeholder="Search by member or transaction ID..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10 bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white placeholder:text-gray-500 shadow-sm" />
-                        </div>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full md:w-[180px] bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"><div className="flex items-center gap-2"><Filter className="h-4 w-4" /><SelectValue placeholder="Status" /></div></SelectTrigger>
-                            <SelectContent className="bg-white dark:bg-dark-950 border-gray-200 dark:border-dark-800">
-                                <SelectItem value="all">All Status</SelectItem>
-                                <SelectItem value="completed">Completed</SelectItem>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="failed">Failed</SelectItem>
-                                <SelectItem value="refunded">Refunded</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Select value={typeFilter} onValueChange={setTypeFilter}>
-                            <SelectTrigger className="w-full md:w-[180px] bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white shadow-sm"><SelectValue placeholder="Type" /></SelectTrigger>
-                            <SelectContent className="bg-white dark:bg-dark-950 border-gray-200 dark:border-dark-800">
-                                <SelectItem value="all">All Types</SelectItem>
-                                <SelectItem value="membership">Membership</SelectItem>
-                                <SelectItem value="personal_training">Personal Training</SelectItem>
-                                <SelectItem value="class_package">Class Package</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                <CardHeader><CardTitle className="text-gray-900 dark:text-white">Recent Transactions</CardTitle></CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-gray-200 dark:border-dark-700 hover:bg-transparent">
-                                <TableHead className="text-gray-500 dark:text-gray-400">Transaction ID</TableHead>
-                                <TableHead className="text-gray-500 dark:text-gray-400">Member</TableHead>
-                                <TableHead className="text-gray-500 dark:text-gray-400">Type</TableHead>
-                                <TableHead className="text-gray-500 dark:text-gray-400">Amount</TableHead>
-                                <TableHead className="text-gray-500 dark:text-gray-400">Method</TableHead>
-                                <TableHead className="text-gray-500 dark:text-gray-400">Status</TableHead>
-                                <TableHead className="text-gray-500 dark:text-gray-400">Date</TableHead>
-                                <TableHead className="text-gray-500 dark:text-gray-400">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredPayments.map((payment) => (
-                                <TableRow key={payment._id} onClick={() => navigate(`/payments/${payment._id}`)} className="border-gray-200 dark:border-dark-700 hover:bg-gray-50 dark:hover:bg-dark-800/50 cursor-pointer">
-                                    <TableCell className="font-mono text-sm text-gray-500 dark:text-gray-400">{payment.transactionId || payment._id?.slice(-8)}</TableCell>
-                                    <TableCell className="text-gray-900 dark:text-white font-medium">{payment.memberName || '—'}</TableCell>
-                                    <TableCell><Badge className="bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30 shadow-sm">{paymentTypeLabels[payment.type] || payment.type}</Badge></TableCell>
-                                    <TableCell className="text-gray-900 dark:text-white font-semibold">LKR {payment.amount.toLocaleString()}</TableCell>
-                                    <TableCell className="text-gray-500 dark:text-gray-400 capitalize">{(payment.paymentMethod || '—').replace('_', ' ')}</TableCell>
-                                    <TableCell><Badge className={cn('shadow-sm', statusColors[payment.status] || statusColors.pending)}>{payment.status}</Badge></TableCell>
-                                    <TableCell className="text-gray-500 dark:text-gray-400">{payment.date ? new Date(payment.date).toLocaleDateString() : '—'}</TableCell>
-                                    <TableCell>
-                                        <div className="flex gap-2">
-                                            <Button variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"><Eye className="h-4 w-4" /></Button>
-                                            <Button variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"><Download className="h-4 w-4" /></Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                    {filteredPayments.length === 0 && <div className="text-center py-12"><p className="text-gray-500 dark:text-gray-400">No payments found matching your criteria</p></div>}
-                </CardContent>
-            </Card>
+  return (
+    <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+            Financial <span className="text-indigo-600 dark:text-indigo-400 italic">Ledger</span>
+          </h1>
+          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
+            Track revenue, pending transactions and billing history.
+          </p>
         </div>
-    );
+        <Button className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 h-11 px-6 font-bold transition-all hover:scale-105 active:scale-95">
+          <Download className="h-4 w-4 mr-2" />
+          Export Ledger
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-navy-400">Gross Revenue</CardTitle>
+            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:scale-110 shadow-sm">
+              <DollarSign className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">${totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Total this period</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-500 dark:text-amber-400">Pending Funds</CardTitle>
+            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 transition-transform group-hover:scale-110 shadow-sm">
+              <CreditCard className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">${pendingAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Awaiting clearance</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400">Successful TX</CardTitle>
+            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-110 shadow-sm">
+              <TrendingUp className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">
+              {mockPayments.filter(p => p.status === 'completed').length}
+            </div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Completed orders</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-rose-500 dark:text-rose-400">Failed TX</CardTitle>
+            <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 transition-transform group-hover:scale-110 shadow-sm">
+              <AlertCircle className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">{failedCount}</div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Action required</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden transition-colors">
+        <CardContent className="p-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1 relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 transition-colors" />
+              <Input
+                placeholder="Search member, transaction or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-11 h-11 bg-slate-50 dark:bg-navy-950 border-transparent focus:bg-white dark:focus:bg-navy-950 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 rounded-xl transition-all dark:text-white"
+              />
+            </div>
+            <div className="flex gap-4">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[160px] h-11 bg-slate-50 dark:bg-navy-950 border-transparent rounded-xl focus:ring-indigo-500/10 shadow-none dark:text-white">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-3.5 w-3.5 text-slate-400 dark:text-navy-500" />
+                    <SelectValue placeholder="Status" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-slate-200 dark:border-navy-800 dark:bg-navy-900 dark:text-white">
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                  <SelectItem value="refunded">Refunded</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-[160px] h-11 bg-slate-50 dark:bg-navy-950 border-transparent rounded-xl focus:ring-indigo-500/10 shadow-none dark:text-white">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-slate-200 dark:border-navy-800 dark:bg-navy-900 dark:text-white">
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="membership">Membership</SelectItem>
+                  <SelectItem value="personal_training">Personal Training</SelectItem>
+                  <SelectItem value="class_package">Class Package</SelectItem>
+                  <SelectItem value="merchandise">Merchandise</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Payments Table */}
+      <Card className="bg-white dark:bg-navy-900 border-slate-200/60 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden font-medium transition-colors">
+        <CardHeader className="border-b border-slate-100 dark:border-navy-800 pb-6 bg-slate-50/30 dark:bg-navy-950/30">
+          <CardTitle className="text-slate-900 dark:text-white font-black text-xl">Recent Transactions</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-slate-100 dark:border-navy-800 hover:bg-transparent">
+                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4 pl-6">Transaction ID</TableHead>
+                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Member</TableHead>
+                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Type</TableHead>
+                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Amount</TableHead>
+                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Method</TableHead>
+                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Status</TableHead>
+                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Date</TableHead>
+                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4 pr-6 text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredPayments.map((payment) => (
+                  <TableRow
+                    key={payment.id}
+                    onClick={() => navigate(`/payments/${payment.id}`)}
+                    className="border-b border-slate-50 dark:border-navy-800/50 hover:bg-slate-50/50 dark:hover:bg-navy-950/50 transition-all cursor-pointer group"
+                  >
+                    <TableCell className="p-4 pl-6">
+                      <span className="text-[10px] font-black font-mono text-slate-500 dark:text-navy-400 bg-slate-100 dark:bg-navy-800 px-2 py-0.5 rounded transition-colors">
+                        {payment.transactionId}
+                      </span>
+                    </TableCell>
+                    <TableCell className="p-4">
+                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase text-[11px] tracking-tight">{payment.memberName}</p>
+                    </TableCell>
+                    <TableCell className="p-4">
+                      <Badge variant="outline" className="font-black text-[10px] uppercase tracking-wider rounded-lg border-indigo-100 dark:border-navy-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/5 transition-colors">
+                        {paymentTypeLabels[payment.type]}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="p-4">
+                      <span className="text-sm font-black text-slate-900 dark:text-white">
+                        ${payment.amount.toFixed(2)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="p-4">
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="h-3 w-3 text-slate-400 dark:text-navy-600" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                          {payment.paymentMethod.replace('_', ' ')}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="p-4">
+                      <Badge className={cn(statusColors[payment.status], 'font-black text-[10px] uppercase tracking-widest rounded-lg border shadow-none px-2 transition-colors')}>
+                        {payment.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="p-4 text-xs font-bold text-slate-500 dark:text-navy-500">
+                      {new Date(payment.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}
+                    </TableCell>
+                    <TableCell className="p-4 pr-6 text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-navy-800 rounded-lg transition-all"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-navy-800 rounded-lg transition-all"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {filteredPayments.length === 0 && (
+            <div className="text-center py-20 bg-slate-50/20 dark:bg-navy-950/20 transition-colors">
+              <div className="inline-flex p-4 rounded-full bg-slate-100 dark:bg-navy-950 mb-4 transition-transform hover:rotate-12">
+                <DollarSign className="h-8 w-8 text-slate-400 dark:text-navy-800" />
+              </div>
+              <h3 className="text-slate-900 dark:text-white font-black text-lg uppercase tracking-tight">No transactions found</h3>
+              <p className="text-slate-400 dark:text-navy-500 text-sm font-medium italic">Try adjusting your search or filters</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

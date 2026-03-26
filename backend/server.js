@@ -25,15 +25,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/prices', require('./routes/priceRoutes'));
 app.use('/api/diet-plans', require('./routes/dietPlanRoutes'));
-app.use('/api/scraper', require('./routes/scraperRoutes'));
-app.use('/api/trainers', require('./routes/trainerRoutes'));
 app.use('/api/members', require('./routes/memberRoutes'));
-app.use('/api/communications', require('./routes/communicationRoutes'));
-app.use('/api/classes', require('./routes/classRoutes'));
-app.use('/api/equipment', require('./routes/equipmentRoutes'));
-app.use('/api/membership', require('./routes/membershipRoutes'));
-app.use('/api/attendance', require('./routes/attendanceRoutes'));
-
 
 // Error handler
 app.use((err, req, res, next) => {

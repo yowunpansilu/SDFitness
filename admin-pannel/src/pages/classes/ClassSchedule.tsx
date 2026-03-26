@@ -1,298 +1,357 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Clock, Users, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Plus, Clock, Users, MapPin, Calendar as CalendarIcon, ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import api from '@/lib/api/axios';
 
-interface GymClass {
-    _id: string;
+interface ClassSession {
+  id: string;
+  name: string;
+  trainer: {
+    id: string;
     name: string;
-    trainer: {
-        _id: string;
-        user?: {
-            firstName: string;
-            lastName: string;
-        };
-    } | string;
-    schedule: {
-        dayOfWeek: string;
-        startTime: string;
-        endTime: string;
-    };
-    capacity: number;
-    enrolled: number;
-    description?: string;
+    photoUrl?: string;
+  };
+  time: string;
+  duration: number;
+  capacity: number;
+  enrolled: number;
+  location: string;
+  type: 'yoga' | 'hiit' | 'spin' | 'strength' | 'cardio' | 'pilates';
+  day: number; // 0-6 (Sunday-Saturday)
 }
 
+// Mock data
+const mockClasses: ClassSession[] = [
+  {
+    id: '1',
+    name: 'Morning Yoga Flow',
+    trainer: { id: '3', name: 'Emma Wilson', photoUrl: undefined },
+    time: '06:00 AM',
+    duration: 60,
+    capacity: 20,
+    enrolled: 18,
+    location: 'Studio A',
+    type: 'yoga',
+    day: 1,
+  },
+  {
+    id: '2',
+    name: 'HIIT Bootcamp',
+    trainer: { id: '2', name: 'Mike Ross', photoUrl: undefined },
+    time: '07:00 AM',
+    duration: 45,
+    capacity: 25,
+    enrolled: 25,
+    location: 'Gym Floor',
+    type: 'hiit',
+    day: 1,
+  },
+  {
+    id: '3',
+    name: 'Spin Class',
+    trainer: { id: '2', name: 'Mike Ross', photoUrl: undefined },
+    time: '06:00 PM',
+    duration: 45,
+    capacity: 30,
+    enrolled: 22,
+    location: 'Spin Room',
+    type: 'spin',
+    day: 1,
+  },
+  {
+    id: '4',
+    name: 'Power Strength',
+    trainer: { id: '1', name: 'Sarah Johnson', photoUrl: undefined },
+    time: '06:00 AM',
+    duration: 60,
+    capacity: 15,
+    enrolled: 12,
+    location: 'Weight Room',
+    type: 'strength',
+    day: 2,
+  },
+  {
+    id: '5',
+    name: 'Evening Yoga',
+    trainer: { id: '3', name: 'Emma Wilson', photoUrl: undefined },
+    time: '07:00 PM',
+    duration: 60,
+    capacity: 20,
+    enrolled: 16,
+    location: 'Studio A',
+    type: 'yoga',
+    day: 2,
+  },
+  {
+    id: '6',
+    name: 'CrossFit WOD',
+    trainer: { id: '4', name: 'David Chen', photoUrl: undefined },
+    time: '06:00 AM',
+    duration: 60,
+    capacity: 20,
+    enrolled: 19,
+    location: 'CrossFit Box',
+    type: 'strength',
+    day: 3,
+  },
+  {
+    id: '7',
+    name: 'Cardio Blast',
+    trainer: { id: '2', name: 'Mike Ross', photoUrl: undefined },
+    time: '06:00 PM',
+    duration: 30,
+    capacity: 25,
+    enrolled: 20,
+    location: 'Gym Floor',
+    type: 'cardio',
+    day: 3,
+  },
+];
+
 const classTypeColors: Record<string, string> = {
-    yoga: 'from-purple-500 to-pink-600',
-    hiit: 'from-orange-500 to-red-600',
-    spin: 'from-blue-500 to-cyan-600',
-    strength: 'from-amber-500 to-orange-600',
-    cardio: 'from-green-500 to-emerald-600',
-    pilates: 'from-indigo-500 to-purple-600',
-    crossfit: 'from-rose-500 to-red-600',
-    boxing: 'from-red-500 to-pink-600',
-    zumba: 'from-yellow-500 to-orange-600',
+  yoga: 'bg-purple-50 text-purple-600 border-purple-100  ',
+  hiit: 'bg-rose-50 text-rose-600 border-rose-100  ',
+  spin: 'bg-indigo-50 text-indigo-600 border-indigo-100  ',
+  strength: 'bg-amber-50 text-amber-600 border-amber-100  ',
+  cardio: 'bg-emerald-50 text-emerald-600 border-emerald-100  ',
+  pilates: 'bg-sky-50 text-sky-600 border-sky-100  ',
 };
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function ClassSchedule() {
-    const navigate = useNavigate();
-    const [classes, setClasses] = useState<GymClass[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [currentWeek, setCurrentWeek] = useState(0);
+  const navigate = useNavigate();
+  const [currentWeek, setCurrentWeek] = useState(0);
 
-    useEffect(() => {
-        const fetchClasses = async () => {
-            try {
-                const response = await api.get('/classes');
-                setClasses(response.data);
-            } catch (err) {
-                console.error('Failed to fetch classes:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchClasses();
-    }, []);
+  const getClassesForDay = (day: number) => {
+    return mockClasses.filter(c => c.day === day).sort((a, b) => a.time.localeCompare(b.time));
+  };
 
-    const getTrainerName = (trainer: GymClass['trainer']): string => {
-        if (typeof trainer === 'string') return 'Unknown';
-        if (trainer?.user) return `${trainer.user.firstName} ${trainer.user.lastName}`;
-        return 'Unknown';
-    };
+  const today = new Date().getDay();
 
-    const getTrainerInitials = (trainer: GymClass['trainer']): string => {
-        if (typeof trainer === 'string') return '??';
-        if (trainer?.user) return `${trainer.user.firstName[0]}${trainer.user.lastName[0]}`;
-        return '??';
-    };
+  return (
+    <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+            Class <span className="text-indigo-600 dark:text-indigo-400 italic">Schedule</span>
+          </h1>
+          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
+            Organize group sessions, manage capacity and trainer assignments.
+          </p>
+        </div>
+        <Button
+          onClick={() => navigate('/classes/add')}
+          className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 h-11 px-6 font-bold transition-all hover:scale-105 active:scale-95"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          New Session
+        </Button>
+      </div>
 
-    const getClassesForDay = (dayName: string) => {
-        return classes.filter(c => c.schedule?.dayOfWeek === dayName).sort((a, b) =>
-            (a.schedule?.startTime || '').localeCompare(b.schedule?.startTime || '')
-        );
-    };
-
-    const today = new Date().getDay();
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
-                <span className="ml-3 text-gray-400">Loading classes...</span>
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-navy-400">Total Classes</CardTitle>
+            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-110 shadow-sm">
+              <CalendarIcon className="h-4 w-4" />
             </div>
-        );
-    }
-
-    return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        Class Schedule
-                    </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2">
-                        Manage group fitness classes and schedules
-                    </p>
-                </div>
-                <Button
-                    onClick={() => navigate('/classes/add')}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
-                >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Class
-                </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">{mockClasses.length}</div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">In system active</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400">This Week</CardTitle>
+            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-110 shadow-sm">
+              <Clock className="h-4 w-4" />
             </div>
-
-            {/* Stats Cards */}
-            <div className="grid gap-6 md:grid-cols-4">
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Classes</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">{classes.length}</div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Categories</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                            {new Set(classes.map(c => c.name.split(' ')[0] || 'General')).size}
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Total Capacity</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                            {classes.reduce((sum, c) => sum + (c.capacity || 0), 0)}
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-400">Enrolled</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                            {classes.reduce((sum, c) => sum + (c.enrolled || 0), 0)}
-                        </div>
-                    </CardContent>
-                </Card>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">42</div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Planned sessions</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-emerald-500 dark:text-emerald-400">Enrollment</CardTitle>
+            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:scale-110 shadow-sm">
+              <Users className="h-4 w-4" />
             </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">
+              {mockClasses.reduce((sum, c) => sum + c.enrolled, 0)}
+            </div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Total bookers</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-500 dark:text-amber-400">Utilization</CardTitle>
+            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 transition-transform group-hover:scale-110 shadow-sm">
+              <TrendingUp className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">87%</div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Avg attendance</p>
+          </CardContent>
+        </Card>
+      </div>
 
-            {/* Week Navigation */}
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setCurrentWeek(currentWeek - 1)}
-                            className="text-gray-400 hover:text-white hover:bg-dark-800"
-                        >
-                            <ChevronLeft className="h-5 w-5" />
-                        </Button>
-                        <div className="flex items-center gap-2 text-gray-900 dark:text-white font-semibold">
-                            <CalendarIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                            <span>Current Week</span>
-                        </div>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setCurrentWeek(currentWeek + 1)}
-                            className="text-gray-400 hover:text-white hover:bg-dark-800"
-                        >
-                            <ChevronRight className="h-5 w-5" />
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+      {/* Week Navigation */}
+      <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden transition-colors">
+        <CardContent className="p-4 px-6">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCurrentWeek(currentWeek - 1)}
+              className="h-10 w-10 text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-navy-800 rounded-xl transition-all"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                <CalendarIcon className="h-4 w-4" />
+              </div>
+              <span className="text-slate-900 dark:text-white font-black uppercase text-xs tracking-widest">March 2024 • Week {currentWeek + 10}</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCurrentWeek(currentWeek + 1)}
+              className="h-10 w-10 text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-navy-800 rounded-xl transition-all"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-            {/* Weekly Schedule Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
-                {daysOfWeek.map((day, index) => {
-                    const dayClasses = getClassesForDay(day);
-                    const isToday = index === today;
+      {/* Weekly Schedule Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
+        {daysOfWeek.map((day, index) => {
+          const dayClasses = getClassesForDay(index);
+          const isToday = index === today;
+
+          return (
+            <div key={day} className="space-y-4">
+              {/* Day Header */}
+              <div className={cn(
+                "text-center p-4 rounded-2xl shadow-sm border transition-all",
+                isToday
+                  ? "bg-indigo-600 dark:bg-indigo-600 border-indigo-600 dark:border-indigo-600 ring-4 ring-indigo-500/10 dark:ring-indigo-500/5 scale-105 z-10"
+                  : "bg-white dark:bg-navy-900 border-slate-200/60 dark:border-navy-800"
+              )}>
+                <p className={cn(
+                  "font-black uppercase text-[10px] tracking-[0.2em]",
+                  isToday ? "text-indigo-100" : "text-slate-400 dark:text-navy-500"
+                )}>
+                  {day.slice(0, 3)}
+                </p>
+                <p className={cn(
+                  "text-xl font-black mt-0.5",
+                  isToday ? "text-white" : "text-slate-900 dark:text-white"
+                )}>
+                  {15 + index}
+                </p>
+                {isToday && (
+                  <div className="w-1.5 h-1.5 rounded-full bg-white mx-auto mt-2 animate-pulse" />
+                )}
+              </div>
+
+              {/* Classes for this day */}
+              <div className="space-y-4">
+                {dayClasses.length > 0 ? (
+                  dayClasses.map((classSession) => {
+                    const isFull = classSession.enrolled >= classSession.capacity;
 
                     return (
-                        <div key={day} className="space-y-3">
-                            {/* Day Header */}
-                            <div className={cn(
-                                "text-center p-3 rounded-lg",
-                                isToday
-                                    ? "bg-gradient-to-r from-purple-500 to-pink-600 shadow-md"
-                                    : "bg-white dark:bg-dark-900/50 border border-gray-200 dark:border-dark-800 shadow-sm"
+                      <Card
+                        key={classSession.id}
+                        onClick={() => navigate(`/classes/${classSession.id}`)}
+                        className="bg-white dark:bg-navy-900 border-slate-200/60 dark:border-navy-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 dark:hover:shadow-navy-950/50 hover:-translate-y-1 transition-all duration-500 cursor-pointer group rounded-3xl overflow-hidden"
+                      >
+                        <CardContent className="p-4 space-y-4">
+                          <div>
+                            <Badge className={cn(
+                              "text-[9px] font-black uppercase tracking-widest border-none px-2 rounded-lg mb-2 shadow-none",
+                              classTypeColors[classSession.type]
                             )}>
-                                <p className={cn(
-                                    "font-semibold",
-                                    isToday ? "text-white" : "text-gray-700 dark:text-gray-400"
-                                )}>
-                                    {day}
-                                </p>
-                                {isToday && (
-                                    <p className="text-xs text-white/80 mt-1">Today</p>
-                                )}
+                              {classSession.type}
+                            </Badge>
+                            <h3 className="font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-sm leading-tight">
+                              {classSession.name}
+                            </h3>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 dark:text-navy-500 group-hover:text-slate-600 dark:group-hover:text-navy-400 transition-colors">
+                              <Clock className="h-3 w-3" />
+                              <span>{classSession.time} • {classSession.duration}m</span>
                             </div>
-
-                            {/* Classes for this day */}
-                            <div className="space-y-3">
-                                {dayClasses.length > 0 ? (
-                                    dayClasses.map((classSession) => {
-                                        const isFull = (classSession.enrolled || 0) >= (classSession.capacity || 1);
-                                        const category = (classSession.name || 'cardio').toLowerCase();
-                                        const colorKey = Object.keys(classTypeColors).find(k => category.includes(k)) || 'cardio';
-
-                                        return (
-                                            <Card
-                                                key={classSession._id}
-                                                onClick={() => navigate(`/classes/${classSession._id}`)}
-                                                className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-dark-900/70 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5 cursor-pointer group"
-                                            >
-                                                <CardContent className="p-4 space-y-3">
-                                                    {/* Class Name & Type */}
-                                                    <div>
-                                                        <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors text-sm mb-1">
-                                                            {classSession.name}
-                                                        </h3>
-                                                        <Badge className={cn(
-                                                            "text-xs bg-gradient-to-r text-white",
-                                                            classTypeColors[colorKey]
-                                                        )}>
-                                                            {classSession.name.split(' ')[0] || 'Class'}
-                                                        </Badge>
-                                                    </div>
-
-                                                    {/* Time */}
-                                                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                                        <Clock className="h-3 w-3" />
-                                                        <span>{classSession.schedule?.startTime} - {classSession.schedule?.endTime}</span>
-                                                    </div>
-
-                                                    {/* Trainer */}
-                                                    <div className="flex items-center gap-2">
-                                                        <Avatar className="h-6 w-6">
-                                                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
-                                                                {getTrainerInitials(classSession.trainer)}
-                                                            </AvatarFallback>
-                                                        </Avatar>
-                                                        <span className="text-xs text-gray-500 dark:text-gray-400">{getTrainerName(classSession.trainer)}</span>
-                                                    </div>
-
-                                                    {/* Enrollment */}
-                                                    <div className="pt-2 border-t border-dark-700">
-                                                        <div className="flex items-center justify-between mb-1">
-                                                            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                                                <Users className="h-3 w-3" />
-                                                                <span>{classSession.enrolled || 0}/{classSession.capacity || 0}</span>
-                                                            </div>
-                                                            {isFull && (
-                                                                <Badge className="text-xs bg-red-500/20 text-red-400 border-red-500/30">
-                                                                    Full
-                                                                </Badge>
-                                                            )}
-                                                        </div>
-                                                        <div className="w-full bg-gray-100 dark:bg-dark-800 rounded-full h-1.5">
-                                                            <div
-                                                                className={cn(
-                                                                    "h-1.5 rounded-full transition-all",
-                                                                    isFull
-                                                                        ? "bg-gradient-to-r from-red-500 to-orange-600"
-                                                                        : "bg-gradient-to-r from-purple-500 to-pink-600"
-                                                                )}
-                                                                style={{ width: `${Math.min(((classSession.enrolled || 0) / (classSession.capacity || 1)) * 100, 100)}%` }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        );
-                                    })
-                                ) : (
-                                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm border-dashed">
-                                        <CardContent className="p-8 text-center">
-                                            <p className="text-gray-500 text-sm">No classes scheduled</p>
-                                        </CardContent>
-                                    </Card>
-                                )}
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 dark:text-navy-500 group-hover:text-slate-600 dark:group-hover:text-navy-400 transition-colors">
+                              <MapPin className="h-3 w-3" />
+                              <span className="uppercase tracking-widest">{classSession.location}</span>
                             </div>
-                        </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 pt-2 border-t border-slate-50 dark:border-navy-800">
+                            <Avatar className="h-6 w-6 border-2 border-white dark:border-navy-800 shadow-sm">
+                              <AvatarImage src={classSession.trainer.photoUrl} />
+                              <AvatarFallback className="bg-indigo-600 dark:bg-navy-950 text-white text-[8px] font-black">
+                                {classSession.trainer.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-navy-400 truncate">{classSession.trainer.name}</span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">
+                                <Users className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
+                                <span>{classSession.enrolled} Enrolled</span>
+                              </div>
+                              {isFull && (
+                                <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">Full</span>
+                              )}
+                            </div>
+                            <div className="w-full bg-slate-100 dark:bg-navy-800 rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className={cn(
+                                  "h-full rounded-full transition-all duration-1000",
+                                  isFull
+                                    ? "bg-rose-500"
+                                    : "bg-indigo-600 dark:bg-indigo-500"
+                                )}
+                                style={{ width: `${(classSession.enrolled / classSession.capacity) * 100}%` }}
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                     );
-                })}
+                  })
+                ) : (
+                  <div className="p-8 text-center rounded-3xl border-2 border-dashed border-slate-100 dark:border-navy-800 bg-slate-50/10 dark:bg-navy-950/20">
+                    <p className="text-slate-300 dark:text-navy-600 font-black uppercase text-[9px] tracking-[0.2em]">Empty</p>
+                  </div>
+                )}
+              </div>
             </div>
-        </div>
-    );
+          );
+        })}
+      </div>
+    </div>
+  );
 }

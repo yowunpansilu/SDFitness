@@ -1,190 +1,301 @@
-import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Download, Printer, Mail, User, FileText, Loader2 } from 'lucide-react';
+import { ArrowLeft, Download, Printer, Mail, User, FileText, Hash, Calendar, CreditCard, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import api from '@/lib/api/axios';
 
-const statusColors: Record<string, string> = {
-    completed: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
-    paid: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
-    active: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
-    pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30',
-    failed: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30',
-    refunded: 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
-    cancelled: 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
+const statusColors = {
+  completed: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20',
+  pending: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-500/20',
+  failed: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-500/20',
+  refunded: 'bg-slate-50 dark:bg-navy-800 text-slate-600 dark:text-navy-400 border-slate-200 dark:border-navy-700',
+};
+
+// Mock data
+const mockPayment = {
+  id: '1',
+  transactionId: 'TXN-2024-001234',
+  invoiceNumber: 'INV-2024-001234',
+  date: '2024-02-03T10:30:00',
+  member: {
+    id: '1',
+    name: 'Michael Brown',
+    email: 'michael.brown@email.com',
+    phone: '+1 (555) 123-4567',
+    address: '123 Main St, Apt 4B, New York, NY 10001',
+  },
+  amount: 99.00,
+  tax: 8.91,
+  total: 107.91,
+  type: 'membership',
+  status: 'completed' as const,
+  paymentMethod: 'credit_card',
+  cardLast4: '4242',
+  description: 'Monthly Premium Membership',
+  billingPeriod: {
+    start: '2024-02-01',
+    end: '2024-02-29',
+  },
+  items: [
+    {
+      description: 'Premium Membership - Monthly',
+      quantity: 1,
+      unitPrice: 99.00,
+      total: 99.00,
+    },
+  ],
 };
 
 export function PaymentDetail() {
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const [payment, setPayment] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { id } = useParams();
 
-    useEffect(() => {
-        const fetchPayment = async () => {
-            try {
-                // Try billing transaction first
-                try {
-                    const res = await api.get(`/billing/transactions/${id}`);
-                    setPayment(res.data);
-                } catch {
-                    // Fall back to subscription lookup
-                    try {
-                        const res = await api.get(`/membership/subscriptions/${id}`);
-                        const sub = res.data;
-                        // Also try to fetch member data
-                        let member: any = {};
-                        if (sub.member) {
-                            try {
-                                const memberRes = await api.get(`/members/${typeof sub.member === 'string' ? sub.member : sub.member._id}`);
-                                member = memberRes.data;
-                            } catch { /* ok */ }
-                        }
-                        const user = member.user || {};
-                        setPayment({
-                            _id: sub._id,
-                            transactionId: `SUB-${sub._id?.slice(-6)}`,
-                            invoiceNumber: `INV-${sub._id?.slice(-6)}`,
-                            date: sub.startDate || sub.createdAt,
-                            member: {
-                                id: member._id || sub.member,
-                                name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown',
-                                email: user.email || '—',
-                                phone: user.phone || '—',
-                            },
-                            amount: sub.amount || sub.plan?.price || 0,
-                            tax: 0,
-                            total: sub.amount || sub.plan?.price || 0,
-                            type: 'membership',
-                            status: sub.status || 'active',
-                            paymentMethod: sub.paymentMethod || 'card',
-                            description: sub.plan?.name || 'Membership',
-                            billingPeriod: sub.startDate ? {
-                                start: sub.startDate,
-                                end: sub.endDate,
-                            } : null,
-                            items: [{
-                                description: sub.plan?.name || 'Membership Subscription',
-                                quantity: 1,
-                                unitPrice: sub.amount || sub.plan?.price || 0,
-                                total: sub.amount || sub.plan?.price || 0,
-                            }],
-                        });
-                    } catch {
-                        setPayment(null);
-                    }
-                }
-            } catch { setPayment(null); }
-            setLoading(false);
-        };
-        fetchPayment();
-    }, [id]);
+  const handlePrint = () => {
+    window.print();
+  };
 
-    if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-purple-500 animate-spin" /></div>;
-    if (!payment) return <div className="text-center py-12"><p className="text-gray-400">Payment not found</p><Button onClick={() => navigate('/payments')} className="mt-4">Back</Button></div>;
+  const handleDownload = () => {
+    console.log('Downloading invoice...');
+  };
 
-    const memberInfo = payment.member || {};
-    const items = payment.items || [{ description: payment.description || 'Payment', quantity: 1, unitPrice: payment.amount, total: payment.amount }];
-    const amount = payment.amount || 0;
-    const tax = payment.tax || 0;
-    const total = payment.total || amount;
+  const handleSendEmail = () => {
+    console.log('Sending invoice via email...');
+  };
 
-    return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between print:hidden">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" onClick={() => navigate('/payments')} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"><ArrowLeft className="h-4 w-4 mr-2" /> Back</Button>
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Payment Details</h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-2">Transaction #{payment.transactionId || payment._id?.slice(-8)}</p>
-                    </div>
-                </div>
-                <div className="flex gap-3">
-                    <Button variant="outline" className="border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-800 shadow-sm"><Mail className="h-4 w-4 mr-2" /> Email Invoice</Button>
-                    <Button onClick={() => window.print()} variant="outline" className="border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-800 shadow-sm"><Printer className="h-4 w-4 mr-2" /> Print</Button>
-                    <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"><Download className="h-4 w-4 mr-2" /> Download PDF</Button>
-                </div>
-            </div>
-
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-xl print:shadow-none print:border-gray-300">
-                <CardContent className="p-8">
-                    <div className="flex justify-between items-start mb-8">
-                        <div><h2 className="text-3xl font-bold text-gray-900 dark:text-white print:text-black">INVOICE</h2><p className="text-gray-500 dark:text-gray-400 mt-1 print:text-gray-600">#{payment.invoiceNumber || payment._id?.slice(-8)}</p></div>
-                        <div className="text-right"><h3 className="text-xl font-bold text-gray-900 dark:text-white print:text-black">SD Fitness</h3><p className="text-gray-500 dark:text-gray-400 text-sm mt-1 print:text-gray-600">456 Fitness Avenue<br />Los Angeles, CA 90001<br />contact@sdfitness.com</p></div>
-                    </div>
-                    <Separator className="my-6 print:bg-gray-300" />
-                    <div className="grid grid-cols-2 gap-8 mb-8">
-                        <div>
-                            <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 print:text-gray-600">BILL TO</h4>
-                            <div className="text-gray-900 dark:text-white print:text-black">
-                                <p className="font-semibold">{memberInfo.name || '—'}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 print:text-gray-600 mt-1">{memberInfo.email || ''}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 print:text-gray-600">{memberInfo.phone || ''}</p>
-                            </div>
-                        </div>
-                        <div className="text-right">
-                            <div className="space-y-2">
-                                <div><span className="text-sm text-gray-500 dark:text-gray-400">Invoice Date:</span><p className="text-gray-900 dark:text-white font-semibold print:text-black">{payment.date ? new Date(payment.date).toLocaleDateString() : '—'}</p></div>
-                                <div><span className="text-sm text-gray-500 dark:text-gray-400">Payment Method:</span><p className="text-gray-900 dark:text-white font-semibold print:text-black capitalize">{(payment.paymentMethod || '—').replace('_', ' ')}</p></div>
-                                <div><span className="text-sm text-gray-500 dark:text-gray-400">Status:</span><div className="mt-1"><Badge className={cn('shadow-sm', statusColors[payment.status] || statusColors.pending)}>{payment.status}</Badge></div></div>
-                            </div>
-                        </div>
-                    </div>
-                    <Separator className="my-6 print:bg-gray-300" />
-                    {payment.billingPeriod && (
-                        <div className="mb-6">
-                            <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2 print:text-gray-600">BILLING PERIOD</h4>
-                            <p className="text-gray-900 dark:text-white print:text-black">{new Date(payment.billingPeriod.start).toLocaleDateString()} - {payment.billingPeriod.end ? new Date(payment.billingPeriod.end).toLocaleDateString() : 'Ongoing'}</p>
-                        </div>
-                    )}
-                    <div className="mb-8">
-                        <table className="w-full">
-                            <thead><tr className="border-b border-gray-200 dark:border-dark-700 print:border-gray-300"><th className="text-left py-3 text-sm font-semibold text-gray-500 dark:text-gray-400">DESCRIPTION</th><th className="text-center py-3 text-sm font-semibold text-gray-500 dark:text-gray-400">QTY</th><th className="text-right py-3 text-sm font-semibold text-gray-500 dark:text-gray-400">UNIT PRICE</th><th className="text-right py-3 text-sm font-semibold text-gray-500 dark:text-gray-400">TOTAL</th></tr></thead>
-                            <tbody>
-                                {items.map((item: any, index: number) => (
-                                    <tr key={index} className="border-b border-gray-100 dark:border-dark-800 print:border-gray-200">
-                                        <td className="py-4 text-gray-900 dark:text-white print:text-black">{item.description}</td>
-                                        <td className="py-4 text-center text-gray-900 dark:text-white print:text-black">{item.quantity}</td>
-                                        <td className="py-4 text-right text-gray-900 dark:text-white print:text-black">LKR {(item.unitPrice || 0).toLocaleString()}</td>
-                                        <td className="py-4 text-right text-gray-900 dark:text-white font-semibold print:text-black">LKR {(item.total || 0).toLocaleString()}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className="flex justify-end">
-                        <div className="w-64 space-y-2">
-                            <div className="flex justify-between text-gray-500 dark:text-gray-400"><span>Subtotal:</span><span className="text-gray-900 dark:text-white print:text-black">LKR {amount.toLocaleString()}</span></div>
-                            {tax > 0 && <div className="flex justify-between text-gray-500 dark:text-gray-400"><span>Tax:</span><span className="text-gray-900 dark:text-white print:text-black">LKR {tax.toLocaleString()}</span></div>}
-                            <Separator className="bg-gray-200 dark:bg-dark-700 print:bg-gray-300" />
-                            <div className="flex justify-between text-xl font-bold"><span className="text-gray-900 dark:text-white print:text-black">Total:</span><span className="text-gray-900 dark:text-white print:text-black">LKR {total.toLocaleString()}</span></div>
-                        </div>
-                    </div>
-                    <div className="mt-12 pt-6 border-t border-gray-100 dark:border-dark-800 print:border-gray-300"><p className="text-sm text-gray-500 dark:text-gray-400 text-center print:text-gray-600">Thank you for your business! For any questions, contact us at support@sdfitness.com</p></div>
-                </CardContent>
-            </Card>
-
-            <div className="grid gap-6 md:grid-cols-2 print:hidden">
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                    <CardHeader><CardTitle className="text-gray-900 dark:text-white flex items-center gap-2"><User className="h-5 w-5" /> Member Information</CardTitle></CardHeader>
-                    <CardContent className="space-y-3">
-                        <div><label className="text-sm text-gray-500 dark:text-gray-400">Name</label><p className="text-gray-900 dark:text-white font-medium">{memberInfo.name || '—'}</p></div>
-                        {memberInfo.id && <Button onClick={() => navigate(`/members/${memberInfo.id}`)} variant="outline" className="w-full border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-dark-800">View Member Profile</Button>}
-                    </CardContent>
-                </Card>
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                    <CardHeader><CardTitle className="text-gray-900 dark:text-white flex items-center gap-2"><FileText className="h-5 w-5" /> Transaction Details</CardTitle></CardHeader>
-                    <CardContent className="space-y-3">
-                        <div><label className="text-sm text-gray-500 dark:text-gray-400">Transaction ID</label><p className="text-gray-900 dark:text-white font-mono text-sm">{payment.transactionId || payment._id}</p></div>
-                        <div><label className="text-sm text-gray-500 dark:text-gray-400">Payment Type</label><p className="text-gray-900 dark:text-white capitalize">{(payment.type || '—').replace('_', ' ')}</p></div>
-                        <div><label className="text-sm text-gray-500 dark:text-gray-400">Processed At</label><p className="text-gray-900 dark:text-white">{payment.date ? new Date(payment.date).toLocaleString() : '—'}</p></div>
-                    </CardContent>
-                </Card>
-            </div>
+  return (
+    <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
+      {/* Header - Hidden on print */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 print:hidden">
+        <div className="flex items-center gap-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/payments')}
+            className="h-12 w-12 rounded-2xl text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-navy-800/50 transition-all p-0 flex items-center justify-center border border-transparent hover:border-slate-100 dark:hover:border-navy-800"
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+          <div>
+            <h1 className="text-4xl font-black italic tracking-tight text-slate-900 dark:text-white transition-colors">
+              TRANSACTION <span className="text-indigo-600 dark:text-indigo-400 italic">INTEL</span>
+            </h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600 mt-1">Ref ID: {mockPayment.transactionId}</p>
+          </div>
         </div>
-    );
+        <div className="flex flex-wrap gap-3">
+          <Button
+            onClick={handleSendEmail}
+            variant="ghost"
+            className="h-11 px-6 bg-slate-50 dark:bg-navy-950 border-none text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-navy-800 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all"
+          >
+            <Mail className="h-4 w-4 mr-2" />
+            Dispatch Comms
+          </Button>
+          <Button
+            onClick={handlePrint}
+            variant="ghost"
+            className="h-11 px-6 bg-slate-50 dark:bg-navy-950 border-none text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-navy-800 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all"
+          >
+            <Printer className="h-4 w-4 mr-2" />
+            Physical Log
+          </Button>
+          <Button
+            onClick={handleDownload}
+            className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-950/20 h-11 px-8 font-black uppercase text-[10px] tracking-widest transition-all hover:scale-105 active:scale-95"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export Archive
+          </Button>
+        </div>
+      </div>
+
+      {/* Invoice Card */}
+      <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm rounded-[3rem] overflow-hidden transition-colors font-medium print:bg-white print:border-slate-300 print:shadow-none print:rounded-none">
+        <CardContent className="p-12 print:p-8">
+          {/* Invoice Header */}
+          <div className="flex flex-col md:flex-row justify-between items-start gap-10 mb-12">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-500/20 rotate-3">
+                  <DollarSign className="h-6 w-6" />
+                </div>
+                <h2 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white print:text-black">FINANCIAL <span className="italic text-indigo-600 dark:text-indigo-400">LEDGER</span></h2>
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 print:text-slate-600">
+                Authentication Code: {mockPayment.invoiceNumber}
+              </p>
+            </div>
+            <div className="text-right space-y-2">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white print:text-black italic tracking-tight">SD FITNESS GLOBAL</h3>
+              <p className="text-xs font-bold text-slate-400 dark:text-navy-400 print:text-slate-600 leading-relaxed uppercase">
+                Sector 456 Fitness Avenue<br />
+                Node: Los Angeles, CA 90001<br />
+                Comms: contact@sdfitness.com<br />
+                Vox: +1 (555) 987-6543
+              </p>
+            </div>
+          </div>
+
+          <Separator className="my-10 bg-slate-50 dark:bg-navy-800 transition-colors" />
+
+          {/* Billing Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                  <User className="h-4 w-4" />
+                </div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">
+                  TARGET ENTITY
+                </h4>
+              </div>
+              <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-colors">
+                <p className="text-2xl font-black tracking-tight text-slate-900 dark:text-white print:text-black mb-2 uppercase">{mockPayment.member.name}</p>
+                <div className="space-y-1 text-sm font-bold text-slate-500 dark:text-navy-400">
+                  <p>{mockPayment.member.email}</p>
+                  <p>{mockPayment.member.phone}</p>
+                  <p className="mt-4 italic">{mockPayment.member.address}</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                  <CreditCard className="h-4 w-4" />
+                </div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">
+                  PROTOCOL METRICS
+                </h4>
+              </div>
+              <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 space-y-6 transition-colors font-bold uppercase text-[10px] tracking-widest text-slate-400 dark:text-navy-600">
+                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-navy-800">
+                  <span>Activation Date</span>
+                  <span className="text-slate-900 dark:text-white">{new Date(mockPayment.date).toLocaleDateString(undefined, {month: 'long', day: 'numeric', year: 'numeric'})}</span>
+                </div>
+                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-navy-800">
+                  <span>Payment Method</span>
+                  <span className="text-slate-900 dark:text-white">{mockPayment.paymentMethod.replace('_', ' ')} •• {mockPayment.cardLast4}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Current Status</span>
+                  <Badge className={cn(statusColors[mockPayment.status], 'font-black text-[10px] uppercase tracking-widest rounded-lg border shadow-none px-3 py-1 transition-colors')}>
+                    {mockPayment.status}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Items Table */}
+          <div className="mb-12 overflow-hidden rounded-[2rem] border border-slate-100 dark:border-navy-800">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-navy-950/50 border-b border-slate-100 dark:border-navy-800 transition-colors">
+                  <th className="py-5 px-8 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Description</th>
+                  <th className="py-5 px-8 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Rate</th>
+                  <th className="py-5 px-8 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Qty</th>
+                  <th className="py-5 px-8 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Metric Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50 dark:divide-navy-950">
+                {mockPayment.items.map((item, index) => (
+                  <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-navy-950/30 transition-all">
+                    <td className="py-6 px-8">
+                      <p className="text-sm font-black text-slate-900 dark:text-white italic uppercase tracking-tight">{item.description}</p>
+                      <p className="text-[10px] font-bold text-slate-400 dark:text-navy-500 uppercase mt-1">Service ID: 00456-{index}</p>
+                    </td>
+                    <td className="py-6 px-8 text-center text-sm font-bold text-slate-600 dark:text-navy-400">${item.unitPrice.toFixed(2)}</td>
+                    <td className="py-6 px-8 text-center text-sm font-black text-slate-900 dark:text-white">{item.quantity}</td>
+                    <td className="py-6 px-8 text-right text-sm font-black text-indigo-600 dark:text-indigo-400">${item.total.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Totals Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
+            <div className="max-w-md">
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic mb-4">Operational Addendum</h4>
+              <p className="text-xs font-medium text-slate-500 dark:text-navy-400 leading-relaxed">
+                This transaction represents an authorized deployment of fitness resources for the specified duration. 
+                Values are confirmed via encrypted financial channels. Thank you for maintaining operational excellence.
+              </p>
+            </div>
+            <div className="w-full md:w-80 p-8 rounded-[2rem] bg-indigo-600 dark:bg-indigo-500 text-white shadow-2xl shadow-indigo-600/20 space-y-4">
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-70">
+                <span>Core Subtotal</span>
+                <span>${mockPayment.amount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-70 pb-4 border-b border-white/10">
+                <span>Regulatory Tax (9%)</span>
+                <span>${mockPayment.tax.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="text-xs font-black uppercase tracking-widest">Total Valuation</span>
+                <span className="text-3xl font-black tracking-tighter">${mockPayment.total.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer - Only visible on print or at very bottom */}
+          <div className="mt-16 pt-10 border-t border-slate-50 dark:border-navy-950 text-center">
+            <p className="text-[9px] font-black uppercase tracking-[0.5em] text-slate-300 dark:text-navy-800 transition-colors">
+              CONFIDENTIAL TRANSCRIPT // SD FITNESS GLOBAL NETWORKS
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Auxiliary Intel - Hidden on print */}
+      <div className="grid gap-8 md:grid-cols-2 print:hidden">
+        <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden group">
+          <CardHeader className="p-8 pb-4">
+            <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600 italic flex items-center gap-3">
+              <User className="h-5 w-5 text-indigo-500" />
+              Entity Synchronization
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 pt-0 space-y-6">
+            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-colors">
+              <label className="text-[9px] font-black text-slate-400 dark:text-navy-600 uppercase mb-1 block">Entity ID</label>
+              <p className="text-sm font-mono font-black text-slate-900 dark:text-white uppercase">US-MB-00000{mockPayment.member.id}</p>
+            </div>
+            <Button
+              onClick={() => navigate(`/members/${mockPayment.member.id}`)}
+              className="w-full h-14 bg-white dark:bg-navy-950 border-2 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white hover:border-indigo-500 font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all shadow-sm"
+            >
+              Access Entity Profile
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden group">
+          <CardHeader className="p-8 pb-4">
+            <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600 italic flex items-center gap-3">
+              <FileText className="h-5 w-5 text-indigo-500" />
+              Node Metadata
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 pt-0 space-y-4">
+            <div className="grid grid-cols-2 gap-4 font-bold uppercase text-[9px] tracking-widest">
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 transition-colors">
+                <span className="text-slate-400 dark:text-navy-600 block mb-1">TX Hash</span>
+                <span className="text-slate-900 dark:text-white truncate block">{mockPayment.transactionId}</span>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 transition-colors">
+                <span className="text-slate-400 dark:text-navy-600 block mb-1">Process Node</span>
+                <span className="text-slate-900 dark:text-white">SD-FIN-US-01</span>
+              </div>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 text-center transition-colors">
+              <span className="text-slate-400 dark:text-navy-600 text-[9px] font-black uppercase tracking-widest">System Synchronized at</span>
+              <p className="text-sm font-black text-slate-900 dark:text-white mt-1">{new Date(mockPayment.date).toLocaleTimeString()}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }

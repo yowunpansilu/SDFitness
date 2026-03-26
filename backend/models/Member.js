@@ -9,7 +9,8 @@ const memberSchema = new mongoose.Schema({
     },
     memberNumber: {
         type: String,
-        unique: true
+        unique: true,
+        sparse: true
     },
     dateOfBirth: {
         type: Date,
@@ -66,8 +67,8 @@ const memberSchema = new mongoose.Schema({
     // Activity Level (ML input)
     activityLevel: {
         type: String,
-        enum: ['sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extremely_active'],
-        default: 'moderately_active'
+        enum: ['sedentary', 'light', 'moderate', 'active', 'very_active', 'lightly_active', 'moderately_active', 'extremely_active'],
+        default: 'moderate'
     },
 
     // Medical
@@ -81,6 +82,7 @@ const memberSchema = new mongoose.Schema({
 
     // Membership
     membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
+    membershipType: { type: String, enum: ['basic', 'standard', 'premium', 'elite'], default: 'standard' },
     assignedTrainerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trainer', default: null },
 
     qrCode: { type: String, unique: true, sparse: true },
@@ -103,8 +105,6 @@ const memberSchema = new mongoose.Schema({
 });
 
 // Indexes
-memberSchema.index({ userId: 1 }, { unique: true });
-memberSchema.index({ memberNumber: 1 }, { unique: true, sparse: true });
 memberSchema.index({ status: 1 });
 memberSchema.index({ 'dietBudget.amount': 1 });
 

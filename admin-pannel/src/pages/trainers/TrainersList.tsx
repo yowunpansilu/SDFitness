@@ -1,263 +1,330 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Mail, Award, Users, TrendingUp, Loader2 } from 'lucide-react';
+import { Search, Plus, Mail, Phone, Award, Users, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import api from '@/lib/api/axios';
 
 interface Trainer {
-    _id: string;
-    user: {
-        _id: string;
-        firstName: string;
-        lastName: string;
-        email: string;
-    };
-    specialization: string[];
-    experienceYears: number;
-    bio: string;
-    availability: { day: string; startTime: string; endTime: string }[];
-    createdAt: string;
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  specializations: string[];
+  certifications: string[];
+  assignedMembers: number;
+  rating: number;
+  photoUrl?: string;
+  status: 'active' | 'inactive' | 'on_leave';
+  hireDate: string;
 }
 
-const statusColors: Record<string, string> = {
-    active: 'bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/30',
-    inactive: 'bg-gray-500/10 dark:bg-gray-500/20 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
-    on_leave: 'bg-yellow-500/10 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30',
+// Mock data
+const mockTrainers: Trainer[] = [
+  {
+    id: '1',
+    firstName: 'Sarah',
+    lastName: 'Johnson',
+    email: 'sarah.j@sdfitness.com',
+    phone: '+1 234 567 8901',
+    specializations: ['Strength Training', 'Bodybuilding', 'Powerlifting'],
+    certifications: ['NASM-CPT', 'CSCS'],
+    assignedMembers: 24,
+    rating: 4.8,
+    photoUrl: undefined,
+    status: 'active',
+    hireDate: '2023-01-15',
+  },
+  {
+    id: '2',
+    firstName: 'Mike',
+    lastName: 'Ross',
+    email: 'mike.r@sdfitness.com',
+    phone: '+1 234 567 8902',
+    specializations: ['HIIT', 'Cardio', 'Weight Loss'],
+    certifications: ['ACE-CPT', 'ACSM-CPT'],
+    assignedMembers: 31,
+    rating: 4.9,
+    photoUrl: undefined,
+    status: 'active',
+    hireDate: '2022-08-20',
+  },
+  {
+    id: '3',
+    firstName: 'Emma',
+    lastName: 'Wilson',
+    email: 'emma.w@sdfitness.com',
+    phone: '+1 234 567 8903',
+    specializations: ['Yoga', 'Pilates', 'Flexibility'],
+    certifications: ['RYT-500', 'NASM-CPT'],
+    assignedMembers: 28,
+    rating: 5.0,
+    photoUrl: undefined,
+    status: 'active',
+    hireDate: '2023-03-10',
+  },
+  {
+    id: '4',
+    firstName: 'David',
+    lastName: 'Chen',
+    email: 'david.c@sdfitness.com',
+    phone: '+1 234 567 8904',
+    specializations: ['CrossFit', 'Functional Training', 'Sports Performance'],
+    certifications: ['CrossFit L2', 'NSCA-CSCS'],
+    assignedMembers: 19,
+    rating: 4.7,
+    photoUrl: undefined,
+    status: 'on_leave',
+    hireDate: '2021-11-05',
+  },
+];
+
+const statusColors = {
+  active: 'bg-emerald-50 text-emerald-600 border-emerald-100  ',
+  inactive: 'bg-slate-100 text-slate-600 border-slate-200  ',
+  on_leave: 'bg-amber-50 text-amber-600 border-amber-100  ',
 };
 
 export function TrainersList() {
-    const navigate = useNavigate();
-    const [trainers, setTrainers] = useState<Trainer[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [specializationFilter, setSpecializationFilter] = useState('all');
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [specializationFilter, setSpecializationFilter] = useState('all');
 
-    useEffect(() => {
-        const fetchTrainers = async () => {
-            try {
-                const response = await api.get('/trainers');
-                setTrainers(response.data);
-            } catch (err) {
-                console.error('Failed to fetch trainers:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchTrainers();
-    }, []);
+  const filteredTrainers = mockTrainers.filter((trainer) => {
+    const matchesSearch =
+      trainer.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trainer.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trainer.email.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const filteredTrainers = trainers.filter((trainer) => {
-        const firstName = trainer.user?.firstName || '';
-        const lastName = trainer.user?.lastName || '';
-        const email = trainer.user?.email || '';
-        const matchesSearch =
-            firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSpecialization =
+      specializationFilter === 'all' ||
+      trainer.specializations.some((s) =>
+        s.toLowerCase().includes(specializationFilter.toLowerCase())
+      );
 
-        const matchesSpecialization =
-            specializationFilter === 'all' ||
-            (trainer.specialization || []).some((s) =>
-                s.toLowerCase().includes(specializationFilter.toLowerCase())
-            );
+    return matchesSearch && matchesSpecialization;
+  });
 
-        return matchesSearch && matchesSpecialization;
-    });
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
-                <span className="ml-3 text-gray-500 dark:text-gray-400">Loading trainers...</span>
-            </div>
-        );
-    }
-
-    return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        Trainers
-                    </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2">
-                        Manage personal trainers and their assignments
-                    </p>
-                </div>
-                <Button
-                    onClick={() => navigate('/trainers/add')}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/20"
-                >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Trainer
-                </Button>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid gap-6 md:grid-cols-3">
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Trainers</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">{trainers.length}</div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Specializations</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                            {new Set(trainers.flatMap(t => t.specialization || [])).size}
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Experience</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                            {trainers.length > 0
-                                ? (trainers.reduce((sum, t) => sum + (t.experienceYears || 0), 0) / trainers.length).toFixed(1)
-                                : 0} yrs
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Filters */}
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                            <Input
-                                placeholder="Search trainers..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white placeholder:text-gray-500"
-                            />
-                        </div>
-                        <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
-                            <SelectTrigger className="w-full md:w-[200px] bg-gray-50 dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white">
-                                <SelectValue placeholder="Specialization" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white dark:bg-dark-900 border-gray-200 dark:border-dark-700">
-                                <SelectItem value="all">All Specializations</SelectItem>
-                                <SelectItem value="strength">Strength Training</SelectItem>
-                                <SelectItem value="cardio">Cardio</SelectItem>
-                                <SelectItem value="yoga">Yoga</SelectItem>
-                                <SelectItem value="crossfit">CrossFit</SelectItem>
-                                <SelectItem value="hiit">HIIT</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Trainers Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredTrainers.map((trainer) => (
-                    <Card
-                        key={trainer._id}
-                        onClick={() => navigate(`/trainers/${trainer._id}`)}
-                        className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-dark-900/70 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-1 cursor-pointer group"
-                    >
-                        <CardContent className="p-6">
-                            {/* Trainer Header */}
-                            <div className="flex items-start gap-4 mb-4">
-                                <Avatar className="h-16 w-16 ring-2 ring-purple-500/20 group-hover:ring-purple-500/40 transition-all">
-                                    <AvatarImage src={undefined} />
-                                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-lg font-semibold">
-                                        {(trainer.user?.firstName || '?')[0]}{(trainer.user?.lastName || '?')[0]}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                                        {trainer.user?.firstName} {trainer.user?.lastName}
-                                    </h3>
-                                    <Badge className={cn('mt-1', statusColors['active'] || statusColors.active)}>
-                                        active
-                                    </Badge>
-                                </div>
-                            </div>
-
-                            {/* Contact Info */}
-                            <div className="space-y-2 mb-4">
-                                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                    <Mail className="h-4 w-4" />
-                                    <span className="truncate">{trainer.user?.email}</span>
-                                </div>
-                            </div>
-
-                            {/* Specializations */}
-                            <div className="mb-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Award className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Specializations</span>
-                                </div>
-                                <div className="flex flex-wrap gap-2">
-                                    {(trainer.specialization || []).slice(0, 2).map((spec) => (
-                                        <Badge key={spec} className="bg-purple-500/10 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-purple-200 dark:border-purple-500/30 text-xs">
-                                            {spec}
-                                        </Badge>
-                                    ))}
-                                    {(trainer.specialization || []).length > 2 && (
-                                        <Badge className="bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-dark-700 text-xs">
-                                            +{trainer.specialization.length - 2}
-                                        </Badge>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Stats */}
-                            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-dark-700">
-                                <div className="flex items-center gap-2">
-                                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-500/20">
-                                        <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500">Experience</p>
-                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{trainer.experienceYears} yrs</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/20">
-                                        <TrendingUp className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500">Availability</p>
-                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{(trainer.availability || []).length} days</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-
-            {filteredTrainers.length === 0 && (
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardContent className="p-12 text-center">
-                        <p className="text-gray-500 dark:text-gray-400">No trainers found matching your criteria</p>
-                    </CardContent>
-                </Card>
-            )}
+  return (
+    <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+            Elite <span className="text-indigo-600 dark:text-indigo-400 italic">Trainers</span>
+          </h1>
+          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
+            Oversee your professional coaching staff and their portfolio.
+          </p>
         </div>
-    );
+        <Button
+          onClick={() => navigate('/trainers/add')}
+          className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 h-11 px-6 font-bold transition-all hover:scale-105 active:scale-95"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Trainer
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-navy-400">Total Staff</CardTitle>
+            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-110 shadow-sm">
+              <Plus className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">{mockTrainers.length}</div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Professionals onboarded</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-emerald-500 dark:text-emerald-400">Active duty</CardTitle>
+            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:scale-110 shadow-sm">
+              <Users className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">
+              {mockTrainers.filter((t) => t.status === 'active').length}
+            </div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Currently teaching</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400">Clientele</CardTitle>
+            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-110 shadow-sm">
+              <Award className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">
+              {mockTrainers.reduce((sum, t) => sum + t.assignedMembers, 0)}
+            </div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Assigned members</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-500 dark:text-amber-400">Avg Rating</CardTitle>
+            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 transition-transform group-hover:scale-110 shadow-sm">
+              <TrendingUp className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">
+              {(mockTrainers.reduce((sum, t) => sum + t.rating, 0) / mockTrainers.length).toFixed(1)}
+            </div>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Service quality</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden transition-colors">
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 transition-colors" />
+              <Input
+                placeholder="Search trainers by name or specialization..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-11 h-11 bg-slate-50 dark:bg-navy-950 border-transparent focus:bg-white dark:focus:bg-navy-950 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 rounded-xl transition-all dark:text-white"
+              />
+            </div>
+            <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
+              <SelectTrigger className="w-full md:w-[220px] h-11 bg-slate-50 dark:bg-navy-950 border-transparent rounded-xl focus:ring-indigo-500/10 shadow-none dark:text-white">
+                <SelectValue placeholder="All Specializations" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl border-slate-200 dark:border-navy-800 dark:bg-navy-900 dark:text-white">
+                <SelectItem value="all">All Specializations</SelectItem>
+                <SelectItem value="strength">Strength Training</SelectItem>
+                <SelectItem value="cardio">Cardio</SelectItem>
+                <SelectItem value="yoga">Yoga</SelectItem>
+                <SelectItem value="crossfit">CrossFit</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Trainers Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filteredTrainers.map((trainer) => (
+          <Card
+            key={trainer.id}
+            onClick={() => navigate(`/trainers/${trainer.id}`)}
+            className="bg-white dark:bg-navy-900 border-slate-200/60 dark:border-navy-800 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 dark:hover:shadow-navy-950/50 hover:-translate-y-2 transition-all duration-500 cursor-pointer group rounded-[2.5rem] overflow-hidden p-2"
+          >
+            <CardContent className="p-6 space-y-6">
+              {/* Trainer Header */}
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="relative">
+                  <Avatar className="h-24 w-24 ring-4 ring-indigo-50 dark:ring-navy-950 group-hover:ring-indigo-100 dark:group-hover:ring-indigo-900/50 transition-all duration-500 hvr-pulse-grow shadow-md">
+                    <AvatarImage src={trainer.photoUrl} className="object-cover" />
+                    <AvatarFallback className="bg-indigo-600 dark:bg-navy-950 text-white text-2xl font-black">
+                      {trainer.firstName[0]}{trainer.lastName[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute -bottom-1 -right-1">
+                    <div className="h-6 w-6 rounded-full bg-white dark:bg-navy-950 p-1 shadow-sm">
+                      <div className={cn("w-full h-full rounded-full ring-2 ring-white dark:ring-navy-950", trainer.status === 'active' ? 'bg-emerald-500 animate-pulse' : trainer.status === 'on_leave' ? 'bg-amber-500' : 'bg-slate-300 dark:bg-navy-800')} />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase tracking-tight">
+                    {trainer.firstName} {trainer.lastName}
+                  </h3>
+                  <Badge className={cn('mt-2 font-black text-[9px] uppercase tracking-widest rounded-lg border shadow-none px-2', statusColors[trainer.status])}>
+                    {trainer.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Info Rows */}
+              <div className="space-y-3 bg-slate-50/50 dark:bg-navy-950/50 p-4 rounded-3xl transition-colors">
+                <div className="flex items-center gap-3 text-[11px] font-bold text-slate-500 dark:text-navy-400 group-hover:text-slate-600 dark:group-hover:text-navy-200 transition-colors">
+                  <div className="p-1.5 rounded-lg bg-white dark:bg-navy-900 shadow-sm border border-navy-100/10">
+                    <Mail className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
+                  </div>
+                  <span className="truncate">{trainer.email}</span>
+                </div>
+                <div className="flex items-center gap-3 text-[11px] font-bold text-slate-500 dark:text-navy-400 group-hover:text-slate-600 dark:group-hover:text-navy-200 transition-colors">
+                  <div className="p-1.5 rounded-lg bg-white dark:bg-navy-900 shadow-sm border border-navy-100/10">
+                    <Phone className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
+                  </div>
+                  <span>{trainer.phone}</span>
+                </div>
+              </div>
+
+              {/* Specializations */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Award className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-navy-600">Expertise</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {trainer.specializations.slice(0, 2).map((spec) => (
+                    <Badge key={spec} variant="outline" className="border-indigo-100 dark:border-navy-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/5 font-black text-[9px] uppercase tracking-widest py-0.5 rounded-lg">
+                      {spec}
+                    </Badge>
+                  ))}
+                  {trainer.specializations.length > 2 && (
+                    <Badge className="bg-slate-100 dark:bg-navy-800 text-slate-500 dark:text-navy-500 border-none font-black text-[9px] uppercase tracking-widest rounded-lg">
+                      +{trainer.specializations.length - 2}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-navy-800 transition-colors">
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Members</p>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
+                    <p className="text-sm font-black text-slate-900 dark:text-white">{trainer.assignedMembers}</p>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Rating</p>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
+                    <p className="text-sm font-black text-slate-900 dark:text-white">{trainer.rating}<span className="text-[10px] font-normal text-slate-400 dark:text-navy-600 ml-0.5">/ 5.0</span></p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {filteredTrainers.length === 0 && (
+        <div className="text-center py-20 bg-white dark:bg-navy-900 rounded-[2.5rem] border-2 border-dashed border-slate-100 dark:border-navy-800 transition-colors">
+          <div className="inline-flex p-6 rounded-full bg-slate-50 dark:bg-navy-950 mb-6">
+            <Users className="h-10 w-10 text-slate-300 dark:text-navy-800" />
+          </div>
+          <h3 className="text-slate-900 dark:text-white font-black text-xl uppercase tracking-tight">No trainers found</h3>
+          <p className="text-slate-400 dark:text-navy-500 font-medium">Try refining your search or specialization filter</p>
+        </div>
+      )}
+    </div>
+  );
 }

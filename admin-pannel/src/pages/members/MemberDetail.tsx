@@ -6,209 +6,380 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import api from '@/lib/api/axios';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { memberService } from '@/services/memberService';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
-const statusColors: Record<string, string> = {
-    active: 'bg-green-500/10 text-green-700 dark:bg-green-500/20 dark:text-green-400 border-green-200 dark:border-green-500/30',
-    inactive: 'bg-gray-500/10 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
-    suspended: 'bg-red-500/10 text-red-700 dark:bg-red-500/20 dark:text-red-400 border-red-200 dark:border-red-500/30',
-    frozen: 'bg-blue-500/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border-blue-200 dark:border-blue-500/30',
+const statusColors = {
+  active: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900',
+  inactive: 'bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-navy-400 border-slate-200 dark:border-navy-700',
+  suspended: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-900',
+  frozen: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900',
 };
 
 export function MemberDetail() {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [member, setMember] = useState<any>(null);
-    const [attendance, setAttendance] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [member, setMember] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [memberRes, attendanceRes] = await Promise.allSettled([
-                    api.get(`/members/${id}`),
-                    api.get(`/attendance?userId=${id}`)
-                ]);
-                if (memberRes.status === 'fulfilled') setMember(memberRes.value.data);
-                if (attendanceRes.status === 'fulfilled') setAttendance(attendanceRes.value.data || []);
-            } catch { /* handled by null check */ }
-            setLoading(false);
-        };
-        fetchData();
-    }, [id]);
+  useEffect(() => {
+    const fetchMember = async () => {
+      if (!id) return;
+      try {
+        setLoading(true);
+        const response = await memberService.getMemberDetails(id);
+        if (response.success) {
+          setMember(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching member details:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch member details.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (loading) {
-        return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-purple-500 animate-spin" /></div>;
+    fetchMember();
+  }, [id]);
+
+  const handleDelete = async () => {
+    if (!member || !confirm(`Are you sure you want to delete ${member.userId?.firstName}?`)) return;
+    
+    try {
+      const response = await memberService.deleteMember(member._id);
+      if (response.success) {
+        toast({
+          title: 'Member Deleted',
+          description: 'The member has been removed successfully.',
+        });
+        navigate('/members');
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete member.',
+        variant: 'destructive',
+      });
     }
+  };
 
-    if (!member) {
-        return <div className="text-center py-12"><p className="text-gray-500 dark:text-gray-400">Member not found</p><Button onClick={() => navigate('/members')} className="mt-4">Back</Button></div>;
-    }
-
-    const user = member.user || {};
-    const firstName = user.firstName || '—';
-    const lastName = user.lastName || '';
-    const email = user.email || '—';
-    const phone = user.phone || '—';
-    const status = member.status || 'active';
-    const memberNumber = member.memberNumber || '—';
-    const joinDate = member.joinDate || user.createdAt;
-    const subscription = member.subscription || {};
-    const healthMetrics = member.healthMetrics || {};
-    const emergencyContact = member.emergencyContact || {};
-    const fitnessGoals = healthMetrics.fitnessGoals || [];
-
-    const recentAttendance = attendance.slice(0, 10).map((rec: any) => {
-        const checkIn = new Date(rec.checkInTime);
-        const checkOut = rec.checkOutTime ? new Date(rec.checkOutTime) : null;
-        const durationMin = checkOut ? Math.round((checkOut.getTime() - checkIn.getTime()) / 60000) : null;
-        return {
-            _id: rec._id,
-            date: checkIn.toLocaleDateString(),
-            checkIn: checkIn.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            checkOut: checkOut ? checkOut.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Active',
-            duration: durationMin ? `${Math.floor(durationMin / 60)}h ${durationMin % 60}m` : '—',
-        };
-    });
-
+  if (loading) {
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => navigate('/members')} className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white dark:hover:bg-dark-800">
-                        <ArrowLeft className="h-5 w-5" />
-                    </Button>
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Member Details</h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">{memberNumber} • Joined {joinDate ? new Date(joinDate).toLocaleDateString() : '—'}</p>
-                    </div>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" className="bg-white dark:bg-transparent border-gray-200 dark:border-dark-700 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white dark:hover:bg-dark-800"><Edit className="h-4 w-4 mr-2" /> Edit Member</Button>
-                    <Button variant="outline" className="bg-white dark:bg-transparent border-red-200 dark:border-red-500/30 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300"><Trash2 className="h-4 w-4 mr-2" /> Delete</Button>
-                </div>
-            </div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="h-10 w-10 text-indigo-600 dark:text-indigo-400 animate-spin" />
+        <p className="text-slate-500 dark:text-navy-400 font-bold uppercase tracking-widest text-xs">Loading Member Details...</p>
+      </div>
+    );
+  }
 
-            {/* Profile Card */}
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row gap-6">
-                        <div className="flex flex-col items-center md:items-start gap-4">
-                            <Avatar className="h-32 w-32 ring-4 ring-purple-500/10 dark:ring-purple-500/20">
-                                <AvatarImage src={user.profilePhoto || undefined} />
-                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-3xl font-semibold">
-                                    {firstName[0]}{lastName[0] || ''}
-                                </AvatarFallback>
-                            </Avatar>
-                            <Badge className={statusColors[status] || statusColors.active}>{status}</Badge>
-                        </div>
-                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-4">
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{firstName} {lastName}</h2>
-                                    <p className="text-gray-500 dark:text-gray-400 capitalize">{user.gender || '—'} {user.dateOfBirth ? `• ${new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear()} years old` : ''}</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><Mail className="h-4 w-4" /><span className="text-sm">{email}</span></div>
-                                    <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><Phone className="h-4 w-4" /><span className="text-sm">{phone}</span></div>
-                                    {user.dateOfBirth && <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><Calendar className="h-4 w-4" /><span className="text-sm">Birthday: {new Date(user.dateOfBirth).toLocaleDateString()}</span></div>}
-                                </div>
-                            </div>
-                            <div className="space-y-4">
-                                <div className="p-4 rounded-lg bg-gray-50 dark:bg-dark-950/50 border border-gray-100 dark:border-dark-800">
-                                    <div className="flex items-center justify-between mb-2"><span className="text-sm text-gray-500 dark:text-gray-400">Current Membership</span><CreditCard className="h-4 w-4 text-purple-600 dark:text-purple-400" /></div>
-                                    <p className="text-lg font-semibold text-gray-900 dark:text-white">{subscription.plan?.name || member.membershipType || '—'}</p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                        {subscription.endDate ? `Valid until ${new Date(subscription.endDate).toLocaleDateString()}` : 'No active subscription'}
-                                    </p>
-                                </div>
-                                <div className="p-4 rounded-lg bg-gray-50 dark:bg-dark-950/50 border border-gray-100 dark:border-dark-800">
-                                    <div className="flex items-center justify-between mb-2"><span className="text-sm text-gray-500 dark:text-gray-400">Total Visits</span><Activity className="h-4 w-4 text-green-600 dark:text-green-400" /></div>
-                                    <p className="text-lg font-semibold text-gray-900 dark:text-white">{attendance.length}</p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Check-in records</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </CardContent>
+  if (!member) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-slate-500 dark:text-navy-400 font-bold">Member not found.</p>
+        <Button variant="link" className="text-indigo-600 dark:text-indigo-400" onClick={() => navigate('/members')}>Back to List</Button>
+      </div>
+    );
+  }
+
+  const userData = member.userId || {};
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-700">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-6">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate('/members')}
+            className="h-12 w-12 rounded-2xl border-slate-200 dark:border-navy-800 text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-100 dark:hover:border-navy-700 hover:bg-indigo-50 dark:hover:bg-navy-800 transition-all shadow-sm"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+              Member <span className="text-indigo-600 dark:text-indigo-400 italic">Profile</span>
+            </h1>
+            <p className="text-slate-500 dark:text-navy-500 font-medium mt-1 uppercase text-xs tracking-widest transition-colors">
+              {member.memberNumber || 'UNASSIGNED ID'} • Joined {new Date(member.joinDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-3 w-full md:w-auto">
+          <Button
+            variant="outline"
+            className="flex-1 md:flex-none h-11 px-6 rounded-xl border-slate-200 dark:border-navy-800 font-bold text-slate-600 dark:text-navy-300 hover:bg-slate-50 dark:hover:bg-navy-800 transition-colors"
+          >
+            <Edit className="h-4 w-4 mr-2" />
+            Edit Profile
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleDelete}
+            className="flex-1 md:flex-none h-11 px-6 rounded-xl border-rose-100 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:border-rose-200 dark:hover:border-rose-800 font-bold transition-colors"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Remove
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Profile Info */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Lateral Card: Profile Summary */}
+        <Card className="lg:col-span-1 bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-[2.5rem] overflow-hidden transition-colors">
+          <CardContent className="p-8 flex flex-col items-center text-center">
+            <div className="relative mb-6">
+              <Avatar className="h-40 w-40 border-8 border-slate-50 dark:border-navy-950 shadow-inner">
+                <AvatarImage src={userData.avatar || undefined} />
+                <AvatarFallback className="bg-indigo-600 dark:bg-indigo-500 text-white text-5xl font-black italic">
+                  {(userData.firstName || 'U')[0]}{(userData.lastName || '')[0]}
+                </AvatarFallback>
+              </Avatar>
+              <Badge className={cn("absolute bottom-2 right-2 px-4 py-1.5 rounded-full border-4 border-white dark:border-navy-900 font-black text-[10px] uppercase tracking-widest shadow-lg transition-colors", statusColors[member.status as keyof typeof statusColors])}>
+                {member.status}
+              </Badge>
+            </div>
+            
+            <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-1 transition-colors">
+              {userData.firstName} {userData.lastName}
+            </h2>
+            <p className="text-slate-400 dark:text-navy-500 font-bold uppercase text-[10px] tracking-[0.2em] mb-8 transition-colors">
+              {userData.role || 'Member'}
+            </p>
+
+            <div className="w-full space-y-4 pt-8 border-t border-slate-100 dark:border-navy-800 transition-colors">
+              <div className="flex items-center gap-4 text-left group">
+                <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-navy-950 flex items-center justify-center text-slate-400 dark:text-navy-600 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  <Mail className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Email Address</p>
+                  <p className="text-sm font-bold text-slate-700 dark:text-navy-200 transition-colors">{userData.email}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 text-left group">
+                <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-navy-950 flex items-center justify-center text-slate-400 dark:text-navy-600 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  <Phone className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Phone Number</p>
+                  <p className="text-sm font-bold text-slate-700 dark:text-navy-200 transition-colors">{userData.phone || 'Not Provided'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 text-left group">
+                <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-navy-950 flex items-center justify-center text-slate-400 dark:text-navy-600 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  <Calendar className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Date of Birth</p>
+                  <p className="text-sm font-bold text-slate-700 dark:text-navy-200 transition-colors">
+                    {member.dateOfBirth ? new Date(member.dateOfBirth).toLocaleDateString() : 'N/A'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Main Content Area */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Membership & Stats Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="bg-indigo-600 dark:bg-indigo-700 text-white rounded-3xl shadow-xl shadow-indigo-100 dark:shadow-navy-950/20 border-none overflow-hidden relative transition-colors">
+              <div className="absolute top-0 right-0 p-8 opacity-10">
+                <CreditCard className="h-24 w-24" />
+              </div>
+              <CardContent className="p-8">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-indigo-200 mb-2">Current Tier</p>
+                <h3 className="text-4xl font-black mb-4 italic">Standard <span className="text-indigo-900/30 dark:text-white/10">Plan</span></h3>
+                <div className="flex items-center gap-3 bg-white/10 w-fit px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10">
+                  <Calendar className="h-4 w-4" />
+                  <span className="text-sm font-bold leading-none">Valid until Dec 2026</span>
+                </div>
+              </CardContent>
             </Card>
 
-            {/* Tabs */}
-            <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="bg-white dark:bg-dark-900/50 border border-gray-200 dark:border-dark-800">
-                    <TabsTrigger value="overview" className="data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-400">Overview</TabsTrigger>
-                    <TabsTrigger value="attendance" className="data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-400">Attendance</TabsTrigger>
-                    <TabsTrigger value="health" className="data-[state=active]:bg-purple-100 dark:data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-400">Health Metrics</TabsTrigger>
-                </TabsList>
+            <Card className="bg-slate-900 dark:bg-navy-950 text-white rounded-3xl border-none overflow-hidden relative group transition-colors">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent" />
+              <CardContent className="p-8 relative">
+                <div className="flex justify-between items-start mb-6">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-navy-600">ML Predictions</p>
+                  <Activity className="h-5 w-5 text-indigo-400" />
+                </div>
+                <p className="text-xl font-bold leading-snug">
+                  {member.fitnessGoals?.length > 0 
+                    ? `Working towards ${member.fitnessGoals[0].replace('_', ' ')}`
+                    : 'No fitness data recorded'
+                  }
+                </p>
+                <Button variant="link" className="text-indigo-400 dark:text-indigo-300 p-0 h-auto font-black text-[10px] uppercase tracking-widest mt-4">View ML Report</Button>
+              </CardContent>
+            </Card>
+          </div>
 
-                <TabsContent value="overview" className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                            <CardHeader><CardTitle className="text-gray-900 dark:text-white">Emergency Contact</CardTitle></CardHeader>
-                            <CardContent className="space-y-3">
-                                <div><p className="text-sm text-gray-500 dark:text-gray-400">Name</p><p className="text-gray-900 dark:text-white font-medium">{emergencyContact.name || '—'}</p></div>
-                                <div><p className="text-sm text-gray-500 dark:text-gray-400">Relationship</p><p className="text-gray-900 dark:text-white font-medium">{emergencyContact.relationship || '—'}</p></div>
-                                <div><p className="text-sm text-gray-500 dark:text-gray-400">Phone</p><p className="text-gray-900 dark:text-white font-medium">{emergencyContact.phone || '—'}</p></div>
-                            </CardContent>
-                        </Card>
-                        <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                            <CardHeader><CardTitle className="text-gray-900 dark:text-white">Fitness Goals</CardTitle></CardHeader>
-                            <CardContent>
-                                {fitnessGoals.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2">
-                                        {fitnessGoals.map((goal: string) => (
-                                            <Badge key={goal} className="bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-500/30">{goal.replace('_', ' ')}</Badge>
-                                        ))}
-                                    </div>
-                                ) : <p className="text-gray-500 dark:text-gray-400">No fitness goals set</p>}
-                            </CardContent>
-                        </Card>
+          {/* Detailed Data Tabs */}
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="bg-white dark:bg-navy-900 p-1.5 rounded-2xl border border-slate-100 dark:border-navy-800 shadow-sm w-full md:w-auto h-auto transition-colors">
+              <TabsTrigger value="overview" className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all">
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="health" className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all">
+                Health Lab
+              </TabsTrigger>
+              <TabsTrigger value="billing" className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all">
+                Billing
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-white dark:bg-navy-900 border-slate-100 dark:border-navy-800 rounded-3xl shadow-sm transition-colors">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                      Safety Protocols
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-navy-600 mb-1">Emergency POC</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">{member.emergencyContact?.name || 'Not Recorded'}</p>
+                      <p className="text-xs font-medium text-slate-500 dark:text-navy-500">{member.emergencyContact?.relationship || 'Contact'} • {member.emergencyContact?.phoneNumber || 'No Phone'}</p>
                     </div>
-                </TabsContent>
-
-                <TabsContent value="attendance">
-                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                        <CardHeader><CardTitle className="text-gray-900 dark:text-white">Recent Attendance</CardTitle><p className="text-sm text-gray-500 dark:text-gray-400">Check-in and check-out records</p></CardHeader>
-                        <CardContent>
-                            {recentAttendance.length === 0 ? (
-                                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No attendance records found</p>
-                            ) : (
-                                <Table>
-                                    <TableHeader><TableRow className="border-gray-200 dark:border-dark-800"><TableHead className="text-gray-500 dark:text-gray-400">Date</TableHead><TableHead className="text-gray-500 dark:text-gray-400">Check In</TableHead><TableHead className="text-gray-500 dark:text-gray-400">Check Out</TableHead><TableHead className="text-gray-500 dark:text-gray-400">Duration</TableHead></TableRow></TableHeader>
-                                    <TableBody>
-                                        {recentAttendance.map((record) => (
-                                            <TableRow key={record._id} className="border-gray-100 dark:border-dark-800">
-                                                <TableCell className="text-gray-700 dark:text-gray-300">{record.date}</TableCell>
-                                                <TableCell className="text-gray-700 dark:text-gray-300">{record.checkIn}</TableCell>
-                                                <TableCell className="text-gray-700 dark:text-gray-300">{record.checkOut}</TableCell>
-                                                <TableCell className="text-gray-700 dark:text-gray-300">{record.duration}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                <TabsContent value="health">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        {[
-                            { label: 'Height', value: healthMetrics.height ? `${healthMetrics.height} cm` : '—' },
-                            { label: 'Current Weight', value: healthMetrics.weight ? `${healthMetrics.weight} kg` : '—' },
-                            { label: 'Target Weight', value: healthMetrics.targetWeight ? `${healthMetrics.targetWeight} kg` : '—' },
-                            { label: 'BMI', value: healthMetrics.bmi || '—' },
-                        ].map(({ label, value }) => (
-                            <Card key={label} className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                                <CardHeader><CardTitle className="text-sm text-gray-500 dark:text-gray-400">{label}</CardTitle></CardHeader>
-                                <CardContent><p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p></CardContent>
-                            </Card>
-                        ))}
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-navy-600 mb-2">Medical Notes</p>
+                      <div className="flex flex-wrap gap-2">
+                        {member.medicalConditions?.length > 0 ? (
+                          member.medicalConditions.map((c: string) => (
+                            <Badge key={c} variant="outline" className="rounded-lg border-rose-100 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold uppercase text-[9px] transition-colors">
+                              {c}
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-sm font-bold text-slate-400 dark:text-navy-600 italic transition-colors">No conditions reported</span>
+                        )}
+                      </div>
                     </div>
-                </TabsContent>
-            </Tabs>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white dark:bg-navy-900 border-slate-100 dark:border-navy-800 rounded-3xl shadow-sm transition-colors">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                      Focus Targets
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {member.fitnessGoals?.length > 0 ? (
+                        member.fitnessGoals.map((goal: string) => (
+                          <Badge key={goal} className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/50 font-black text-[10px] uppercase tracking-wider shadow-none transition-colors">
+                            {goal.replace('_', ' ')}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-sm font-bold text-slate-400 dark:text-navy-600 italic transition-colors">No specific goals set</span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="health" className="space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'Height', value: `${member.height?.value || '0'} ${member.height?.unit || 'cm'}`, color: 'blue' },
+                  { label: 'Weight', value: `${member.currentWeight?.value || '0'} ${member.currentWeight?.unit || 'kg'}`, color: 'emerald' },
+                  { label: 'Target', value: `${member.targetWeight?.value || '--'} kg`, color: 'violet' },
+                  { label: 'Body Fat', value: `${member.bodyFatPercentage || '--'}%`, color: 'amber' }
+                ].map((stat) => (
+                  <Card key={stat.label} className="bg-white dark:bg-navy-900 border-slate-100 dark:border-navy-800 rounded-2xl shadow-sm hover:border-indigo-100 dark:hover:border-navy-700 transition-colors">
+                    <CardContent className="p-4 pt-6">
+                      <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-navy-600 mb-1">{stat.label}</p>
+                      <p className="text-xl font-black text-slate-900 dark:text-white transition-colors">{stat.value}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              <Card className="bg-slate-50 dark:bg-navy-950 border-none rounded-3xl transition-colors">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="h-12 w-12 rounded-2xl bg-white dark:bg-navy-900 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm transition-colors">
+                      <Activity className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black text-slate-900 dark:text-white italic transition-colors">Dietary Matrix</h3>
+                      <p className="text-xs font-bold text-slate-500 dark:text-navy-500 uppercase tracking-widest transition-colors">Preferences & Restrictions</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {member.dietaryPreferences?.length > 0 ? (
+                      member.dietaryPreferences.map((pref: string) => (
+                        <Badge key={pref} className="px-4 py-2 rounded-xl bg-white dark:bg-navy-900 text-slate-700 dark:text-navy-200 border-slate-200 dark:border-navy-800 font-bold text-xs shadow-none transition-colors">
+                          {pref.replace('_', ' ')}
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-sm font-bold text-slate-400 dark:text-navy-600 italic transition-colors">No dietary preferences recorded</span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="billing">
+              <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden transition-colors">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Transaction History</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-slate-50/50 dark:bg-navy-950/50 border-y border-slate-100 dark:border-navy-800 transition-colors">
+                        <TableHead className="font-black text-[10px] uppercase tracking-widest pl-8 text-slate-700 dark:text-navy-400">Reference</TableHead>
+                        <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400">Amount</TableHead>
+                        <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400">Status</TableHead>
+                        <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-8 text-slate-700 dark:text-navy-400">Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow className="border-b border-slate-50 dark:border-navy-950 group transition-colors">
+                        <TableCell className="pl-8 font-bold text-slate-700 dark:text-navy-300">#TR-89021</TableCell>
+                        <TableCell className="font-black text-slate-900 dark:text-white">$99.00</TableCell>
+                        <TableCell>
+                          <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900 font-black text-[9px] uppercase tracking-widest shadow-none">Paid</Badge>
+                        </TableCell>
+                        <TableCell className="text-right pr-8 font-bold text-slate-400 dark:text-navy-600 group-hover:text-slate-600 dark:group-hover:text-navy-300 transition-colors">Oct 24, 2024</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                  <div className="p-12 text-center">
+                    <p className="text-sm font-bold text-slate-400 dark:text-navy-600 transition-colors">No further transaction history available.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

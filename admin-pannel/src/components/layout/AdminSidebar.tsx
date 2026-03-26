@@ -1,182 +1,150 @@
 import { NavLink } from 'react-router-dom';
 import {
-    LayoutDashboard,
-    Users,
-    Dumbbell,
-    CreditCard,
-    Calendar,
-    Package,
-    BarChart3,
-    Settings,
-    Megaphone,
-    HeadphonesIcon,
-    LogOut,
-    Brain,
-    Tag,
-    ScanSearch,
+  LayoutDashboard,
+  Users,
+  Dumbbell,
+  CreditCard,
+  Calendar,
+  Package,
+  BarChart3,
+  Settings,
+  LogOut,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 
-const navigation = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard, exact: true },
-    { name: 'Members', href: '/members', icon: Users },
-    { name: 'Trainers', href: '/trainers', icon: Dumbbell },
-    { name: 'Membership Plans', href: '/plans', icon: CreditCard },
-    { name: 'Classes', href: '/classes', icon: Calendar },
-    { name: 'Equipment', href: '/equipment', icon: Package },
-    { name: 'Payments', href: '/payments', icon: CreditCard },
-    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-    { name: 'Announcements', href: '/announcements', icon: Megaphone },
-    { name: 'Support', href: '/support', icon: HeadphonesIcon },
-    { name: 'Settings', href: '/settings', icon: Settings },
-];
-
-const aiNavigation = [
-    { name: 'ML Dashboard', href: '/ml-dashboard', icon: Brain },
-    { name: 'Food Prices', href: '/food-prices', icon: Tag },
-    { name: 'Scraper Review', href: '/scraper-review', icon: ScanSearch },
+const navigationGoups = [
+  {
+    title: 'Main',
+    items: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard, exact: true },
+      { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+    ]
+  },
+  {
+    title: 'Management',
+    items: [
+      { name: 'Members', href: '/members', icon: Users },
+      { name: 'Trainers', href: '/trainers', icon: Dumbbell },
+      { name: 'Membership Plans', href: '/plans', icon: CreditCard },
+      { name: 'Classes', href: '/classes', icon: Calendar },
+    ]
+  },
+  {
+    title: 'Operations',
+    items: [
+      { name: 'Equipment', href: '/equipment', icon: Package },
+      { name: 'Payments', href: '/payments', icon: CreditCard },
+    ]
+  },
+  {
+    title: 'System',
+    items: [
+      { name: 'Settings', href: '/settings', icon: Settings },
+    ]
+  }
 ];
 
 export function AdminSidebar() {
-    const { user, logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
-    const handleLogout = () => {
-        logout();
-    };
+  const handleLogout = () => {
+    logout();
+  };
 
-    const userInitials = user
-        ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`
-        : 'AD';
+  const userInitials = user
+    ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`
+    : 'AD';
 
-    return (
-        <div className="flex h-full flex-col bg-white dark:bg-gradient-to-b dark:from-dark-900 dark:to-dark-950 border-r border-gray-200 dark:border-dark-800 shadow-lg dark:shadow-none transition-colors duration-200">
-            {/* Logo/Brand */}
-            <div className="flex h-16 items-center justify-center px-6 border-b border-gray-200 dark:border-dark-800">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-                        <Dumbbell className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex flex-col">
-                        <h1 className="text-lg font-bold text-gray-900 dark:text-white">SD Fitness</h1>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Admin Panel</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* User Profile Section */}
-            <div className="p-4">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-100 dark:bg-dark-800/50 backdrop-blur-sm border border-gray-200 dark:border-dark-700 hover:bg-gray-200 dark:hover:bg-dark-800 transition-all duration-300">
-                    <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
-                        <AvatarImage src={user?.profilePhoto} alt={user?.firstName} />
-                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white font-semibold">
-                            {userInitials}
-                        </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                            {user?.firstName} {user?.lastName}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role}</p>
-                    </div>
-                </div>
-            </div>
-
-            <Separator className="bg-gray-200 dark:bg-dark-800" />
-
-            {/* Navigation Links */}
-            <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-dark-700 scrollbar-track-transparent">
-                {navigation.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                        <NavLink
-                            key={item.name}
-                            to={item.href}
-                            end={item.exact}
-                            className={({ isActive }) =>
-                                cn(
-                                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative overflow-hidden',
-                                    isActive
-                                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-gray-900 dark:text-white shadow-lg shadow-purple-500/10'
-                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800/50'
-                                )
-                            }
-                        >
-                            {({ isActive }) => (
-                                <>
-                                    {isActive && (
-                                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-600/10 animate-pulse" />
-                                    )}
-                                    <Icon
-                                        className={cn(
-                                            'h-5 w-5 transition-transform duration-200 group-hover:scale-110 relative z-10',
-                                            isActive && 'text-purple-400'
-                                        )}
-                                    />
-                                    <span className="relative z-10">{item.name}</span>
-                                    {isActive && (
-                                        <div className="absolute right-0 top-0 h-full w-1 bg-gradient-to-b from-purple-500 to-pink-600 rounded-l-full" />
-                                    )}
-                                </>
-                            )}
-                        </NavLink>
-                    );
-                })}
-            </nav>
-
-            {/* AI & Data Section */}
-            <div className="px-3 pb-2">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">AI &amp; Data</p>
-                <nav className="space-y-1">
-                    {aiNavigation.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                            <NavLink
-                                key={item.name}
-                                to={item.href}
-                                className={({ isActive }) =>
-                                    cn(
-                                        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative overflow-hidden',
-                                        isActive
-                                            ? 'bg-gradient-to-r from-purple-500/20 to-pink-600/20 text-gray-900 dark:text-white shadow-lg shadow-purple-500/10'
-                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800/50'
-                                    )
-                                }
-                            >
-                                {({ isActive }) => (
-                                    <>
-                                        {isActive && (
-                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-600/10 animate-pulse" />
-                                        )}
-                                        <Icon className={cn('h-5 w-5 transition-transform duration-200 group-hover:scale-110 relative z-10', isActive && 'text-purple-400')} />
-                                        <span className="relative z-10">{item.name}</span>
-                                        {isActive && (
-                                            <div className="absolute right-0 top-0 h-full w-1 bg-gradient-to-b from-purple-500 to-pink-600 rounded-l-full" />
-                                        )}
-                                    </>
-                                )}
-                            </NavLink>
-                        );
-                    })}
-                </nav>
-            </div>
-
-            <Separator className="bg-gray-200 dark:bg-dark-800" />
-
-            {/* Logout Button */}
-            <div className="p-4">
-                <Button
-                    onClick={handleLogout}
-                    variant="ghost"
-                    className="w-full justify-start gap-3 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-white hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-300 dark:hover:border-red-500/20 border border-gray-200 dark:border-dark-700 transition-all duration-200"
-                >
-                    <LogOut className="h-5 w-5" />
-                    <span>Logout</span>
-                </Button>
-            </div>
+  return (
+    <div className="flex h-full flex-col bg-navy-950 border-r border-navy-900 transition-colors duration-200">
+      {/* Logo/Brand */}
+      <div className="flex h-20 items-center px-6 border-b border-navy-900/50 bg-navy-950/50 backdrop-blur-xl">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-950/50 rotate-3 hover:rotate-0 transition-transform duration-500">
+            <Dumbbell className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-xl font-black tracking-tight text-white uppercase italic">
+              SD <span className="text-indigo-400">Fitness</span>
+            </h1>
+            <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-navy-400">Admin Suite</p>
+          </div>
         </div>
-    );
+      </div>
+
+      {/* Navigation Links */}
+      <nav className="flex-1 px-4 py-8 overflow-y-auto scrollbar-thin scrollbar-thumb-navy-800 scrollbar-track-transparent space-y-10">
+        {navigationGoups.map((group) => (
+          <div key={group.title} className="space-y-4">
+            <h3 className="px-3 text-[10px] font-black uppercase tracking-[0.25em] text-navy-500/80">
+              {group.title}
+            </h3>
+            <div className="space-y-1.5">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.name}
+                    to={item.href}
+                    end={item.exact}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center gap-3 px-4 py-3 rounded-2xl text-[13px] font-bold transition-all duration-300 group relative',
+                        isActive
+                          ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-900/40 ring-1 ring-white/10'
+                          : 'text-navy-300/90 hover:text-white hover:bg-navy-800/80'
+                      )
+                    }
+                  >
+                    <Icon
+                      className={cn(
+                        'h-[18px] w-[18px] transition-all duration-300 group-hover:scale-110 drop-shadow-sm',
+                      )}
+                    />
+                    <span className="tracking-wide">{item.name}</span>
+                    <div className={cn(
+                      "absolute right-4 w-1.5 h-1.5 rounded-full bg-indigo-400 scale-0 transition-transform duration-300",
+                      "group-hover:scale-100"
+                    )} />
+                  </NavLink>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* User Profile Section */}
+      <div className="p-5 border-t border-navy-900 bg-navy-950/80">
+        <div className="flex items-center gap-3 p-3 rounded-2xl border border-white/5 bg-navy-900/40 hover:bg-navy-900/60 transition-all duration-300 group cursor-pointer group shadow-sm">
+          <Avatar className="h-10 w-10 border-2 border-indigo-500/30 group-hover:border-indigo-400/50 shadow-md">
+            <AvatarImage src={user?.profilePhoto} alt={user?.firstName} />
+            <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-black text-xs">
+              {userInitials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-black text-white truncate tracking-tight uppercase">
+              {user?.firstName} {user?.lastName}
+            </p>
+            <div className="flex items-center gap-1.5">
+               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+               <p className="text-[10px] text-navy-400 font-black uppercase tracking-widest">{user?.role}</p>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleLogout}
+            className="h-9 w-9 text-navy-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors rounded-xl"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }

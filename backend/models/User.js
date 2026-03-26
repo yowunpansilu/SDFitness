@@ -2,64 +2,51 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+    firstName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    lastName: {
+        type: String,
+        required: true,
+        trim: true
+    },
     email: {
         type: String,
-        required: [true, 'Email is required'],
+        required: true,
         unique: true,
-        lowercase: true,
         trim: true,
-        match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email']
+        lowercase: true
     },
     password: {
         type: String,
-        required: [true, 'Password is required'],
-        minlength: [6, 'Password must be at least 6 characters'],
-        select: false  // never returned in queries by default
+        required: true
     },
-    firstName: { type: String, required: true, trim: true },
-    lastName: { type: String, required: true, trim: true },
+    phone: {
+        type: String,
+        required: true
+    },
     role: {
         type: String,
-        enum: ['member', 'admin', 'trainer'],
+        enum: ['member', 'trainer', 'admin'],
         default: 'member'
     },
-    memberId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Member',
-        default: null
-    },
-    isActive: { type: Boolean, default: true },
-    lastLogin: { type: Date, default: null }
-}, { timestamps: true });
-
-// ── Hash password before saving ──────────────────────────────────
-userSchema.pre('save', async function () {
-    if (!this.isModified('password')) return;
-    this.password = await bcrypt.hash(this.password, 12);
+    avatar: {
+        type: String
+    }
+}, {
+    timestamps: true
 });
 
+userSchema.pre('save', async function() {
+    if (!this.isModified('password')) return;
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+});
 
-// ── Instance method: compare password ───────────────────────────
-userSchema.methods.comparePassword = async function (candidatePassword) {
-    return bcrypt.compare(candidatePassword, this.password);
+userSchema.methods.matchPassword = async function(enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
 };
-
-// ── Instance method: safe user object (no password) ─────────────
-userSchema.methods.toSafeObject = function () {
-    return {
-        id: this._id,
-        email: this.email,
-        firstName: this.firstName,
-        lastName: this.lastName,
-        role: this.role,
-        memberId: this.memberId,
-        isActive: this.isActive,
-        lastLogin: this.lastLogin,
-        createdAt: this.createdAt
-    };
-};
-
-userSchema.index({ email: 1 }, { unique: true });
-userSchema.index({ role: 1 });
 
 module.exports = mongoose.model('User', userSchema);

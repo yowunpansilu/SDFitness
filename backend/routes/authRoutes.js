@@ -3,198 +3,323 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Member = require('../models/Member');
-const { protect } = require('../middleware/auth');
 
-// ── Helper: sign JWT ─────────────────────────────────────────────
-const signToken = (userId) =>
-    jwt.sign(
-        { id: userId },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-    );
+// Generic function to generate JWT
+const generateToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET || 'fallback_secret', {
+        expiresIn: '30d',
+    });
+};
 
-// ─────────────────────────────────────────────────────────────────
-// POST /api/auth/register
-// Creates a User + a linked Member profile in one request.
-// ─────────────────────────────────────────────────────────────────
 router.post('/register', async (req, res) => {
+    console.log('📥 STAGE 1: Register request received');
     try {
-        const {
-            email, password,
-            firstName, lastName,
-            dateOfBirth, gender,
-            height = 170,
-            weight = 70,
-            goal = 'general_fitness',
-            budget = 7000,
-            role = 'member'
-        } = req.body;
+        console.log('Payload:', JSON.stringify(req.body, null, 2));
+        const { step1Data, step2Data, step3Data } = req.body;
 
-        // Validate required fields
-        if (!email || !password || !firstName || !lastName || !dateOfBirth || !gender) {
-            return res.status(400).json({
-                success: false,
-                error: 'email, password, firstName, lastName, dateOfBirth and gender are required'
-            });
+        if (!step1Data || !step1Data.email || !step1Data.password || !step1Data.firstName || !step1Data.lastName) {
+            return res.status(400).json({ success: false, message: 'Basic Information (Step 1) is incomplete!' });
         }
 
-        // Check for duplicate email
-        const existing = await User.findOne({ email });
-        if (existing) {
-            return res.status(409).json({
-                success: false,
-                error: 'An account with this email already exists'
-            });
+        if (step1Data.password !== step1Data.confirmPassword) {
+            return res.status(400).json({ success: false, message: 'Passwords do not match!' });
         }
 
-        // 1. Role Authorization Check
-        if (role === 'admin' || role === 'trainer') {
-            const auth = req.headers.authorization;
-            if (!auth || !auth.startsWith('Bearer ')) {
-                return res.status(401).json({ success: false, error: `Not authorised to create ${role} accounts` });
-            }
-            try {
-                const token = auth.split(' ')[1];
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                const requestingUser = await User.findById(decoded.id);
-                if (!requestingUser || requestingUser.role !== 'admin') {
-                    return res.status(403).json({ success: false, error: 'Access denied: only admins can create admin/trainer accounts' });
-                }
-            } catch (err) {
-                return res.status(401).json({ success: false, error: 'Invalid token when verifying permissions' });
-            }
+        if (step1Data.password.length < 6) {
+            return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long!' });
         }
 
-        // 2. Create User (password hashed by pre-save hook)
-        const user = await User.create({ email, password, firstName, lastName, role });
+        if (!step2Data || !step2Data.dateOfBirth || !step2Data.gender) {
+            return res.status(400).json({ success: false, message: 'Health Metrics (Step 2) is missing required fields like Date of Birth or Gender!' });
+        }
 
-        // 3. Conditionally Create linked Member profile
-        let memberNumber = null;
-        if (role === 'member') {
-            const memberCount = await Member.countDocuments();
-            memberNumber = `MBR${String(memberCount + 1).padStart(4, '0')}`;
+        // 1. Check if user already exists
+        const userExists = await User.findOne({ email: step1Data.email });
+        if (userExists) {
+            return res.status(400).json({ success: false, message: 'A user with this email already exists!' });
+        }
 
-            const member = await Member.create({
+        // 2. Create the User (Auth record)
+        console.log('Creating user...');
+        const user = await User.create({
+            firstName: step1Data.firstName,
+            lastName: step1Data.lastName,
+            email: step1Data.email,
+            password: step1Data.password,
+            phone: step1Data.phone
+        });
+        console.log('User created:', user._id);
+
+        // 3. Create the Member detailing their physical data & plan
+        console.log('Creating member with data:', JSON.stringify({
+            userId: user._id,
+            dateOfBirth: step2Data.dateOfBirth,
+            gender: step2Data.gender,
+            height: step2Data.height,
+            weight: step2Data.weight
+        }, null, 2));
+
+        let member;
+        try {
+            member = await Member.create({
                 userId: user._id,
-                memberNumber,
-                dateOfBirth: new Date(dateOfBirth),
-                gender,
-                height: { value: height, unit: 'cm' },
-                currentWeight: { value: weight, unit: 'kg' },
-                fitnessGoals: [goal],
-                dietBudget: { amount: budget, currency: 'LKR', period: 'weekly' },
-                activityLevel: 'moderately_active',
-                status: 'active'
+                memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                dateOfBirth: step2Data.dateOfBirth,
+                gender: step2Data.gender.toLowerCase(),
+                height: {
+                    value: step2Data.heightUnit === 'ft' ? (parseFloat(step2Data.height) * 30.48) : parseFloat(step2Data.height),
+                    unit: 'cm' // Standardize to cm to pass Mongoose minimum 50 requirement
+                },
+                currentWeight: {
+                    value: parseFloat(step2Data.weight),
+                    unit: step2Data.weightUnit
+                },
+                fitnessGoals: step3Data.fitnessGoals.map(g => {
+                    let formatted = g.toLowerCase().replace(' ', '_');
+                    if (formatted === 'sports_performance') return 'athletic_performance';
+                    return formatted;
+                }),
+                activityLevel: step3Data.activityLevel ? step3Data.activityLevel.toLowerCase().replace('-', '_') : 'moderate',
+                dietaryPreferences: step3Data.dietaryPreferences.map(p => {
+                    let pref = p.toLowerCase().replace('-', '_');
+                    if (pref === 'gluten_free') return 'gluten_free';
+                    if (pref === 'dairy_free') return 'dairy_free';
+                    return pref;
+                })
             });
-
-            user.memberId = member._id;
-            await user.save();
+            console.log('Member created successfully');
+        } catch (memberErr) {
+            // Roll back user creation if member profile fails
+            await User.findByIdAndDelete(user._id);
+            console.error('Member validation failed, rolling back User:', memberErr.message);
+            return res.status(400).json({ success: false, message: 'Invalid profile details.', error: memberErr.message });
         }
-
-        // 4. Sign and return JWT
-        const token = signToken(user._id);
-
-        console.log(`✅ Registered: ${email} (${role}${memberNumber ? ' - ' + memberNumber : ''})`);
 
         res.status(201).json({
             success: true,
-            token,
-            user: user.toSafeObject()
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+                avatar: user.avatar
+            },
+            token: generateToken(user._id),
+            member: member
         });
-
     } catch (error) {
-        console.error('❌ Register error:', error.message);
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Registration Error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error during registration',
+            error: error.message 
+        });
     }
 });
 
-// ─────────────────────────────────────────────────────────────────
-// POST /api/auth/login
-// ─────────────────────────────────────────────────────────────────
+const Admin = require('../models/Admin');
+
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
+        const trimmedEmail = email ? email.trim().toLowerCase() : '';
 
-        if (!email || !password) {
-            return res.status(400).json({
-                success: false,
-                error: 'Email and password are required'
-            });
+        // Check Admin collection first
+        let user = await Admin.findOne({ email: trimmedEmail });
+        let isAdmin = !!user;
+
+        if (!user) {
+            user = await User.findOne({ email: trimmedEmail });
         }
-
-        // Fetch user WITH password (select: false by default)
-        const user = await User.findOne({ email }).select('+password');
-        if (!user || !user.isActive) {
-            return res.status(401).json({
-                success: false,
-                error: 'Invalid email or password'
+        
+        if (user && (await user.matchPassword(password))) {
+            let member = null;
+            if (!isAdmin) {
+                member = await Member.findOne({ userId: user._id });
+                if (!member) {
+                    console.log('Member profile not found for user. Auto-creating a default profile.');
+                    member = await Member.create({
+                        userId: user._id,
+                        memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                        dateOfBirth: new Date('2000-01-01'),
+                        gender: 'prefer_not_to_say',
+                        height: { value: 170, unit: 'cm' },
+                        currentWeight: { value: 70, unit: 'kg' },
+                        fitnessGoals: ['general_fitness'],
+                        activityLevel: 'moderate',
+                    });
+                }
+            }
+            
+            res.json({
+                success: true,
+                user: {
+                    id: user._id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    phone: user.phone || '',
+                    role: user.role,
+                    avatar: user.avatar
+                },
+                member: member,
+                token: generateToken(user._id)
             });
+        } else {
+            res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
-
-        // Compare password
-        const isMatch = await user.comparePassword(password);
-        if (!isMatch) {
-            return res.status(401).json({
-                success: false,
-                error: 'Invalid email or password'
-            });
-        }
-
-        // Update last login
-        user.lastLogin = new Date();
-        await user.save({ validateBeforeSave: false });
-
-        const token = signToken(user._id);
-
-        console.log(`✅ Logged in: ${email}`);
-
-        res.json({
-            success: true,
-            token,
-            user: user.toSafeObject()
-        });
-
     } catch (error) {
-        console.error('❌ Login error:', error.message);
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Login Error:', error);
+        res.status(500).json({ success: false, message: 'Server error during login' });
     }
 });
-
-// ─────────────────────────────────────────────────────────────────
-// GET /api/auth/me  (protected)
-// ─────────────────────────────────────────────────────────────────
-router.get('/me', protect, async (req, res) => {
+// @desc    Get user profile & member data
+// @route   GET /api/auth/profile
+// @access  Private
+router.get('/profile', async (req, res) => {
     try {
-        // req.user is already attached by protect middleware
-        const user = req.user;
+        // Simple token check (ideally use a protect middleware, but implementing inline for now)
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'Not authorized' });
 
-        // Optionally fetch their full member profile
-        let memberProfile = null;
-        if (user.memberId) {
-            memberProfile = await Member.findById(user.memberId).select(
-                'memberNumber dateOfBirth gender height currentWeight fitnessGoals activityLevel dietBudget status joinDate'
-            );
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Fetching profile for userId:', decoded.id);
+        const user = await User.findById(decoded.id).select('-password');
+        
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        let member = await Member.findOne({ userId: decoded.id });
+        if (!member) {
+            console.log('Member profile not found for user. Auto-creating a default profile.');
+            member = await Member.create({
+                userId: user._id,
+                memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                dateOfBirth: new Date('2000-01-01'),
+                gender: 'prefer_not_to_say',
+                height: { value: 170, unit: 'cm' },
+                currentWeight: { value: 70, unit: 'kg' },
+                fitnessGoals: ['general_fitness'],
+                activityLevel: 'moderate',
+            });
+        }
+
+        console.log('Profile found - User:', !!user, 'Member:', !!member);
+        if (member) console.log('Member heights/weights:', member.height?.value, member.currentWeight?.value);
+
+        res.json({
+            success: true,
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+                avatar: user.avatar
+            },
+            member: member
+        });
+    } catch (error) {
+        console.error('Profile fetch error:', error);
+        res.status(500).json({ success: false, message: 'Server error fetching profile' });
+    }
+});
+
+// @desc    Update user profile & member data
+// @route   PUT /api/auth/profile
+// @access  Private
+router.put('/profile', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'Not authorized' });
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const { firstName, lastName, phone, avatar, memberData } = req.body;
+
+        const user = await User.findById(decoded.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Update User fields
+        if (firstName) user.firstName = firstName;
+        if (lastName) user.lastName = lastName;
+        if (phone) user.phone = phone;
+        if (avatar) user.avatar = avatar;
+        await user.save();
+
+        let member = await Member.findOne({ userId: decoded.id });
+        if (member && memberData) {
+            // Update individual fields if provided
+            if (memberData.height) {
+                member.height = {
+                    value: memberData.height.value || member.height.value,
+                    unit: memberData.height.unit || member.height.unit
+                };
+            }
+            if (memberData.currentWeight) {
+                member.currentWeight = {
+                    value: memberData.currentWeight.value || member.currentWeight.value,
+                    unit: memberData.currentWeight.unit || member.currentWeight.unit
+                };
+            }
+            if (memberData.fitnessGoals) member.fitnessGoals = memberData.fitnessGoals;
+            if (memberData.activityLevel) member.activityLevel = memberData.activityLevel;
+            if (memberData.dietaryPreferences) member.dietaryPreferences = memberData.dietaryPreferences;
+            if (memberData.dateOfBirth) member.dateOfBirth = memberData.dateOfBirth;
+            if (memberData.gender) member.gender = memberData.gender;
+            if (memberData.bodyFatPercentage) member.bodyFatPercentage = memberData.bodyFatPercentage;
+            
+            await member.save();
         }
 
         res.json({
             success: true,
-            user: user.toSafeObject(),
-            memberProfile
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+                avatar: user.avatar
+            },
+            member: member
         });
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Profile update error:', error);
+        res.status(500).json({ success: false, message: 'Server error updating profile' });
     }
 });
 
-// ─────────────────────────────────────────────────────────────────
-// POST /api/auth/logout
-// JWT is stateless — instruct client to drop the token.
-// ─────────────────────────────────────────────────────────────────
-router.post('/logout', protect, (req, res) => {
-    res.json({
-        success: true,
-        message: 'Logged out successfully — please discard your token'
-    });
+// @desc    Delete user account & profile data
+// @route   DELETE /api/auth/profile
+// @access  Private
+router.delete('/profile', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'Not authorized' });
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // 1. Delete associated Member data
+        await Member.findOneAndDelete({ userId: decoded.id });
+
+        // 2. Delete the User record
+        const user = await User.findByIdAndDelete(decoded.id);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        res.json({
+            success: true,
+            message: 'Account and associated data deleted successfully'
+        });
+    } catch (error) {
+        console.error('Account deletion error:', error);
+        res.status(500).json({ success: false, message: 'Server error during account deletion' });
+    }
 });
 
 module.exports = router;

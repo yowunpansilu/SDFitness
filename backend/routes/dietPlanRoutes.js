@@ -6,13 +6,34 @@ const DietPlan = require('../models/DietPlan');
 router.get('/', async (req, res) => {
     try {
         const { memberId, active } = req.query;
-        const filter = {};
-        if (memberId) filter.memberId = memberId;
+        if (!memberId) {
+            return res.status(400).json({ success: false, error: 'memberId is required' });
+        }
+
+        const filter = { memberId };
         if (active !== undefined) filter.isActive = active === 'true';
 
-        const plans = await DietPlan.find(filter).sort({ generatedAt: -1 }).limit(20);
+        const plans = await DietPlan.find(filter).sort({ createdAt: -1 });
         res.json({ success: true, count: plans.length, data: plans });
     } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// POST /api/diet-plans — save a generated plan
+router.post('/', async (req, res) => {
+    try {
+        const planData = req.body;
+        if (!planData.memberId) {
+            return res.status(400).json({ success: false, error: 'memberId is required' });
+        }
+
+        const dietPlan = new DietPlan(planData);
+        await dietPlan.save();
+
+        res.status(201).json({ success: true, data: dietPlan });
+    } catch (error) {
+        console.error('❌ Diet plan save error:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -72,17 +93,16 @@ router.get('/:id/cost', async (req, res) => {
 
 // POST /api/diet-plans/generate — ML-first generation pipeline
 router.post('/generate', async (req, res) => {
-    const { memberId, goal, dietaryPreferences, allergies, budget, activityLevel } = req.body;
+    const { memberId } = req.body;
     if (!memberId) {
         return res.status(400).json({ success: false, error: 'memberId is required' });
     }
 
     try {
         const { generateDietPlan } = require('../services/aiService');
-        const formData = { goal, dietaryPreferences, allergies, budget, activityLevel };
-        const plan = await generateDietPlan(memberId, formData);
+        const plan = await generateDietPlan(memberId, false); // false = do not save to DB
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             data: plan,
             metadata: {
@@ -97,55 +117,4 @@ router.post('/generate', async (req, res) => {
     }
 });
 
-// POST /api/diet-plans/:id/regenerate — re-run ML pipeline for an existing plan
-router.post('/:id/regenerate', async (req, res) => {
-    try {
-        const plan = await DietPlan.findById(req.params.id);
-        if (!plan) {
-            return res.status(404).json({ success: false, error: 'Diet plan not found' });
-        }
-
-        const { generateDietPlan } = require('../services/aiService');
-
-        // Use the original preferences stored at generation time
-        const formData = {
-            goal: plan.goal,
-            dietaryPreferences: plan.preferences?.dietary || [],
-            allergies: plan.preferences?.allergies || [],
-            budget: plan.preferences?.budget || plan.budget?.amount,
-            activityLevel: undefined // will fall back to member default
-        };
-
-        const newPlan = await generateDietPlan(plan.memberId.toString(), formData);
-
-        // Copy the freshly-generated fields onto the existing plan document
-        plan.targetCalories = newPlan.targetCalories;
-        plan.macroSplit = newPlan.macroSplit;
-        plan.days = newPlan.days;
-        plan.shoppingList = newPlan.shoppingList;
-        plan.aiMetadata = newPlan.aiMetadata;
-        plan.status = 'completed';
-        plan.generatedAt = new Date();
-
-        await plan.save();
-
-        // Clean up the temporary duplicate document created by generateDietPlan
-        await DietPlan.findByIdAndDelete(newPlan._id);
-
-        res.json({
-            success: true,
-            data: plan,
-            metadata: {
-                generationMethod: plan.aiMetadata?.generationMethod,
-                confidence: plan.aiMetadata?.mlConfidenceScore,
-                inferenceTimeMs: plan.aiMetadata?.mlInferenceTimeMs
-            }
-        });
-    } catch (error) {
-        console.error('❌ Diet plan regeneration error:', error.message);
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
 module.exports = router;
-

@@ -8,7 +8,6 @@ const dietPlanSchema = new mongoose.Schema({
     },
 
     planName: { type: String, default: 'Custom Diet Plan' },
-    goal: String,
     generatedAt: { type: Date, default: Date.now },
     validUntil: Date,
 
@@ -73,11 +72,7 @@ const dietPlanSchema = new mongoose.Schema({
             name: String,
             quantity: Number,
             unit: String,
-            category: {
-                type: String,
-                enum: ['produce', 'protein', 'dairy', 'grains', 'pantry', 'frozen',
-                    'vegetable', 'fruit', 'carbs', 'fats', 'other']
-            },
+            category: { type: String },
             priceAtGeneration: Number,
             currentPrice: Number,
             store: String
@@ -95,11 +90,7 @@ const dietPlanSchema = new mongoose.Schema({
         mlInferenceTimeMs: Number,
         gptModel: { type: String, default: 'gpt-4' },
         gptPromptVersion: String,
-        generationMethod: {
-            type: String,
-            enum: ['ml_plus_gpt', 'ml_plus_gemini', 'gpt_only_fallback', 'gemini_only_fallback', 'ml_plus_nvidia', 'llm_only_fallback'],
-            default: 'ml_plus_nvidia'
-        },
+        generationMethod: { type: String, default: 'ml_plus_gemini' },
         featureImportance: [{
             feature: String,
             importance: Number
@@ -113,13 +104,6 @@ const dietPlanSchema = new mongoose.Schema({
         type: String,
         enum: ['generating', 'completed', 'failed'],
         default: 'generating'
-    },
-
-    // Preferences used for generation
-    preferences: {
-        dietary: [String],
-        allergies: [String],
-        budget: Number
     },
 
     // Member Feedback (feeds collaborative filtering)

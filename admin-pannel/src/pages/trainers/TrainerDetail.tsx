@@ -1,194 +1,412 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Mail, Phone, Calendar, Award, Users, Edit, Trash2, TrendingUp, Clock, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft,
+  Mail,
+  Phone,
+  Calendar,
+  Award,
+  Users,
+  Edit,
+  Trash2,
+  TrendingUp,
+  DollarSign,
+  Clock,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { cn } from '@/lib/utils';
-import api from '@/lib/api/axios';
 
-const statusColors: Record<string, string> = {
-    active: 'bg-green-500/10 dark:bg-green-500/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/30',
-    inactive: 'bg-gray-500/10 dark:bg-gray-500/20 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-500/30',
-    on_leave: 'bg-yellow-500/10 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30',
+interface Trainer {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  specializations: string[];
+  certifications: string[];
+  assignedMembers: number;
+  rating: number;
+  photoUrl?: string;
+  status: 'active' | 'inactive' | 'on_leave';
+  hireDate: string;
+  bio: string;
+  emergencyContact: {
+    name: string;
+    phone: string;
+  };
+}
+
+interface AssignedMember {
+  id: string;
+  name: string;
+  membershipType: string;
+  startDate: string;
+  sessionsCompleted: number;
+  photoUrl?: string;
+}
+
+// Mock data
+const mockTrainer: Trainer = {
+  id: '1',
+  firstName: 'Sarah',
+  lastName: 'Johnson',
+  email: 'sarah.j@sdfitness.com',
+  phone: '+1 234 567 8901',
+  specializations: ['Strength Training', 'Bodybuilding', 'Powerlifting'],
+  certifications: ['NASM-CPT', 'CSCS', 'USA Powerlifting Coach'],
+  assignedMembers: 24,
+  rating: 4.8,
+  photoUrl: undefined,
+  status: 'active',
+  hireDate: '2023-01-15',
+  bio: 'Certified personal trainer with over 8 years of experience specializing in strength training and bodybuilding. Passionate about helping clients achieve their fitness goals through customized workout programs and nutrition guidance.',
+  emergencyContact: {
+    name: 'John Johnson',
+    phone: '+1 234 567 8999',
+  },
+};
+
+const mockAssignedMembers: AssignedMember[] = [
+  {
+    id: '1',
+    name: 'Michael Brown',
+    membershipType: 'Premium',
+    startDate: '2024-01-15',
+    sessionsCompleted: 45,
+    photoUrl: undefined,
+  },
+  {
+    id: '2',
+    name: 'Emily Davis',
+    membershipType: 'VIP',
+    startDate: '2024-02-20',
+    sessionsCompleted: 32,
+    photoUrl: undefined,
+  },
+  {
+    id: '3',
+    name: 'James Wilson',
+    membershipType: 'Premium',
+    startDate: '2023-11-08',
+    sessionsCompleted: 78,
+    photoUrl: undefined,
+  },
+];
+
+const mockSchedule = [
+  { day: 'Monday', time: '6:00 AM - 2:00 PM', type: 'Morning Shift' },
+  { day: 'Tuesday', time: '6:00 AM - 2:00 PM', type: 'Morning Shift' },
+  { day: 'Wednesday', time: '2:00 PM - 10:00 PM', type: 'Evening Shift' },
+  { day: 'Thursday', time: '6:00 AM - 2:00 PM', type: 'Morning Shift' },
+  { day: 'Friday', time: '2:00 PM - 10:00 PM', type: 'Evening Shift' },
+  { day: 'Saturday', time: '9:00 AM - 5:00 PM', type: 'Day Shift' },
+];
+
+const statusColors = {
+  active: 'bg-green-500/20 text-green-400 border-green-500/30',
+  inactive: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+  on_leave: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
 };
 
 export function TrainerDetail() {
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const [trainer, setTrainer] = useState<any>(null);
-    const [classes, setClasses] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [trainer] = useState(mockTrainer);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [trainerRes, classesRes] = await Promise.allSettled([
-                    api.get(`/trainers/${id}`),
-                    api.get('/classes'),
-                ]);
-                if (trainerRes.status === 'fulfilled') setTrainer(trainerRes.value.data);
-                if (classesRes.status === 'fulfilled') {
-                    const allClasses = classesRes.value.data || [];
-                    setClasses(allClasses.filter((c: any) =>
-                        c.trainer?._id === id || c.trainer === id
-                    ));
-                }
-            } catch { /* handled by null check */ }
-            setLoading(false);
-        };
-        fetchData();
-    }, [id]);
+  return (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        onClick={() => navigate('/trainers')}
+        className="text-slate-400 dark:text-navy-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-navy-800/50 rounded-xl transition-all"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Trainers
+      </Button>
 
-    if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-purple-500 animate-spin" /></div>;
-    if (!trainer) return <div className="text-center py-12"><p className="text-gray-500 dark:text-gray-400">Trainer not found</p><Button onClick={() => navigate('/trainers')} className="mt-4">Back</Button></div>;
+      {/* Trainer Header */}
+      <Card className="bg-white dark:bg-navy-900/50 border-slate-200 dark:border-navy-800 backdrop-blur-sm rounded-3xl overflow-hidden transition-colors">
+        <CardContent className="p-8">
+          <div className="flex flex-col md:flex-row gap-8">
+            <Avatar className="h-32 w-32 ring-4 ring-indigo-500/20 shadow-2xl">
+              <AvatarImage src={trainer.photoUrl} />
+              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-3xl font-black italic">
+                {trainer.firstName[0]}{trainer.lastName[0]}
+              </AvatarFallback>
+            </Avatar>
 
-    const user = trainer.user || {};
-    const firstName = user.firstName || '—';
-    const lastName = user.lastName || '';
-    const email = user.email || '—';
-    const phone = user.phone || '—';
-    const status = trainer.status || 'active';
-    const specializations = trainer.specialization || [];
-    const certifications = trainer.certifications || [];
-    const bio = trainer.bio || 'No bio available.';
-    const hireDate = trainer.hireDate || user.createdAt;
-    const rating = trainer.rating || 0;
-    const emergencyContact = trainer.emergencyContact || {};
+            <div className="flex-1">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white transition-colors">
+                    {trainer.firstName} <span className="text-indigo-600 dark:text-indigo-400 italic">{trainer.lastName}</span>
+                  </h1>
+                  <Badge className={cn('mt-3 px-4 py-1 rounded-full font-black text-[10px] uppercase tracking-widest transition-colors', statusColors[trainer.status])}>
+                    {trainer.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10 border-slate-200 dark:border-navy-800 text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-navy-800 rounded-xl transition-all"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10 border-slate-200 dark:border-navy-800 text-slate-400 dark:text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-all"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
 
-    return (
-        <div className="space-y-6">
-            <Button variant="ghost" onClick={() => navigate('/trainers')} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"><ArrowLeft className="h-4 w-4 mr-2" /> Back to Trainers</Button>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="flex items-center gap-3 text-slate-500 dark:text-navy-400">
+                  <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-navy-950 flex items-center justify-center">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm font-bold">{trainer.email}</span>
+                </div>
+                <div className="flex items-center gap-3 text-slate-500 dark:text-navy-400">
+                  <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-navy-950 flex items-center justify-center">
+                    <Phone className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm font-bold">{trainer.phone}</span>
+                </div>
+                <div className="flex items-center gap-3 text-slate-500 dark:text-navy-400">
+                  <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-navy-950 flex items-center justify-center">
+                    <Calendar className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm font-bold">Hired {new Date(trainer.hireDate).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center gap-3 text-slate-500 dark:text-navy-400">
+                  <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-navy-950 flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4" />
+                  </div>
+                  <span className="text-sm font-bold">Rating {trainer.rating}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-            {/* Header Card */}
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row gap-6">
-                        <Avatar className="h-32 w-32 ring-4 ring-purple-500/10 dark:ring-purple-500/20">
-                            <AvatarImage src={user.profilePhoto || undefined} />
-                            <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-3xl font-bold">{firstName[0]}{lastName[0] || ''}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{firstName} {lastName}</h1>
-                                    <Badge className={cn('mt-2', statusColors[status] || statusColors.active)}>{status.replace('_', ' ')}</Badge>
-                                </div>
-                                <div className="flex gap-2">
-                                    <Button variant="outline" size="icon" className="bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800 transition-colors"><Edit className="h-4 w-4" /></Button>
-                                    <Button variant="outline" size="icon" className="bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"><Trash2 className="h-4 w-4" /></Button>
-                                </div>
-                            </div>
-                            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><Mail className="h-4 w-4" /><span>{email}</span></div>
-                                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><Phone className="h-4 w-4" /><span>{phone}</span></div>
-                                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><Calendar className="h-4 w-4" /><span>Hired: {hireDate ? new Date(hireDate).toLocaleDateString() : '—'}</span></div>
-                                <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400"><TrendingUp className="h-4 w-4" /><span>Rating: {rating} / 5.0</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </CardContent>
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-4">
+        {[
+          { label: 'Assigned Members', value: trainer.assignedMembers, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+          { label: 'Avg Rating', value: trainer.rating, icon: TrendingUp, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+          { label: 'Sessions / Mo', value: '156', icon: Clock, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+          { label: 'Revenue Generated', value: '$12,450', icon: DollarSign, color: 'text-indigo-500', bg: 'bg-indigo-500/10' }
+        ].map((stat, i) => (
+          <Card key={i} className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-2xl shadow-sm transition-colors overflow-hidden group">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">{stat.label}</CardTitle>
+                <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
+                  <stat.icon className={cn("h-4 w-4", stat.color)} />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-black text-slate-900 dark:text-white transition-colors">{stat.value}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="bg-white dark:bg-navy-900 p-1.5 rounded-2xl border border-slate-100 dark:border-navy-800 shadow-sm transition-colors h-auto w-full md:w-auto">
+          {['overview', 'members', 'schedule', 'certifications'].map(t => (
+            <TabsTrigger 
+              key={t} 
+              value={t} 
+              className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all capitalize"
+            >
+              {t}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors">
+            <CardHeader>
+              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">Biography</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-600 dark:text-navy-300 font-medium leading-relaxed transition-colors">{trainer.bio}</p>
+            </CardContent>
+          </Card>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors">
+              <CardHeader>
+                <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic flex items-center gap-2">
+                  <Award className="h-5 w-5 text-indigo-500" />
+                  Performance Specializations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {trainer.specializations.map((spec) => (
+                    <Badge key={spec} className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/50 font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-xl transition-colors">
+                      {spec}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
             </Card>
 
-            {/* Stats */}
-            <div className="grid gap-6 md:grid-cols-4">
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Assigned Classes</CardTitle><Users className="h-4 w-4 text-blue-600 dark:text-blue-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">{classes.length}</div></CardContent>
-                </Card>
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Rating</CardTitle><TrendingUp className="h-4 w-4 text-amber-600 dark:text-amber-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">{rating}</div><p className="text-xs text-gray-500 mt-1">out of 5.0</p></CardContent>
-                </Card>
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Specializations</CardTitle><Award className="h-4 w-4 text-green-600 dark:text-green-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">{specializations.length}</div></CardContent>
-                </Card>
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Certifications</CardTitle><Clock className="h-4 w-4 text-purple-600 dark:text-purple-400" /></div></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">{certifications.length}</div></CardContent>
-                </Card>
-            </div>
+            <Card className="bg-slate-50 dark:bg-navy-950 border-none rounded-3xl transition-colors">
+              <CardHeader>
+                <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">Emergency Protocol</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 mb-1">Contact Name</p>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">{trainer.emergencyContact.name}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 mb-1">Secure Line</p>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">{trainer.emergencyContact.phone}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
-            {/* Tabs */}
-            <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="bg-gray-100 dark:bg-dark-900/50 border border-gray-200 dark:border-dark-800">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="classes">Assigned Classes</TabsTrigger>
-                    <TabsTrigger value="certifications">Certifications</TabsTrigger>
-                </TabsList>
+        {/* Assigned Members Tab */}
+        <TabsContent value="members">
+          <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl overflow-hidden transition-colors shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">Student Matrix ({mockAssignedMembers.length})</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50/50 dark:bg-navy-950/50 border-y border-slate-100 dark:border-navy-800 transition-colors">
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest pl-8 text-slate-700 dark:text-navy-400">Student Profile</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400">Tier Status</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400">Enrolled On</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400 text-right pr-8">Sessions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mockAssignedMembers.map((member) => (
+                    <TableRow
+                      key={member.id}
+                      className="border-b border-slate-50 dark:border-navy-950 hover:bg-slate-50 dark:hover:bg-navy-950/80 cursor-pointer transition-colors group"
+                      onClick={() => navigate(`/members/${member.id}`)}
+                    >
+                      <TableCell className="pl-8">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10 border-2 border-white dark:border-navy-900 shadow-sm transition-transform group-hover:scale-95">
+                            <AvatarImage src={member.photoUrl} />
+                            <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-[10px] font-black italic">
+                              {member.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">{member.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/50 font-black text-[9px] uppercase tracking-widest transition-colors">
+                          {member.membershipType}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm font-medium text-slate-500 dark:text-navy-500">
+                        {new Date(member.startDate).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right pr-8">
+                        <span className="text-sm font-black text-slate-900 dark:text-white transition-colors">{member.sessionsCompleted}</span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-                <TabsContent value="overview" className="space-y-6">
-                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                        <CardHeader><CardTitle className="text-gray-900 dark:text-white">Bio</CardTitle></CardHeader>
-                        <CardContent><p className="text-gray-600 dark:text-gray-400 leading-relaxed">{bio}</p></CardContent>
-                    </Card>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                            <CardHeader><CardTitle className="text-gray-900 dark:text-white flex items-center gap-2"><Award className="h-5 w-5 text-purple-600 dark:text-purple-400" /> Specializations</CardTitle></CardHeader>
-                            <CardContent>
-                                {specializations.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2">{specializations.map((spec: string) => <Badge key={spec} className="bg-purple-500/10 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-purple-200 dark:border-purple-500/30">{spec}</Badge>)}</div>
-                                ) : <p className="text-gray-500 dark:text-gray-400">None listed</p>}
-                            </CardContent>
-                        </Card>
-                        <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                            <CardHeader><CardTitle className="text-gray-900 dark:text-white">Emergency Contact</CardTitle></CardHeader>
-                            <CardContent className="space-y-2">
-                                <div className="text-gray-600 dark:text-gray-400"><p className="text-sm text-gray-500">Name</p><p className="text-gray-900 dark:text-white">{emergencyContact.name || '—'}</p></div>
-                                <div className="text-gray-600 dark:text-gray-400"><p className="text-sm text-gray-500">Phone</p><p className="text-gray-900 dark:text-white">{emergencyContact.phone || '—'}</p></div>
-                            </CardContent>
-                        </Card>
+        {/* Schedule Tab */}
+        <TabsContent value="schedule">
+          <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">Shift Protocol Matrix</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {mockSchedule.map((schedule) => (
+                  <div
+                    key={schedule.day}
+                    className="flex items-center justify-between p-6 rounded-2xl bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-all hover:bg-white dark:hover:bg-navy-950 group"
+                  >
+                    <div className="flex items-center gap-8">
+                      <div className="w-24">
+                        <p className="text-sm font-black text-slate-900 dark:text-white uppercase italic tracking-wider transition-colors">{schedule.day}</p>
+                      </div>
+                      <div className="flex items-center gap-3 text-slate-500 dark:text-navy-500">
+                        <Clock className="h-4 w-4 text-indigo-500" />
+                        <span className="text-sm font-bold">{schedule.time}</span>
+                      </div>
                     </div>
-                </TabsContent>
+                    <Badge className="bg-white dark:bg-navy-900 text-slate-700 dark:text-navy-300 border-slate-200 dark:border-navy-800 font-black text-[9px] uppercase tracking-[0.2em] px-4 shadow-sm group-hover:border-indigo-100 dark:group-hover:border-indigo-900 transition-colors">
+                      {schedule.type}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-                <TabsContent value="classes">
-                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                        <CardHeader><CardTitle className="text-gray-900 dark:text-white">Assigned Classes ({classes.length})</CardTitle></CardHeader>
-                        <CardContent>
-                            {classes.length === 0 ? (
-                                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No classes assigned</p>
-                            ) : (
-                                <Table>
-                                    <TableHeader><TableRow className="border-gray-200 dark:border-dark-700 hover:bg-transparent"><TableHead className="text-gray-500 dark:text-gray-400">Class</TableHead><TableHead className="text-gray-500 dark:text-gray-400">Schedule</TableHead><TableHead className="text-gray-500 dark:text-gray-400">Capacity</TableHead></TableRow></TableHeader>
-                                    <TableBody>
-                                        {classes.map((cls: any) => (
-                                            <TableRow key={cls._id} className="border-gray-200 dark:border-dark-700 hover:bg-gray-50 dark:hover:bg-dark-800/50 cursor-pointer" onClick={() => navigate(`/classes/${cls._id}`)}>
-                                                <TableCell className="text-gray-900 dark:text-white font-medium">{cls.name}</TableCell>
-                                                <TableCell className="text-gray-600 dark:text-gray-400">{cls.schedule?.dayOfWeek || '—'} {cls.schedule?.startTime || ''}</TableCell>
-                                                <TableCell className="text-gray-600 dark:text-gray-400">{cls.enrolled || 0}/{cls.capacity || 0}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                <TabsContent value="certifications">
-                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                        <CardHeader><CardTitle className="text-gray-900 dark:text-white">Certifications & Credentials</CardTitle></CardHeader>
-                        <CardContent>
-                            {certifications.length === 0 ? (
-                                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No certifications recorded</p>
-                            ) : (
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    {certifications.map((cert: string) => (
-                                        <div key={cert} className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 dark:bg-dark-800/50 border border-gray-200 dark:border-dark-700">
-                                            <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/20"><Award className="h-5 w-5 text-amber-600 dark:text-amber-400" /></div>
-                                            <div><p className="text-gray-900 dark:text-white font-semibold">{cert}</p><p className="text-sm text-gray-500">Valid</p></div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
-        </div>
-    );
+        {/* Certifications Tab */}
+        <TabsContent value="certifications">
+          <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">Certified Matrix Credentials</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-4">
+                {trainer.certifications.map((cert) => (
+                  <div
+                    key={cert}
+                    className="flex items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-all hover:bg-white dark:hover:bg-navy-950 group"
+                  >
+                    <div className="h-12 w-12 rounded-xl bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-500 transition-transform group-hover:scale-110">
+                      <Award className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="text-base font-black text-slate-900 dark:text-white leading-none mb-1 uppercase tracking-tight transition-colors">{cert}</p>
+                      <div className="flex items-center gap-1.5">
+                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-black uppercase tracking-widest uppercase tracking-widest">Active Credential</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 }

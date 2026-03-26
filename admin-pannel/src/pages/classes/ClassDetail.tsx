@@ -1,186 +1,313 @@
-import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Edit, Users, Clock, MapPin, Calendar, User, Trash2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Edit, Users, Clock, MapPin, Calendar, User, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import api from '@/lib/api/axios';
 
-const classTypeColors: Record<string, string> = {
-    yoga: 'from-purple-500 to-pink-600',
-    hiit: 'from-orange-500 to-red-600',
-    spin: 'from-blue-500 to-cyan-600',
-    strength: 'from-amber-500 to-orange-600',
-    cardio: 'from-green-500 to-emerald-600',
-    pilates: 'from-indigo-500 to-purple-600',
+const classTypeColors = {
+  yoga: 'from-purple-500 to-pink-600',
+  hiit: 'from-orange-500 to-red-600',
+  spin: 'from-blue-500 to-cyan-600',
+  strength: 'from-amber-500 to-orange-600',
+  cardio: 'from-green-500 to-emerald-600',
+  pilates: 'from-indigo-500 to-purple-600',
 };
 
+// Mock data - in real app, fetch based on ID
+const mockClass = {
+  id: '1',
+  name: 'Morning Yoga Flow',
+  type: 'yoga' as const,
+  description: 'Start your day with an energizing yoga session designed to improve flexibility and strength. Suitable for all levels.',
+  trainer: {
+    id: '3',
+    name: 'Emma Wilson',
+    photoUrl: undefined,
+    email: 'emma.wilson@sdfitness.com',
+    specializations: ['Yoga', 'Pilates', 'Meditation'],
+  },
+  schedule: {
+    days: ['Monday', 'Wednesday', 'Friday'],
+    time: '06:00 AM',
+    duration: 60,
+  },
+  capacity: 20,
+  enrolled: 18,
+  location: 'Studio A',
+  price: 15,
+  isRecurring: true,
+  createdDate: '2024-01-15',
+};
+
+const mockEnrolledMembers = [
+  { id: '1', name: 'Michael Brown', photoUrl: undefined, joinedDate: '2024-01-20' },
+  { id: '2', name: 'Emily Davis', photoUrl: undefined, joinedDate: '2024-01-22' },
+  { id: '3', name: 'James Wilson', photoUrl: undefined, joinedDate: '2024-01-25' },
+  { id: '4', name: 'Sarah Parker', photoUrl: undefined, joinedDate: '2024-01-28' },
+  { id: '5', name: 'David Kim', photoUrl: undefined, joinedDate: '2024-02-01' },
+];
+
 export function ClassDetail() {
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const [cls, setCls] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { id } = useParams();
 
-    const [isDeleting, setIsDeleting] = useState(false);
+  const enrollmentPercentage = (mockClass.enrolled / mockClass.capacity) * 100;
+  const spotsRemaining = mockClass.capacity - mockClass.enrolled;
 
-    useEffect(() => {
-        const fetchClass = async () => {
-            try {
-                const res = await api.get(`/classes/${id}`);
-                setCls(res.data);
-            } catch { setCls(null); }
-            setLoading(false);
-        };
-        fetchClass();
-    }, [id]);
-
-    const handleDelete = async () => {
-        if (!window.confirm('Are you sure you want to delete this class?')) return;
-        try {
-            setIsDeleting(true);
-            await api.delete(`/classes/${id}`);
-            navigate('/classes');
-        } catch (error) {
-            console.error('Failed to delete class:', error);
-            alert('Failed to delete class. Please try again.');
-        } finally {
-            setIsDeleting(false);
-        }
-    };
-
-    if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-purple-500 animate-spin" /></div>;
-    if (!cls) return <div className="text-center py-12"><p className="text-gray-400">Class not found</p><Button onClick={() => navigate('/classes')} className="mt-4">Back</Button></div>;
-
-    const schedule = cls.schedule || {};
-    const trainer = cls.trainer || {};
-    const trainerUser = trainer.user || {};
-    const trainerName = `${trainerUser.firstName || ''} ${trainerUser.lastName || ''}`.trim() || 'TBD';
-    const capacity = cls.capacity || 0;
-    const enrolled = cls.enrolled || 0;
-    const enrollmentPercentage = capacity > 0 ? (enrolled / capacity) * 100 : 0;
-    const spotsRemaining = Math.max(0, capacity - enrolled);
-    const classType = (cls.name?.split(' ')[0] || trainer.specialization?.[0] || 'other').toLowerCase();
-    const duration = schedule.startTime && schedule.endTime
-        ? (parseInt(schedule.endTime.split(':')[0]) * 60 + parseInt(schedule.endTime.split(':')[1])) - (parseInt(schedule.startTime.split(':')[0]) * 60 + parseInt(schedule.startTime.split(':')[1]))
-        : 60;
-
-    const enrolledMembers = (cls.enrolledMembers || []).map((m: any) => {
-        if (typeof m === 'string') return { _id: m, name: 'Member', joinedDate: '' };
-        return { _id: m._id || '', name: `${m.firstName || ''} ${m.lastName || ''}`.trim() || 'Member', joinedDate: m.createdAt || '' };
-    });
-
-    return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" onClick={() => navigate('/classes')} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-dark-800"><ArrowLeft className="h-4 w-4 mr-2" /> Back</Button>
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{cls.name}</h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-2">Class Details & Enrollment</p>
-                    </div>
-                </div>
-                <div className="flex gap-3">
-                    <Button onClick={() => navigate(`/classes/edit/${id}`)} className="bg-blue-500/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30 hover:bg-blue-500/20 dark:hover:bg-blue-500/30 shadow-sm"><Edit className="h-4 w-4 mr-2" /> Edit Class</Button>
-                    <Button variant="outline" onClick={handleDelete} disabled={isDeleting} className="bg-white dark:bg-dark-900/50 border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/20 shadow-sm">
-                        {isDeleting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Trash2 className="h-4 w-4 mr-2" />} Delete
-                    </Button>
-                </div>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-4">
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">Enrollment</CardTitle></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-gray-900 dark:text-white">{enrolled}/{capacity}</div><p className="text-xs text-gray-500 mt-1">{enrollmentPercentage.toFixed(0)}% Full</p></CardContent>
-                </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-400">Spots Remaining</CardTitle></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-white">{spotsRemaining}</div><p className="text-xs text-gray-500 mt-1">Available spots</p></CardContent>
-                </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-400">Duration</CardTitle></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-white">{duration}</div><p className="text-xs text-gray-500 mt-1">Minutes</p></CardContent>
-                </Card>
-                <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-                    <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-gray-400">Price</CardTitle></CardHeader>
-                    <CardContent><div className="text-3xl font-bold text-white">LKR {cls.price || 0}</div><p className="text-xs text-gray-500 mt-1">Per session</p></CardContent>
-                </Card>
-            </div>
-
-            <div className="grid gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2 space-y-6">
-                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                        <CardHeader><CardTitle className="text-gray-900 dark:text-white flex items-center gap-2"><Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" /> Class Information</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            {cls.description && <div><label className="text-sm text-gray-500 dark:text-gray-400">Description</label><p className="text-gray-900 dark:text-white mt-1">{cls.description}</p></div>}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><label className="text-sm text-gray-500 dark:text-gray-400">Class Type</label><div className="mt-1"><Badge className={cn('text-white bg-gradient-to-r shadow-sm', classTypeColors[classType] || 'from-gray-500 to-gray-600')}>{classType}</Badge></div></div>
-                                <div><label className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2"><MapPin className="h-4 w-4 text-purple-600 dark:text-purple-400" /> Location</label><p className="text-gray-900 dark:text-white mt-1">{cls.location || schedule.room || 'TBD'}</p></div>
-                            </div>
-                            <div><label className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2"><Clock className="h-4 w-4 text-purple-600 dark:text-purple-400" /> Schedule</label><p className="text-gray-900 dark:text-white mt-1">{schedule.dayOfWeek || 'TBD'} at {schedule.startTime || 'TBD'} - {schedule.endTime || ''}</p></div>
-                            {cls.createdAt && <div><label className="text-sm text-gray-500 dark:text-gray-400">Created</label><p className="text-gray-900 dark:text-white mt-1">{new Date(cls.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p></div>}
-                        </CardContent>
-                    </Card>
-
-                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                        <CardHeader><CardTitle className="text-gray-900 dark:text-white flex items-center gap-2"><Users className="h-5 w-5 text-purple-600 dark:text-purple-400" /> Enrolled Members ({enrolled})</CardTitle></CardHeader>
-                        <CardContent>
-                            {enrolledMembers.length === 0 ? (
-                                <p className="text-gray-500 dark:text-gray-400 text-center py-6">No members enrolled yet</p>
-                            ) : (
-                                <div className="space-y-3">
-                                    {enrolledMembers.map((member: any) => (
-                                        <div key={member._id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-dark-800/50 hover:bg-gray-100 dark:hover:bg-dark-800 transition-colors cursor-pointer border border-gray-100 dark:border-dark-700 shadow-sm" onClick={() => navigate(`/members/${member._id}`)}>
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="h-10 w-10 ring-2 ring-purple-500/10"><AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-sm">{member.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
-                                                <div>
-                                                    <p className="text-gray-900 dark:text-white font-medium">{member.name}</p>
-                                                    {member.joinedDate && <p className="text-xs text-gray-500 dark:text-gray-400">Joined {new Date(member.joinedDate).toLocaleDateString()}</p>}
-                                                </div>
-                                            </div>
-                                            <Button variant="ghost" size="sm" className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">View</Button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div className="space-y-6">
-                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                        <CardHeader><CardTitle className="text-gray-900 dark:text-white flex items-center gap-2"><User className="h-5 w-5 text-purple-600 dark:text-purple-400" /> Trainer</CardTitle></CardHeader>
-                        <CardContent>
-                            <div className="text-center space-y-4">
-                                <Avatar className="h-24 w-24 mx-auto ring-4 ring-purple-500/10"><AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-2xl shadow-lg">{trainerName.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback></Avatar>
-                                <div>
-                                    <h3 className="text-gray-900 dark:text-white font-semibold text-lg">{trainerName}</h3>
-                                    {trainerUser.email && <p className="text-gray-500 dark:text-gray-400 text-sm">{trainerUser.email}</p>}
-                                </div>
-                                {trainer.specialization && trainer.specialization.length > 0 && (
-                                    <div>
-                                        <label className="text-sm text-gray-500 dark:text-gray-400 block mb-2">Specializations</label>
-                                        <div className="flex flex-wrap gap-2 justify-center">
-                                            {trainer.specialization.map((spec: string) => <Badge key={spec} className="bg-purple-500/10 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400 border-purple-200 dark:border-purple-500/30 shadow-sm">{spec}</Badge>)}
-                                        </div>
-                                    </div>
-                                )}
-                                <Button onClick={() => navigate(`/trainers/${trainer._id}`)} className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white">View Profile</Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                        <CardHeader><CardTitle className="text-gray-900 dark:text-white text-sm">Quick Actions</CardTitle></CardHeader>
-                        <CardContent className="space-y-2">
-                            <Button variant="outline" className="w-full bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 shadow-sm">Send Notification</Button>
-                            <Button variant="outline" className="w-full bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 shadow-sm">Download Roster</Button>
-                            <Button variant="outline" className="w-full bg-white dark:bg-dark-800 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-800 shadow-sm">Cancel Session</Button>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/classes')}
+            className="h-12 w-12 rounded-2xl text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-navy-800/50 transition-all p-0 flex items-center justify-center"
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+          <div>
+            <h1 className="text-4xl font-black italic tracking-tight text-slate-900 dark:text-white transition-colors">
+              {mockClass.name.toUpperCase()}
+            </h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600 mt-1">Class Protocol & Enrollment Matrix</p>
+          </div>
         </div>
-    );
+        <div className="flex gap-3">
+          <Button
+            onClick={() => navigate(`/classes/edit/${id}`)}
+            className="px-6 py-6 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 text-slate-900 dark:text-white hover:border-indigo-500 dark:hover:border-indigo-500 font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all shadow-sm flex items-center gap-3"
+          >
+            <Edit className="h-4 w-4 text-indigo-500" />
+            Edit Protocol
+          </Button>
+          <Button
+            variant="outline"
+            className="px-6 py-6 border-slate-200 dark:border-navy-800 text-slate-400 dark:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all flex items-center gap-3"
+          >
+            <Trash2 className="h-4 w-4" />
+            Wipe
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-6 md:grid-cols-4">
+        {[
+          { label: 'Enrollment', value: `${mockClass.enrolled}/${mockClass.capacity}`, sub: `${enrollmentPercentage.toFixed(0)}% Capacity`, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+          { label: 'Spots Available', value: spotsRemaining, sub: 'Field Capacity', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+          { label: 'Duration', value: mockClass.schedule.duration, sub: 'Minutes / Session', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+          { label: 'Price Metric', value: `$${mockClass.price}`, sub: 'Per Activation', color: 'text-rose-500', bg: 'bg-rose-500/10' }
+        ].map((stat, i) => (
+          <Card key={i} className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl shadow-sm transition-colors overflow-hidden group">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">{stat.label}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-black text-slate-900 dark:text-white transition-colors">
+                {stat.value}
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <div className={cn("h-1.5 w-1.5 rounded-full animate-pulse", stat.bg.replace('10', '100'))} />
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-500">{stat.sub}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Class Information */}
+        <div className="lg:col-span-2 space-y-8">
+          <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden">
+            <CardHeader className="p-10 pb-4">
+              <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600 italic flex items-center gap-3">
+                <Calendar className="h-5 w-5 text-indigo-500" />
+                Class Protocol Info
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-10 pt-0 space-y-10">
+              <div className="p-8 rounded-3xl bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-colors">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 mb-3 block italic">Manifesto</label>
+                <p className="text-slate-600 dark:text-navy-300 font-medium leading-relaxed text-lg transition-colors">{mockClass.description}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Faculty Assignment</label>
+                  <div className="inline-block">
+                    <Badge
+                      className={cn(
+                        'px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg text-white bg-gradient-to-r',
+                        classTypeColors[mockClass.type]
+                      )}
+                    >
+                      {mockClass.type} Prime
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-rose-500" />
+                    Sector Location
+                  </label>
+                  <p className="text-2xl font-black italic tracking-tight text-slate-900 dark:text-white transition-colors">{mockClass.location}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-emerald-500" />
+                    Shift Schedule
+                  </label>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">
+                    {mockClass.schedule.days.map(d => d.substring(0, 3).toUpperCase()).join(' • ')} <span className="text-indigo-600 dark:text-indigo-400 ml-2 font-black italic">{mockClass.schedule.time}</span>
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Initialization</label>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">
+                    {new Date(mockClass.createdDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    }).toUpperCase()}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Enrolled Members */}
+          <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden">
+            <CardHeader className="p-10 pb-4">
+              <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600 italic flex items-center gap-3">
+                <Users className="h-5 w-5 text-indigo-500" />
+                Active Enrollments ({mockClass.enrolled})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="divide-y divide-slate-50 dark:divide-navy-950">
+                {mockEnrolledMembers.map((member) => (
+                  <div
+                    key={member.id}
+                    className="flex items-center justify-between p-8 hover:bg-slate-50 dark:hover:bg-navy-950/50 transition-all cursor-pointer group"
+                    onClick={() => navigate(`/members/${member.id}`)}
+                  >
+                    <div className="flex items-center gap-6">
+                      <Avatar className="h-14 w-14 border-4 border-white dark:border-navy-900 shadow-xl transition-transform group-hover:scale-95">
+                        <AvatarImage src={member.photoUrl} />
+                        <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white font-black italic">
+                          {member.name
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-lg font-black text-slate-900 dark:text-white transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400 leading-tight">{member.name}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 mt-1">
+                          Activated On {new Date(member.joinedDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <Button variant="ghost" className="h-12 px-6 rounded-2xl bg-slate-50 dark:bg-navy-950 text-slate-400 dark:text-navy-500 group-hover:bg-indigo-600 group-hover:text-white font-black uppercase text-[10px] tracking-widest transition-all">
+                      Open Profile
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Trainer Info */}
+        <div className="space-y-8">
+          <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden">
+            <CardHeader className="p-8 pb-4">
+              <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600 italic flex items-center gap-3 font-black">
+                <User className="h-5 w-5 text-indigo-500" />
+                Faculty Lead
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8 pt-0">
+              <div className="text-center space-y-6">
+                <div className="relative inline-block">
+                  <Avatar className="h-32 w-32 border-4 border-slate-50 dark:border-navy-950 shadow-2xl transition-transform hover:scale-105">
+                    <AvatarImage src={mockClass.trainer.photoUrl} />
+                    <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-3xl font-black italic">
+                      {mockClass.trainer.name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="absolute -bottom-2 -right-2 bg-emerald-500 h-6 w-6 rounded-full border-4 border-white dark:border-navy-900" />
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white transition-colors">
+                    {mockClass.trainer.name.split(' ')[0]} <span className="text-indigo-600 dark:text-indigo-400 italic">{mockClass.trainer.name.split(' ')[1]}</span>
+                  </h3>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 mt-1">{mockClass.trainer.email}</p>
+                </div>
+
+                <div className="pt-4 border-t border-slate-50 dark:border-navy-950">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 block mb-4 italic">Core Matrices</label>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {mockClass.trainer.specializations.map((spec) => (
+                      <Badge
+                        key={spec}
+                        className="bg-slate-50 dark:bg-navy-950 text-slate-600 dark:text-navy-400 border border-slate-100 dark:border-navy-800 font-black text-[9px] uppercase tracking-widest px-4 py-1.5 rounded-lg"
+                      >
+                        {spec}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => navigate(`/trainers/${mockClass.trainer.id}`)}
+                  className="w-full h-14 bg-slate-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-700 text-white font-black uppercase text-[10px] tracking-[0.2em] rounded-2xl shadow-xl shadow-indigo-500/10 transition-all flex items-center justify-center gap-3"
+                >
+                  Synchronize Profile
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card className="bg-slate-50 dark:bg-navy-950/50 border-none rounded-[2.5rem] transition-colors overflow-hidden">
+            <CardHeader className="p-8 pb-4">
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-700 italic">Quick Protocols</CardTitle>
+            </CardHeader>
+            <CardContent className="p-8 pt-0 space-y-3">
+              {[
+                { label: 'Broadcast COMMS', icon: User },
+                { label: 'Export Roster', icon: Users },
+                { label: 'Cancel Session', icon: Clock, color: 'text-rose-500' }
+              ].map((action, i) => (
+                <Button
+                  key={i}
+                  variant="outline"
+                  className={cn(
+                    "w-full h-14 border-white dark:border-navy-900 bg-white dark:bg-navy-900 text-slate-700 dark:text-navy-300 hover:border-indigo-500 font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all shadow-sm flex items-center justify-start gap-4 px-6 group",
+                    action.color
+                  )}
+                >
+                  <action.icon className="h-4 w-4 transition-transform group-hover:scale-110" />
+                  {action.label}
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
 }

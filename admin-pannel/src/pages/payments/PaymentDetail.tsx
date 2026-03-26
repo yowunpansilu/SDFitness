@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, Printer, Mail, User, FileText } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Download, Printer, Mail, User, FileText, Hash, Calendar, CreditCard, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,10 +7,10 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
 const statusColors = {
-  completed: 'bg-green-500/20 text-green-400 border-green-500/30',
-  pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  failed: 'bg-red-500/20 text-red-400 border-red-500/30',
-  refunded: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+  completed: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20',
+  pending: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-500/20',
+  failed: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-500/20',
+  refunded: 'bg-slate-50 dark:bg-navy-800 text-slate-600 dark:text-navy-400 border-slate-200 dark:border-navy-700',
 };
 
 // Mock data
@@ -50,266 +50,248 @@ const mockPayment = {
 
 export function PaymentDetail() {
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const handlePrint = () => {
     window.print();
   };
 
   const handleDownload = () => {
-    // In real app, generate and download PDF
     console.log('Downloading invoice...');
   };
 
   const handleSendEmail = () => {
-    // In real app, send email with invoice
     console.log('Sending invoice via email...');
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
       {/* Header - Hidden on print */}
-      <div className="flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 print:hidden">
+        <div className="flex items-center gap-6">
           <Button
             variant="ghost"
             onClick={() => navigate('/payments')}
-            className="text-gray-400 hover:text-white"
+            className="h-12 w-12 rounded-2xl text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-navy-800/50 transition-all p-0 flex items-center justify-center border border-transparent hover:border-slate-100 dark:hover:border-navy-800"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
+            <ArrowLeft className="h-6 w-6" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-              Payment Details
+            <h1 className="text-4xl font-black italic tracking-tight text-slate-900 dark:text-white transition-colors">
+              TRANSACTION <span className="text-indigo-600 dark:text-indigo-400 italic">INTEL</span>
             </h1>
-            <p className="text-gray-400 mt-2">Transaction #{mockPayment.transactionId}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600 mt-1">Ref ID: {mockPayment.transactionId}</p>
           </div>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Button
             onClick={handleSendEmail}
-            variant="outline"
-            className="border-dark-700 text-gray-300 hover:bg-dark-800"
+            variant="ghost"
+            className="h-11 px-6 bg-slate-50 dark:bg-navy-950 border-none text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-navy-800 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all"
           >
             <Mail className="h-4 w-4 mr-2" />
-            Email Invoice
+            Dispatch Comms
           </Button>
           <Button
             onClick={handlePrint}
-            variant="outline"
-            className="border-dark-700 text-gray-300 hover:bg-dark-800"
+            variant="ghost"
+            className="h-11 px-6 bg-slate-50 dark:bg-navy-950 border-none text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-navy-800 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all"
           >
             <Printer className="h-4 w-4 mr-2" />
-            Print
+            Physical Log
           </Button>
           <Button
             onClick={handleDownload}
-            className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white"
+            className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-950/20 h-11 px-8 font-black uppercase text-[10px] tracking-widest transition-all hover:scale-105 active:scale-95"
           >
             <Download className="h-4 w-4 mr-2" />
-            Download PDF
+            Export Archive
           </Button>
         </div>
       </div>
 
       {/* Invoice Card */}
-      <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm print:bg-white print:border-gray-300">
-        <CardContent className="p-8">
+      <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm rounded-[3rem] overflow-hidden transition-colors font-medium print:bg-white print:border-slate-300 print:shadow-none print:rounded-none">
+        <CardContent className="p-12 print:p-8">
           {/* Invoice Header */}
-          <div className="flex justify-between items-start mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start gap-10 mb-12">
             <div>
-              <h2 className="text-3xl font-bold text-white print:text-black">INVOICE</h2>
-              <p className="text-gray-400 mt-1 print:text-gray-600">
-                #{mockPayment.invoiceNumber}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-3 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-500/20 rotate-3">
+                  <DollarSign className="h-6 w-6" />
+                </div>
+                <h2 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white print:text-black">FINANCIAL <span className="italic text-indigo-600 dark:text-indigo-400">LEDGER</span></h2>
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 print:text-slate-600">
+                Authentication Code: {mockPayment.invoiceNumber}
               </p>
             </div>
-            <div className="text-right">
-              <h3 className="text-xl font-bold text-white print:text-black">SD Fitness</h3>
-              <p className="text-gray-400 text-sm mt-1 print:text-gray-600">
-                456 Fitness Avenue
-                <br />
-                Los Angeles, CA 90001
-                <br />
-                contact@sdfitness.com
-                <br />
-                +1 (555) 987-6543
+            <div className="text-right space-y-2">
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white print:text-black italic tracking-tight">SD FITNESS GLOBAL</h3>
+              <p className="text-xs font-bold text-slate-400 dark:text-navy-400 print:text-slate-600 leading-relaxed uppercase">
+                Sector 456 Fitness Avenue<br />
+                Node: Los Angeles, CA 90001<br />
+                Comms: contact@sdfitness.com<br />
+                Vox: +1 (555) 987-6543
               </p>
             </div>
           </div>
 
-          <Separator className="my-6 print:bg-gray-300" />
+          <Separator className="my-10 bg-slate-50 dark:bg-navy-800 transition-colors" />
 
           {/* Billing Info */}
-          <div className="grid grid-cols-2 gap-8 mb-8">
-            <div>
-              <h4 className="text-sm font-semibold text-gray-400 mb-3 print:text-gray-600">
-                BILL TO
-              </h4>
-              <div className="text-white print:text-black">
-                <p className="font-semibold">{mockPayment.member.name}</p>
-                <p className="text-sm text-gray-400 print:text-gray-600 mt-1">
-                  {mockPayment.member.email}
-                </p>
-                <p className="text-sm text-gray-400 print:text-gray-600">
-                  {mockPayment.member.phone}
-                </p>
-                <p className="text-sm text-gray-400 print:text-gray-600 mt-2">
-                  {mockPayment.member.address}
-                </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                  <User className="h-4 w-4" />
+                </div>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">
+                  TARGET ENTITY
+                </h4>
+              </div>
+              <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-colors">
+                <p className="text-2xl font-black tracking-tight text-slate-900 dark:text-white print:text-black mb-2 uppercase">{mockPayment.member.name}</p>
+                <div className="space-y-1 text-sm font-bold text-slate-500 dark:text-navy-400">
+                  <p>{mockPayment.member.email}</p>
+                  <p>{mockPayment.member.phone}</p>
+                  <p className="mt-4 italic">{mockPayment.member.address}</p>
+                </div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="space-y-2">
-                <div>
-                  <span className="text-sm text-gray-400 print:text-gray-600">Invoice Date:</span>
-                  <p className="text-white font-semibold print:text-black">
-                    {new Date(mockPayment.date).toLocaleDateString()}
-                  </p>
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                  <CreditCard className="h-4 w-4" />
                 </div>
-                <div>
-                  <span className="text-sm text-gray-400 print:text-gray-600">Payment Method:</span>
-                  <p className="text-white font-semibold print:text-black capitalize">
-                    {mockPayment.paymentMethod.replace('_', ' ')} ****{mockPayment.cardLast4}
-                  </p>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">
+                  PROTOCOL METRICS
+                </h4>
+              </div>
+              <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 space-y-6 transition-colors font-bold uppercase text-[10px] tracking-widest text-slate-400 dark:text-navy-600">
+                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-navy-800">
+                  <span>Activation Date</span>
+                  <span className="text-slate-900 dark:text-white">{new Date(mockPayment.date).toLocaleDateString(undefined, {month: 'long', day: 'numeric', year: 'numeric'})}</span>
                 </div>
-                <div>
-                  <span className="text-sm text-gray-400 print:text-gray-600">Status:</span>
-                  <div className="mt-1">
-                    <Badge className={cn(statusColors[mockPayment.status], 'print:bg-green-100 print:text-green-800 print:border-green-300')}>
-                      {mockPayment.status}
-                    </Badge>
-                  </div>
+                <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-navy-800">
+                  <span>Payment Method</span>
+                  <span className="text-slate-900 dark:text-white">{mockPayment.paymentMethod.replace('_', ' ')} •• {mockPayment.cardLast4}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Current Status</span>
+                  <Badge className={cn(statusColors[mockPayment.status], 'font-black text-[10px] uppercase tracking-widest rounded-lg border shadow-none px-3 py-1 transition-colors')}>
+                    {mockPayment.status}
+                  </Badge>
                 </div>
               </div>
             </div>
           </div>
 
-          <Separator className="my-6 print:bg-gray-300" />
-
-          {/* Billing Period */}
-          {mockPayment.billingPeriod && (
-            <div className="mb-6">
-              <h4 className="text-sm font-semibold text-gray-400 mb-2 print:text-gray-600">
-                BILLING PERIOD
-              </h4>
-              <p className="text-white print:text-black">
-                {new Date(mockPayment.billingPeriod.start).toLocaleDateString()} -{' '}
-                {new Date(mockPayment.billingPeriod.end).toLocaleDateString()}
-              </p>
-            </div>
-          )}
-
           {/* Items Table */}
-          <div className="mb-8">
-            <table className="w-full">
+          <div className="mb-12 overflow-hidden rounded-[2rem] border border-slate-100 dark:border-navy-800">
+            <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-dark-700 print:border-gray-300">
-                  <th className="text-left py-3 text-sm font-semibold text-gray-400 print:text-gray-600">
-                    DESCRIPTION
-                  </th>
-                  <th className="text-center py-3 text-sm font-semibold text-gray-400 print:text-gray-600">
-                    QTY
-                  </th>
-                  <th className="text-right py-3 text-sm font-semibold text-gray-400 print:text-gray-600">
-                    UNIT PRICE
-                  </th>
-                  <th className="text-right py-3 text-sm font-semibold text-gray-400 print:text-gray-600">
-                    TOTAL
-                  </th>
+                <tr className="bg-slate-50 dark:bg-navy-950/50 border-b border-slate-100 dark:border-navy-800 transition-colors">
+                  <th className="py-5 px-8 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Description</th>
+                  <th className="py-5 px-8 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Rate</th>
+                  <th className="py-5 px-8 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Qty</th>
+                  <th className="py-5 px-8 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Metric Total</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-50 dark:divide-navy-950">
                 {mockPayment.items.map((item, index) => (
-                  <tr key={index} className="border-b border-dark-800 print:border-gray-200">
-                    <td className="py-4 text-white print:text-black">{item.description}</td>
-                    <td className="py-4 text-center text-white print:text-black">
-                      {item.quantity}
+                  <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-navy-950/30 transition-all">
+                    <td className="py-6 px-8">
+                      <p className="text-sm font-black text-slate-900 dark:text-white italic uppercase tracking-tight">{item.description}</p>
+                      <p className="text-[10px] font-bold text-slate-400 dark:text-navy-500 uppercase mt-1">Service ID: 00456-{index}</p>
                     </td>
-                    <td className="py-4 text-right text-white print:text-black">
-                      ${item.unitPrice.toFixed(2)}
-                    </td>
-                    <td className="py-4 text-right text-white font-semibold print:text-black">
-                      ${item.total.toFixed(2)}
-                    </td>
+                    <td className="py-6 px-8 text-center text-sm font-bold text-slate-600 dark:text-navy-400">${item.unitPrice.toFixed(2)}</td>
+                    <td className="py-6 px-8 text-center text-sm font-black text-slate-900 dark:text-white">{item.quantity}</td>
+                    <td className="py-6 px-8 text-right text-sm font-black text-indigo-600 dark:text-indigo-400">${item.total.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          {/* Totals */}
-          <div className="flex justify-end">
-            <div className="w-64 space-y-2">
-              <div className="flex justify-between text-gray-400 print:text-gray-600">
-                <span>Subtotal:</span>
-                <span className="text-white print:text-black">${mockPayment.amount.toFixed(2)}</span>
+          {/* Totals Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
+            <div className="max-w-md">
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic mb-4">Operational Addendum</h4>
+              <p className="text-xs font-medium text-slate-500 dark:text-navy-400 leading-relaxed">
+                This transaction represents an authorized deployment of fitness resources for the specified duration. 
+                Values are confirmed via encrypted financial channels. Thank you for maintaining operational excellence.
+              </p>
+            </div>
+            <div className="w-full md:w-80 p-8 rounded-[2rem] bg-indigo-600 dark:bg-indigo-500 text-white shadow-2xl shadow-indigo-600/20 space-y-4">
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-70">
+                <span>Core Subtotal</span>
+                <span>${mockPayment.amount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-gray-400 print:text-gray-600">
-                <span>Tax (9%):</span>
-                <span className="text-white print:text-black">${mockPayment.tax.toFixed(2)}</span>
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-70 pb-4 border-b border-white/10">
+                <span>Regulatory Tax (9%)</span>
+                <span>${mockPayment.tax.toFixed(2)}</span>
               </div>
-              <Separator className="print:bg-gray-300" />
-              <div className="flex justify-between text-xl font-bold">
-                <span className="text-white print:text-black">Total:</span>
-                <span className="text-white print:text-black">${mockPayment.total.toFixed(2)}</span>
+              <div className="flex justify-between items-baseline">
+                <span className="text-xs font-black uppercase tracking-widest">Total Valuation</span>
+                <span className="text-3xl font-black tracking-tighter">${mockPayment.total.toFixed(2)}</span>
               </div>
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="mt-12 pt-6 border-t border-dark-800 print:border-gray-300">
-            <p className="text-sm text-gray-400 text-center print:text-gray-600">
-              Thank you for your business! For any questions, contact us at support@sdfitness.com
+          {/* Footer - Only visible on print or at very bottom */}
+          <div className="mt-16 pt-10 border-t border-slate-50 dark:border-navy-950 text-center">
+            <p className="text-[9px] font-black uppercase tracking-[0.5em] text-slate-300 dark:text-navy-800 transition-colors">
+              CONFIDENTIAL TRANSCRIPT // SD FITNESS GLOBAL NETWORKS
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Additional Info - Hidden on print */}
-      <div className="grid gap-6 md:grid-cols-2 print:hidden">
-        <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Member Information
+      {/* Auxiliary Intel - Hidden on print */}
+      <div className="grid gap-8 md:grid-cols-2 print:hidden">
+        <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden group">
+          <CardHeader className="p-8 pb-4">
+            <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600 italic flex items-center gap-3">
+              <User className="h-5 w-5 text-indigo-500" />
+              Entity Synchronization
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <label className="text-sm text-gray-400">Member ID</label>
-              <p className="text-white font-mono">{mockPayment.member.id}</p>
+          <CardContent className="p-8 pt-0 space-y-6">
+            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-colors">
+              <label className="text-[9px] font-black text-slate-400 dark:text-navy-600 uppercase mb-1 block">Entity ID</label>
+              <p className="text-sm font-mono font-black text-slate-900 dark:text-white uppercase">US-MB-00000{mockPayment.member.id}</p>
             </div>
             <Button
               onClick={() => navigate(`/members/${mockPayment.member.id}`)}
-              variant="outline"
-              className="w-full border-dark-700 text-gray-300 hover:bg-dark-800"
+              className="w-full h-14 bg-white dark:bg-navy-950 border-2 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white hover:border-indigo-500 font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all shadow-sm"
             >
-              View Member Profile
+              Access Entity Profile
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="bg-dark-900/50 border-dark-800 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Transaction Details
+        <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden group">
+          <CardHeader className="p-8 pb-4">
+            <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600 italic flex items-center gap-3">
+              <FileText className="h-5 w-5 text-indigo-500" />
+              Node Metadata
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <label className="text-sm text-gray-400">Transaction ID</label>
-              <p className="text-white font-mono text-sm">{mockPayment.transactionId}</p>
+          <CardContent className="p-8 pt-0 space-y-4">
+            <div className="grid grid-cols-2 gap-4 font-bold uppercase text-[9px] tracking-widest">
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 transition-colors">
+                <span className="text-slate-400 dark:text-navy-600 block mb-1">TX Hash</span>
+                <span className="text-slate-900 dark:text-white truncate block">{mockPayment.transactionId}</span>
+              </div>
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 transition-colors">
+                <span className="text-slate-400 dark:text-navy-600 block mb-1">Process Node</span>
+                <span className="text-slate-900 dark:text-white">SD-FIN-US-01</span>
+              </div>
             </div>
-            <div>
-              <label className="text-sm text-gray-400">Payment Type</label>
-              <p className="text-white capitalize">{mockPayment.type.replace('_', ' ')}</p>
-            </div>
-            <div>
-              <label className="text-sm text-gray-400">Processed At</label>
-              <p className="text-white">
-                {new Date(mockPayment.date).toLocaleString()}
-              </p>
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 text-center transition-colors">
+              <span className="text-slate-400 dark:text-navy-600 text-[9px] font-black uppercase tracking-widest">System Synchronized at</span>
+              <p className="text-sm font-black text-slate-900 dark:text-white mt-1">{new Date(mockPayment.date).toLocaleTimeString()}</p>
             </div>
           </CardContent>
         </Card>

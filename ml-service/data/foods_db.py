@@ -8,93 +8,122 @@ training and inference, we keep a local copy as a CSV/dict for speed.
 
 import pandas as pd
 import os
+from pymongo import MongoClient
 
-FOODS_DB = [
-    {"foodId": "chicken_breast", "name": "Chicken Breast", "category": "protein",
-     "calories": 165, "protein": 31, "carbs": 0, "fat": 3.6, "fiber": 0,
-     "default_price_per_gram": 1.45, "is_vegetarian": False, "is_vegan": False, "is_gluten_free": True, "is_dairy_free": True},
+# MongoDB Config
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("DB_NAME", "keelsPriceDB")
 
-    {"foodId": "eggs", "name": "Eggs", "category": "protein",
-     "calories": 155, "protein": 13, "carbs": 1.1, "fat": 11, "fiber": 0,
-     "default_price_per_gram": 0.75, "is_vegetarian": True, "is_vegan": False, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "brown_rice", "name": "Brown Rice", "category": "carbs",
-     "calories": 370, "protein": 7.9, "carbs": 77, "fat": 2.9, "fiber": 3.5,
-     "default_price_per_gram": 0.38, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "white_rice", "name": "White Rice", "category": "carbs",
-     "calories": 365, "protein": 7.1, "carbs": 80, "fat": 0.7, "fiber": 1.3,
-     "default_price_per_gram": 0.29, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "oats", "name": "Oats", "category": "carbs",
-     "calories": 389, "protein": 16.9, "carbs": 66, "fat": 6.9, "fiber": 10.6,
-     "default_price_per_gram": 0.62, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": False, "is_dairy_free": True},
-
-    {"foodId": "red_lentils", "name": "Red Lentils (Dhal)", "category": "protein",
-     "calories": 352, "protein": 25, "carbs": 63, "fat": 1.1, "fiber": 10.7,
-     "default_price_per_gram": 0.55, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "spinach", "name": "Spinach", "category": "vegetable",
-     "calories": 23, "protein": 2.9, "carbs": 3.6, "fat": 0.4, "fiber": 2.2,
-     "default_price_per_gram": 0.28, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "broccoli", "name": "Broccoli", "category": "vegetable",
-     "calories": 34, "protein": 2.8, "carbs": 7, "fat": 0.4, "fiber": 2.6,
-     "default_price_per_gram": 0.75, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "sweet_potato", "name": "Sweet Potato", "category": "carbs",
-     "calories": 86, "protein": 1.6, "carbs": 20, "fat": 0.1, "fiber": 3,
-     "default_price_per_gram": 0.32, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "banana", "name": "Banana", "category": "fruit",
-     "calories": 89, "protein": 1.1, "carbs": 23, "fat": 0.3, "fiber": 2.6,
-     "default_price_per_gram": 0.18, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "whole_milk", "name": "Whole Milk", "category": "dairy",
-     "calories": 61, "protein": 3.2, "carbs": 4.8, "fat": 3.3, "fiber": 0,
-     "default_price_per_gram": 0.32, "is_vegetarian": True, "is_vegan": False, "is_gluten_free": True, "is_dairy_free": False},
-
-    {"foodId": "yogurt", "name": "Plain Yogurt", "category": "dairy",
-     "calories": 59, "protein": 10, "carbs": 3.6, "fat": 0.4, "fiber": 0,
-     "default_price_per_gram": 0.44, "is_vegetarian": True, "is_vegan": False, "is_gluten_free": True, "is_dairy_free": False},
-
-    {"foodId": "tofu", "name": "Tofu", "category": "protein",
-     "calories": 76, "protein": 8, "carbs": 1.9, "fat": 4.8, "fiber": 0.3,
-     "default_price_per_gram": 0.48, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "canned_tuna", "name": "Canned Tuna", "category": "protein",
-     "calories": 116, "protein": 26, "carbs": 0, "fat": 1, "fiber": 0,
-     "default_price_per_gram": 2.11, "is_vegetarian": False, "is_vegan": False, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "bread_wholemeal", "name": "Wholemeal Bread", "category": "carbs",
-     "calories": 247, "protein": 13, "carbs": 41, "fat": 3.4, "fiber": 7,
-     "default_price_per_gram": 0.56, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": False, "is_dairy_free": True},
-
-    {"foodId": "olive_oil", "name": "Olive Oil", "category": "fats",
-     "calories": 884, "protein": 0, "carbs": 0, "fat": 100, "fiber": 0,
-     "default_price_per_gram": 2.80, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "coconut_oil", "name": "Coconut Oil", "category": "fats",
-     "calories": 862, "protein": 0, "carbs": 0, "fat": 100, "fiber": 0,
-     "default_price_per_gram": 0.68, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "chicken_thigh", "name": "Chicken Thigh", "category": "protein",
-     "calories": 209, "protein": 26, "carbs": 0, "fat": 10.9, "fiber": 0,
-     "default_price_per_gram": 1.20, "is_vegetarian": False, "is_vegan": False, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "carrot", "name": "Carrot", "category": "vegetable",
-     "calories": 41, "protein": 0.9, "carbs": 10, "fat": 0.2, "fiber": 2.8,
-     "default_price_per_gram": 0.35, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-
-    {"foodId": "peanut_butter", "name": "Peanut Butter", "category": "fats",
-     "calories": 588, "protein": 25, "carbs": 20, "fat": 50, "fiber": 6,
-     "default_price_per_gram": 2.38, "is_vegetarian": True, "is_vegan": True, "is_gluten_free": True, "is_dairy_free": True},
-]
+def _get_mongo_client():
+    """Helper to get a connected MongoDB client with safe error handling."""
+    if not MONGO_URI:
+        return None
+    try:
+        import urllib.parse
+        uri = MONGO_URI
+        if "@" in MONGO_URI:
+            if uri.startswith("mongodb+srv://") or uri.startswith("mongodb://"):
+                prefix = "mongodb+srv://" if uri.startswith("mongodb+srv://") else "mongodb://"
+                body = uri[len(prefix):]
+                if "@" in body:
+                    last_at = body.rfind("@")
+                    creds = body[:last_at]
+                    host_part = body[last_at+1:]
+                    if ":" in creds:
+                        user, pwd = creds.split(":", 1)
+                        uri = f"{prefix}{urllib.parse.quote_plus(user)}:{urllib.parse.quote_plus(pwd)}@{host_part}"
+        return MongoClient(uri)
+    except Exception as e:
+        print(f"⚠️  Atlas Connection Error: {e}")
+        return None
 
 
 def get_foods_dataframe():
-    """Return the food database as a pandas DataFrame."""
-    return pd.DataFrame(FOODS_DB)
+    """Return the food database as a pandas DataFrame by fetching from Atlas."""
+    client = _get_mongo_client()
+    if not client:
+        return pd.DataFrame()
+
+    try:
+        db = client[DB_NAME]
+        # Fetch all verified food metadata
+        foods = list(db.foods_metadata.find({}, {"_id": 0}))
+        client.close()
+        return pd.DataFrame(foods)
+    except Exception as e:
+        print(f"⚠️  Failed to fetch food metadata from Atlas: {e}")
+        return pd.DataFrame()
+
+
+def get_live_prices_from_db():
+    """Fetch live prices from MongoDB and perform fuzzy matching."""
+    if not MONGO_URI:
+        return {}
+
+    try:
+        # Handle cases where password contains '@' and needs escaping
+        import urllib.parse
+        uri = MONGO_URI
+        if "@" in MONGO_URI:
+            if uri.startswith("mongodb+srv://") or uri.startswith("mongodb://"):
+                prefix = "mongodb+srv://" if uri.startswith("mongodb+srv://") else "mongodb://"
+                body = uri[len(prefix):]
+                if "@" in body:
+                    last_at = body.rfind("@")
+                    creds = body[:last_at]
+                    host_part = body[last_at+1:]
+                    if ":" in creds:
+                        user, pwd = creds.split(":", 1)
+                        uri = f"{prefix}{urllib.parse.quote_plus(user)}:{urllib.parse.quote_plus(pwd)}@{host_part}"
+
+        client = MongoClient(uri)
+        # Use 'test' database as discovered across the Atlas cluster
+        db = client["test"]
+        
+        # Load fuzzy matching logic
+        from scrapers.food_aliases import fuzzy_match_to_food_id
+        
+        # Fetch all products from the scraped collection
+        all_products = list(db.products.find({"isAvailable": True}))
+        
+        price_dict = {}
+        for p in all_products:
+            raw_name = p.get("name", "")
+            match = fuzzy_match_to_food_id(raw_name)
+            
+            if match and match["confidence"] > 0.75:
+                food_id = match["food_id"]
+                price = p.get("currentPrice", 0)
+                uom = str(p.get("uom", "KG")).upper()
+                
+                # Normalize to price per gram
+                price_per_gram = 0
+                if uom == "KG":
+                    price_per_gram = price / 1000
+                elif uom == "G":
+                    price_per_gram = price
+                elif "500G" in raw_name.upper():
+                    price_per_gram = price / 500
+                elif "250G" in raw_name.upper():
+                    price_per_gram = price / 250
+                else:
+                    # Default assumption for items like eggs (per unit, so we use a fallback weight)
+                    price_per_gram = price / 50 # 50g avg per item
+
+                # Keep the lowest price found for this foodId
+                if food_id not in price_dict or price_per_gram < price_dict[food_id]["pricePerGram"]:
+                    price_dict[food_id] = {
+                        "pricePerGram": round(price_per_gram, 4),
+                        "store": "Cargills/Keells (Atlas)",
+                        "matched_name": raw_name,
+                        "confidence": match["confidence"]
+                    }
+        
+        client.close()
+        return price_dict
+    except Exception as e:
+        print(f"⚠️  Failed to fetch live prices from Atlas: {e}")
+        return {}
 
 
 def get_foods_by_dietary(is_vegetarian=False, is_vegan=False, is_gluten_free=False, is_dairy_free=False):

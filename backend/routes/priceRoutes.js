@@ -92,22 +92,54 @@ router.post('/bulk-update', async (req, res) => {
 
             const existing = await FoodPrice.findOne({ foodId });
             if (existing) {
-                // Push price to history (keep last 90 entries)
-                if (!existing.priceHistory) existing.priceHistory = [];
-                existing.priceHistory.push({ date: new Date(), pricePerKg: averagePrice });
-                if (existing.priceHistory.length > 90) existing.priceHistory.shift();
+                // Update per-store price entries from storeBreakdown
+                const breakdown = Array.isArray(storeBreakdown) ? storeBreakdown : [];
+                const scrapedAt = new Date();
 
-                // Update current prices (convert per-kg → per-gram)
-                if (averagePrice) existing.averagePricePerGram = averagePrice / 1000;
-                if (lowestPrice) existing.lowestPricePerGram = lowestPrice / 1000;
+                for (const entry of breakdown) {
+                    const store = (entry?.store || '').toString().trim();
+                    const pricePerUnit = Number(entry?.price);
+                    if (!store || !Number.isFinite(pricePerUnit) || pricePerUnit <= 0) continue;
+
+                    // NOTE: We currently assume scraped prices are per-kg.
+                    // If you later parse pack sizes (e.g., 500g), adjust this conversion.
+                    const unit = 'kg';
+                    const pricePerGram = pricePerUnit / 1000;
+
+                    const idx = (existing.prices || []).findIndex(p =>
+                        (p.store || '').toString().trim().toLowerCase() === store.toLowerCase()
+                    );
+
+                    const priceEntry = {
+                        store,
+                        pricePerUnit,
+                        unit,
+                        pricePerGram,
+                        isAvailable: true,
+                        source: 'scraper_catalog',
+                        lastUpdated: entry?.scrapedAt ? new Date(entry.scrapedAt) : scrapedAt
+                    };
+
+                    if (idx >= 0) existing.prices[idx] = { ...existing.prices[idx].toObject?.(), ...priceEntry };
+                    else existing.prices.push(priceEntry);
+                }
+
+                // Track history using aggregate average (fallback to computed)
+                if (!existing.priceHistory) existing.priceHistory = [];
+                const avgPerKg = Number.isFinite(Number(averagePrice))
+                    ? Number(averagePrice)
+                    : (existing.averagePricePerGram || 0) * 1000;
+                if (avgPerKg > 0) {
+                    existing.priceHistory.push({ date: scrapedAt, pricePerKg: avgPerKg });
+                    if (existing.priceHistory.length > 90) existing.priceHistory.shift();
+                }
 
                 existing.scrapeData = {
-                    lastScraped: new Date(),
-                    sourceUrl: storeBreakdown?.[0]?.url || '',
-                    rawScrapedName: storeBreakdown?.[0]?.rawName || '',
-                    storeBreakdown: storeBreakdown || [],
+                    lastScraped: scrapedAt,
+                    sourceUrl: breakdown?.[0]?.url || '',
+                    rawScrapedName: breakdown?.[0]?.rawName || '',
+                    storeBreakdown: breakdown
                 };
-                existing.lastUpdated = new Date();
                 await existing.save();
                 results.push({ foodId, status: 'updated' });
             } else {

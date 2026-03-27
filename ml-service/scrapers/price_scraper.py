@@ -180,6 +180,23 @@ def scrape_store(store_config: dict, query: str) -> List[ScrapedPrice]:
     if store_name == "Keells":
         return scrape_keells_api(query)
 
+    # ── Special handling for Cargills (Fetch from Atlas) ────────────────────
+    if store_name == "Cargills":
+        log.info(f"[Cargills] Fetching live prices from Atlas for '{query}'...")
+        from data.foods_db import get_live_prices_from_db
+        prices = get_live_prices_from_db()
+        # Return as ScrapedPrice objects
+        results = []
+        for food_id, p in prices.items():
+            if p["store"] == "Cargills" or p["store"] == "Atlas":
+                 results.append(ScrapedPrice(
+                     store="Cargills",
+                     raw_name=food_id,
+                     price=p["pricePerGram"] * 1000, # Assuming Atlas has per gram, we need per unit (kg if possible)
+                     url=""
+                 ))
+        return results
+
     results = []
     url = store_config["search_url"].format(query=query.replace(" ", "+"))
     

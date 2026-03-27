@@ -75,6 +75,9 @@ def recommend():
         return jsonify({'error': f'Missing required fields: {missing}'}), 400
 
     live_prices = data.get('live_prices_dict', {})
+    if not live_prices:
+        from data.foods_db import get_live_prices_from_db
+        live_prices = get_live_prices_from_db()
 
     user_profile = {
         'age': data['age'],

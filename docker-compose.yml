@@ -43,6 +43,9 @@ services:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
       - PORT=5001
+      # Used by the scraper to POST results back to the Node backend.
+      # Inside Docker, localhost would point to this container, not the backend.
+      - BACKEND_URL=http://backend:5000
     volumes:
       - ./ml-service:/app
       - ml_models:/app/model/artifacts

@@ -88,6 +88,19 @@ const foodPriceSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false
+    },
+
+    // Optional fields used by scraper + trend endpoint
+    priceHistory: [{
+        date: { type: Date, default: Date.now },
+        pricePerKg: { type: Number, min: 0 }
+    }],
+    scrapeData: {
+        lastScraped: { type: Date },
+        sourceUrl: { type: String, default: '' },
+        rawScrapedName: { type: String, default: '' },
+        // Keep raw store breakdown for debugging/admin visibility
+        storeBreakdown: { type: [mongoose.Schema.Types.Mixed], default: [] }
     }
 }, {
     timestamps: true

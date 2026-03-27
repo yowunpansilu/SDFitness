@@ -44,18 +44,18 @@ STORE_CONFIGS = [
         "search_url": "https://www.keellssuper.com/product?s=~{query}",
         "item_selector": ".product-colV2",
         "name_selector": ".product-card-nameV2",
-        "price_selector": ".product-card-final-priceV2",
+        "price_selector": ".product-card-amountV2",  # Updated from .product-card-final-priceV2
         "use_stealth": True,   # React SPA + Cloudflare — needs real browser
         "currency": "LKR",
         "enabled": True,
     },
     {
         "store": "Cargills",
-        # cargillsonline.com is a JS SPA — StealthyFetcher required
-        "search_url": "https://cargillsonline.com/Search?query={query}",
-        "item_selector": ".product-card-price-containerV2, .product-item, .item-card",
-        "name_selector": ".product-card-nameV2, .item-name, .product-title, h4",
-        "price_selector": ".product-card-final-priceV2, .item-price, .product-price",
+        # cargillsonline.com search results use .card structure
+        "search_url": "https://cargillsonline.com/product/{query}?PS={query}",
+        "item_selector": ".card",
+        "name_selector": ".card p",
+        "price_selector": ".card h4",
         "use_stealth": True,
         "currency": "LKR",
         "enabled": True,
@@ -132,20 +132,70 @@ def _parse_price(price_text: str) -> Optional[float]:
         return None
 
 
+def scrape_keells_api(query: str) -> List[ScrapedPrice]:
+    """Uses Keells internal API for reliable search results."""
+    results = []
+    # outletCode SCDR is default for online orders.
+    api_url = f"https://zebraliveback.keellssuper.com/2.0/WebV2/GetItemDetails?itemDescription={query.replace(' ', '+')}&pageNo=1&itemsPerPage=18&outletCode=SCDR"
+    
+    try:
+        # Use simple HTTP for the API — usually works if we provide valid headers
+        resp = http_requests.get(
+            api_url, 
+            headers={
+                "accept": "application/json",
+                "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            },
+            timeout=15
+        )
+        if not resp.ok:
+            log.warning(f"[Keells API] Failed to fetch: {resp.status_code}")
+            return results
+            
+        data = resp.json()
+        items = data.get("result", {}).get("itemDetailResult", {}).get("itemDetails", [])
+        
+        for item in items:
+            raw_name = item.get("name")
+            price = item.get("amount")
+            item_id = item.get("itemID")
+            if raw_name and price and float(price) > 0:
+                results.append(ScrapedPrice(
+                    store="Keells",
+                    raw_name=raw_name,
+                    price=float(price),
+                    url=f"https://www.keellssuper.com/product-detail/{item_id}"
+                ))
+    except Exception as e:
+        log.error(f"[Keells API] Error: {e}")
+        
+    return results
+
+
 def scrape_store(store_config: dict, query: str) -> List[ScrapedPrice]:
     """Scrape one store for one search query. Returns list of ScrapedPrice."""
+    store_name = store_config["store"]
+    
+    # ── Special handling for Keells (API is more reliable) ──────────────────
+    if store_name == "Keells":
+        return scrape_keells_api(query)
+
     results = []
     url = store_config["search_url"].format(query=query.replace(" ", "+"))
-    store_name = store_config["store"]
-
+    
     try:
         # Choose fetcher based on store config
         if store_config["use_stealth"]:
             from scrapling.fetchers import StealthyFetcher
             try:
                 # Wait for product elements instead of network_idle — SPAs never reach
-                # network idle due to polling/websockets, so that wait always times out.
-                wait_sel = store_config["item_selector"].split(",")[0].strip()
+                # Keells uses a skeleton/loading screen (sk-cube-grid) initially.
+                # For Cargills, we wait for the price container.
+                if store_name == "Keells":
+                    wait_sel = ".product-card-button-addV2, .product-colV2"
+                else:
+                    wait_sel = store_config["item_selector"].split(",")[0].strip()
+
                 page = StealthyFetcher.fetch(
                     url,
                     headless=True,
@@ -302,7 +352,9 @@ def run_scrape_job(stores: Optional[List[str]] = None, dry_run: bool = False) ->
 
     configs = STORE_CONFIGS
     if stores:
-        configs = [c for c in STORE_CONFIGS if c["store"] in stores]
+        # Accept store names case-insensitively (UI may send 'keells', 'cargills').
+        stores_norm = {s.strip().lower() for s in stores if isinstance(s, str)}
+        configs = [c for c in STORE_CONFIGS if str(c.get("store", "")).lower() in stores_norm]
     # Skip disabled stores
     configs = [c for c in configs if c.get("enabled", True)]
 

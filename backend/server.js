@@ -41,7 +41,9 @@ const PORT = process.env.PORT || 5000;
 
 const start = async () => {
     await connectDB();
-    app.listen(PORT, () => {
+    // Bind explicitly to IPv4 so Docker port mappings work reliably.
+    // (Some environments bind Node to IPv6-only when host is omitted.)
+    app.listen(PORT, '0.0.0.0', () => {
         console.log(`🚀 SDFitness Backend running on port ${PORT}`);
     });
 };

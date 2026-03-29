@@ -6,6 +6,7 @@ import { MealCard } from './MealCard';
 import { ShoppingList } from './ShoppingList';
 import { MacroWheel } from './MacroWheel';
 import { WeeklyTimeline } from './WeeklyTimeline';
+import { RecipeModal } from './RecipeModal';
 import type { DietPlan, ShoppingListData, ShoppingItem } from '@/lib/api/dietPlanApi';
 import { cn } from '@/lib/utils';
 
@@ -18,6 +19,8 @@ interface DietPlanDisplayProps {
 
 export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDisplayProps) {
     const [activeDayIdx, setActiveDayIdx] = useState(0);
+    const [selectedMeal, setSelectedMeal] = useState<any>(null);
+    const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
 
     // Normalize shopping list
     const rawShoppingList = plan.shoppingList;
@@ -72,7 +75,7 @@ export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDi
                 return {
                     dayName: day.dayName?.substring(0, 3) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
                     date: date.getDate(),
-                    progress: 0.6 + (Math.random() * 0.4), // Mocked completion progress
+                    progress: 0, // No longer mocked
                     isActive: i === activeDayIdx
                 };
             });
@@ -188,7 +191,10 @@ export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDi
                                 <MealCard 
                                     key={`${activeDayIdx}-${j}`} 
                                     meal={meal} 
-                                    onSwap={(m) => alert(`Swapping AI alternative for ${m.name}...`)}
+                                    onMakeNow={(m) => {
+                                        setSelectedMeal(m);
+                                        setIsRecipeModalOpen(true);
+                                    }}
                                 />
                             ))}
                         </div>
@@ -224,6 +230,12 @@ export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDi
                 </div>
 
             </div>
+            {/* Recipe Modal */}
+            <RecipeModal 
+                meal={selectedMeal} 
+                open={isRecipeModalOpen} 
+                onOpenChange={setIsRecipeModalOpen} 
+            />
         </div>
     );
 }

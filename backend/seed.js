@@ -17,6 +17,7 @@ const Notification = require('./models/Notification');
 const Conversation = require('./models/Conversation');
 const Message = require('./models/Message');
 const FoodPrice = require('./models/FoodPrice');
+const Payment = require('./models/Payment');
 
 async function seed() {
     await mongoose.connect(process.env.MONGO_URI);
@@ -35,35 +36,37 @@ async function seed() {
         AttendanceRecord.deleteMany({}),
         Notification.deleteMany({}),
         Conversation.deleteMany({}),
-        Message.deleteMany({})
+        Message.deleteMany({}),
+        Payment.deleteMany({})
     ]);
     console.log('🗑️  Cleared existing data');
 
     // ─── 1. Users ─────────────────────────────────────────────────
     const admin = await User.create({
         email: 'admin@sdfitness.com', password: 'admin123',
-        firstName: 'Super', lastName: 'Admin', role: 'admin'
+        firstName: 'Super', lastName: 'Admin', role: 'admin',
+        phone: '0711122334'
     });
 
     const trainerUsers = await User.create([
-        { email: 'kamal@sdfitness.com', password: 'trainer123', firstName: 'Kamal', lastName: 'Perera', role: 'trainer' },
-        { email: 'nimal@sdfitness.com', password: 'trainer123', firstName: 'Nimal', lastName: 'Fernando', role: 'trainer' },
-        { email: 'sachini@sdfitness.com', password: 'trainer123', firstName: 'Sachini', lastName: 'Silva', role: 'trainer' },
-        { email: 'ruwan@sdfitness.com', password: 'trainer123', firstName: 'Ruwan', lastName: 'Jayawardena', role: 'trainer' },
-        { email: 'dilini@sdfitness.com', password: 'trainer123', firstName: 'Dilini', lastName: 'Wickramasinghe', role: 'trainer' }
+        { email: 'kamal@sdfitness.com', password: 'trainer123', firstName: 'Kamal', lastName: 'Perera', role: 'trainer', phone: '0771234567' },
+        { email: 'nimal@sdfitness.com', password: 'trainer123', firstName: 'Nimal', lastName: 'Fernando', role: 'trainer', phone: '0772345678' },
+        { email: 'sachini@sdfitness.com', password: 'trainer123', firstName: 'Sachini', lastName: 'Silva', role: 'trainer', phone: '0773456789' },
+        { email: 'ruwan@sdfitness.com', password: 'trainer123', firstName: 'Ruwan', lastName: 'Jayawardena', role: 'trainer', phone: '0774567890' },
+        { email: 'dilini@sdfitness.com', password: 'trainer123', firstName: 'Dilini', lastName: 'Wickramasinghe', role: 'trainer', phone: '0775678901' }
     ]);
 
     const memberUsers = await User.create([
-        { email: 'saman@gmail.com', password: 'member123', firstName: 'Saman', lastName: 'Kumara', role: 'member' },
-        { email: 'chathura@gmail.com', password: 'member123', firstName: 'Chathura', lastName: 'Bandara', role: 'member' },
-        { email: 'nimasha@gmail.com', password: 'member123', firstName: 'Nimasha', lastName: 'De Silva', role: 'member' },
-        { email: 'tharushi@gmail.com', password: 'member123', firstName: 'Tharushi', lastName: 'Rajapaksa', role: 'member' },
-        { email: 'ashan@gmail.com', password: 'member123', firstName: 'Ashan', lastName: 'Gunawardena', role: 'member' },
-        { email: 'kavindi@gmail.com', password: 'member123', firstName: 'Kavindi', lastName: 'Herath', role: 'member' },
-        { email: 'nuwan@gmail.com', password: 'member123', firstName: 'Nuwan', lastName: 'Dissanayake', role: 'member' },
-        { email: 'hashini@gmail.com', password: 'member123', firstName: 'Hashini', lastName: 'Wijesinghe', role: 'member' },
-        { email: 'dinesh@gmail.com', password: 'member123', firstName: 'Dinesh', lastName: 'Rathnayake', role: 'member' },
-        { email: 'sanduni@gmail.com', password: 'member123', firstName: 'Sanduni', lastName: 'Jayasundara', role: 'member' }
+        { email: 'saman@gmail.com', password: 'member123', firstName: 'Saman', lastName: 'Kumara', role: 'member', phone: '0712345678' },
+        { email: 'chathura@gmail.com', password: 'member123', firstName: 'Chathura', lastName: 'Bandara', role: 'member', phone: '0712345679' },
+        { email: 'nimasha@gmail.com', password: 'member123', firstName: 'Nimasha', lastName: 'De Silva', role: 'member', phone: '0712345680' },
+        { email: 'tharushi@gmail.com', password: 'member123', firstName: 'Tharushi', lastName: 'Rajapaksa', role: 'member', phone: '0712345681' },
+        { email: 'ashan@gmail.com', password: 'member123', firstName: 'Ashan', lastName: 'Gunawardena', role: 'member', phone: '0712345682' },
+        { email: 'kavindi@gmail.com', password: 'member123', firstName: 'Kavindi', lastName: 'Herath', role: 'member', phone: '0712345683' },
+        { email: 'nuwan@gmail.com', password: 'member123', firstName: 'Nuwan', lastName: 'Dissanayake', role: 'member', phone: '0712345684' },
+        { email: 'hashini@gmail.com', password: 'member123', firstName: 'Hashini', lastName: 'Wijesinghe', role: 'member', phone: '0712345685' },
+        { email: 'dinesh@gmail.com', password: 'member123', firstName: 'Dinesh', lastName: 'Rathnayake', role: 'member', phone: '0712345686' },
+        { email: 'sanduni@gmail.com', password: 'member123', firstName: 'Sanduni', lastName: 'Jayasundara', role: 'member', phone: '0712345687' }
     ]);
     console.log(`✅ Created ${1 + trainerUsers.length + memberUsers.length} users`);
 
@@ -317,7 +320,35 @@ async function seed() {
     ]);
     console.log(`✅ Created ${foodPrices.length} food prices`);
 
-    // ─── 13. Scraper Review Queue ────────────────────────────────
+    // ─── 13. Payments ────────────────────────────────────────────
+    const payments = [];
+    const paymentMethods = ['cash', 'card', 'bank_transfer', 'online'];
+    
+    // Create payments for the last 6 months
+    for (let i = 0; i < 6; i++) {
+        const monthStart = new Date();
+        monthStart.setMonth(monthStart.getMonth() - i);
+        monthStart.setDate(1);
+        
+        for (let j = 0; j < 15; j++) {
+            const member = members[j % members.length];
+            const payDate = new Date(monthStart.getTime() + Math.random() * 25 * 86400000);
+            
+            payments.push({
+                member: member._id,
+                amount: [4500, 8500, 15000, 3500][Math.floor(Math.random() * 4)],
+                paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+                status: 'completed',
+                paymentDate: payDate,
+                transactionId: `TXN-${Math.random().toString(36).slice(2, 11).toUpperCase()}`
+            });
+        }
+    }
+    await Payment.create(payments);
+    console.log(`✅ Created ${payments.length} payment records`);
+
+    // ─── 14. Scraper Review Queue ────────────────────────────────
+
     const ScraperReviewItem = mongoose.models.ScraperReviewItem || mongoose.model('ScraperReviewItem', new mongoose.Schema({
         rawName: { type: String, required: true },
         store: { type: String, required: true },

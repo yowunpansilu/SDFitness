@@ -7,7 +7,12 @@ const trainerSchema = new mongoose.Schema({
         required: true
     },
     specialization: [String],
-    experienceYears: Number,
+    experienceYears: { type: Number, default: 0 },
+    status: {
+        type: String,
+        enum: ['active', 'inactive', 'on_leave'],
+        default: 'active'
+    },
     bio: String,
     availability: [{
         day: String, // e.g., 'Monday'

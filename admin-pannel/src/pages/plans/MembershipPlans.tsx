@@ -1,375 +1,196 @@
-import { useState } from 'react';
-import { Plus, Edit, Trash2, DollarSign, Users, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Check, Edit2, Trash2, Loader2, Clock, Users, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { membershipService } from '@/services/membershipService';
+import { useToast } from '@/hooks/use-toast';
 
 interface MembershipPlan {
-  id: string;
+  _id: string;
   name: string;
-  description: string;
   price: number;
   duration: number;
-  durationType: 'days' | 'months';
+  description: string;
   features: string[];
   isActive: boolean;
-  memberCount: number;
-  color: string;
+  type: 'basic' | 'standard' | 'premium';
 }
 
-// Mock data
-const mockPlans: MembershipPlan[] = [
-  {
-    id: '1',
-    name: 'Basic',
-    description: 'Perfect for beginners starting their fitness journey',
-    price: 49,
-    duration: 1,
-    durationType: 'months',
-    features: ['Gym Access', 'Locker Room', 'Basic Equipment'],
-    isActive: true,
-    memberCount: 245,
-    color: 'from-blue-500 to-cyan-600',
-  },
-  {
-    id: '2',
-    name: 'Premium',
-    description: 'Most popular plan with full gym access and classes',
-    price: 99,
-    duration: 1,
-    durationType: 'months',
-    features: ['Gym Access', 'All Group Classes', 'Personal Trainer (2 sessions)', 'Nutrition Consultation', 'Sauna & Steam Room'],
-    isActive: true,
-    memberCount: 567,
-    color: 'from-purple-500 to-pink-600',
-  },
-  {
-    id: '3',
-    name: 'VIP',
-    description: 'Ultimate fitness experience with exclusive benefits',
-    price: 149,
-    duration: 1,
-    durationType: 'months',
-    features: ['24/7 Gym Access', 'All Group Classes', 'Personal Trainer (8 sessions)', 'Nutrition & Diet Plan', 'Sauna & Steam Room', 'Guest Passes (4/month)', 'Priority Equipment Access'],
-    isActive: true,
-    memberCount: 123,
-    color: 'from-amber-500 to-orange-600',
-  },
-  {
-    id: '4',
-    name: 'Student',
-    description: 'Special discount for students with valid ID',
-    price: 39,
-    duration: 1,
-    durationType: 'months',
-    features: ['Gym Access', 'Locker Room', 'Group Classes (select)', 'Study Area'],
-    isActive: false,
-    memberCount: 89,
-    color: 'from-green-500 to-emerald-600',
-  },
-];
-
-const planColors: Record<string, string> = {
-  'Basic': 'from-slate-400 to-slate-500 ',
-  'Premium': 'from-indigo-500 to-violet-600',
-  'VIP': 'from-amber-500 to-orange-600',
-  'Student': 'from-emerald-500 to-teal-600',
+const planTypeStyles = {
+  basic: 'from-slate-900 to-navy-900 border-navy-800 text-slate-400',
+  standard: 'from-indigo-900/40 to-navy-900 border-indigo-500/30 text-indigo-400',
+  premium: 'from-amber-900/30 to-navy-900 border-amber-500/30 text-amber-400',
 };
 
 export function MembershipPlans() {
-  const [plans, setPlans] = useState(mockPlans);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editingPlan, setEditingPlan] = useState<MembershipPlan | null>(null);
+  const { toast } = useToast();
+  const [plans, setPlans] = useState<MembershipPlan[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const togglePlanStatus = (planId: string) => {
-    setPlans(plans.map(plan =>
-      plan.id === planId ? { ...plan, isActive: !plan.isActive } : plan
-    ));
-  };
-
-  const handleEdit = (plan: MembershipPlan) => {
-    setEditingPlan(plan);
-    setOpenDialog(true);
-  };
-
-  const handleDelete = (planId: string) => {
-    if (confirm('Are you sure you want to delete this plan?')) {
-      setPlans(plans.filter(plan => plan.id !== planId));
+  const fetchPlans = async () => {
+    try {
+      setLoading(true);
+      const data = await membershipService.getPlans();
+      setPlans(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error fetching plans:', error);
+      toast({
+        title: 'Network Error',
+        description: 'Failed to access membership protocol matrix.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchPlans();
+  }, []);
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Confirm irreversible termination of ${name} plan?`)) return;
+    try {
+      await membershipService.deletePlan(id);
+      toast({ title: 'Protocol Terminated', description: `${name} has been purged from records.` });
+      setPlans(prev => prev.filter(p => p._id !== id));
+    } catch (error) {
+      toast({ title: 'Execution Failed', description: 'Could not delete membership plan.', variant: 'destructive' });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 text-indigo-500 animate-spin" />
+          <p className="text-navy-400 font-bold uppercase tracking-widest text-xs">Parsing Subscription Layers...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
+    <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            Service <span className="text-indigo-600 dark:text-indigo-400 italic">Architecture</span>
+          <h1 className="text-4xl font-black tracking-tight text-white">
+            Access <span className="text-indigo-400 italic font-medium">Subscription Tiers</span>
           </h1>
-          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
-            Define pricing structures, membership tiers and exclusive value propositions.
+          <p className="text-navy-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
+            Configure matrix entry protocols and pricing
           </p>
         </div>
-        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-          <DialogTrigger asChild>
-            <Button className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-950/20 h-11 px-6 font-bold transition-all hover:scale-105 active:scale-95">
-              <Plus className="h-4 w-4 mr-2" />
-              Draft New Plan
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 text-slate-900 dark:text-white max-w-2xl rounded-[2rem] overflow-hidden p-0 gap-0 shadow-2xl">
-            <DialogHeader className="p-8 pb-4 bg-slate-50/50 dark:bg-navy-950/50 border-b border-slate-100 dark:border-navy-800">
-              <DialogTitle className="text-2xl font-black uppercase tracking-tight">
-                {editingPlan ? 'Refine Plan' : 'Architect New Plan'}
-              </DialogTitle>
-              <DialogDescription className="text-slate-500 dark:text-navy-400 font-medium italic">
-                {editingPlan ? 'Update the structural details of this membership offering.' : 'Define the parameters for a new market offering.'}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="px-8 py-6 space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-500">Identity</Label>
-                  <Input
-                    id="name"
-                    placeholder="Plan Name"
-                    className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold dark:text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="price" className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-500">Valuation ($)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    placeholder="Market Price"
-                    className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold dark:text-white"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-500">Value Proposition</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Outline the core objective of this plan..."
-                  className="bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-medium min-h-[80px] dark:text-white"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="features" className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-500">Inclusions (Newline Separated)</Label>
-                <Textarea
-                  id="features"
-                  placeholder="Locker access&#10;Group sessions&#10;Extended hours..."
-                  className="bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-medium min-h-[120px] dark:text-white"
-                />
-              </div>
-            </div>
-            <DialogFooter className="p-8 pt-4 bg-slate-50/50 dark:bg-navy-950/50 border-t border-slate-100 dark:border-navy-800">
-              <Button
-                variant="ghost"
-                onClick={() => setOpenDialog(false)}
-                className="h-11 rounded-xl font-black uppercase text-xs tracking-widest text-slate-400 dark:text-navy-500 hover:text-slate-900 dark:hover:text-white transition-all"
-              >
-                Discard
-              </Button>
-              <Button className="h-11 px-8 rounded-xl bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white font-black uppercase text-xs tracking-widest shadow-lg shadow-indigo-200 dark:shadow-indigo-950/20 transition-all">
-                {editingPlan ? 'Commit Changes' : 'Initialize Plan'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-navy-400">Tier Matrix</CardTitle>
-            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-110 shadow-sm">
-              <Plus className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">{plans.length}</div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Defined structures</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-emerald-500 dark:text-emerald-400">Live Plans</CardTitle>
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:scale-110 shadow-sm">
-              <Check className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
-              {plans.filter(p => p.isActive).length}
-            </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Publicly available</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-indigo-500 dark:text-indigo-400">User Base</CardTitle>
-            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 transition-transform group-hover:scale-110 shadow-sm">
-              <Users className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
-              {plans.reduce((sum, plan) => sum + plan.memberCount, 0).toLocaleString()}
-            </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Total subscribers</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-500 dark:text-amber-400">MRR projection</CardTitle>
-            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 transition-transform group-hover:scale-110 shadow-sm">
-              <DollarSign className="h-4 w-4" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
-              ${plans.reduce((sum, plan) => sum + (plan.price * plan.memberCount), 0).toLocaleString()}
-            </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Projected monthly</p>
-          </CardContent>
-        </Card>
+        <Button
+          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-900/20 h-11 px-6 font-bold uppercase text-xs tracking-widest transition-all hover:scale-105 border border-white/10"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Define New Tier
+        </Button>
       </div>
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {plans.map((plan) => (
           <Card
-            key={plan.id}
+            key={plan._id}
             className={cn(
-              "bg-white dark:bg-navy-900 border-slate-200/60 dark:border-navy-800 shadow-sm transition-all duration-700 hover:shadow-2xl hover:shadow-indigo-500/10 dark:hover:shadow-navy-950/50 hover:-translate-y-2 group rounded-[3rem] overflow-hidden flex flex-col",
-              !plan.isActive && "grayscale opacity-60"
+              "relative bg-gradient-to-br border-2 shadow-2xl transition-all duration-500 rounded-[2.5rem] overflow-hidden group hover:-translate-y-2",
+              planTypeStyles[plan.type || 'basic']
             )}
           >
-            <CardHeader className="p-8 pb-4 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8">
-                <Badge className={cn(
-                  "font-black text-[9px] uppercase tracking-widest rounded-lg border shadow-none px-2",
-                  plan.isActive
-                    ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20"
-                    : "bg-slate-100 dark:bg-navy-800 text-slate-600 dark:text-navy-400 border-slate-200 dark:border-navy-800"
-                )}>
-                  {plan.isActive ? 'Active' : 'Inactive'}
-                </Badge>
-              </div>
-              <div className="space-y-4">
-                <div className={cn(
-                  "w-16 h-16 rounded-[1.5rem] bg-gradient-to-br flex items-center justify-center shadow-inner transition-transform group-hover:rotate-6",
-                  planColors[plan.name] || plan.color
-                )}>
-                  <DollarSign className="h-8 w-8 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-3xl font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase tracking-tighter">
-                    {plan.name}
-                  </CardTitle>
-                  <CardDescription className="text-slate-500 dark:text-navy-400 font-medium italic mt-2 line-clamp-2 min-h-[40px]">
-                    {plan.description}
-                  </CardDescription>
-                </div>
+            {/* Status Badge */}
+            <div className="absolute top-6 right-6">
+              <Badge className={cn(
+                "font-black text-[9px] uppercase tracking-widest px-3 py-1 border-none shadow-none rounded-lg",
+                plan.isActive ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+              )}>
+                {plan.isActive ? 'ACTIVE_PROTOCOL' : 'SUSPENDED'}
+              </Badge>
+            </div>
+
+            <CardHeader className="pt-10 pb-6 px-10">
+              <CardTitle className="text-3xl font-black text-white hover:text-indigo-400 transition-colors uppercase tracking-tighter">
+                {plan.name}
+              </CardTitle>
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="text-4xl font-black tracking-tighter text-white">LKR {plan.price.toLocaleString()}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-navy-600">/ {plan.duration} DAYS</span>
               </div>
             </CardHeader>
-            <CardContent className="p-8 pt-0 space-y-8 flex-1 flex flex-col justify-between">
-              <div className="space-y-8">
-                {/* Price */}
-                <div className="p-6 rounded-[2rem] bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-colors">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">${plan.price}</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 ml-1">/{plan.duration}{plan.durationType[0]}</span>
+
+            <CardContent className="px-10 pb-10 space-y-8">
+              <p className="text-xs font-bold text-navy-400 leading-relaxed uppercase tracking-wider italic">
+                {plan.description}
+              </p>
+
+              {/* Features List */}
+              <div className="space-y-4">
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-navy-600">Enabled Features</p>
+                <div className="grid gap-3">
+                  {plan.features.map((feature, i) => (
+                    <div key={i} className="flex items-center gap-3 group/item">
+                      <div className="h-5 w-5 rounded-lg bg-navy-950 flex items-center justify-center p-1 border border-navy-800 transition-colors group-hover/item:border-indigo-500/50">
+                        <Check className="h-3 w-3 text-indigo-400" />
+                      </div>
+                      <span className="text-[10px] font-black text-navy-300 uppercase tracking-widest group-hover/item:text-white transition-colors">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick Metrics */}
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-navy-800">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-navy-950/50">
+                    <Users className="h-3.5 w-3.5 text-navy-500" />
                   </div>
-                  <div className="flex items-center gap-2 mt-4 text-[10px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
-                    <Users className="h-3 w-3" />
-                    <span>{plan.memberCount.toLocaleString()} Subscribers</span>
+                  <div className="space-y-0.5">
+                    <p className="text-[8px] font-black text-navy-700 uppercase">Members</p>
+                    <p className="text-xs font-black text-white">LIVE_SYST</p>
                   </div>
                 </div>
-
-                {/* Features */}
-                <div className="space-y-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Inclusions</p>
-                  <div className="space-y-3">
-                    {plan.features.map((feature, index) => (
-                      <div key={index} className="flex items-start gap-3 group/feature">
-                        <div className="mt-1 p-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 transition-colors group-hover/feature:bg-indigo-600 group-hover/feature:text-white">
-                          <Check className="h-2.5 w-2.5" />
-                        </div>
-                        <span className="text-xs font-bold text-slate-500 dark:text-navy-400 group-hover/feature:text-slate-900 dark:group-hover:text-white transition-colors">{feature}</span>
-                      </div>
-                    ))}
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-navy-950/50">
+                    <Shield className="h-3.5 w-3.5 text-navy-500" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-[8px] font-black text-navy-700 uppercase">Access</p>
+                    <p className="text-xs font-black text-white uppercase">{plan.type}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="pt-8 border-t border-slate-50 dark:border-navy-800 space-y-4">
-                <div className="flex items-center justify-between px-2">
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      checked={plan.isActive}
-                      onCheckedChange={() => togglePlanStatus(plan.id)}
-                      className="data-[state=checked]:bg-indigo-600 scale-90"
-                    />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">
-                      Status
-                    </span>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleEdit(plan)}
-                      className="h-9 w-9 text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-navy-800 rounded-xl transition-all"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleDelete(plan.id)}
-                      className="h-9 w-9 text-slate-400 dark:text-navy-500 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-all"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                <Button variant="outline" className="flex-1 rounded-2xl border-navy-800 bg-navy-950 text-indigo-400 font-black text-[10px] uppercase tracking-widest h-12 hover:bg-navy-800 hover:text-white border-2">
+                  <Edit2 className="h-3 w-3 mr-2" /> Configure
+                </Button>
+                <Button 
+                   onClick={() => handleDelete(plan._id, plan.name)}
+                   variant="outline" 
+                   className="rounded-2xl border-rose-900/40 bg-rose-950/10 text-rose-500 font-black text-[10px] uppercase tracking-widest h-12 w-12 p-0 hover:bg-rose-500 hover:text-white border-2 transition-all active:scale-95"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
-
-        {/* Ghost Card for Add */}
-        <button
-          onClick={() => setOpenDialog(true)}
-          className="group border-4 border-dashed border-slate-100 dark:border-navy-800 rounded-[3rem] hover:border-indigo-500/20 dark:hover:border-indigo-500/40 hover:bg-slate-50/50 dark:hover:bg-navy-900/40 transition-all duration-500 flex flex-col items-center justify-center p-12 space-y-4 min-h-[500px]"
-        >
-          <div className="p-6 rounded-[2rem] bg-slate-50 dark:bg-navy-950 text-slate-300 dark:text-navy-700 group-hover:bg-indigo-600 dark:group-hover:bg-indigo-500 group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-xl group-hover:shadow-indigo-500/20">
-            <Plus className="h-10 w-10" />
-          </div>
-          <div className="text-center">
-            <h4 className="font-black text-xl uppercase tracking-tighter text-slate-400 dark:text-navy-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Architect Tier</h4>
-            <p className="text-xs font-bold text-slate-300 dark:text-navy-600 group-hover:text-slate-500 dark:group-hover:text-navy-400 transition-colors mt-1 italic">Draft new membership structure</p>
-          </div>
-        </button>
       </div>
+
+      {plans.length === 0 && (
+        <div className="text-center py-20 bg-navy-900 rounded-[3rem] border-2 border-dashed border-navy-800">
+          <Clock className="h-10 w-10 text-navy-800 mx-auto mb-6" />
+          <h3 className="text-white font-black text-xl uppercase tracking-widest">Protocol Matrix Empty</h3>
+          <p className="text-navy-500 font-bold text-xs uppercase tracking-widest mt-2">Begin definition of access tiers</p>
+        </div>
+      )}
     </div>
   );
 }

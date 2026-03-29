@@ -32,7 +32,10 @@ app.use('/api/classes', require('./routes/classRoutes'));
 app.use('/api/equipment', require('./routes/equipmentRoutes'));
 app.use('/api/attendance', require('./routes/attendanceRoutes'));
 app.use('/api/membership', require('./routes/membershipRoutes'));
+app.use('/api/dashboard', require('./routes/adminDashboardRoutes'));
 app.use('/api/communication', require('./routes/communicationRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
 // Error handler
 app.use((err, req, res, next) => {

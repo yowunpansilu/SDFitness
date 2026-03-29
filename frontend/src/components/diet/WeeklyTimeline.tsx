@@ -29,12 +29,11 @@ export function WeeklyTimeline({ days, onDaySelect, activeDay }: WeeklyTimelineP
                                 : "bg-white border-primary-50 text-muted-foreground hover:border-primary-200"
                         )}
                     >
-                        <div className="pt-4 flex flex-col items-center">
+                        <div className="pt-6 pb-2 flex flex-col items-center">
                             <span className={cn(
-                                "text-xs font-semibold uppercase tracking-wider mb-1",
-                                activeDay === i ? "text-primary-600" : "text-muted-foreground"
+                                "text-lg font-bold uppercase tracking-widest",
+                                activeDay === i ? "text-primary-900" : "text-muted-foreground"
                             )}>{day.dayName}</span>
-                            <span className="text-2xl font-bold">{day.date}</span>
                         </div>
                         
                         {/* Circular Progress Arc */}

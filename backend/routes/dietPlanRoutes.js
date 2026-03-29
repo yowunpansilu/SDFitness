@@ -117,4 +117,62 @@ router.post('/generate', async (req, res) => {
     }
 });
 
+// DELETE /api/diet-plans/:id
+router.delete('/:id', async (req, res) => {
+    try {
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, error: 'Invalid Diet Plan ID format' });
+        }
+
+        const plan = await DietPlan.findByIdAndDelete(req.params.id);
+        if (!plan) {
+            return res.status(404).json({ success: false, error: 'Diet plan not found' });
+        }
+        res.json({ success: true, message: 'Diet plan deleted' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// PATCH /api/diet-plans/:id — update plan metadata
+router.patch('/:id', async (req, res) => {
+    try {
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, error: 'Invalid Diet Plan ID format' });
+        }
+
+        const { planName, isActive } = req.body;
+        const updateData = {};
+        
+        if (planName !== undefined) updateData.planName = planName;
+        if (isActive !== undefined) updateData.isActive = isActive;
+
+        // If setting this plan as active, deactivate others for this member
+        if (isActive === true) {
+            const plan = await DietPlan.findById(req.params.id);
+            if (plan) {
+                await DietPlan.updateMany(
+                    { memberId: plan.memberId, _id: { $ne: plan._id } },
+                    { $set: { isActive: false } }
+                );
+            }
+        }
+
+        const plan = await DietPlan.findByIdAndUpdate(
+            req.params.id,
+            { $set: updateData },
+            { new: true }
+        );
+
+        if (!plan) {
+            return res.status(404).json({ success: false, error: 'Diet plan not found' });
+        }
+        res.json({ success: true, data: plan });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 module.exports = router;

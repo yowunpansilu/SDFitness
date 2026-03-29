@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import joblib
 import time
+import random
 
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -171,19 +172,34 @@ class DietRecommender:
                 'price_per_gram': price
             })
 
+        # Apply goal-specific multipliers to force output divergence
+        user_goal = user_features.get('goal', 'general_fitness')
+        for s in scores:
+            if user_goal == 'muscle_gain':
+                if s['category'] == 'protein':
+                    s['score'] *= 1.3  # Huge boost to pure protein sources
+            elif user_goal == 'weight_loss':
+                # Penalize calorie-dense non-essentials
+                cal_density = s['calories'] / 100
+                if cal_density > 3.0 and s['category'] not in ['protein', 'vegetable']:
+                    s['score'] *= 0.7 
+                if s['category'] in ['vegetable', 'fruit']:
+                    s['score'] *= 1.2  # Boost voluminous, low-cal foods
+
         # Sort by score descending
         scores.sort(key=lambda x: x['score'], reverse=True)
         return scores
 
-    def _build_meal_plan(self, scored_foods, macro_targets, budget_per_day, days=7):
+    def _build_meal_plan(self, scored_foods, macro_targets, budget_per_day, budget_amount=7000, days=7):
         """
         Build a 7-day meal plan from scored foods.
-        Uses greedy selection with variety constraints.
+        Uses randomized greedy selection with variety constraints and STRICT budget capping.
         """
         plan_days = []
         total_cost = 0
         shopping_items = {}  # foodId → total grams needed
 
+        # To ensure at least 4 unique days, we will drastically alter the candidate slice per day
         for day_idx in range(days):
             day_meals = []
             day_calories = 0
@@ -199,11 +215,23 @@ class DietRecommender:
                 # Pick top foods not used today
                 candidates = [f for f in scored_foods if f['foodId'] not in used_today]
 
-                # Add variety: rotate which foods are prioritized per day
-                offset = day_idx * 2
-                rotated = candidates[offset:] + candidates[:offset]
+                # Select a pool of top candidates. The larger the pool, the more variance day-to-day.
+                # We seed the random selection with the day index to ensure consistency across multiple generations of the same payload.
+                pool_size = min(len(candidates), 20)
+                top_pool = candidates[:pool_size]
+                
+                # Seed random with unique values per generation so it produces random but stable outputs per call?
+                # Actually, standard python random is fine here if varied by day.
+                rand_gen = random.Random(day_idx + hash(slot['type']))
+                
+                # We need to select `foods_count` items from `top_pool`
+                selected_foods = []
+                if slot['foods_count'] <= len(top_pool):
+                    selected_foods = rand_gen.sample(top_pool, slot['foods_count'])
+                else:
+                    selected_foods = top_pool
 
-                for food in rotated[:slot['foods_count']]:
+                for food in selected_foods:
                     # Calculate portion to fill calorie target for this slot
                     if food['calories'] > 0:
                         portion_g = round((slot_calories / slot['foods_count']) / food['calories'] * 100)
@@ -213,6 +241,26 @@ class DietRecommender:
 
                     item_cal = food['calories'] * portion_g / 100
                     item_cost = food['price_per_gram'] * portion_g
+                    
+                    # STRICT BUDGET CHECK: If adding this crosses the extrapolated daily budget ceiling, skip or reduce
+                    # Instead of hard failing, we check if current accumulated total_cost + item_cost exceeds 
+                    # the absolute budget_amount limit. Since we are building 7 days, we can budget pace.
+                    # Pacing: we shouldn't spend more than budget_amount * ((day_idx+1)/7) at the end of each day ideally.
+                    projected_total = total_cost + item_cost
+                    if projected_total > budget_amount:
+                        # Find a cheaper alternative from remaining choices or gracefully skip
+                        cheaper_found = False
+                        for cheap_candidate in candidates[pool_size:pool_size+20]:
+                            cheap_cost = cheap_candidate['price_per_gram'] * portion_g
+                            if total_cost + cheap_cost <= budget_amount:
+                                food = cheap_candidate
+                                item_cal = food['calories'] * portion_g / 100
+                                item_cost = cheap_cost
+                                cheaper_found = True
+                                break
+                        if not cheaper_found:
+                            # Even the cheap one is too expensive, skip this item entirely
+                            continue
 
                     meal_items.append({
                         'foodId': food['foodId'],
@@ -242,13 +290,14 @@ class DietRecommender:
                             'price_per_gram': food['price_per_gram']
                         }
 
-                day_meals.append({
-                    'mealType': slot['type'],
-                    'items': meal_items,
-                    'calories': round(meal_calories),
-                    'macros': {k: round(v, 1) for k, v in meal_macros.items()},
-                    'estimatedCost': {'amount': round(meal_cost, 2), 'currency': 'LKR'}
-                })
+                if meal_items:  # Only add meal if it has items (wasn't totally skipped by budget cap)
+                    day_meals.append({
+                        'mealType': slot['type'],
+                        'items': meal_items,
+                        'calories': round(meal_calories),
+                        'macros': {k: round(v, 1) for k, v in meal_macros.items()},
+                        'estimatedCost': {'amount': round(meal_cost, 2), 'currency': 'LKR'}
+                    })
 
                 day_calories += meal_calories
                 total_cost += meal_cost
@@ -330,7 +379,7 @@ class DietRecommender:
 
         # 4. Build meal plan
         days, shopping_list, shopping_total = self._build_meal_plan(
-            scored_foods, macros, budget_per_day
+            scored_foods, macros, budget_per_day, budget_amount=budget_amount
         )
 
         inference_time = round((time.time() - start_time) * 1000, 1)

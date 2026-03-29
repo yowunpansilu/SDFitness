@@ -27,10 +27,10 @@ interface ScraperStatus {
 }
 
 const categoryVariants: Record<string, string> = {
-    protein: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-    carbs: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    vegetable: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    fruit: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+    protein: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20',
+    carbs: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+    vegetable: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+    fruit: 'bg-rose-500/10 text-rose-600 border-rose-500/20',
     dairy: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
     fats: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
 };
@@ -103,8 +103,8 @@ export function FoodPrices() {
         return (
           <div className="flex h-[60vh] items-center justify-center">
             <div className="flex flex-col items-center gap-4">
-              <Loader2 className="h-10 w-10 text-indigo-500 animate-spin" />
-              <p className="text-navy-400 font-bold uppercase tracking-widest text-xs">Synchronizing Market Matrices...</p>
+              <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
+              <p className="text-slate-600 font-bold uppercase tracking-widest text-xs">Synchronizing Market Matrices...</p>
             </div>
           </div>
         );
@@ -115,37 +115,37 @@ export function FoodPrices() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-black tracking-tight text-white">
-                        Market <span className="text-indigo-400 italic font-medium">Equilibrium</span>
+                    <h1 className="text-4xl font-black tracking-tight text-slate-900">
+                        Market <span className="text-indigo-600 italic font-medium">Equilibrium</span>
                     </h1>
-                    <p className="text-navy-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
+                    <p className="text-slate-700 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
                         Automated food price discovery and ML-ready catalog
                     </p>
                 </div>
                 <div className="flex gap-3">
                     <Button
                         variant="outline"
-                        className="bg-navy-950 border-navy-800 text-indigo-400 rounded-xl h-11 px-6 font-black text-[10px] uppercase tracking-widest hover:bg-navy-800 border-2"
+                        className="bg-slate-50 border-slate-300 text-indigo-600 rounded-xl h-11 px-6 font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 border-2"
                         onClick={triggerScrape}
                         disabled={triggeringScrape || scraperStatus.running}
                     >
                         <RefreshCw className={cn("mr-2 h-4 w-4", triggeringScrape || scraperStatus.running ? 'animate-spin' : '')} />
                         {scraperStatus.running ? 'Processing...' : 'Run Discovery'}
                     </Button>
-                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg h-11 px-6 font-black text-[10px] uppercase tracking-widest border border-white/10">
+                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg h-11 px-6 font-black text-[10px] uppercase tracking-widest border border-slate-300">
                         <Plus className="mr-2 h-4 w-4" /> Inject Asset
                     </Button>
                 </div>
             </div>
 
             {/* Scraper Intelligence Bar */}
-            <Card className="bg-navy-900 border-navy-800 rounded-3xl overflow-hidden">
-                <CardContent className="p-4 bg-navy-950/20">
+            <Card className="bg-white border-slate-300 rounded-3xl overflow-hidden">
+                <CardContent className="p-4 bg-slate-50/20">
                     <div className="flex flex-wrap items-center gap-8 text-[10px] font-black uppercase tracking-[0.2em]">
                         <div className="flex items-center gap-3">
-                            <Clock className="w-4 h-4 text-navy-600" />
-                            <span className="text-navy-500">Last Snapshot:</span>
-                            <span className="text-white">
+                            <Clock className="w-4 h-4 text-slate-800" />
+                            <span className="text-slate-700">Last Snapshot:</span>
+                            <span className="text-slate-900">
                                 {scraperStatus.lastRun ? new Date(scraperStatus.lastRun).toLocaleTimeString() : 'N/A'}
                             </span>
                         </div>
@@ -154,7 +154,7 @@ export function FoodPrices() {
                             <span className="text-emerald-500">{scraperStatus.itemsScraped} items discovered</span>
                         </div>
                         {scraperStatus.running && (
-                            <div className="flex items-center gap-3 animate-pulse text-indigo-400">
+                            <div className="flex items-center gap-3 animate-pulse text-indigo-600">
                                 <RefreshCw className="w-4 h-4 animate-spin" />
                                 <span>discovery in progress…</span>
                             </div>
@@ -171,15 +171,15 @@ export function FoodPrices() {
 
             {/* Controls */}
             <div className="flex flex-col md:flex-row gap-4">
-                <Card className="flex-1 bg-navy-900 border-navy-800 rounded-2xl overflow-hidden p-1">
+                <Card className="flex-1 bg-white border-slate-300 rounded-2xl overflow-hidden p-1">
                    <div className="relative group">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-navy-600 group-focus-within:text-indigo-400 transition-colors" />
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-800 group-focus-within:text-indigo-600 transition-colors" />
                       <input
                           type="text"
                           placeholder="Query food database..."
                           value={searchQuery}
                           onChange={e => setSearchQuery(e.target.value)}
-                          className="w-full pl-12 pr-4 h-12 bg-navy-950 border-none rounded-xl text-white text-[10px] font-black uppercase tracking-widest placeholder:text-navy-700 outline-none"
+                          className="w-full pl-12 pr-4 h-12 bg-slate-50 border-none rounded-xl text-slate-900 text-[10px] font-black uppercase tracking-widest placeholder:text-slate-900 outline-none"
                       />
                    </div>
                 </Card>
@@ -192,7 +192,7 @@ export function FoodPrices() {
                                 "px-6 h-12 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2",
                                 selectedCategory === cat 
                                     ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-900/20" 
-                                    : "bg-navy-900 border-navy-800 text-navy-500 hover:border-navy-600"
+                                    : "bg-white border-slate-300 text-slate-700 hover:border-slate-400"
                             )}
                         >
                             {cat}
@@ -202,14 +202,14 @@ export function FoodPrices() {
             </div>
 
             {/* Data Grid */}
-            <Card className="bg-navy-900 border-navy-800 rounded-[2.5rem] overflow-hidden border-2 shadow-2xl">
+            <Card className="bg-white border-slate-300 rounded-[2.5rem] overflow-hidden border-2 shadow-2xl">
                 <CardContent className="p-0">
                     <div className="overflow-x-auto font-black uppercase text-[10px] tracking-widest">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-navy-800 bg-navy-950/40">
+                                <tr className="border-b border-slate-300 bg-slate-50/40">
                                     {['Identifier', 'Tier', 'Mean Price', 'Delta Low', 'Network Nodes', 'Protocol', ''].map(h => (
-                                        <th key={h} className="text-left text-navy-500 p-6 font-black uppercase tracking-[0.2em]">{h}</th>
+                                        <th key={h} className="text-left text-slate-700 p-6 font-black uppercase tracking-[0.2em]">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -221,31 +221,31 @@ export function FoodPrices() {
                                     const source = food.prices?.some(p => p.source === 'scraper_catalog') ? 'auto' : 'manual';
 
                                     return (
-                                        <tr key={food._id} className="border-b border-navy-800/40 hover:bg-navy-800/20 transition-all group">
-                                            <td className="p-6 text-white font-black tracking-tight text-xs uppercase">{food.name}</td>
+                                        <tr key={food._id} className="border-b border-slate-300/40 hover:bg-slate-100/20 transition-all group">
+                                            <td className="p-6 text-slate-900 font-black tracking-tight text-xs uppercase">{food.name}</td>
                                             <td className="p-6">
-                                                <Badge className={cn("border-none px-3 py-1 rounded-lg text-xs font-black", categoryVariants[food.category.toLowerCase()] || 'bg-navy-800 text-navy-400')}>
+                                                <Badge className={cn("border-none px-3 py-1 rounded-lg text-xs font-black", categoryVariants[food.category.toLowerCase()] || 'bg-slate-100 text-slate-600')}>
                                                     {food.category}
                                                 </Badge>
                                             </td>
-                                            <td className="p-6 text-white">
-                                                LKR {avg.toLocaleString()}<span className="text-navy-600 ml-1">/{unit}</span>
+                                            <td className="p-6 text-slate-900">
+                                                LKR {avg.toLocaleString()}<span className="text-slate-800 ml-1">/{unit}</span>
                                             </td>
-                                            <td className="p-6 text-emerald-400">LKR {lowest.toLocaleString()}</td>
+                                            <td className="p-6 text-emerald-600">LKR {lowest.toLocaleString()}</td>
                                             <td className="p-6">
                                                 <div className="flex gap-2">
                                                     {Array.from(new Set(food.prices?.map(p => p.store))).map(s => (
-                                                        <span key={s} className="px-2 py-1 bg-navy-950 border border-navy-800 text-navy-500 rounded text-[8px] font-black uppercase">{s}</span>
+                                                        <span key={s} className="px-2 py-1 bg-slate-50 border border-slate-300 text-slate-700 rounded text-[8px] font-black uppercase">{s}</span>
                                                     ))}
                                                 </div>
                                             </td>
                                             <td className="p-6">
-                                                <span className={cn("px-3 py-1 rounded-lg", source === 'auto' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-amber-500/10 text-amber-400')}>
+                                                <span className={cn("px-3 py-1 rounded-lg", source === 'auto' ? 'bg-indigo-500/10 text-indigo-600' : 'bg-amber-500/10 text-amber-600')}>
                                                     {source === 'auto' ? 'MATRIX_SCAN' : 'MANUAL_INJECT'}
                                                 </span>
                                             </td>
                                             <td className="p-6 text-right">
-                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-navy-600 hover:text-white hover:bg-navy-800 rounded-xl">
+                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-800 hover:text-slate-900 hover:bg-slate-100 rounded-xl">
                                                     <Edit2 className="w-4 h-4" />
                                                 </Button>
                                             </td>

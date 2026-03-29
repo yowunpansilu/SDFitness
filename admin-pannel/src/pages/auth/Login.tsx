@@ -52,13 +52,13 @@ export function Login() {
 
       <div className="w-full max-w-sm relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2.5rem] bg-navy-900 text-white mb-6 shadow-2xl shadow-navy-100 rotate-6 hover:rotate-0 transition-transform duration-500">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2.5rem] bg-white text-slate-900 mb-6 shadow-2xl shadow-navy-100 rotate-6 hover:rotate-0 transition-transform duration-500">
             <LogIn className="w-10 h-10" />
           </div>
           <h1 className="text-4xl font-black tracking-tight text-navy-950 uppercase italic">
             SD <span className="text-indigo-600">Fitness</span>
           </h1>
-          <p className="text-navy-400 font-bold uppercase text-[10px] tracking-[0.4em] mt-2">
+          <p className="text-slate-600 font-bold uppercase text-[10px] tracking-[0.4em] mt-2">
             Admin Intelligence Suite
           </p>
         </div>
@@ -66,14 +66,14 @@ export function Login() {
         <Card className="bg-white/90 backdrop-blur-xl border-navy-100 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] rounded-[2.5rem] overflow-hidden">
           <CardHeader className="p-8 pb-4 text-center border-b border-navy-50/50">
             <CardTitle className="text-2xl font-black text-navy-950 uppercase tracking-tight">Access Gate</CardTitle>
-            <CardDescription className="text-navy-400 font-bold text-[11px] uppercase tracking-widest mt-1">
+            <CardDescription className="text-slate-600 font-bold text-[11px] uppercase tracking-widest mt-1">
               Authorize administrative session
             </CardDescription>
           </CardHeader>
           <CardContent className="p-8 pt-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-navy-400 ml-1">
+                <label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">
                   Identity Handle
                 </label>
                 <Input
@@ -87,7 +87,7 @@ export function Login() {
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.2em] text-navy-400 ml-1">
+                <label htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 ml-1">
                   Cipher Key
                 </label>
                 <Input
@@ -102,7 +102,7 @@ export function Login() {
               </div>
               <Button
                 type="submit"
-                className="w-full h-12 bg-navy-950 hover:bg-navy-900 text-white font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-navy-200 rounded-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full h-12 bg-slate-50 hover:bg-white text-slate-900 font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-navy-200 rounded-2xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -121,7 +121,7 @@ export function Login() {
           </CardContent>
         </Card>
 
-        <p className="text-center mt-8 text-navy-300 font-bold text-[10px] uppercase tracking-[0.3em]">
+        <p className="text-center mt-8 text-slate-600 font-bold text-[10px] uppercase tracking-[0.3em]">
           &copy; 2024 SD Fitness Global. Secured
         </p>
       </div>

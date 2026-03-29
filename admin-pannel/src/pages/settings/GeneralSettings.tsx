@@ -71,17 +71,17 @@ export function GeneralSettings() {
   };
 
   return (
-    <div className="space-y-8 pb-10 text-slate-900 dark:text-white transition-colors">
+    <div className="space-y-8 pb-10 text-slate-900 dark:text-slate-900 transition-colors">
       {/* Gym Information */}
-      <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-[2rem] overflow-hidden transition-colors">
+      <Card className="bg-white dark:bg-white border-navy-100/50 dark:border-slate-300 shadow-sm rounded-[2rem] overflow-hidden transition-colors">
         <CardHeader className="p-8 pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 transition-colors">
+            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-600 transition-colors">
               <Building2 className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Identity Matrix</CardTitle>
-              <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Core organizational parameters</CardDescription>
+              <CardTitle className="text-xl font-black text-slate-900 dark:text-slate-900 uppercase tracking-tight transition-colors">Identity Matrix</CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-700 dark:text-slate-700 uppercase tracking-widest mt-0.5 transition-colors">Core organizational parameters</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -89,25 +89,25 @@ export function GeneralSettings() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* Gym Name */}
             <div className="space-y-2">
-              <Label htmlFor="gymName" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Trading Name</Label>
+              <Label htmlFor="gymName" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 dark:text-slate-700 transition-colors">Trading Name</Label>
               <Input
                 id="gymName"
                 value={generalSettings.gymName}
                 onChange={(e) => handleChange('gymName', e.target.value)}
-                className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                className="h-11 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
               />
             </div>
 
             {/* Website */}
             <div className="space-y-2">
-              <Label htmlFor="website" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Digital Presence</Label>
+              <Label htmlFor="website" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 dark:text-slate-700 transition-colors">Digital Presence</Label>
               <div className="relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-navy-600 transition-colors" />
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-700 dark:text-slate-800 transition-colors" />
                 <Input
                   id="website"
                   value={generalSettings.website}
                   onChange={(e) => handleChange('website', e.target.value)}
-                  className="h-11 pl-10 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                  className="h-11 pl-10 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
                   placeholder="https://example.com"
                 />
               </div>
@@ -116,8 +116,8 @@ export function GeneralSettings() {
 
           {/* Logo Upload */}
           <div className="space-y-4">
-            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Visual Identity asset</Label>
-            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-navy-950 border-2 border-dashed border-slate-200 dark:border-navy-800 hover:border-indigo-500/30 transition-all">
+            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 dark:text-slate-700 transition-colors">Visual Identity asset</Label>
+            <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-50 border-2 border-dashed border-slate-300 dark:border-slate-300 hover:border-indigo-500/30 transition-all">
               <ImageUpload
                 value={generalSettings.logoUrl}
                 onChange={(value) => handleChange('logoUrl', value)}
@@ -128,15 +128,15 @@ export function GeneralSettings() {
       </Card>
 
       {/* Contact Information */}
-      <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-[2rem] overflow-hidden transition-colors">
+      <Card className="bg-white dark:bg-white border-navy-100/50 dark:border-slate-300 shadow-sm rounded-[2rem] overflow-hidden transition-colors">
         <CardHeader className="p-8 pb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors">
               <Mail className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Communication Node</CardTitle>
-              <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Connectivity and location protocols</CardDescription>
+              <CardTitle className="text-xl font-black text-slate-900 dark:text-slate-900 uppercase tracking-tight transition-colors">Communication Node</CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-700 dark:text-slate-700 uppercase tracking-widest mt-0.5 transition-colors">Connectivity and location protocols</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -144,29 +144,29 @@ export function GeneralSettings() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Primary Endpoint</Label>
+              <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 dark:text-slate-700 transition-colors">Primary Endpoint</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-navy-600 transition-colors" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-700 dark:text-slate-800 transition-colors" />
                 <Input
                   id="email"
                   type="email"
                   value={generalSettings.email}
                   onChange={(e) => handleChange('email', e.target.value)}
-                  className="h-11 pl-10 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                  className="h-11 pl-10 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
                 />
               </div>
             </div>
 
             {/* Phone */}
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Vox Channel</Label>
+              <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 dark:text-slate-700 transition-colors">Vox Channel</Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-navy-600 transition-colors" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-700 dark:text-slate-800 transition-colors" />
                 <Input
                   id="phone"
                   value={generalSettings.phone}
                   onChange={(e) => handleChange('phone', e.target.value)}
-                  className="h-11 pl-10 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                  className="h-11 pl-10 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
                 />
               </div>
             </div>
@@ -174,32 +174,32 @@ export function GeneralSettings() {
 
           {/* Address */}
           <div className="space-y-4">
-            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Geographic Vector</Label>
+            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 dark:text-slate-700 transition-colors">Geographic Vector</Label>
             <div className="grid gap-4">
               <Input
                 placeholder="Street Address"
                 value={generalSettings.address.street}
                 onChange={(e) => handleChange('address.street', e.target.value)}
-                className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                className="h-11 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
               />
               <div className="grid gap-4 md:grid-cols-3">
                 <Input
                   placeholder="City"
                   value={generalSettings.address.city}
                   onChange={(e) => handleChange('address.city', e.target.value)}
-                  className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                  className="h-11 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
                 />
                 <Input
                   placeholder="State"
                   value={generalSettings.address.state}
                   onChange={(e) => handleChange('address.state', e.target.value)}
-                  className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                  className="h-11 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
                 />
                 <Input
                   placeholder="Zip Code"
                   value={generalSettings.address.zipCode}
                   onChange={(e) => handleChange('address.zipCode', e.target.value)}
-                  className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                  className="h-11 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
                 />
               </div>
             </div>
@@ -207,25 +207,25 @@ export function GeneralSettings() {
 
           {/* Social Media */}
           <div className="space-y-4">
-            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Social Amplifiers</Label>
+            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 dark:text-slate-700 transition-colors">Social Amplifiers</Label>
             <div className="grid gap-4 md:grid-cols-3">
               <Input
                 placeholder="Facebook URL"
                 value={generalSettings.socialMedia.facebook}
                 onChange={(e) => handleChange('socialMedia.facebook', e.target.value)}
-                className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                className="h-11 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
               />
               <Input
                 placeholder="Instagram URL"
                 value={generalSettings.socialMedia.instagram}
                 onChange={(e) => handleChange('socialMedia.instagram', e.target.value)}
-                className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                className="h-11 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
               />
               <Input
                 placeholder="Twitter URL"
                 value={generalSettings.socialMedia.twitter}
                 onChange={(e) => handleChange('socialMedia.twitter', e.target.value)}
-                className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors"
+                className="h-11 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors"
               />
             </div>
           </div>
@@ -233,15 +233,15 @@ export function GeneralSettings() {
       </Card>
 
       {/* Business Hours */}
-      <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-[2rem] overflow-hidden transition-colors">
+      <Card className="bg-white dark:bg-white border-navy-100/50 dark:border-slate-300 shadow-sm rounded-[2rem] overflow-hidden transition-colors">
         <CardHeader className="p-8 pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 transition-colors">
+            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-600 transition-colors">
               <Clock className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Temporal Matrix</CardTitle>
-              <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Facility availability schedule</CardDescription>
+              <CardTitle className="text-xl font-black text-slate-900 dark:text-slate-900 uppercase tracking-tight transition-colors">Temporal Matrix</CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-700 dark:text-slate-700 uppercase tracking-widest mt-0.5 transition-colors">Facility availability schedule</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -255,8 +255,8 @@ export function GeneralSettings() {
                   className={cn(
                     'flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-[1.5rem] border transition-all duration-300',
                     hours.isOpen
-                      ? 'bg-white dark:bg-navy-900 border-slate-100 dark:border-navy-800 shadow-sm'
-                      : 'bg-slate-50/50 dark:bg-navy-950/50 border-slate-100 dark:border-navy-800 opacity-60'
+                      ? 'bg-white dark:bg-white border-slate-100 dark:border-slate-300 shadow-sm'
+                      : 'bg-slate-50/50 dark:bg-slate-50/50 border-slate-100 dark:border-slate-300 opacity-60'
                   )}
                 >
                   <div className="flex items-center gap-4 min-w-[140px]">
@@ -269,38 +269,38 @@ export function GeneralSettings() {
                     />
                     <Label className={cn(
                       "font-black uppercase text-[11px] tracking-widest transition-colors",
-                      hours.isOpen ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-navy-600"
+                      hours.isOpen ? "text-slate-900 dark:text-slate-900" : "text-slate-700 dark:text-slate-800"
                     )}>{label}</Label>
                   </div>
 
                   {hours.isOpen ? (
                     <div className="flex items-center gap-2 flex-1 max-w-sm justify-end">
-                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-navy-950 rounded-xl border border-slate-100 dark:border-navy-800 transition-colors">
-                        <span className="text-[9px] font-black text-slate-400 dark:text-navy-600 uppercase">From</span>
+                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-50 rounded-xl border border-slate-100 dark:border-slate-300 transition-colors">
+                        <span className="text-[9px] font-black text-slate-700 dark:text-slate-800 uppercase">From</span>
                         <input
                           type="time"
                           value={hours.openTime}
                           onChange={(e) =>
                             handleBusinessHoursChange(key, 'openTime', e.target.value)
                           }
-                          className="bg-transparent border-none text-xs font-black text-slate-900 dark:text-white focus:ring-0 w-20 transition-colors"
+                          className="bg-transparent border-none text-xs font-black text-slate-900 dark:text-slate-900 focus:ring-0 w-20 transition-colors"
                         />
                       </div>
-                      <div className="h-px w-3 bg-slate-200 dark:bg-navy-800" />
-                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-navy-950 rounded-xl border border-slate-100 dark:border-navy-800 transition-colors">
-                        <span className="text-[9px] font-black text-slate-400 dark:text-navy-600 uppercase">To</span>
+                      <div className="h-px w-3 bg-slate-200 dark:bg-slate-100" />
+                      <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-50 rounded-xl border border-slate-100 dark:border-slate-300 transition-colors">
+                        <span className="text-[9px] font-black text-slate-700 dark:text-slate-800 uppercase">To</span>
                         <input
                           type="time"
                           value={hours.closeTime}
                           onChange={(e) =>
                             handleBusinessHoursChange(key, 'closeTime', e.target.value)
                           }
-                          className="bg-transparent border-none text-xs font-black text-slate-900 dark:text-white focus:ring-0 w-20 transition-colors"
+                          className="bg-transparent border-none text-xs font-black text-slate-900 dark:text-slate-900 focus:ring-0 w-20 transition-colors"
                         />
                       </div>
                     </div>
                   ) : (
-                    <Badge variant="outline" className="bg-slate-100 dark:bg-navy-950 text-slate-400 dark:text-navy-600 border-none font-black text-[10px] uppercase py-1 px-4 transition-colors">Offline</Badge>
+                    <Badge variant="outline" className="bg-slate-100 dark:bg-slate-50 text-slate-700 dark:text-slate-800 border-none font-black text-[10px] uppercase py-1 px-4 transition-colors">Offline</Badge>
                   )}
                 </div>
               );
@@ -310,15 +310,15 @@ export function GeneralSettings() {
       </Card>
 
       {/* Localization */}
-      <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-[2rem] overflow-hidden transition-colors">
+      <Card className="bg-white dark:bg-white border-navy-100/50 dark:border-slate-300 shadow-sm rounded-[2rem] overflow-hidden transition-colors">
         <CardHeader className="p-8 pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 transition-colors">
+            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-600 transition-colors">
               <Globe className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Regional Protocol</CardTitle>
-              <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Currency and temporal synchronization</CardDescription>
+              <CardTitle className="text-xl font-black text-slate-900 dark:text-slate-900 uppercase tracking-tight transition-colors">Regional Protocol</CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-700 dark:text-slate-700 uppercase tracking-widest mt-0.5 transition-colors">Currency and temporal synchronization</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -326,17 +326,17 @@ export function GeneralSettings() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* Currency */}
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Trading Currency</Label>
+              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 dark:text-slate-700 transition-colors">Trading Currency</Label>
               <Select
                 value={generalSettings.currency}
                 onValueChange={(value) => handleChange('currency', value)}
               >
-                <SelectTrigger className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors">
+                <SelectTrigger className="h-11 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 dark:text-white p-1 transition-colors">
+                <SelectContent className="rounded-xl border-slate-300 dark:border-slate-300 bg-white dark:bg-white dark:text-slate-900 p-1 transition-colors">
                   {CURRENCIES.map((currency) => (
-                    <SelectItem key={currency.value} value={currency.value} className="rounded-lg hover:bg-navy-50 dark:hover:bg-navy-800 transition-colors">
+                    <SelectItem key={currency.value} value={currency.value} className="rounded-lg hover:bg-navy-50 dark:hover:bg-slate-100 transition-colors">
                       {currency.label}
                     </SelectItem>
                   ))}
@@ -346,17 +346,17 @@ export function GeneralSettings() {
 
             {/* Timezone */}
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">System Timezone</Label>
+              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-700 dark:text-slate-700 transition-colors">System Timezone</Label>
               <Select
                 value={generalSettings.timezone}
                 onValueChange={(value) => handleChange('timezone', value)}
               >
-                <SelectTrigger className="h-11 bg-slate-50 dark:bg-navy-950 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-white transition-colors">
+                <SelectTrigger className="h-11 bg-slate-50 dark:bg-slate-50 border-none focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-bold text-slate-900 dark:text-slate-900 transition-colors">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-slate-200 dark:border-navy-800 bg-white dark:bg-navy-900 dark:text-white p-1 transition-colors">
+                <SelectContent className="rounded-xl border-slate-300 dark:border-slate-300 bg-white dark:bg-white dark:text-slate-900 p-1 transition-colors">
                   {TIMEZONES.map((timezone) => (
-                    <SelectItem key={timezone.value} value={timezone.value} className="rounded-lg hover:bg-navy-50 dark:hover:bg-navy-800 transition-colors">
+                    <SelectItem key={timezone.value} value={timezone.value} className="rounded-lg hover:bg-navy-50 dark:hover:bg-slate-100 transition-colors">
                       {timezone.label}
                     </SelectItem>
                   ))}

@@ -116,7 +116,7 @@ export function ImageUpload({
               <Upload className="h-8 w-8 text-gray-400" />
             </div>
             <div>
-              <p className="text-sm font-medium text-white">
+              <p className="text-sm font-medium text-slate-900">
                 Click to upload or drag and drop
               </p>
               <p className="text-xs text-gray-400 mt-1">

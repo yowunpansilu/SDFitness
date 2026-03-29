@@ -83,14 +83,14 @@ export function Settings() {
   };
 
   return (
-    <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 font-sans text-slate-900 dark:text-white">
+    <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 font-sans text-slate-900 dark:text-slate-900">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            System <span className="text-indigo-600 dark:text-indigo-400 italic">Configuration</span>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-slate-900">
+            System <span className="text-indigo-600 dark:text-indigo-600 italic">Configuration</span>
           </h1>
-          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
+          <p className="text-slate-500 dark:text-slate-600 font-medium mt-1">
             Orchestrate organizational parameters, communication protocols and security matrices.
           </p>
         </div>
@@ -98,8 +98,8 @@ export function Settings() {
         <div className="flex items-center gap-3">
           {hasUnsavedChanges && (
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-900 animate-pulse">
-              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 transition-colors">Pending Changes</span>
+              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-600" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-600 transition-colors">Pending Changes</span>
             </div>
           )}
 
@@ -107,7 +107,7 @@ export function Settings() {
             variant="ghost"
             onClick={handleDiscardChanges}
             disabled={!hasUnsavedChanges || isLoading}
-            className="h-11 px-6 rounded-xl font-black uppercase text-xs tracking-widest text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all disabled:opacity-30"
+            className="h-11 px-6 rounded-xl font-black uppercase text-xs tracking-widest text-slate-700 hover:text-rose-600 dark:hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all disabled:opacity-30"
           >
             Discard
           </Button>
@@ -134,21 +134,21 @@ export function Settings() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-10">
-        <div className="p-1 w-fit bg-slate-100 dark:bg-navy-900 rounded-2xl border border-slate-200 dark:border-navy-800 transition-colors">
+        <div className="p-1 w-fit bg-slate-100 dark:bg-white rounded-2xl border border-slate-300 dark:border-slate-300 transition-colors">
           <TabsList className="bg-transparent gap-1">
-            <TabsTrigger value="general" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-navy-500 transition-all">
+            <TabsTrigger value="general" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-100 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-slate-700 transition-all">
               <Building2 className="h-3.5 w-3.5 mr-2 transition-transform group-data-[state=active]:scale-110" />
               General
             </TabsTrigger>
-            <TabsTrigger value="email" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-navy-500 transition-all">
+            <TabsTrigger value="email" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-100 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-slate-700 transition-all">
               <Mail className="h-3.5 w-3.5 mr-2 transition-transform group-data-[state=active]:scale-110" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-navy-500 transition-all">
+            <TabsTrigger value="notifications" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-100 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-slate-700 transition-all">
               <Bell className="h-3.5 w-3.5 mr-2 transition-transform group-data-[state=active]:scale-110" />
               Alerts
             </TabsTrigger>
-            <TabsTrigger value="roles" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-navy-500 transition-all">
+            <TabsTrigger value="roles" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-100 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-slate-700 transition-all">
               <Shield className="h-3.5 w-3.5 mr-2 transition-transform group-data-[state=active]:scale-110" />
               Security
             </TabsTrigger>
@@ -176,21 +176,21 @@ export function Settings() {
 
       {/* Unsaved Changes Warning Dialog */}
       <AlertDialog open={showUnsavedWarning} onOpenChange={setShowUnsavedWarning}>
-        <AlertDialogContent className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-2xl p-8 max-w-md transition-colors">
+        <AlertDialogContent className="bg-white dark:bg-white border-slate-300 dark:border-slate-300 rounded-[2.5rem] shadow-2xl p-8 max-w-md transition-colors">
           <div className="flex flex-col items-center text-center space-y-6">
             <div className="h-20 w-20 rounded-[2rem] bg-rose-50 dark:bg-rose-500/10 text-rose-500 flex items-center justify-center shadow-inner transition-colors">
               <AlertCircle className="h-10 w-10" />
             </div>
             <div className="space-y-2">
-              <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white transition-colors">Uncommitted Data</AlertDialogTitle>
-              <AlertDialogDescription className="text-slate-500 dark:text-navy-400 font-medium italic transition-colors">
+              <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-slate-900 transition-colors">Uncommitted Data</AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-500 dark:text-slate-600 font-medium italic transition-colors">
                 You have pending configuration changes. Leaving this matrix will result in permanent data loss.
               </AlertDialogDescription>
             </div>
             <div className="flex items-center gap-3 w-full">
               <AlertDialogCancel
                 onClick={handleCancelWarning}
-                className="flex-1 h-12 rounded-2xl bg-slate-50 dark:bg-navy-950 hover:bg-slate-100 dark:hover:bg-navy-800 border-none text-slate-600 dark:text-white font-black uppercase text-xs tracking-widest transition-all"
+                className="flex-1 h-12 rounded-2xl bg-slate-50 dark:bg-slate-50 hover:bg-slate-100 dark:hover:bg-slate-100 border-none text-slate-600 dark:text-slate-900 font-black uppercase text-xs tracking-widest transition-all"
               >
                 Stay Here
               </AlertDialogCancel>

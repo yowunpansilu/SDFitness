@@ -61,8 +61,8 @@ export function AnalyticsDashboard() {
     return (
       <div className="flex h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-10 w-10 text-indigo-500 animate-spin" />
-          <p className="text-navy-400 font-bold uppercase tracking-widest text-xs">Calibrating Performance Intelligence...</p>
+          <Loader2 className="h-10 w-10 text-indigo-600 animate-spin" />
+          <p className="text-slate-600 font-bold uppercase tracking-widest text-xs">Calibrating Performance Intelligence...</p>
         </div>
       </div>
     );
@@ -73,19 +73,19 @@ export function AnalyticsDashboard() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-white">
-            Organizational <span className="text-indigo-400 italic font-medium">Intelligence</span>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900">
+            Organizational <span className="text-indigo-600 italic font-medium">Intelligence</span>
           </h1>
-          <p className="text-navy-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
+          <p className="text-slate-700 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
             Strategic performance metrics and multidimensional growth vectors
           </p>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className="w-[200px] h-11 bg-navy-900 border-navy-800 rounded-xl font-black text-[10px] uppercase tracking-widest text-white outline-none ring-0">
-            <Calendar className="h-4 w-4 mr-2 text-indigo-500" />
+          <SelectTrigger className="w-[200px] h-11 bg-white border-slate-300 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-900 outline-none ring-0">
+            <Calendar className="h-4 w-4 mr-2 text-indigo-600" />
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="rounded-xl bg-navy-900 border-navy-800 text-white">
+          <SelectContent className="rounded-xl bg-white border-slate-300 text-slate-900">
             <SelectItem value="1month" className="uppercase text-[10px] font-black tracking-widest cursor-pointer">Last 30 Days</SelectItem>
             <SelectItem value="3months" className="uppercase text-[10px] font-black tracking-widest cursor-pointer">Quarterly</SelectItem>
             <SelectItem value="6months" className="uppercase text-[10px] font-black tracking-widest cursor-pointer">Semester</SelectItem>
@@ -97,26 +97,26 @@ export function AnalyticsDashboard() {
       {/* Primary Metrics */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {[
-          { title: 'Gross Revenue', value: `LKR ${(data.summary?.grossRevenue?.value || 0).toLocaleString()}`, change: data.summary?.grossRevenue?.change || 0, icon: DollarSign, color: 'text-emerald-400', sub: 'Fiscal throughput' },
-          { title: 'Active Network', value: data.summary?.activeAssets?.value || 0, change: data.summary?.activeAssets?.change || 0, icon: Users, color: 'text-indigo-400', sub: 'Member equilibrium' },
+          { title: 'Gross Revenue', value: `LKR ${(data.summary?.grossRevenue?.value || 0).toLocaleString()}`, change: data.summary?.grossRevenue?.change || 0, icon: DollarSign, color: 'text-emerald-600', sub: 'Fiscal throughput' },
+          { title: 'Active Network', value: data.summary?.activeAssets?.value || 0, change: data.summary?.activeAssets?.change || 0, icon: Users, color: 'text-indigo-600', sub: 'Member equilibrium' },
           { title: 'Engagement', value: data.summary?.engagementIndex?.value || '0%', change: data.summary?.engagementIndex?.change || 0, icon: Activity, color: 'text-violet-400', sub: 'Attendance yield' },
-          { title: 'Stability', value: data.summary?.stabilityScore?.value || '0%', change: data.summary?.stabilityScore?.change || 0, icon: TrendingUp, color: 'text-amber-400', sub: 'Retention factor' },
+          { title: 'Stability', value: data.summary?.stabilityScore?.value || '0%', change: data.summary?.stabilityScore?.change || 0, icon: TrendingUp, color: 'text-amber-600', sub: 'Retention factor' },
         ].map((stat, i) => (
-          <Card key={i} className="bg-navy-900 border-navy-800 shadow-sm rounded-3xl overflow-hidden group hover:shadow-xl hover:shadow-indigo-500/5 transition-all">
+          <Card key={i} className="bg-white border-slate-300 shadow-sm rounded-3xl overflow-hidden group hover:shadow-xl hover:shadow-indigo-500/5 transition-all">
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-navy-500">{stat.title}</CardTitle>
-              <div className={cn("p-2 rounded-xl bg-navy-950 transition-transform group-hover:scale-110", stat.color)}>
+              <CardTitle className="text-[10px] font-black uppercase tracking-widest text-slate-700">{stat.title}</CardTitle>
+              <div className={cn("p-2 rounded-xl bg-slate-50 transition-transform group-hover:scale-110", stat.color)}>
                 <stat.icon className="h-4 w-4" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-black text-white">{stat.value}</div>
+              <div className="text-3xl font-black text-slate-900">{stat.value}</div>
               <div className="flex items-center gap-2 mt-2">
-                <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase">
+                <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase">
                   <TrendingUp className="h-2.5 w-2.5" />
                   <span>{stat.change}%</span>
                 </div>
-                <span className="text-[9px] font-black text-navy-700 uppercase tracking-widest">{stat.sub}</span>
+                <span className="text-[9px] font-black text-slate-900 uppercase tracking-widest">{stat.sub}</span>
               </div>
             </CardContent>
           </Card>
@@ -126,14 +126,14 @@ export function AnalyticsDashboard() {
       {/* Main Analytical Visuals */}
       <div className="grid gap-8 md:grid-cols-2">
         {/* Expansion Curve */}
-        <Card className="bg-navy-900 border-navy-800 rounded-[2.5rem] overflow-hidden">
+        <Card className="bg-white border-slate-300 rounded-[2.5rem] overflow-hidden">
           <CardHeader className="p-8 pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-black text-white uppercase tracking-tight italic">Expansion Curve</CardTitle>
-                <p className="text-[10px] font-black text-navy-600 uppercase tracking-widest mt-1">Longitudinal subscriber growth cycle</p>
+                <CardTitle className="text-xl font-black text-slate-900 uppercase tracking-tight italic">Expansion Curve</CardTitle>
+                <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest mt-1">Longitudinal subscriber growth cycle</p>
               </div>
-              <Users className="h-5 w-5 text-indigo-500" />
+              <Users className="h-5 w-5 text-indigo-600" />
             </div>
           </CardHeader>
           <CardContent className="p-8 pt-4">
@@ -160,12 +160,12 @@ export function AnalyticsDashboard() {
         </Card>
 
         {/* Fiscal Velocity */}
-        <Card className="bg-navy-900 border-navy-800 rounded-[2.5rem] overflow-hidden">
+        <Card className="bg-white border-slate-300 rounded-[2.5rem] overflow-hidden">
           <CardHeader className="p-8 pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-black text-white uppercase tracking-tight italic">Fiscal Velocity</CardTitle>
-                <p className="text-[10px] font-black text-navy-600 uppercase tracking-widest mt-1">Transactional energy distribution</p>
+                <CardTitle className="text-xl font-black text-slate-900 uppercase tracking-tight italic">Fiscal Velocity</CardTitle>
+                <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest mt-1">Transactional energy distribution</p>
               </div>
               <DollarSign className="h-5 w-5 text-emerald-500" />
             </div>
@@ -191,10 +191,10 @@ export function AnalyticsDashboard() {
 
       <div className="grid gap-8 md:grid-cols-2">
          {/* Subscriptions */}
-         <Card className="bg-navy-900 border-navy-800 rounded-[2.5rem] overflow-hidden">
+         <Card className="bg-white border-slate-300 rounded-[2.5rem] overflow-hidden">
           <CardHeader className="p-8 pb-4">
-            <CardTitle className="text-xl font-black text-white uppercase tracking-tight italic">Segment Distribution</CardTitle>
-            <p className="text-[10px] font-black text-navy-600 uppercase tracking-widest mt-1">Subscription tier concentration</p>
+            <CardTitle className="text-xl font-black text-slate-900 uppercase tracking-tight italic">Segment Distribution</CardTitle>
+            <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest mt-1">Subscription tier concentration</p>
           </CardHeader>
           <CardContent className="p-8 pt-4">
             <ResponsiveContainer width="100%" height={320}>
@@ -222,7 +222,7 @@ export function AnalyticsDashboard() {
                {data.charts.membershipBreakdown.map((item: any, index: number) => (
                  <div key={item.plan} className="flex items-center gap-3">
                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                   <span className="text-[9px] font-black uppercase text-navy-400 tracking-widest">{item.plan} ({item.percentage}%)</span>
+                   <span className="text-[9px] font-black uppercase text-slate-600 tracking-widest">{item.plan} ({item.percentage}%)</span>
                  </div>
                ))}
             </div>
@@ -230,27 +230,27 @@ export function AnalyticsDashboard() {
         </Card>
 
         {/* Top Performers */}
-        <Card className="bg-navy-900 border-navy-800 rounded-[2.5rem] overflow-hidden">
+        <Card className="bg-white border-slate-300 rounded-[2.5rem] overflow-hidden">
           <CardHeader className="p-8 pb-4">
-             <CardTitle className="text-xl font-black text-white uppercase tracking-tight italic">Personnel Impact</CardTitle>
-             <p className="text-[10px] font-black text-navy-600 uppercase tracking-widest mt-1">High-value administrative units</p>
+             <CardTitle className="text-xl font-black text-slate-900 uppercase tracking-tight italic">Personnel Impact</CardTitle>
+             <p className="text-[10px] font-black text-slate-800 uppercase tracking-widest mt-1">High-value administrative units</p>
           </CardHeader>
           <CardContent className="p-8 pt-4">
              <div className="space-y-6">
                 {data.topTrainers.map((trainer: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between p-4 rounded-3xl bg-navy-950 border border-transparent hover:border-indigo-500/20 transition-all group">
+                  <div key={i} className="flex items-center justify-between p-4 rounded-3xl bg-slate-50 border border-slate-300 hover:border-indigo-500/20 transition-all group">
                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-indigo-500/10 flex items-center justify-center font-black text-indigo-400 text-xs">
+                        <div className="h-10 w-10 rounded-xl bg-indigo-500/10 flex items-center justify-center font-black text-indigo-600 text-xs">
                            {(trainer.name || 'Anonymous').split(' ').map((n: string) => n[0]).join('')}
                         </div>
                         <div>
-                           <p className="text-xs font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{trainer.name || 'Anonymous Personnel'}</p>
-                           <p className="text-[9px] font-black text-navy-600 uppercase tracking-widest">{trainer.sessions ?? 0} Sessions Organized</p>
+                           <p className="text-xs font-black text-slate-900 uppercase tracking-tight group-hover:text-indigo-600 transition-colors">{trainer.name || 'Anonymous Personnel'}</p>
+                           <p className="text-[9px] font-black text-slate-800 uppercase tracking-widest">{trainer.sessions ?? 0} Sessions Organized</p>
                         </div>
                      </div>
                      <div className="text-right">
-                        <p className="text-xs font-black text-emerald-400 tracking-tighter">LKR {(trainer.revenue || 0).toLocaleString()}</p>
-                        <p className="text-[8px] font-black text-navy-700 uppercase tracking-widest">Yield Produced</p>
+                        <p className="text-xs font-black text-emerald-600 tracking-tighter">LKR {(trainer.revenue || 0).toLocaleString()}</p>
+                        <p className="text-[8px] font-black text-slate-900 uppercase tracking-widest">Yield Produced</p>
                      </div>
                   </div>
                 ))}

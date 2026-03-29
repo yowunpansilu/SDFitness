@@ -8,7 +8,7 @@ export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-navy-950 transition-colors duration-300 text-white">
+    <div className="min-h-screen bg-slate-50 transition-colors duration-300 text-slate-900">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         <AdminSidebar />
@@ -16,7 +16,7 @@ export function AdminLayout() {
 
       {/* Mobile Sidebar */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="left" className="p-0 w-72 bg-navy-950 border-r border-navy-900">
+        <SheetContent side="left" className="p-0 w-72 bg-slate-50 border-r border-slate-300">
           <AdminSidebar />
         </SheetContent>
       </Sheet>

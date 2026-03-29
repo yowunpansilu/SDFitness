@@ -24,7 +24,9 @@ services:
     ports:
       - "8081:8081"
     environment:
-      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+      ME_CONFIG_MONGODB_SERVER: sdfitness_mongo
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
       ME_CONFIG_BASICAUTH: "false"
     depends_on:
       mongo:
@@ -43,13 +45,15 @@ services:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
       - PORT=5001
+      - MONGO_URI=mongodb+srv://yowun:WYpansilu%404457@keelspricedb.ueu3ykw.mongodb.net/?appName=keelsPriceDB
+      - DB_NAME=keelsPriceDB
       # Used by the scraper to POST results back to the Node backend.
-      # Inside Docker, localhost would point to this container, not the backend.
       - BACKEND_URL=http://backend:5000
     volumes:
       - ./ml-service:/app
       - ml_models:/app/model/artifacts
       - ml_pip_cache:/usr/local/lib/python3.11/site-packages
+      - ml_playwright_cache:/root/.cache/ms-playwright
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"]
       interval: 30s
@@ -126,3 +130,4 @@ volumes:
   backend_node_modules:
   frontend_node_modules:
   admin_node_modules:
+  ml_playwright_cache:

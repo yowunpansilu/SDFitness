@@ -124,4 +124,19 @@ foodPriceSchema.index({ category: 1 });
 foodPriceSchema.index({ 'prices.store': 1 });
 foodPriceSchema.index({ isVerified: 1 });
 
-module.exports = mongoose.model('FoodPrice', foodPriceSchema);
+const { getFoodDbConnection } = require('../config/db');
+
+// Export a function to get the model on the correct connection
+const getFoodPriceModel = () => {
+    const foodConn = getFoodDbConnection();
+    const targetConn = foodConn || mongoose.connection;
+    
+    // Check if model is already registered on this connection
+    if (targetConn.models.FoodPrice) {
+        return targetConn.models.FoodPrice;
+    }
+    
+    return targetConn.model('FoodPrice', foodPriceSchema);
+};
+
+module.exports = getFoodPriceModel;

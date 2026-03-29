@@ -1,6 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Dumbbell, Calendar, Apple, DollarSign, CheckCircle } from 'lucide-react';
+import { Dumbbell, Calendar, Apple, DollarSign, CheckCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getAttendanceHistory } from '@/lib/api/attendanceService';
+import type { AttendanceRecord } from '@/lib/api/attendanceService';
+import { useAuthStore } from '@/lib/stores/authStore';
+import { formatDistanceToNow } from 'date-fns';
 
 interface Activity {
     id: string;
@@ -9,44 +14,6 @@ interface Activity {
     description: string;
     timestamp: string;
 }
-
-const mockActivities: Activity[] = [
-    {
-        id: '1',
-        type: 'workout',
-        title: 'Completed Workout',
-        description: 'Upper Body Strength Training',
-        timestamp: '2 hours ago',
-    },
-    {
-        id: '2',
-        type: 'class',
-        title: 'Attended Class',
-        description: 'HIIT Training with John Smith',
-        timestamp: '1 day ago',
-    },
-    {
-        id: '3',
-        type: 'diet',
-        title: 'Generated Diet Plan',
-        description: 'High Protein Muscle Gain Plan',
-        timestamp: '2 days ago',
-    },
-    {
-        id: '4',
-        type: 'payment',
-        title: 'Payment Successful',
-        description: 'Monthly Membership - $99.00',
-        timestamp: '3 days ago',
-    },
-    {
-        id: '5',
-        type: 'checkin',
-        title: 'Gym Check-in',
-        description: 'Morning session',
-        timestamp: '3 days ago',
-    },
-];
 
 const activityIcons = {
     workout: Dumbbell,
@@ -65,52 +32,93 @@ const activityColors = {
 };
 
 export function ActivityTimeline() {
+    const [activities, setActivities] = useState<Activity[]>([]);
+    const [loading, setLoading] = useState(true);
+    const user = useAuthStore((state) => state.user);
+
+    useEffect(() => {
+        const fetchActivities = async () => {
+            if (!user?.id) return;
+            try {
+                setLoading(true);
+                const attendance = await getAttendanceHistory(user.id);
+                
+                // Map attendance records to Activity interface
+                const mappedActivities: Activity[] = attendance.map((rec: AttendanceRecord) => ({
+                    id: rec._id,
+                    type: 'checkin',
+                    title: 'Gym Check-in',
+                    description: `At ${rec.facility}`,
+                    timestamp: formatDistanceToNow(new Date(rec.checkInTime), { addSuffix: true })
+                }));
+
+                setActivities(mappedActivities);
+            } catch (error) {
+                console.error('Failed to fetch activities:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchActivities();
+    }, [user?.id]);
+
     return (
         <Card className="glass-card border-border">
             <CardHeader>
                 <CardTitle className="text-foreground">Recent Activity</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="space-y-4">
-                    {mockActivities.map((activity, index) => {
-                        const Icon = activityIcons[activity.type];
-                        const isLast = index === mockActivities.length - 1;
+                {loading ? (
+                    <div className="flex justify-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                ) : activities.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                        No recent activity found.
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {activities.map((activity, index) => {
+                            const Icon = activityIcons[activity.type];
+                            const isLast = index === activities.length - 1;
 
-                        return (
-                            <div key={activity.id} className="relative flex gap-4">
-                                {/* Timeline line */}
-                                {!isLast && (
-                                    <div className="absolute left-5 top-12 bottom-0 w-px bg-muted" />
-                                )}
-
-                                {/* Icon */}
-                                <div
-                                    className={cn(
-                                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
-                                        activityColors[activity.type]
+                            return (
+                                <div key={activity.id} className="relative flex gap-4">
+                                    {/* Timeline line */}
+                                    {!isLast && (
+                                        <div className="absolute left-5 top-12 bottom-0 w-px bg-muted" />
                                     )}
-                                >
-                                    <Icon className="h-5 w-5" />
-                                </div>
 
-                                {/* Content */}
-                                <div className="flex-1 pb-4">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="text-sm font-semibold text-foreground">
-                                            {activity.title}
-                                        </h4>
-                                        <span className="text-xs text-muted-foreground">
-                                            {activity.timestamp}
-                                        </span>
+                                    {/* Icon */}
+                                    <div
+                                        className={cn(
+                                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+                                            activityColors[activity.type]
+                                        )}
+                                    >
+                                        <Icon className="h-5 w-5" />
                                     </div>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                        {activity.description}
-                                    </p>
+
+                                    {/* Content */}
+                                    <div className="flex-1 pb-4">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="text-sm font-semibold text-foreground">
+                                                {activity.title}
+                                            </h4>
+                                            <span className="text-xs text-muted-foreground">
+                                                {activity.timestamp}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            {activity.description}
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

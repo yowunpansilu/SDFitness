@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
@@ -8,26 +7,13 @@ import { useAuthStore } from '@/lib/stores/authStore';
 
 export function DashboardLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { token, login } = useAuthStore();
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const { token, fetchProfile } = useAuthStore();
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            if (!token) return;
-            try {
-                const response = await axios.get(`${API_URL}/api/auth/profile`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                if (response.data.success) {
-                    login(response.data.user, token, response.data.member);
-                }
-            } catch (error) {
-                console.error('Failed to sync profile:', error);
-            }
-        };
-
-        fetchProfile();
-    }, [token, API_URL, login]);
+        if (token && fetchProfile) {
+            fetchProfile();
+        }
+    }, [token, fetchProfile]);
 
     return (
         <div className="min-h-screen bg-dark-950">

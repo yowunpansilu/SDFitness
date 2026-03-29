@@ -87,16 +87,17 @@ export function MealCard({ meal, onSwap, isSwapping }: MealCardProps) {
                         variant="gym"
                         onClick={() => onSwap?.(meal)}
                         disabled={isSwapping}
-                        className="bg-secondary-500 hover:bg-secondary-600 text-white gap-2 text-xs font-bold rounded-xl h-10 shadow-lg shadow-secondary-500/20"
+                        className="bg-secondary-500 hover:bg-secondary-600 text-white gap-2 text-xs font-bold rounded-xl h-10 shadow-lg shadow-secondary-500/20 relative group/btn"
                     >
                         {isSwapping ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                        AI Alternative Swap
+                        AI Swap
+                        <span className="absolute -top-2 -right-1 px-1.5 py-0.5 bg-primary-900 text-[8px] text-white rounded-md scale-75 font-black uppercase tracking-tighter shadow-sm">Beta</span>
                     </Button>
                     <div className="flex justify-center gap-4">
-                        <button className="text-muted-foreground hover:text-primary-600 transition-colors">
+                        <button title="View Recipe" className="text-muted-foreground hover:text-primary-600 transition-colors">
                             <ChefHat className="w-4 h-4" />
                         </button>
-                        <button className="text-muted-foreground hover:text-primary-600 transition-colors">
+                        <button title="Nutrition Info" className="text-muted-foreground hover:text-primary-600 transition-colors">
                             <Info className="w-4 h-4" />
                         </button>
                     </div>

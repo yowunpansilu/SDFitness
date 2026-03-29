@@ -71,7 +71,7 @@ export function PaymentHistory() {
                                     <TableRow key={tx.id}>
                                         <TableCell>{format(new Date(tx.date), "MMM d, yyyy")}</TableCell>
                                         <TableCell>{tx.description}</TableCell>
-                                        <TableCell>${tx.amount.toFixed(2)}</TableCell>
+                                        <TableCell>Rs. {tx.amount.toLocaleString()}</TableCell>
                                         <TableCell>{getStatusLabel(tx.status)}</TableCell>
                                         <TableCell className="text-right">
                                             <Button

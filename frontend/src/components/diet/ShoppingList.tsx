@@ -8,12 +8,11 @@ import {
     CheckCircle2,
     ChevronDown,
     ChevronUp,
-    Printer,
     TrendingUp,
     TrendingDown
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
+
+
 import { cn } from '@/lib/utils';
 import type { ShoppingItem, ShoppingListData } from '@/lib/api/dietPlanApi';
 
@@ -53,9 +52,7 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
         );
     };
 
-    const handlePrint = () => {
-        window.print();
-    };
+
 
     return (
         <div className="space-y-6 flex flex-col h-full bg-white/50 rounded-3xl p-6 border border-primary-50">
@@ -71,13 +68,7 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
                         </p>
                     )}
                 </div>
-                <Button 
-                    onClick={handlePrint}
-                    className="bg-secondary-500 hover:bg-secondary-600 text-white font-bold px-6 h-12 rounded-2xl gap-3 shadow-lg shadow-secondary-500/20 shadow-amber-500/20"
-                >
-                    <Printer className="w-5 h-5" />
-                    Printable/Export List
-                </Button>
+
             </div>
 
             {/* Category Groups */}

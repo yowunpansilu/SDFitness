@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function NotificationSheet({ children }: Props) {
-    const { notifications, markAsRead, markAllAsRead, clearAll, unreadCount } = useNotificationStore();
+    const { notifications, markAsRead, markAllAsRead, deleteNotification, clearAll, unreadCount } = useNotificationStore();
 
     return (
         <Sheet>
@@ -56,6 +56,7 @@ export function NotificationSheet({ children }: Props) {
                                     key={notification.id}
                                     notification={notification}
                                     onRead={markAsRead}
+                                    onDelete={deleteNotification}
                                 />
                             ))}
                         </div>

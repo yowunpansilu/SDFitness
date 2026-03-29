@@ -13,9 +13,10 @@ import {
 } from '../ui/select';
 
 import { useAuthStore } from '@/lib/stores/authStore';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 
 export function HealthMetricsTab() {
-    const { member, login } = useAuthStore();
+    const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         height: member?.height?.value || '',
@@ -112,10 +113,8 @@ export function HealthMetricsTab() {
                 }
             });
 
-            if (response.data.success) {
-                const { user, token: newToken, member: updatedMember } = response.data;
-                // If the backend returns a new token, use it, otherwise keep current
-                login(user, newToken || (useAuthStore.getState().token as string), updatedMember);
+            if (response.data.success && token) {
+                login(response.data.user, token, response.data.member);
                 setIsEditing(false);
             }
         } catch (error) {
@@ -271,9 +270,12 @@ export function HealthMetricsTab() {
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-4">
                         {!isEditing ? (
-                            <Button variant="gym" onClick={() => setIsEditing(true)}>
-                                Edit Metrics
-                            </Button>
+                            <div className="flex gap-3">
+                                <Button variant="gym" onClick={() => setIsEditing(true)}>
+                                    Edit Metrics
+                                </Button>
+                                <DeleteAccountDialog />
+                            </div>
                         ) : (
                             <>
                                 <Button variant="gym" onClick={handleSave}>

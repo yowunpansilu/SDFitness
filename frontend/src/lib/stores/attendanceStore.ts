@@ -7,7 +7,6 @@ import {
     checkOutUser
 } from '@/lib/api/attendanceService';
 import { useAuthStore } from './authStore';
-import { produce } from 'immer';
 import { differenceInMinutes } from 'date-fns';
 
 interface AttendanceState {
@@ -22,7 +21,7 @@ interface AttendanceState {
     checkOut: () => Promise<void>;
 }
 
-export const useAttendanceStore = create<AttendanceState>((set) => ({
+export const useAttendanceStore = create<AttendanceState>((set, get) => ({
     history: [],
     currentSession: null,
     stats: null,
@@ -42,14 +41,12 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
             const currentStreak = calculateStreak(history);
             
             // Backend AttendanceRecord might not have durationMinutes if it's just raw records
-            const totalDuration = history.reduce((acc, curr) => {
-                if (curr.checkInTime && curr.checkOutTime) {
-                    return acc + differenceInMinutes(new Date(curr.checkOutTime), new Date(curr.checkInTime));
-                }
-                return acc;
+            const completedVisits = history.filter(h => h.checkInTime && h.checkOutTime);
+            const totalDuration = completedVisits.reduce((acc, curr) => {
+                return acc + differenceInMinutes(new Date(curr.checkOutTime!), new Date(curr.checkInTime));
             }, 0);
             
-            const avgDurationMinutes = totalVisits > 0 ? Math.round(totalDuration / totalVisits) : 0;
+            const avgDurationMinutes = completedVisits.length > 0 ? Math.round(totalDuration / completedVisits.length) : 0;
             const lastVisitDate = history.length > 0 ? history[0].checkInTime : undefined;
 
             set({
@@ -57,8 +54,9 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
                 stats: { totalVisits, currentStreak, avgDurationMinutes, lastVisitDate },
                 isLoading: false
             });
-        } catch (err) {
-            set({ error: 'Failed to fetch attendance history', isLoading: false });
+        } catch (err: any) {
+            console.error('Error fetching attendance history:', err);
+            set({ error: `Failed to fetch attendance history: ${err.message || 'Unknown error'}`, isLoading: false });
         }
     },
 
@@ -73,6 +71,7 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
         try {
             const session = await checkInUser(userId, facility);
             set({ currentSession: session, isLoading: false });
+            get().fetchHistory(); // Refresh history
         } catch (err) {
             set({ error: 'Failed to check in', isLoading: false });
         }
@@ -84,32 +83,55 @@ export const useAttendanceStore = create<AttendanceState>((set) => ({
 
         set({ isLoading: true, error: null });
         try {
-            const completedSession = await checkOutUser(userId);
-            
-            set(produce((state: AttendanceState) => {
-                state.history.unshift(completedSession);
-                state.currentSession = null;
-                
-                // Update stats roughly
-                if (state.stats) {
-                    state.stats.totalVisits += 1;
-                    if (completedSession.checkInTime && completedSession.checkOutTime) {
-                        const duration = differenceInMinutes(new Date(completedSession.checkOutTime), new Date(completedSession.checkInTime));
-                        const totalDur = (state.stats.avgDurationMinutes * (state.stats.totalVisits - 1)) + duration;
-                        state.stats.avgDurationMinutes = Math.round(totalDur / state.stats.totalVisits);
-                    }
-                }
-                state.isLoading = false;
-            }));
+            await checkOutUser(userId);
+            set({ currentSession: null, isLoading: false });
+            get().fetchHistory(); // Refresh history and accurately recalculate stats
         } catch (err) {
             set({ error: 'Failed to check out', isLoading: false });
         }
     }
 }));
 
-// Helper to calculate streak (simplified logic)
+// Helper to calculate streak accurately from history
 function calculateStreak(history: AttendanceRecord[]): number {
-    if (history.length === 0) return 0;
-    // Real calculation would involve checking consecutive days in checkInTime
-    return 3; // Placeholder for now
+    if (!history || history.length === 0) return 0;
+
+    // Normalize dates to midnight to compare just the days
+    const dates = history
+        .filter(h => h.checkInTime)
+        .map(h => {
+             const d = new Date(h.checkInTime);
+             d.setHours(0, 0, 0, 0);
+             return d.getTime();
+        })
+        .sort((a, b) => b - a);
+
+    const uniqueDates = Array.from(new Set(dates));
+    
+    if (uniqueDates.length === 0) return 0;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const msInDay = 24 * 60 * 60 * 1000;
+    
+    let streak = 0;
+    const diffDaysFirst = Math.round((today.getTime() - uniqueDates[0]) / msInDay);
+    
+    // If the most recent visit is today or yesterday, start counting streak
+    if (diffDaysFirst <= 1) {
+        streak = 1;
+        let currentDate = uniqueDates[0];
+
+        for (let i = 1; i < uniqueDates.length; i++) {
+            const diffDays = Math.round((currentDate - uniqueDates[i]) / msInDay);
+            if (diffDays === 1) {
+                streak++;
+                currentDate = uniqueDates[i];
+            } else {
+                break;
+            }
+        }
+    }
+
+    return streak;
 }

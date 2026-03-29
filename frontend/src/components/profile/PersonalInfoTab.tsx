@@ -7,9 +7,10 @@ import { Label } from '../ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Card, CardContent } from '../ui/card';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 
 export function PersonalInfoTab() {
-    const { user, login } = useAuthStore();
+    const { user, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
     const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -40,9 +41,9 @@ export function PersonalInfoTab() {
                 phone: formData.phone
             });
 
-            if (response.data.success) {
-                const { user, token: newToken, member } = response.data;
-                login(user, newToken || (useAuthStore.getState().token as string), member);
+            if (response.data.success && token) {
+                // Update local store with data from server
+                login(response.data.user, token, response.data.member);
                 setIsEditing(false);
             }
         } catch (error) {
@@ -87,9 +88,8 @@ export function PersonalInfoTab() {
                     avatar: base64String
                 });
 
-                if (response.data.success) {
-                    const { user, token: newToken, member } = response.data;
-                    login(user, newToken || (useAuthStore.getState().token as string), member);
+                if (response.data.success && token) {
+                    login(response.data.user, token, response.data.member);
                 }
             } catch (error) {
                 console.error('Error uploading photo:', error);
@@ -195,9 +195,12 @@ export function PersonalInfoTab() {
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-4">
                         {!isEditing ? (
-                            <Button variant="gym" onClick={() => setIsEditing(true)}>
-                                Edit Profile
-                            </Button>
+                            <div className="flex gap-3">
+                                <Button variant="gym" onClick={() => setIsEditing(true)}>
+                                    Edit Profile
+                                </Button>
+                                <DeleteAccountDialog />
+                            </div>
                         ) : (
                             <>
                                 <Button variant="gym" onClick={handleSave}>

@@ -63,20 +63,70 @@ export function RegisterForm() {
     const navigate = useNavigate();
     const { login } = useAuthStore();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Password matching validation for Step 1
+    const validateStep = () => {
         if (currentStep === 1) {
+            if (!step1Data.firstName || !step1Data.lastName) {
+                alert("Please enter both First Name and Last Name");
+                return false;
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(step1Data.email)) {
+                alert("Please enter a valid email address");
+                return false;
+            }
+
+            // Phone number validation (exactly 10 digits)
+            const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(step1Data.phone)) {
+                alert("Phone number must be exactly 10 digits");
+                return false;
+            }
+
             if (step1Data.password !== step1Data.confirmPassword) {
                 alert("Passwords do not match!");
-                return;
+                return false;
             }
             if (step1Data.password.length < 6) {
                 alert("Password should be at least 6 characters long");
-                return;
+                return false;
             }
         }
+
+        if (currentStep === 2) {
+            if (!step2Data.dateOfBirth) {
+                alert("Please select your Date of Birth");
+                return false;
+            }
+            if (!step2Data.gender) {
+                alert("Please select your Gender");
+                return false;
+            }
+            if (!step2Data.height || !step2Data.weight) {
+                alert("Please enter your Height and Weight");
+                return false;
+            }
+        }
+
+        if (currentStep === 3) {
+            if (step3Data.fitnessGoals.length === 0) {
+                alert("Please select at least one Fitness Goal");
+                return false;
+            }
+            if (!step3Data.activityLevel) {
+                alert("Please select your Activity Level");
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!validateStep()) return;
 
         if (currentStep < 3) {
             setCurrentStep(currentStep + 1);
@@ -91,6 +141,10 @@ export function RegisterForm() {
                 step3Data
             });
             const { user, token, member } = response.data;
+            
+            // Show success message
+            alert("Registration successful!");
+            
             login(user, token, member);
             navigate('/dashboard');
         } catch (error: any) {
@@ -205,7 +259,7 @@ export function RegisterForm() {
                             <Input
                                 id="phone"
                                 type="tel"
-                                placeholder="+1 (555) 000-0000"
+                                placeholder="0771234567"
                                 value={step1Data.phone}
                                 onChange={(e) => setStep1Data({ ...step1Data, phone: e.target.value })}
                                 className="pl-9 h-9 text-xs bg-primary-50 border-primary-200 focus:border-secondary-500 rounded-lg"

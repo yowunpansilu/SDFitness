@@ -75,7 +75,8 @@ const dietPlanSchema = new mongoose.Schema({
             category: { type: String },
             priceAtGeneration: Number,
             currentPrice: Number,
-            store: String
+            store: String,
+            checked: { type: Boolean, default: false }
         }],
         totalAtGeneration: Number,
         currentTotal: Number,

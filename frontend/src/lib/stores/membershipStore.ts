@@ -8,7 +8,8 @@ import {
     getCurrentMembership,
     getUsageStats,
     updateMembershipPlan,
-    cancelMembership
+    cancelMembership,
+    freezeMembership
 } from '../api/membershipService';
 
 interface MembershipState {
@@ -23,10 +24,10 @@ interface MembershipState {
     fetchMembershipData: () => Promise<void>;
     changePlan: (planId: string, billingCycle: BillingCycle) => Promise<void>;
     cancelSubscription: () => Promise<void>;
-    freezeSubscription: (resumeDate: Date) => Promise<void>; // Added freezeSubscription to interface
+    freezeSubscription: (resumeDate: Date) => Promise<void>;
 }
 
-export const useMembershipStore = create<MembershipState>((set) => ({
+export const useMembershipStore = create<MembershipState>((set, get) => ({
     plans: [],
     currentMembership: null,
     usageStats: null,
@@ -68,9 +69,12 @@ export const useMembershipStore = create<MembershipState>((set) => ({
     },
 
     cancelSubscription: async () => {
+        const { currentMembership } = get();
+        if (!currentMembership) return;
+
         set({ isLoading: true, error: null });
         try {
-            await cancelMembership();
+            await cancelMembership(currentMembership.id);
             set((state) => ({
                 currentMembership: state.currentMembership
                     ? { ...state.currentMembership, status: 'cancelled', autoRenew: false }
@@ -84,10 +88,12 @@ export const useMembershipStore = create<MembershipState>((set) => ({
     },
 
     freezeSubscription: async (resumeDate: Date) => {
+        const { currentMembership } = get();
+        if (!currentMembership) return;
+
         set({ isLoading: true, error: null });
         try {
-            // In a real app, we would call an API with the resumeDate
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await freezeMembership(currentMembership.id, resumeDate);
             set((state) => ({
                 currentMembership: state.currentMembership
                     ? { ...state.currentMembership, status: 'frozen', endDate: resumeDate.toISOString() }

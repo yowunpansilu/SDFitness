@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Dumbbell, Calendar, Zap, Plus, Target, Activity } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
@@ -10,6 +11,23 @@ import { useAuthStore } from '@/lib/stores/authStore';
 
 export function Dashboard() {
     const { user, member, fetchProfile } = useAuthStore();
+
+    // Calculate BMI dynamically if missing from DB but we have height and weight
+    let computedBmi = member?.bmi || 0;
+    if (!computedBmi && member?.height?.value && member?.currentWeight?.value) {
+        let heightM = member.height.value;
+        if (member.height.unit === 'cm') heightM = heightM / 100;
+        else if (member.height.unit === 'in') heightM = heightM * 0.0254;
+
+        let weightKg = member.currentWeight.value;
+        if (member.currentWeight.unit === 'lbs') weightKg = weightKg * 0.453592;
+
+        if (heightM > 0) {
+            computedBmi = weightKg / (heightM * heightM);
+        }
+    }
+
+    const displayBmi = computedBmi > 0 ? computedBmi.toFixed(1) : 'Not set';
 
     useEffect(() => {
         if (fetchProfile) fetchProfile();
@@ -45,7 +63,7 @@ export function Dashboard() {
                         </h1>
                         <div className="flex items-center gap-4 mt-3">
                             <p className="text-primary-600 text-xl font-medium">
-                                Ready to crush your fitness goals today?
+                                Ready to crush your {member?.fitnessGoals?.[0]?.toLowerCase() || 'fitness goals'} today?
                             </p>
                             <div className="h-1 w-12 bg-secondary-500 rounded-full" />
                             <div className="px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-xs font-bold text-primary-600 uppercase tracking-widest">
@@ -65,24 +83,24 @@ export function Dashboard() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <StatsCard
                     title="Current BMI"
-                    value={member?.bmi?.toFixed(1) || '--'}
+                    value={displayBmi}
                     icon={Activity}
-                    trend={member?.bmi && member.bmi < 25 ? "down" : "up"}
-                    trendValue={member?.bmi ? (member.bmi < 25 ? "Healthy" : "Attention") : ""}
+                    trend={computedBmi ? (computedBmi < 25 ? "down" : "up") : undefined}
+                    trendValue={computedBmi ? (computedBmi < 18.5 ? "Underweight" : computedBmi < 25 ? "Healthy" : "Attention") : ""}
                 />
                 <StatsCard
                     title="Current Weight"
-                    value={`${member?.currentWeight?.value || '--'} ${member?.currentWeight?.unit || 'kg'}`}
+                    value={member?.currentWeight?.value ? `${member.currentWeight.value} ${member.currentWeight.unit || 'kg'}` : 'Not set'}
                     icon={ScaleIcon as any}
                 />
                 <StatsCard
                     title="Target Weight"
-                    value={`${member?.targetWeight?.value || '--'} ${member?.targetWeight?.unit || 'kg'}`}
+                    value={member?.targetWeight?.value ? `${member.targetWeight.value} ${member.targetWeight.unit || 'kg'}` : 'Not set'}
                     icon={Target}
                 />
                 <StatsCard
                     title="Status"
-                    value={member?.status?.toUpperCase() || 'ACTIVE'}
+                    value={member?.status?.toUpperCase() || 'Not Active'}
                     icon={Zap}
                 />
             </div>
@@ -92,22 +110,30 @@ export function Dashboard() {
                 <CardContent className="p-6">
                     <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <Button variant="gym" className="h-auto py-4 flex-col gap-2">
-                            <Calendar className="w-6 h-6" />
-                            <span>Book a Class</span>
-                        </Button>
-                        <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                            <Dumbbell className="w-6 h-6" />
-                            <span>Log Workout</span>
-                        </Button>
-                        <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                            <Plus className="w-6 h-6" />
-                            <span>View Diet Plan</span>
-                        </Button>
-                        <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                            <Zap className="w-6 h-6" />
-                            <span>Check-in</span>
-                        </Button>
+                        <Link to="/classes" className="w-full">
+                            <Button variant="gym" className="h-auto w-full py-4 flex-col gap-2">
+                                <Calendar className="w-6 h-6" />
+                                <span>Book a Class</span>
+                            </Button>
+                        </Link>
+                        <Link to="/workouts" className="w-full">
+                            <Button variant="outline" className="h-auto w-full py-4 flex-col gap-2">
+                                <Dumbbell className="w-6 h-6" />
+                                <span>Log Workout</span>
+                            </Button>
+                        </Link>
+                        <Link to="/diet-plans" className="w-full">
+                            <Button variant="outline" className="h-auto w-full py-4 flex-col gap-2">
+                                <Plus className="w-6 h-6" />
+                                <span>View Diet Plan</span>
+                            </Button>
+                        </Link>
+                        <div className="w-full">
+                            <Button variant="outline" className="h-auto w-full py-4 flex-col gap-2">
+                                <Zap className="w-6 h-6" />
+                                <span>Check-in</span>
+                            </Button>
+                        </div>
                     </div>
                 </CardContent>
             </Card>

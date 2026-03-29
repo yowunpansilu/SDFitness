@@ -60,8 +60,9 @@ export const useBillingStore = create<BillingState>((set) => ({
                 }
                 state.isLoading = false;
             }));
-        } catch (err) {
-            set({ error: 'Failed to add payment method', isLoading: false });
+        } catch (err: any) {
+            const message = err.response?.data?.error || err.message || 'Failed to add payment method';
+            set({ error: message, isLoading: false });
             throw err;
         }
     },

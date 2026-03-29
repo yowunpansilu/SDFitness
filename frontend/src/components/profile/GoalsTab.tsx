@@ -16,7 +16,7 @@ import {
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function GoalsTab() {
-    const { member, login } = useAuthStore();
+    const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -53,9 +53,8 @@ export function GoalsTab() {
                 }
             });
 
-            if (response.data.success) {
-                const { user, token: newToken, member: updatedMember } = response.data;
-                login(user, newToken || (useAuthStore.getState().token as string), updatedMember);
+            if (response.data.success && token) {
+                login(response.data.user, token, response.data.member);
                 setIsEditing(false);
             }
         } catch (error) {

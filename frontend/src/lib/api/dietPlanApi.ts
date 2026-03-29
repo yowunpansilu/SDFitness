@@ -166,10 +166,18 @@ export async function generateDietPlan(formData: WizardFormData): Promise<DietPl
 }
 
 /**
- * Persist a generated diet plan to the database
+ * Persist a generated diet plan to the database (create)
  */
 export async function saveDietPlan(plan: DietPlan): Promise<DietPlan> {
     const response = await api.post('/diet-plans', plan);
+    return { ...response.data.data, id: response.data.data._id };
+}
+
+/**
+ * Update an existing diet plan
+ */
+export async function updateDietPlan(planId: string, updates: Partial<DietPlan>): Promise<DietPlan> {
+    const response = await api.put(`/diet-plans/${planId}`, updates);
     return { ...response.data.data, id: response.data.data._id };
 }
 

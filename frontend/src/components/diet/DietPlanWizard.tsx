@@ -18,10 +18,10 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
     const [generationStage, setGenerationStage] = useState(0);
 
     const generationStages = [
-        { icon: Brain, label: 'Analyzing your health markers...', detail: 'Calculating TDEE & macro targets' },
-        { icon: Salad, label: 'Scoring Atlas food catalog...', detail: 'Ranking 100+ items for your profile' },
-        { icon: ShoppingCart, label: 'Synthesizing 7-day plan...', detail: 'Optimizing portions & market budget' },
-        { icon: ChefHat, label: 'Nvidia AI refining recipes...', detail: 'Generating bespoke instructions' },
+        { icon: Brain, label: 'Analyzing your profile...', detail: 'Calculating TDEE & macro targets' },
+        { icon: Salad, label: 'ML model scoring foods...', detail: 'Ranking 20 foods for your goals' },
+        { icon: ShoppingCart, label: 'Building 7-day plan...', detail: 'Optimizing portions & budget' },
+        { icon: ChefHat, label: 'Gemini adding recipes...', detail: 'Generating cooking instructions' },
     ];
 
     useEffect(() => {
@@ -30,13 +30,20 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
             return () => clearTimeout(timer);
         }
     }, [isGenerating, generationStage]);
-    const [formData, setFormData] = useState<WizardFormData>({
-        goal: '',
-        dietaryPreferences: [],
-        allergies: '',
-        budget: 5000,
-        activityLevel: '',
+    const [formData, setFormData] = useState<WizardFormData>(() => {
+        const saved = localStorage.getItem('diet_wizard_form');
+        return saved ? JSON.parse(saved) : {
+            goal: '',
+            dietaryPreferences: [],
+            allergies: '',
+            budget: 1000,
+            activityLevel: '',
+        };
     });
+
+    useEffect(() => {
+        localStorage.setItem('diet_wizard_form', JSON.stringify(formData));
+    }, [formData]);
 
     const totalSteps = 5;
 
@@ -108,6 +115,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
         setGenerationStage(0);
         try {
             const plan = await generateDietPlan(formData);
+            localStorage.removeItem('diet_wizard_form');
             onComplete(plan);
         } catch (error) {
             console.error('Error generating diet plan:', error);
@@ -239,7 +247,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
                                 </div>
                                 <input
                                     type="range"
-                                    min="1500"
+                                    min="1000"
                                     max="15000"
                                     step="500"
                                     value={formData.budget}
@@ -247,7 +255,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
                                     className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary-500"
                                 />
                                 <div className="flex justify-between text-sm text-muted-foreground">
-                                    <span>LKR 1,500</span>
+                                    <span>LKR 1,000</span>
                                     <span>LKR 15,000</span>
                                 </div>
                             </div>

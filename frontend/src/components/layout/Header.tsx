@@ -1,4 +1,4 @@
-import { Menu, LogOut, Settings, User } from 'lucide-react';
+import { Menu, LogOut, User } from 'lucide-react';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -81,10 +81,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                             <User className="mr-2 h-4 w-4" />
                             <span>Profile</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
-                            <Settings className="mr-2 h-4 w-4" />
-                            <span>Settings</span>
-                        </DropdownMenuItem>
+
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={handleLogout} className="text-red-400">
                             <LogOut className="mr-2 h-4 w-4" />

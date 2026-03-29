@@ -15,8 +15,8 @@ export function MessageBubble({ message, isOwn }: Props) {
                 className={cn(
                     "relative max-w-[70%] px-4 py-2 rounded-2xl text-sm",
                     isOwn
-                        ? "bg-primary-500 text-white rounded-br-none"
-                        : "bg-muted text-gray-100 rounded-bl-none"
+                        ? "bg-primary-500 text-black rounded-br-none"
+                        : "bg-muted text-black rounded-bl-none"
                 )}
             >
                 {message.type === 'text' && (

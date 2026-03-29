@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useBillingStore } from "@/lib/stores/billingStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,8 +12,6 @@ export function PaymentMethods() {
     const { paymentMethods, addNewPaymentMethod, removePaymentMethod, setAsDefault, isLoading } = useBillingStore();
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Form state
     const [formData, setFormData] = useState({
         cardNumber: '',
         expiryDate: '',
@@ -21,15 +19,96 @@ export function PaymentMethods() {
         name: ''
     });
 
+    // Input Refs for native validation
+    const cardRef = useRef<HTMLInputElement>(null);
+    const expiryRef = useRef<HTMLInputElement>(null);
+    const cvcRef = useRef<HTMLInputElement>(null);
+
+    // Formatting helpers
+    const formatCardNumber = (value: string) => {
+        const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        const parts = [];
+
+        for (let i = 0, len = v.length; i < len; i += 4) {
+            parts.push(v.substring(i, i + 4));
+        }
+
+        if (parts.length > 0) {
+            return parts.join(' ').trim();
+        } else {
+            return v;
+        }
+    };
+
+    const formatName = (value: string) => {
+        return value.replace(/[^a-zA-Z\s]/g, '');
+    };
+
+    const formatExpiryDate = (value: string) => {
+        const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        if (v.length >= 2) {
+            return v.substring(0, 2) + (v.length > 2 ? '/' + v.substring(2, 4) : '');
+        }
+        return v;
+    };
+
+    const formatCVC = (value: string) => {
+        return value.replace(/[^0-9]/gi, '').substring(0, 4);
+    };
+
     const handleAddMethod = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Reset validities
+        cardRef.current?.setCustomValidity('');
+        expiryRef.current?.setCustomValidity('');
+        cvcRef.current?.setCustomValidity('');
+
+        // Card validation
+        const cleanCard = formData.cardNumber.replace(/\s/g, '');
+        if (cleanCard.length < 16) {
+            cardRef.current?.setCustomValidity('Please enter a valid 16-digit card number');
+            cardRef.current?.reportValidity();
+            return;
+        }
+
+        // MM/YY Validation
+        const parts = formData.expiryDate.split('/');
+        const monthStr = parts[0] || '';
+        const yearStr = parts[1] || '';
+        
+        const month = monthStr ? parseInt(monthStr, 10) : 0;
+        const year = yearStr ? parseInt(yearStr, 10) : 0;
+
+        if (month < 1 || month > 12) {
+            expiryRef.current?.setCustomValidity('Please enter a valid month (01-12)');
+            expiryRef.current?.reportValidity();
+            return;
+        }
+        if (yearStr.length < 2 || year < 0) {
+            expiryRef.current?.setCustomValidity('Please enter a valid year (YY)');
+            expiryRef.current?.reportValidity();
+            return;
+        }
+
+        if (formData.cvc.length < 3) {
+            cvcRef.current?.setCustomValidity('Please enter a valid CVC');
+            cvcRef.current?.reportValidity();
+            return;
+        }
+
         setIsSubmitting(true);
 
         // Simulate card processing
         try {
+            const brand: 'visa' | 'mastercard' | 'amex' | 'paypal' = 
+                cleanCard.startsWith('4') ? 'visa' : 
+                cleanCard.startsWith('5') ? 'mastercard' : 
+                cleanCard.startsWith('3') ? 'amex' : 'visa';
+
             await addNewPaymentMethod({
-                brand: 'visa', // Mock detection
-                last4: formData.cardNumber.slice(-4),
+                brand,
+                last4: cleanCard.slice(-4),
                 expiryMonth: parseInt(formData.expiryDate.split('/')[0]),
                 expiryYear: 2000 + parseInt(formData.expiryDate.split('/')[1]),
                 isDefault: paymentMethods.length === 0
@@ -68,9 +147,9 @@ export function PaymentMethods() {
                                     <Label htmlFor="name">Cardholder Name</Label>
                                     <Input
                                         id="name"
-                                        placeholder="John Doe"
+                                        placeholder="Sara Jasmine"
                                         value={formData.name}
-                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                        onChange={e => setFormData({ ...formData, name: formatName(e.target.value) })}
                                         required
                                     />
                                 </div>
@@ -80,10 +159,11 @@ export function PaymentMethods() {
                                         <CreditCard className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                         <Input
                                             id="number"
+                                            ref={cardRef}
                                             className="pl-9"
                                             placeholder="0000 0000 0000 0000"
                                             value={formData.cardNumber}
-                                            onChange={e => setFormData({ ...formData, cardNumber: e.target.value })}
+                                            onChange={e => setFormData({ ...formData, cardNumber: formatCardNumber(e.target.value) })}
                                             maxLength={19}
                                             required
                                         />
@@ -94,9 +174,10 @@ export function PaymentMethods() {
                                         <Label htmlFor="expiry">Expiry Date</Label>
                                         <Input
                                             id="expiry"
+                                            ref={expiryRef}
                                             placeholder="MM/YY"
                                             value={formData.expiryDate}
-                                            onChange={e => setFormData({ ...formData, expiryDate: e.target.value })}
+                                            onChange={e => setFormData({ ...formData, expiryDate: formatExpiryDate(e.target.value) })}
                                             maxLength={5}
                                             required
                                         />
@@ -105,9 +186,10 @@ export function PaymentMethods() {
                                         <Label htmlFor="cvc">CVC</Label>
                                         <Input
                                             id="cvc"
+                                            ref={cvcRef}
                                             placeholder="123"
                                             value={formData.cvc}
-                                            onChange={e => setFormData({ ...formData, cvc: e.target.value })}
+                                            onChange={e => setFormData({ ...formData, cvc: formatCVC(e.target.value) })}
                                             maxLength={4}
                                             required
                                         />

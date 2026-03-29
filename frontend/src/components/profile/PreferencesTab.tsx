@@ -4,6 +4,7 @@ import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Card, CardContent } from '../ui/card';
+import { Checkbox } from '../ui/checkbox';
 import {
     Select,
     SelectContent,
@@ -15,7 +16,7 @@ import {
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function PreferencesTab() {
-    const { member, login } = useAuthStore();
+    const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
     
     // Helper to format dietary preferences from backend (snake_case) to UI (Capitalized-Hyphenated)
@@ -87,9 +88,8 @@ export function PreferencesTab() {
                 }
             });
 
-            if (response.data.success) {
-                const { user, token: newToken, member: updatedMember } = response.data;
-                login(user, newToken || (useAuthStore.getState().token as string), updatedMember);
+            if (response.data.success && token) {
+                login(response.data.user, token, response.data.member);
                 setIsEditing(false);
             }
         } catch (error) {

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { LogIn } from 'lucide-react';
+import api from '@/lib/api/axios';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -11,18 +12,13 @@ export function Login() {
   const { login } = useAuthStore();
 
   const [isLoading, setIsLoading] = useState(false);
-  const API_URL = 'http://localhost:5000'; // Standard backend port
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
+      const response = await api.post('/auth/login', { email, password });
+      const data = response.data;
 
       if (data.success) {
         if (data.user.role !== 'admin') {
@@ -35,9 +31,9 @@ export function Login() {
         alert(data.message || 'Login failed!');
         setIsLoading(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Admin Login Error:', error);
-      alert('Connection to security server failed.');
+      alert(error.response?.data?.message || 'Connection to security server failed.');
       setIsLoading(false);
     }
   };

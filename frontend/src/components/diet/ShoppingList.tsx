@@ -9,9 +9,10 @@ import {
     ChevronDown,
     ChevronUp,
     TrendingUp,
-    TrendingDown
+    TrendingDown,
+    Copy,
+    Check
 } from 'lucide-react';
-
 
 import { cn } from '@/lib/utils';
 import type { ShoppingItem, ShoppingListData } from '@/lib/api/dietPlanApi';
@@ -24,6 +25,7 @@ interface ShoppingListProps {
 
 export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListProps) {
     const [expandedCategories, setExpandedCategories] = useState<string[]>(['Produce', 'Meat & Fish', 'Dairy', 'Protein', 'Vegetables']);
+    const [copied, setCopied] = useState(false);
 
     // Map categories with icons
     const getCategoryIcon = (category: string) => {
@@ -52,7 +54,16 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
         );
     };
 
-
+    const copyToClipboard = () => {
+        const text = items
+            .map(item => `- [${item.checked ? 'x' : ' '}] ${item.name}: ${item.quantity}${item.unit || ''}`)
+            .join('\n');
+        
+        navigator.clipboard.writeText(text).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    };
 
     return (
         <div className="space-y-6 flex flex-col h-full bg-white/50 rounded-3xl p-6 border border-primary-50">
@@ -60,7 +71,7 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
             <div className="flex justify-between items-center px-2">
                 <div>
                     <h2 className="text-2xl font-bold text-primary-900 tracking-tight">
-                        Interactive Weekly Shopping List
+                        Weekly Shopping List
                     </h2>
                     {priceData && (
                         <p className="text-sm font-medium text-muted-foreground mt-1">
@@ -68,7 +79,13 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
                         </p>
                     )}
                 </div>
-
+                <button 
+                    onClick={copyToClipboard}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary-50 text-primary-700 text-xs font-bold hover:bg-primary-100 transition-colors"
+                >
+                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? 'Copied!' : 'Copy List'}
+                </button>
             </div>
 
             {/* Category Groups */}
@@ -188,4 +205,3 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
         </div>
     );
 }
-

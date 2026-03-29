@@ -1,15 +1,14 @@
-import { ChefHat, Info, Clock, Loader2, RefreshCw, MoreHorizontal } from 'lucide-react';
+import { ChefHat, Info, Clock, MoreHorizontal } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import type { Meal } from '@/lib/api/dietPlanApi';
 
 interface MealCardProps {
     meal: Meal;
-    onSwap?: (meal: Meal) => void;
-    isSwapping?: boolean;
+    onMakeNow?: (meal: Meal) => void;
 }
 
-export function MealCard({ meal, onSwap, isSwapping }: MealCardProps) {
+export function MealCard({ meal, onMakeNow }: MealCardProps) {
     // Support both old (flat macros) and new (nested macros) format
     const protein = meal.macros?.protein ?? meal.protein ?? 0;
     const carbs = meal.macros?.carbs ?? meal.carbs ?? 0;
@@ -85,18 +84,14 @@ export function MealCard({ meal, onSwap, isSwapping }: MealCardProps) {
                     <Button 
                         size="sm"
                         variant="gym"
-                        onClick={() => onSwap?.(meal)}
-                        disabled={isSwapping}
-                        className="bg-secondary-500 hover:bg-secondary-600 text-white gap-2 text-xs font-bold rounded-xl h-10 shadow-lg shadow-secondary-500/20"
+                        onClick={() => onMakeNow?.(meal)}
+                        className="bg-primary-600 hover:bg-primary-700 text-white gap-2 text-xs font-bold rounded-xl h-10 shadow-lg shadow-primary-600/20 px-4"
                     >
-                        {isSwapping ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                        AI Alternative Swap
+                        <ChefHat className="w-3.5 h-3.5" />
+                        Make Now
                     </Button>
-                    <div className="flex justify-center gap-4">
-                        <button className="text-muted-foreground hover:text-primary-600 transition-colors">
-                            <ChefHat className="w-4 h-4" />
-                        </button>
-                        <button className="text-muted-foreground hover:text-primary-600 transition-colors">
+                    <div className="flex justify-center gap-4 mt-1">
+                        <button className="text-muted-foreground hover:text-primary-600 transition-colors p-1 rounded-lg hover:bg-primary-50">
                             <Info className="w-4 h-4" />
                         </button>
                     </div>

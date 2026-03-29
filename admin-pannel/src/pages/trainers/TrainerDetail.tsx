@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Mail,
@@ -12,6 +12,9 @@ import {
   TrendingUp,
   DollarSign,
   Clock,
+  Loader2,
+  Globe,
+  ShieldAlert,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +30,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import api from '@/lib/api/axios';
+import { useToast } from '@/hooks/use-toast';
+
+interface Certification {
+  name: string;
+  issuer: string;
+  issueDate: string;
+}
 
 interface Trainer {
   id: string;
@@ -35,94 +46,111 @@ interface Trainer {
   email: string;
   phone: string;
   specializations: string[];
-  certifications: string[];
+  certifications: Certification[];
   assignedMembers: number;
   rating: number;
   photoUrl?: string;
   status: 'active' | 'inactive' | 'on_leave';
-  hireDate: string;
+  joinDate: string;
   bio: string;
+  hourlyRate: number;
+  employmentStatus: string;
+  commissionRate: number;
+  availableHoursPerWeek: number;
   emergencyContact: {
     name: string;
+    relationship: string;
     phone: string;
   };
 }
 
-interface AssignedMember {
-  id: string;
-  name: string;
-  membershipType: string;
-  startDate: string;
-  sessionsCompleted: number;
-  photoUrl?: string;
-}
-
-// Mock data
-const mockTrainer: Trainer = {
-  id: '1',
-  firstName: 'Sarah',
-  lastName: 'Johnson',
-  email: 'sarah.j@sdfitness.com',
-  phone: '+1 234 567 8901',
-  specializations: ['Strength Training', 'Bodybuilding', 'Powerlifting'],
-  certifications: ['NASM-CPT', 'CSCS', 'USA Powerlifting Coach'],
-  assignedMembers: 24,
-  rating: 4.8,
-  photoUrl: undefined,
-  status: 'active',
-  hireDate: '2023-01-15',
-  bio: 'Certified personal trainer with over 8 years of experience specializing in strength training and bodybuilding. Passionate about helping clients achieve their fitness goals through customized workout programs and nutrition guidance.',
-  emergencyContact: {
-    name: 'John Johnson',
-    phone: '+1 234 567 8999',
-  },
-};
-
-const mockAssignedMembers: AssignedMember[] = [
-  {
-    id: '1',
-    name: 'Michael Brown',
-    membershipType: 'Premium',
-    startDate: '2024-01-15',
-    sessionsCompleted: 45,
-    photoUrl: undefined,
-  },
-  {
-    id: '2',
-    name: 'Emily Davis',
-    membershipType: 'VIP',
-    startDate: '2024-02-20',
-    sessionsCompleted: 32,
-    photoUrl: undefined,
-  },
-  {
-    id: '3',
-    name: 'James Wilson',
-    membershipType: 'Premium',
-    startDate: '2023-11-08',
-    sessionsCompleted: 78,
-    photoUrl: undefined,
-  },
-];
-
-const mockSchedule = [
-  { day: 'Monday', time: '6:00 AM - 2:00 PM', type: 'Morning Shift' },
-  { day: 'Tuesday', time: '6:00 AM - 2:00 PM', type: 'Morning Shift' },
-  { day: 'Wednesday', time: '2:00 PM - 10:00 PM', type: 'Evening Shift' },
-  { day: 'Thursday', time: '6:00 AM - 2:00 PM', type: 'Morning Shift' },
-  { day: 'Friday', time: '2:00 PM - 10:00 PM', type: 'Evening Shift' },
-  { day: 'Saturday', time: '9:00 AM - 5:00 PM', type: 'Day Shift' },
-];
-
 const statusColors = {
-  active: 'bg-green-500/20 text-green-400 border-green-500/30',
+  active: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
   inactive: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
   on_leave: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
 };
 
 export function TrainerDetail() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [trainer] = useState(mockTrainer);
+  const { toast } = useToast();
+  const [trainer, setTrainer] = useState<Trainer | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrainer = async () => {
+      try {
+        const response = await api.get(`/trainers/${id}`);
+        const t = response.data;
+        setTrainer({
+          id: t._id,
+          firstName: t.userId?.firstName || 'Unknown',
+          lastName: t.userId?.lastName || 'Faculty',
+          email: t.userId?.email || 'N/A',
+          phone: t.userId?.phone || 'N/A',
+          specializations: t.specializations || [],
+          certifications: t.certifications || [],
+          assignedMembers: t.assignedMembers || 0,
+          rating: t.rating || 5.0,
+          photoUrl: t.userId?.avatar,
+          status: t.status || 'active',
+          joinDate: t.joinDate || t.createdAt,
+          bio: t.bio || '',
+          hourlyRate: t.hourlyRate || 0,
+          employmentStatus: t.employmentStatus || 'full-time',
+          commissionRate: t.commissionRate || 0,
+          availableHoursPerWeek: t.availableHoursPerWeek || 40,
+          emergencyContact: t.emergencyContact || { name: '', relationship: '', phone: '' },
+        });
+      } catch (error) {
+        console.error('Failed to fetch trainer:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to synchronize faculty profile.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTrainer();
+  }, [id, toast]);
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to terminate this faculty assignment? This action is permanent.')) return;
+    try {
+      await api.delete(`/trainers/${id}`);
+      toast({
+        title: 'Faculty Terminated',
+        description: 'Profile has been successfully purged from the matrix.',
+      });
+      navigate('/trainers');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to terminate faculty profile.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <Loader2 className="h-12 w-12 text-indigo-600 animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600">Retrieving Faculty Matrix</p>
+      </div>
+    );
+  }
+
+  if (!trainer) {
+    return (
+      <div className="text-center py-20">
+        <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase">Profile Not Located</h2>
+        <Button onClick={() => navigate('/trainers')} className="mt-4">Return to Faculty List</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -130,10 +158,10 @@ export function TrainerDetail() {
       <Button
         variant="ghost"
         onClick={() => navigate('/trainers')}
-        className="text-slate-400 dark:text-navy-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-navy-800/50 rounded-xl transition-all"
+        className="text-slate-400 dark:text-navy-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-navy-800/50 rounded-xl transition-all font-black uppercase text-[10px] tracking-widest"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Trainers
+        Back to Faculty Matrix
       </Button>
 
       {/* Trainer Header */}
@@ -150,8 +178,8 @@ export function TrainerDetail() {
             <div className="flex-1">
               <div className="flex items-start justify-between">
                 <div>
-                  <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white transition-colors">
-                    {trainer.firstName} <span className="text-indigo-600 dark:text-indigo-400 italic">{trainer.lastName}</span>
+                  <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white transition-colors uppercase">
+                    {trainer.firstName} <span className="text-indigo-600 dark:text-indigo-400">{trainer.lastName}</span>
                   </h1>
                   <Badge className={cn('mt-3 px-4 py-1 rounded-full font-black text-[10px] uppercase tracking-widest transition-colors', statusColors[trainer.status])}>
                     {trainer.status.replace('_', ' ')}
@@ -161,6 +189,7 @@ export function TrainerDetail() {
                   <Button
                     variant="outline"
                     size="icon"
+                    onClick={() => navigate(`/trainers/edit/${id}`)}
                     className="h-10 w-10 border-slate-200 dark:border-navy-800 text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-navy-800 rounded-xl transition-all"
                   >
                     <Edit className="h-4 w-4" />
@@ -168,6 +197,7 @@ export function TrainerDetail() {
                   <Button
                     variant="outline"
                     size="icon"
+                    onClick={handleDelete}
                     className="h-10 w-10 border-slate-200 dark:border-navy-800 text-slate-400 dark:text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-all"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -192,7 +222,7 @@ export function TrainerDetail() {
                   <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-navy-950 flex items-center justify-center">
                     <Calendar className="h-4 w-4" />
                   </div>
-                  <span className="text-sm font-bold">Hired {new Date(trainer.hireDate).toLocaleDateString()}</span>
+                  <span className="text-sm font-bold">Activated {new Date(trainer.joinDate).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center gap-3 text-slate-500 dark:text-navy-400">
                   <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-navy-950 flex items-center justify-center">
@@ -211,8 +241,8 @@ export function TrainerDetail() {
         {[
           { label: 'Assigned Members', value: trainer.assignedMembers, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
           { label: 'Avg Rating', value: trainer.rating, icon: TrendingUp, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-          { label: 'Sessions / Mo', value: '156', icon: Clock, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-          { label: 'Revenue Generated', value: '$12,450', icon: DollarSign, color: 'text-indigo-500', bg: 'bg-indigo-500/10' }
+          { label: 'Simulated Sessions', value: '156', icon: Clock, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+          { label: 'Simulated Revenue', value: `$${(trainer.hourlyRate * 156 * 0.7).toLocaleString()}`, icon: DollarSign, color: 'text-indigo-500', bg: 'bg-indigo-500/10' }
         ].map((stat, i) => (
           <Card key={i} className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-2xl shadow-sm transition-colors overflow-hidden group">
             <CardHeader className="pb-2">
@@ -248,7 +278,7 @@ export function TrainerDetail() {
         <TabsContent value="overview" className="space-y-6">
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors">
             <CardHeader>
-              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">Biography</CardTitle>
+              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Biography</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-slate-600 dark:text-navy-300 font-medium leading-relaxed transition-colors">{trainer.bio}</p>
@@ -258,7 +288,7 @@ export function TrainerDetail() {
           <div className="grid md:grid-cols-2 gap-6">
             <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors">
               <CardHeader>
-                <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic flex items-center gap-2">
+                <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 flex items-center gap-2">
                   <Award className="h-5 w-5 text-indigo-500" />
                   Performance Specializations
                 </CardTitle>
@@ -276,7 +306,7 @@ export function TrainerDetail() {
 
             <Card className="bg-slate-50 dark:bg-navy-950 border-none rounded-3xl transition-colors">
               <CardHeader>
-                <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">Emergency Protocol</CardTitle>
+                <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Emergency Protocol</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
@@ -296,7 +326,7 @@ export function TrainerDetail() {
         <TabsContent value="members">
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl overflow-hidden transition-colors shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">Student Matrix ({mockAssignedMembers.length})</CardTitle>
+              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Student Matrix ({trainer.assignedMembers})</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
@@ -308,38 +338,13 @@ export function TrainerDetail() {
                     <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400 text-right pr-8">Sessions</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
-                  {mockAssignedMembers.map((member) => (
-                    <TableRow
-                      key={member.id}
-                      className="border-b border-slate-50 dark:border-navy-950 hover:bg-slate-50 dark:hover:bg-navy-950/80 cursor-pointer transition-colors group"
-                      onClick={() => navigate(`/members/${member.id}`)}
-                    >
-                      <TableCell className="pl-8">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10 border-2 border-white dark:border-navy-900 shadow-sm transition-transform group-hover:scale-95">
-                            <AvatarImage src={member.photoUrl} />
-                            <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-[10px] font-black italic">
-                              {member.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm font-bold text-slate-900 dark:text-white">{member.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/50 font-black text-[9px] uppercase tracking-widest transition-colors">
-                          {member.membershipType}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm font-medium text-slate-500 dark:text-navy-500">
-                        {new Date(member.startDate).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="text-right pr-8">
-                        <span className="text-sm font-black text-slate-900 dark:text-white transition-colors">{member.sessionsCompleted}</span>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell colSpan={4} className="h-32 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">
+                        No active student units assigned to this faculty
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
+                  </TableBody>
               </Table>
             </CardContent>
           </Card>
@@ -349,29 +354,14 @@ export function TrainerDetail() {
         <TabsContent value="schedule">
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors shadow-sm">
             <CardHeader>
-              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">Shift Protocol Matrix</CardTitle>
+              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Shift Protocol Matrix</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockSchedule.map((schedule) => (
-                  <div
-                    key={schedule.day}
-                    className="flex items-center justify-between p-6 rounded-2xl bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-all hover:bg-white dark:hover:bg-navy-950 group"
-                  >
-                    <div className="flex items-center gap-8">
-                      <div className="w-24">
-                        <p className="text-sm font-black text-slate-900 dark:text-white uppercase italic tracking-wider transition-colors">{schedule.day}</p>
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-500 dark:text-navy-500">
-                        <Clock className="h-4 w-4 text-indigo-500" />
-                        <span className="text-sm font-bold">{schedule.time}</span>
-                      </div>
-                    </div>
-                    <Badge className="bg-white dark:bg-navy-900 text-slate-700 dark:text-navy-300 border-slate-200 dark:border-navy-800 font-black text-[9px] uppercase tracking-[0.2em] px-4 shadow-sm group-hover:border-indigo-100 dark:group-hover:border-indigo-900 transition-colors">
-                      {schedule.type}
-                    </Badge>
-                  </div>
-                ))}
+              <div className="h-32 flex flex-col items-center justify-center text-center space-y-4">
+                <Globe className="h-8 w-8 text-slate-200 dark:text-navy-800" />
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Standard faculty shifts currently in reconciliation</p>
+              </div>
               </div>
             </CardContent>
           </Card>
@@ -381,27 +371,31 @@ export function TrainerDetail() {
         <TabsContent value="certifications">
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors shadow-sm">
             <CardHeader>
-              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">Certified Matrix Credentials</CardTitle>
+              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Certified Matrix Credentials</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-4">
-                {trainer.certifications.map((cert) => (
-                  <div
-                    key={cert}
-                    className="flex items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-all hover:bg-white dark:hover:bg-navy-950 group"
-                  >
-                    <div className="h-12 w-12 rounded-xl bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-500 transition-transform group-hover:scale-110">
-                      <Award className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <p className="text-base font-black text-slate-900 dark:text-white leading-none mb-1 uppercase tracking-tight transition-colors">{cert}</p>
-                      <div className="flex items-center gap-1.5">
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <p className="text-[10px] text-emerald-600 dark:text-emerald-500 font-black uppercase tracking-widest uppercase tracking-widest">Active Credential</p>
+                {trainer.certifications.length > 0 ? (
+                  trainer.certifications.map((cert) => (
+                    <div
+                      key={cert.name}
+                      className="flex items-center gap-4 p-6 rounded-2xl bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-all hover:bg-white dark:hover:bg-navy-950 group"
+                    >
+                      <div className="h-12 w-12 rounded-xl bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-500 transition-transform group-hover:scale-110">
+                        <Award className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="text-base font-black text-slate-900 dark:text-white leading-none mb-1 uppercase tracking-tight transition-colors">{cert.name}</p>
+                        <p className="text-[10px] text-slate-400 dark:text-navy-600 font-bold uppercase tracking-widest">{cert.issuer} • {new Date(cert.issueDate).getFullYear()}</p>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="col-span-2 py-12 flex flex-col items-center justify-center text-center space-y-4">
+                    <ShieldAlert className="h-8 w-8 text-slate-200 dark:text-navy-800" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">No validated credentials on file for this faculty unit</p>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>

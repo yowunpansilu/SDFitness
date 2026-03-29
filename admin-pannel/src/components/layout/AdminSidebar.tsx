@@ -9,6 +9,8 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  Store,
+  MessageSquareQuote,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { cn } from '@/lib/utils';
@@ -37,6 +39,13 @@ const navigationGoups = [
     items: [
       { name: 'Equipment', href: '/equipment', icon: Package },
       { name: 'Payments', href: '/payments', icon: CreditCard },
+    ]
+  },
+  {
+    title: 'Market Intelligence',
+    items: [
+      { name: 'Food Prices', href: '/prices', icon: Store },
+      { name: 'Scraper Review', href: '/scraper/review', icon: MessageSquareQuote },
     ]
   },
   {

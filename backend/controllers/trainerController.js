@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 exports.getAllTrainers = async (req, res) => {
     try {
         const trainers = await Trainer.find()
-            .populate('user', 'email firstName lastName')
+            .populate('userId', 'email firstName lastName')
             .sort({ createdAt: -1 });
         res.json(trainers);
     } catch (err) {
@@ -18,7 +18,7 @@ exports.getAllTrainers = async (req, res) => {
 exports.getTrainerById = async (req, res) => {
     try {
         const trainer = await Trainer.findById(req.params.id)
-            .populate('user', 'email firstName lastName');
+            .populate('userId', 'email firstName lastName');
         if (!trainer) return res.status(404).json({ error: 'Trainer not found' });
         res.json(trainer);
     } catch (err) {
@@ -29,7 +29,7 @@ exports.getTrainerById = async (req, res) => {
 // POST create trainer (creates User + Trainer)
 exports.createTrainer = async (req, res) => {
     try {
-        const { firstName, lastName, email, phone, bio, experienceYears, specialization } = req.body;
+        const { firstName, lastName, email, phone, bio, experienceYears, specializations, hourlyRate, certifications, employmentStatus, commissionRate, availableHoursPerWeek, emergencyContact, joinDate } = req.body;
 
         // Check if user with this email already exists
         const existingUser = await User.findOne({ email });
@@ -44,19 +44,27 @@ exports.createTrainer = async (req, res) => {
             lastName,
             email,
             password: hashedPassword,
+            phone: phone || '0000000000', // Ensure required phone is provided
             role: 'trainer',
         });
 
         // Create Trainer profile linked to user
         const trainer = await Trainer.create({
-            user: user._id,
-            specialization: specialization || [],
+            userId: user._id,
+            specializations: specializations || [],
             experienceYears: experienceYears || 0,
             bio: bio || '',
+            hourlyRate: hourlyRate || 0,
+            certifications: certifications || [],
+            employmentStatus: employmentStatus || 'full-time',
+            commissionRate: commissionRate || 0,
+            availableHoursPerWeek: availableHoursPerWeek || 40,
+            emergencyContact: emergencyContact || { name: '', relationship: '', phone: '' },
+            joinDate: joinDate || Date.now(),
         });
 
         const populatedTrainer = await Trainer.findById(trainer._id)
-            .populate('user', 'email firstName lastName');
+            .populate('userId', 'email firstName lastName');
 
         res.status(201).json(populatedTrainer);
     } catch (err) {
@@ -67,30 +75,38 @@ exports.createTrainer = async (req, res) => {
 // PUT update trainer
 exports.updateTrainer = async (req, res) => {
     try {
-        const { firstName, lastName, email, phone, bio, experienceYears, specialization } = req.body;
+        const { firstName, lastName, email, phone, bio, experienceYears, specializations, hourlyRate, certifications, employmentStatus, commissionRate, availableHoursPerWeek, emergencyContact, joinDate } = req.body;
 
         const trainer = await Trainer.findById(req.params.id);
         if (!trainer) return res.status(404).json({ error: 'Trainer not found' });
 
         // Update User fields if provided
-        if (trainer.user) {
+        if (trainer.userId) {
             const userUpdate = {};
             if (firstName) userUpdate.firstName = firstName;
             if (lastName) userUpdate.lastName = lastName;
             if (email) userUpdate.email = email;
+            if (phone) userUpdate.phone = phone;
             if (Object.keys(userUpdate).length > 0) {
-                await User.findByIdAndUpdate(trainer.user, userUpdate);
+                await User.findByIdAndUpdate(trainer.userId, userUpdate);
             }
         }
 
         // Update Trainer fields
         const trainerUpdate = {};
-        if (specialization) trainerUpdate.specialization = specialization;
+        if (specializations) trainerUpdate.specializations = specializations;
         if (experienceYears !== undefined) trainerUpdate.experienceYears = experienceYears;
         if (bio !== undefined) trainerUpdate.bio = bio;
+        if (hourlyRate !== undefined) trainerUpdate.hourlyRate = hourlyRate;
+        if (certifications) trainerUpdate.certifications = certifications;
+        if (employmentStatus) trainerUpdate.employmentStatus = employmentStatus;
+        if (commissionRate !== undefined) trainerUpdate.commissionRate = commissionRate;
+        if (availableHoursPerWeek !== undefined) trainerUpdate.availableHoursPerWeek = availableHoursPerWeek;
+        if (emergencyContact) trainerUpdate.emergencyContact = emergencyContact;
+        if (joinDate) trainerUpdate.joinDate = joinDate;
 
         const updatedTrainer = await Trainer.findByIdAndUpdate(req.params.id, trainerUpdate, { new: true, runValidators: true })
-            .populate('user', 'email firstName lastName');
+            .populate('userId', 'email firstName lastName');
 
         res.json(updatedTrainer);
     } catch (err) {
@@ -105,8 +121,8 @@ exports.deleteTrainer = async (req, res) => {
         if (!trainer) return res.status(404).json({ error: 'Trainer not found' });
 
         // Also delete the associated User account
-        if (trainer.user) {
-            await User.findByIdAndDelete(trainer.user);
+        if (trainer.userId) {
+            await User.findByIdAndDelete(trainer.userId);
         }
 
         await Trainer.findByIdAndDelete(req.params.id);

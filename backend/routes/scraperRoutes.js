@@ -2,35 +2,10 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 
-// ─── ScraperReviewItem model (inline — simple enough to not need its own file)
-const scraperReviewSchema = new mongoose.Schema({
-    rawName: { type: String, required: true },
-    store: { type: String, required: true },
-    price: { type: Number },
-    url: { type: String, default: '' },
-    scrapedAt: { type: Date, default: Date.now },
-    suggestedMatch: { type: String, default: null },   // food_id suggested by fuzzy matcher
-    matchConfidence: { type: Number, default: 0 },
-    status: { type: String, enum: ['pending', 'matched', 'ignored'], default: 'pending' },
-    linkedFoodId: { type: String, default: null },   // set by admin on approval
-    notes: { type: String, default: '' },
-}, { timestamps: true });
-
-const ScraperReviewItem = mongoose.models.ScraperReviewItem
-    || mongoose.model('ScraperReviewItem', scraperReviewSchema);
-
-// ─── FoodAlias model — persists aliases added by admin
-const foodAliasSchema = new mongoose.Schema({
-    foodId: { type: String, required: true },
-    alias: { type: String, required: true, lowercase: true },
-    category: { type: String, required: true },
-    addedBy: { type: String, default: 'admin' },
-}, { timestamps: true });
-
-foodAliasSchema.index({ alias: 1 }, { unique: true });
-
-const FoodAlias = mongoose.models.FoodAlias
-    || mongoose.model('FoodAlias', foodAliasSchema);
+const ScraperReviewItem = require('../models/ScraperReviewItem')();
+const FoodAlias = require('../models/FoodAlias');
+const getFoodPriceModel = require('../models/FoodPrice');
+const PriceHistory = require('../models/PriceHistory')();
 
 
 // ─── GET /api/scraper/review-queue?status=pending
@@ -73,6 +48,7 @@ router.post('/review-queue', async (req, res) => {
                     store,
                     price,
                     url: item.url || '',
+                    department: item.department || item.departmentName || '',
                     suggestedMatch: item.suggestedFoodId || null,
                     matchConfidence: item.suggestedScore || 0,
                     scrapedAt: item.scrapedAt || new Date(),
@@ -111,10 +87,14 @@ router.patch('/review-queue/:id/approve', async (req, res) => {
         );
 
         // 2. Update FoodPrice with the scraped price data
-        const FoodPrice = mongoose.model('FoodPrice');
+        const FoodPrice = getFoodPriceModel();
         const foodDoc = await FoodPrice.findOne({ foodId });
 
         if (foodDoc && item.price) {
+            // Save the department if it exists on the matched item
+            if (item.department) {
+                foodDoc.department = item.department;
+            }
             // Parse weight from rawName (e.g. "1kg", "200g", "1L")
             let weightInGrams = 1000; // default 1kg
             const weightMatch = item.rawName.match(/(\d+(?:\.\d+)?)\s*(kg|g|l|ml)/i);
@@ -157,6 +137,15 @@ router.patch('/review-queue/:id/approve', async (req, res) => {
 
             // Save triggers pre-save hook → recalculates averagePricePerGram
             await foodDoc.save();
+
+            // 2.5 Record this match in history
+            await PriceHistory.create({
+                foodId,
+                date: new Date(),
+                pricePerKg: pricePerGram * 1000,
+                store: item.store,
+                scrapedName: item.rawName
+            });
         }
 
         // 3. Mark reviewed item as matched

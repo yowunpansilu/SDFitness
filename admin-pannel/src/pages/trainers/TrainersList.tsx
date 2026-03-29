@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Mail, Phone, Award, Users, TrendingUp } from 'lucide-react';
+import { Search, Plus, Mail, Phone, Award, Users, TrendingUp, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import api from '@/lib/api/axios';
 
 interface Trainer {
   id: string;
@@ -22,90 +23,62 @@ interface Trainer {
   email: string;
   phone: string;
   specializations: string[];
-  certifications: string[];
+  certifications: any[];
   assignedMembers: number;
   rating: number;
   photoUrl?: string;
   status: 'active' | 'inactive' | 'on_leave';
-  hireDate: string;
+  joinDate: string;
 }
 
-// Mock data
-const mockTrainers: Trainer[] = [
-  {
-    id: '1',
-    firstName: 'Sarah',
-    lastName: 'Johnson',
-    email: 'sarah.j@sdfitness.com',
-    phone: '+1 234 567 8901',
-    specializations: ['Strength Training', 'Bodybuilding', 'Powerlifting'],
-    certifications: ['NASM-CPT', 'CSCS'],
-    assignedMembers: 24,
-    rating: 4.8,
-    photoUrl: undefined,
-    status: 'active',
-    hireDate: '2023-01-15',
-  },
-  {
-    id: '2',
-    firstName: 'Mike',
-    lastName: 'Ross',
-    email: 'mike.r@sdfitness.com',
-    phone: '+1 234 567 8902',
-    specializations: ['HIIT', 'Cardio', 'Weight Loss'],
-    certifications: ['ACE-CPT', 'ACSM-CPT'],
-    assignedMembers: 31,
-    rating: 4.9,
-    photoUrl: undefined,
-    status: 'active',
-    hireDate: '2022-08-20',
-  },
-  {
-    id: '3',
-    firstName: 'Emma',
-    lastName: 'Wilson',
-    email: 'emma.w@sdfitness.com',
-    phone: '+1 234 567 8903',
-    specializations: ['Yoga', 'Pilates', 'Flexibility'],
-    certifications: ['RYT-500', 'NASM-CPT'],
-    assignedMembers: 28,
-    rating: 5.0,
-    photoUrl: undefined,
-    status: 'active',
-    hireDate: '2023-03-10',
-  },
-  {
-    id: '4',
-    firstName: 'David',
-    lastName: 'Chen',
-    email: 'david.c@sdfitness.com',
-    phone: '+1 234 567 8904',
-    specializations: ['CrossFit', 'Functional Training', 'Sports Performance'],
-    certifications: ['CrossFit L2', 'NSCA-CSCS'],
-    assignedMembers: 19,
-    rating: 4.7,
-    photoUrl: undefined,
-    status: 'on_leave',
-    hireDate: '2021-11-05',
-  },
-];
-
 const statusColors = {
-  active: 'bg-emerald-50 text-emerald-600 border-emerald-100  ',
-  inactive: 'bg-slate-100 text-slate-600 border-slate-200  ',
-  on_leave: 'bg-amber-50 text-amber-600 border-amber-100  ',
+  active: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
+  inactive: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-navy-800 dark:text-navy-400 dark:border-navy-700',
+  on_leave: 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
 };
 
 export function TrainersList() {
   const navigate = useNavigate();
+  const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [specializationFilter, setSpecializationFilter] = useState('all');
 
-  const filteredTrainers = mockTrainers.filter((trainer) => {
+  useEffect(() => {
+    const fetchTrainers = async () => {
+      try {
+        const response = await api.get('/trainers');
+        // Map backend structure to frontend interface
+        const mappedTrainers = response.data.map((t: any) => ({
+          id: t._id,
+          firstName: t.userId?.firstName || 'Unknown',
+          lastName: t.userId?.lastName || 'Faculty',
+          email: t.userId?.email || 'N/A',
+          phone: t.userId?.phone || 'N/A',
+          specializations: t.specializations || [],
+          certifications: t.certifications || [],
+          assignedMembers: t.assignedMembers || 0,
+          rating: t.rating || 5.0,
+          photoUrl: t.userId?.avatar,
+          status: t.status || 'active',
+          joinDate: t.joinDate || t.createdAt
+        }));
+        setTrainers(mappedTrainers);
+      } catch (error) {
+        console.error('Failed to fetch trainers:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTrainers();
+  }, []);
+
+  const filteredTrainers = trainers.filter((trainer) => {
     const matchesSearch =
       trainer.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trainer.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      trainer.email.toLowerCase().includes(searchQuery.toLowerCase());
+      trainer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trainer.specializations.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesSpecialization =
       specializationFilter === 'all' ||
@@ -116,15 +89,24 @@ export function TrainersList() {
     return matchesSearch && matchesSpecialization;
   });
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <Loader2 className="h-12 w-12 text-indigo-600 animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600">Synchronizing Faculty Matrix</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            Elite <span className="text-indigo-600 dark:text-indigo-400 italic">Trainers</span>
+            Elite <span className="text-indigo-600 dark:text-indigo-400">Trainers</span>
           </h1>
-          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
+          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1 uppercase text-[10px] tracking-widest font-black">
             Oversee your professional coaching staff and their portfolio.
           </p>
         </div>
@@ -147,7 +129,7 @@ export function TrainersList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">{mockTrainers.length}</div>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">{trainers.length}</div>
             <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Professionals onboarded</p>
           </CardContent>
         </Card>
@@ -160,7 +142,7 @@ export function TrainersList() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-black text-slate-900 dark:text-white">
-              {mockTrainers.filter((t) => t.status === 'active').length}
+              {trainers.filter((t: any) => t.status === 'active').length}
             </div>
             <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Currently teaching</p>
           </CardContent>
@@ -174,7 +156,7 @@ export function TrainersList() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-black text-slate-900 dark:text-white">
-              {mockTrainers.reduce((sum, t) => sum + t.assignedMembers, 0)}
+              {trainers.reduce((sum: number, t: any) => sum + (t.assignedMembers || 0), 0)}
             </div>
             <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Assigned members</p>
           </CardContent>
@@ -188,7 +170,9 @@ export function TrainersList() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-black text-slate-900 dark:text-white">
-              {(mockTrainers.reduce((sum, t) => sum + t.rating, 0) / mockTrainers.length).toFixed(1)}
+              {trainers.length > 0
+                ? (trainers.reduce((sum: number, t: any) => sum + (t.rating || 0), 0) / trainers.length).toFixed(1)
+                : '0.0'}
             </div>
             <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Service quality</p>
           </CardContent>
@@ -213,11 +197,20 @@ export function TrainersList() {
                 <SelectValue placeholder="All Specializations" />
               </SelectTrigger>
               <SelectContent className="rounded-xl border-slate-200 dark:border-navy-800 dark:bg-navy-900 dark:text-white">
-                <SelectItem value="all">All Specializations</SelectItem>
-                <SelectItem value="strength">Strength Training</SelectItem>
-                <SelectItem value="cardio">Cardio</SelectItem>
-                <SelectItem value="yoga">Yoga</SelectItem>
-                <SelectItem value="crossfit">CrossFit</SelectItem>
+                <SelectItem value="all">All Specializations Matrix</SelectItem>
+                <SelectItem value="HIIT">HIIT Protocol</SelectItem>
+                <SelectItem value="Yoga">Yoga Specialization</SelectItem>
+                <SelectItem value="CrossFit">CrossFit Elite</SelectItem>
+                <SelectItem value="Boxing">Combat Boxing</SelectItem>
+                <SelectItem value="Pilates">Core Pilates</SelectItem>
+                <SelectItem value="Strength Training">Strength Performance</SelectItem>
+                <SelectItem value="Cardio">Cardio Matrix</SelectItem>
+                <SelectItem value="Spinning">Spinning Cycle</SelectItem>
+                <SelectItem value="Zumba">Zumba Flow</SelectItem>
+                <SelectItem value="Functional Training">Functional Ops</SelectItem>
+                <SelectItem value="Bodybuilding">Bodybuilding Prime</SelectItem>
+                <SelectItem value="Powerlifting">Powerlifting Force</SelectItem>
+                <SelectItem value="Athletic Performance">Athletic Matrix</SelectItem>
               </SelectContent>
             </Select>
           </div>

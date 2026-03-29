@@ -18,6 +18,10 @@ const foodPriceSchema = new mongoose.Schema({
         enum: ['protein', 'carbs', 'fats', 'vegetable', 'fruit', 'dairy', 'other'],
         required: true
     },
+    department: {
+        type: String,
+        trim: true
+    },
 
     // Nutritional data per 100g (from USDA / manual entry)
     nutritionPer100g: {
@@ -90,11 +94,6 @@ const foodPriceSchema = new mongoose.Schema({
         default: false
     },
 
-    // Optional fields used by scraper + trend endpoint
-    priceHistory: [{
-        date: { type: Date, default: Date.now },
-        pricePerKg: { type: Number, min: 0 }
-    }],
     scrapeData: {
         lastScraped: { type: Date },
         sourceUrl: { type: String, default: '' },
@@ -103,7 +102,8 @@ const foodPriceSchema = new mongoose.Schema({
         storeBreakdown: { type: [mongoose.Schema.Types.Mixed], default: [] }
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    collection: 'foodprices'
 });
 
 // Auto-calculate averagePricePerGram and lowestPricePerGram before save

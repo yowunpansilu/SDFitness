@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '@/lib/api/axios';
 import { Plus, Clock, Users, MapPin, Calendar as CalendarIcon, ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,93 +25,7 @@ interface ClassSession {
   day: number; // 0-6 (Sunday-Saturday)
 }
 
-// Mock data
-const mockClasses: ClassSession[] = [
-  {
-    id: '1',
-    name: 'Morning Yoga Flow',
-    trainer: { id: '3', name: 'Emma Wilson', photoUrl: undefined },
-    time: '06:00 AM',
-    duration: 60,
-    capacity: 20,
-    enrolled: 18,
-    location: 'Studio A',
-    type: 'yoga',
-    day: 1,
-  },
-  {
-    id: '2',
-    name: 'HIIT Bootcamp',
-    trainer: { id: '2', name: 'Mike Ross', photoUrl: undefined },
-    time: '07:00 AM',
-    duration: 45,
-    capacity: 25,
-    enrolled: 25,
-    location: 'Gym Floor',
-    type: 'hiit',
-    day: 1,
-  },
-  {
-    id: '3',
-    name: 'Spin Class',
-    trainer: { id: '2', name: 'Mike Ross', photoUrl: undefined },
-    time: '06:00 PM',
-    duration: 45,
-    capacity: 30,
-    enrolled: 22,
-    location: 'Spin Room',
-    type: 'spin',
-    day: 1,
-  },
-  {
-    id: '4',
-    name: 'Power Strength',
-    trainer: { id: '1', name: 'Sarah Johnson', photoUrl: undefined },
-    time: '06:00 AM',
-    duration: 60,
-    capacity: 15,
-    enrolled: 12,
-    location: 'Weight Room',
-    type: 'strength',
-    day: 2,
-  },
-  {
-    id: '5',
-    name: 'Evening Yoga',
-    trainer: { id: '3', name: 'Emma Wilson', photoUrl: undefined },
-    time: '07:00 PM',
-    duration: 60,
-    capacity: 20,
-    enrolled: 16,
-    location: 'Studio A',
-    type: 'yoga',
-    day: 2,
-  },
-  {
-    id: '6',
-    name: 'CrossFit WOD',
-    trainer: { id: '4', name: 'David Chen', photoUrl: undefined },
-    time: '06:00 AM',
-    duration: 60,
-    capacity: 20,
-    enrolled: 19,
-    location: 'CrossFit Box',
-    type: 'strength',
-    day: 3,
-  },
-  {
-    id: '7',
-    name: 'Cardio Blast',
-    trainer: { id: '2', name: 'Mike Ross', photoUrl: undefined },
-    time: '06:00 PM',
-    duration: 30,
-    capacity: 25,
-    enrolled: 20,
-    location: 'Gym Floor',
-    type: 'cardio',
-    day: 3,
-  },
-];
+// Mock data removed - fetching from API
 
 const classTypeColors: Record<string, string> = {
   yoga: 'bg-purple-50 text-purple-600 border-purple-100  ',
@@ -126,12 +41,63 @@ const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fri
 export function ClassSchedule() {
   const navigate = useNavigate();
   const [currentWeek, setCurrentWeek] = useState(0);
+  const [classes, setClasses] = useState<ClassSession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get('/classes');
+        
+        // Map backend data to frontend ClassSession interface
+        const dayMap: Record<string, number> = {
+          'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
+          'Thursday': 4, 'Friday': 5, 'Saturday': 6
+        };
+
+        const mappedClasses: ClassSession[] = response.data.map((c: any) => ({
+          id: c._id,
+          name: c.name,
+          trainer: {
+            id: c.trainer?._id || '',
+            name: c.trainer?.userId ? `${c.trainer.userId.firstName} ${c.trainer.userId.lastName}` : 'Unassigned',
+            photoUrl: undefined
+          },
+          time: c.schedule?.startTime || '00:00',
+          duration: c.duration || 60,
+          capacity: c.capacity || 20,
+          enrolled: c.enrolled || 0,
+          location: c.location || 'Studio A',
+          type: (c.type?.toLowerCase() || 'cardio') as ClassSession['type'],
+          day: dayMap[c.schedule?.dayOfWeek] || 0
+        }));
+
+        setClasses(mappedClasses);
+      } catch (error) {
+        console.error('Error fetching classes:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchClasses();
+  }, []);
 
   const getClassesForDay = (day: number) => {
-    return mockClasses.filter(c => c.day === day).sort((a, b) => a.time.localeCompare(b.time));
+    return classes.filter(c => c.day === day).sort((a, b) => a.time.localeCompare(b.time));
   };
 
   const today = new Date().getDay();
+  const currentMonthYear = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(new Date());
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-slate-400 font-black uppercase text-xs tracking-widest animate-pulse">Synchronizing Schedules...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
@@ -139,7 +105,7 @@ export function ClassSchedule() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            Class <span className="text-indigo-600 dark:text-indigo-400 italic">Schedule</span>
+            Class <span className="text-indigo-600 dark:text-indigo-400">Schedule</span>
           </h1>
           <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
             Organize group sessions, manage capacity and trainer assignments.
@@ -164,7 +130,7 @@ export function ClassSchedule() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">{mockClasses.length}</div>
+            <div className="text-3xl font-black text-slate-900 dark:text-white">{classes.length}</div>
             <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">In system active</p>
           </CardContent>
         </Card>
@@ -189,7 +155,7 @@ export function ClassSchedule() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-black text-slate-900 dark:text-white">
-              {mockClasses.reduce((sum, c) => sum + c.enrolled, 0)}
+              {classes.reduce((sum, c) => sum + c.enrolled, 0)}
             </div>
             <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Total bookers</p>
           </CardContent>
@@ -224,7 +190,7 @@ export function ClassSchedule() {
               <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                 <CalendarIcon className="h-4 w-4" />
               </div>
-              <span className="text-slate-900 dark:text-white font-black uppercase text-xs tracking-widest">March 2024 • Week {currentWeek + 10}</span>
+              <span className="text-slate-900 dark:text-white font-black uppercase text-xs tracking-widest">{currentMonthYear} • Week {currentWeek + 10}</span>
             </div>
             <Button
               variant="ghost"

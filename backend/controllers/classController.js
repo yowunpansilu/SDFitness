@@ -6,7 +6,7 @@ exports.getAllClasses = async (req, res) => {
         const classes = await Class.find()
             .populate({
                 path: 'trainer',
-                populate: { path: 'user', select: 'firstName lastName email' }
+                populate: { path: 'userId', select: 'firstName lastName email' }
             })
             .sort({ createdAt: -1 });
         res.json(classes);
@@ -21,7 +21,7 @@ exports.getClassById = async (req, res) => {
         const gymClass = await Class.findById(req.params.id)
             .populate({
                 path: 'trainer',
-                populate: { path: 'user', select: 'firstName lastName email' }
+                populate: { path: 'userId', select: 'firstName lastName email' }
             })
             .lean();
         if (!gymClass) return res.status(404).json({ error: 'Class not found' });

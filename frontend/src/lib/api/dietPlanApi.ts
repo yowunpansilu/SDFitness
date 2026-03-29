@@ -179,14 +179,28 @@ export async function generateDietPlan(formData: WizardFormData): Promise<DietPl
  * Persist a generated diet plan to the database
  */
 export async function saveDietPlan(plan: DietPlan): Promise<DietPlan> {
+    const authData = JSON.parse(localStorage.getItem('auth-storage') || '{}');
+    const memberId = authData.state?.member?._id;
+
+    // Sanitize plan data before saving
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { _id, id, createdAt, ...planToSave } = plan;
+
+    const finalPlan = {
+        ...planToSave,
+        memberId: memberId || plan.memberId,
+        status: 'completed'
+    };
+
     const response = await fetch(`${API_BASE}/diet-plans`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(plan)
+        body: JSON.stringify(finalPlan)
     });
 
     if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        const err = await response.json();
+        throw new Error(err.error || `API error: ${response.status}`);
     }
 
     const result = await response.json();

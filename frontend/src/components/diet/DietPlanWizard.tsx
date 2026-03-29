@@ -34,7 +34,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
         goal: '',
         dietaryPreferences: [],
         allergies: '',
-        budget: 200,
+        budget: 1000,
         activityLevel: '',
     });
 

@@ -69,6 +69,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+const Notification = require('../models/Notification');
+
 // @desc    Update member status
 // @route   PUT /api/members/:id
 router.put('/:id', async (req, res) => {
@@ -80,10 +82,21 @@ router.put('/:id', async (req, res) => {
             return res.status(404).json({ success: false, message: 'Member not found' });
         }
 
+        const oldStatus = member.status;
         if (status) member.status = status;
-        // membershipType could be handled here if we have a field for it
+        if (membershipType) member.membershipType = membershipType;
         
         await member.save();
+
+        // Create a notification if the account is deactivated
+        if (status === 'inactive' && oldStatus !== 'inactive' && member.userId) {
+            await Notification.create({
+                user: member.userId,
+                title: 'Account Deactivated',
+                message: 'Your account has been set to inactive by the administrator. You will not be able to log in until it is reactivated.',
+                type: 'alert'
+            });
+        }
 
         res.json({
             success: true,

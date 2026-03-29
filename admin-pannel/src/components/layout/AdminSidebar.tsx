@@ -9,6 +9,9 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  Brain,
+  Tag,
+  Search,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { cn } from '@/lib/utils';
@@ -37,6 +40,14 @@ const navigationGoups = [
     items: [
       { name: 'Equipment', href: '/equipment', icon: Package },
       { name: 'Payments', href: '/payments', icon: CreditCard },
+      { name: 'Food Prices', href: '/prices', icon: Tag },
+    ]
+  },
+  {
+    title: 'Automation',
+    items: [
+      { name: 'ML Dashboard', href: '/ml', icon: Brain },
+      { name: 'Scraper Review', href: '/scraper', icon: Search },
     ]
   },
   {

@@ -7,6 +7,7 @@ import { Label } from '../ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Card, CardContent } from '../ui/card';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 
 export function PersonalInfoTab() {
     const { user, token, login } = useAuthStore();
@@ -199,9 +200,12 @@ export function PersonalInfoTab() {
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-4">
                         {!isEditing ? (
-                            <Button variant="gym" onClick={() => setIsEditing(true)}>
-                                Edit Profile
-                            </Button>
+                            <div className="flex gap-3">
+                                <Button variant="gym" onClick={() => setIsEditing(true)}>
+                                    Edit Profile
+                                </Button>
+                                <DeleteAccountDialog />
+                            </div>
                         ) : (
                             <>
                                 <Button variant="gym" onClick={handleSave}>

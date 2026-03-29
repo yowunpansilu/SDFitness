@@ -26,6 +26,13 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/prices', require('./routes/priceRoutes'));
 app.use('/api/diet-plans', require('./routes/dietPlanRoutes'));
 app.use('/api/members', require('./routes/memberRoutes'));
+app.use('/api/scraper', require('./routes/scraperRoutes'));
+app.use('/api/trainers', require('./routes/trainerRoutes'));
+app.use('/api/classes', require('./routes/classRoutes'));
+app.use('/api/equipment', require('./routes/equipmentRoutes'));
+app.use('/api/attendance', require('./routes/attendanceRoutes'));
+app.use('/api/membership', require('./routes/membershipRoutes'));
+app.use('/api/communication', require('./routes/communicationRoutes'));
 
 // Error handler
 app.use((err, req, res, next) => {

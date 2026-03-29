@@ -13,6 +13,7 @@ import {
 } from '../ui/select';
 
 import { useAuthStore } from '@/lib/stores/authStore';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 
 export function HealthMetricsTab() {
     const { member, token, login } = useAuthStore();
@@ -272,9 +273,12 @@ export function HealthMetricsTab() {
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-4">
                         {!isEditing ? (
-                            <Button variant="gym" onClick={() => setIsEditing(true)}>
-                                Edit Metrics
-                            </Button>
+                            <div className="flex gap-3">
+                                <Button variant="gym" onClick={() => setIsEditing(true)}>
+                                    Edit Metrics
+                                </Button>
+                                <DeleteAccountDialog />
+                            </div>
                         ) : (
                             <>
                                 <Button variant="gym" onClick={handleSave}>

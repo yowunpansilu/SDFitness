@@ -138,6 +138,12 @@ router.post('/login', async (req, res) => {
             let member = null;
             if (!isAdmin) {
                 member = await Member.findOne({ userId: user._id });
+                if (member && member.status === 'inactive') {
+                    return res.status(403).json({
+                        success: false,
+                        message: 'Your account has been deactivated. Please contact the administrator.'
+                    });
+                }
                 if (!member) {
                     console.log('Member profile not found for user. Auto-creating a default profile.');
                     member = await Member.create({

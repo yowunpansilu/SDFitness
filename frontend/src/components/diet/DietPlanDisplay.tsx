@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Download, Save, Share2, Brain, Loader2, Sparkles } from 'lucide-react';
+import { Save, Brain, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { MealCard } from './MealCard';
@@ -97,11 +97,9 @@ export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps
                             )}
                         >
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 text-secondary-500" />}
-                            {isSaving ? 'Persisting...' : 'Save Strategy'}
+                            {isSaving ? 'Saving...' : 'Save Plan'}
                         </Button>
                     )}
-                    <Button variant="outline" className="h-12 px-6 rounded-2xl font-bold gap-2 border-primary-100"><Download className="w-4 h-4" /> Export PDF</Button>
-                    <Button variant="outline" className="h-12 px-6 rounded-2xl font-bold gap-2 border-primary-100"><Share2 className="w-4 h-4" /> Share</Button>
                 </div>
             </div>
 

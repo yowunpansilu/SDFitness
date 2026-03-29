@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Mail, UserX, Plus, Loader2 } from 'lucide-react';
+import { Search, Mail, UserX, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -64,7 +64,7 @@ export function MembersList() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [membershipFilter, setMembershipFilter] = useState('all');
   const [sortBy, setSortBy] = useState('joinDate');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortOrder] = useState<'asc' | 'desc'>('desc');
 
   const fetchMembers = async () => {
     try {
@@ -179,13 +179,7 @@ export function MembersList() {
             Organize and maintain your fitness community.
           </p>
         </div>
-        <Button
-          onClick={() => navigate('/members/add')}
-          className="bg-navy-900 dark:bg-indigo-600 hover:bg-navy-800 dark:hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-navy-100 dark:shadow-indigo-900/20 h-11 px-6 font-bold uppercase text-xs tracking-widest transition-all hover:scale-105 active:scale-95"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Member
-        </Button>
+
       </div>
 
       {/* Filters and Actions */}
@@ -213,8 +207,6 @@ export function MembersList() {
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="frozen">Frozen</SelectItem>
-                  <SelectItem value="suspended">Suspended</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -228,7 +220,6 @@ export function MembersList() {
                   <SelectItem value="basic">Basic</SelectItem>
                   <SelectItem value="standard">Standard</SelectItem>
                   <SelectItem value="premium">Premium</SelectItem>
-                  <SelectItem value="elite">Elite</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -244,14 +235,7 @@ export function MembersList() {
                     <SelectItem value="memberNumber">ID Number</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-11 w-11 rounded-xl bg-navy-50/50 dark:bg-navy-950 border-transparent text-navy-400 hover:text-indigo-600 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-800 transition-all font-bold"
-                  onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-                >
-                  <MoreVertical className={cn("h-4 w-4 transition-transform", sortOrder === 'desc' ? "rotate-180" : "")} />
-                </Button>
+
               </div>
             </div>
           </div>

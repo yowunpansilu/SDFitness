@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import api from '@/lib/api/axios';
 import { Camera } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -9,11 +9,10 @@ import { Card, CardContent } from '../ui/card';
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function PersonalInfoTab() {
-    const { user, token, login } = useAuthStore();
+    const { user, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
     const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const [formData, setFormData] = useState({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
@@ -35,17 +34,15 @@ export function PersonalInfoTab() {
 
     const handleSave = async () => {
         try {
-            const response = await axios.put(`${API_URL}/api/auth/profile`, {
+            const response = await api.put('/auth/profile', {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 phone: formData.phone
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
 
-            if (response.data.success && token) {
-                // Update local store with data from server
-                login(response.data.user, token, response.data.member);
+            if (response.data.success) {
+                const { user, token: newToken, member } = response.data;
+                login(user, newToken || (useAuthStore.getState().token as string), member);
                 setIsEditing(false);
             }
         } catch (error) {
@@ -86,14 +83,13 @@ export function PersonalInfoTab() {
         reader.onloadend = async () => {
             const base64String = reader.result;
             try {
-                const response = await axios.put(`${API_URL}/api/auth/profile`, {
+                const response = await api.put('/auth/profile', {
                     avatar: base64String
-                }, {
-                    headers: { Authorization: `Bearer ${token}` }
                 });
 
-                if (response.data.success && token) {
-                    login(response.data.user, token, response.data.member);
+                if (response.data.success) {
+                    const { user, token: newToken, member } = response.data;
+                    login(user, newToken || (useAuthStore.getState().token as string), member);
                 }
             } catch (error) {
                 console.error('Error uploading photo:', error);

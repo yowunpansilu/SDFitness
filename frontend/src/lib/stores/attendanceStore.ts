@@ -6,8 +6,9 @@ import {
     checkInUser,
     checkOutUser
 } from '@/lib/api/attendanceService';
+import { useAuthStore } from './authStore';
 import { produce } from 'immer';
-import { differenceInMinutes, parseISO } from 'date-fns';
+import { differenceInMinutes } from 'date-fns';
 
 interface AttendanceState {
     history: AttendanceRecord[];
@@ -17,11 +18,11 @@ interface AttendanceState {
     error: string | null;
 
     fetchHistory: () => Promise<void>;
-    checkIn: (method: 'qr' | 'manual') => Promise<void>;
+    checkIn: (facility?: string) => Promise<void>;
     checkOut: () => Promise<void>;
 }
 
-export const useAttendanceStore = create<AttendanceState>((set, get) => ({
+export const useAttendanceStore = create<AttendanceState>((set) => ({
     history: [],
     currentSession: null,
     stats: null,
@@ -29,16 +30,27 @@ export const useAttendanceStore = create<AttendanceState>((set, get) => ({
     error: null,
 
     fetchHistory: async () => {
+        const userId = useAuthStore.getState().user?.id;
+        if (!userId) return;
+
         set({ isLoading: true, error: null });
         try {
-            const history = await getAttendanceHistory();
+            const history = await getAttendanceHistory(userId);
 
             // Calculate stats
             const totalVisits = history.length;
             const currentStreak = calculateStreak(history);
-            const totalDuration = history.reduce((acc, curr) => acc + (curr.durationMinutes || 0), 0);
+            
+            // Backend AttendanceRecord might not have durationMinutes if it's just raw records
+            const totalDuration = history.reduce((acc, curr) => {
+                if (curr.checkInTime && curr.checkOutTime) {
+                    return acc + differenceInMinutes(new Date(curr.checkOutTime), new Date(curr.checkInTime));
+                }
+                return acc;
+            }, 0);
+            
             const avgDurationMinutes = totalVisits > 0 ? Math.round(totalDuration / totalVisits) : 0;
-            const lastVisitDate = history.length > 0 ? history[0].date : undefined;
+            const lastVisitDate = history.length > 0 ? history[0].checkInTime : undefined;
 
             set({
                 history,
@@ -50,10 +62,16 @@ export const useAttendanceStore = create<AttendanceState>((set, get) => ({
         }
     },
 
-    checkIn: async (method) => {
+    checkIn: async (facility = 'Main Gym') => {
+        const userId = useAuthStore.getState().user?.id;
+        if (!userId) {
+            set({ error: 'User not authenticated' });
+            return;
+        }
+
         set({ isLoading: true, error: null });
         try {
-            const session = await checkInUser(method);
+            const session = await checkInUser(userId, facility);
             set({ currentSession: session, isLoading: false });
         } catch (err) {
             set({ error: 'Failed to check in', isLoading: false });
@@ -61,28 +79,25 @@ export const useAttendanceStore = create<AttendanceState>((set, get) => ({
     },
 
     checkOut: async () => {
-        const { currentSession } = get();
-        if (!currentSession) return;
+        const userId = useAuthStore.getState().user?.id;
+        if (!userId) return;
 
         set({ isLoading: true, error: null });
         try {
-            const completedSession = await checkOutUser(currentSession.id);
-            // Update the completed session with actual duration calculations if needed in a real app
-            const endTime = new Date();
-            const startTime = parseISO(currentSession.checkInTime);
-            const duration = differenceInMinutes(endTime, startTime);
-
-            const finalRecord = { ...completedSession, checkOutTime: endTime.toISOString(), durationMinutes: duration };
-
+            const completedSession = await checkOutUser(userId);
+            
             set(produce((state: AttendanceState) => {
-                state.history.unshift(finalRecord);
+                state.history.unshift(completedSession);
                 state.currentSession = null;
-                // Update stats
+                
+                // Update stats roughly
                 if (state.stats) {
                     state.stats.totalVisits += 1;
-                    // Recalculate average approx
-                    const totalDur = (state.stats.avgDurationMinutes * (state.stats.totalVisits - 1)) + duration;
-                    state.stats.avgDurationMinutes = Math.round(totalDur / state.stats.totalVisits);
+                    if (completedSession.checkInTime && completedSession.checkOutTime) {
+                        const duration = differenceInMinutes(new Date(completedSession.checkOutTime), new Date(completedSession.checkInTime));
+                        const totalDur = (state.stats.avgDurationMinutes * (state.stats.totalVisits - 1)) + duration;
+                        state.stats.avgDurationMinutes = Math.round(totalDur / state.stats.totalVisits);
+                    }
                 }
                 state.isLoading = false;
             }));
@@ -92,10 +107,9 @@ export const useAttendanceStore = create<AttendanceState>((set, get) => ({
     }
 }));
 
-// Helper to calculate streak (mock logic for now - consecutive days)
+// Helper to calculate streak (simplified logic)
 function calculateStreak(history: AttendanceRecord[]): number {
-    // Determine streak based on history dates
-    // Simplified logic: just returning a mock number or simple calculation
-    // In real app, sort by date desc and check consecutiveness
-    return history.length > 0 ? 3 : 0;
+    if (history.length === 0) return 0;
+    // Real calculation would involve checking consecutive days in checkInTime
+    return 3; // Placeholder for now
 }

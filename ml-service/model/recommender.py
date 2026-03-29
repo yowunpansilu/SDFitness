@@ -158,6 +158,24 @@ class DietRecommender:
             X = pd.DataFrame([feature_vector])[self.feature_names]
             pred_score = self.model.predict(X)[0]
 
+            # --- Budget Enforcement Logic (Senior SE Fix) ---
+            # If food is expensive relative to the daily budget, penalize the score.
+            # We estimate the cost to get ~25% of daily calories from this food.
+            daily_budget = user_features.get('budget_per_day_lkr', 800)
+            target_calories = user_features.get('target_calories', 2000)
+            
+            if food['calories'] > 0:
+                # Cost for 1/4 of daily calorie target using this food
+                estimated_slot_cost = (price / food['calories']) * (target_calories / 4)
+                slot_budget_allowance = daily_budget / 4
+                
+                if estimated_slot_cost > slot_budget_allowance:
+                    # Penalize score proportionally to budget overrun
+                    # A 2x over-budget item gets a significant penalty
+                    penalty = (estimated_slot_cost / slot_budget_allowance) - 1.0
+                    pred_score -= penalty * 0.5 # Adjustment factor
+            # ------------------------------------------------
+
             scores.append({
                 'foodId': food['foodId'],
                 'name': food['name'],
@@ -184,6 +202,21 @@ class DietRecommender:
         total_cost = 0
         shopping_items = {}  # foodId → total grams needed
 
+        # --- Bulk Buying & Virtual Pantry (Senior SE Fix) ---
+        weekly_budget_remaining = budget_per_day * days
+        pantry = {} # foodId -> grams available
+        
+        # Define minimum bulk buy chunks to simulate real shopping
+        min_buy_grams = {
+            'protein': 400,
+            'carbs': 1000,
+            'vegetable': 500,
+            'fruit': 500,
+            'dairy': 500,
+            'fats': 250
+        }
+        # ----------------------------------------------------
+
         for day_idx in range(days):
             day_meals = []
             day_calories = 0
@@ -201,9 +234,19 @@ class DietRecommender:
 
                 # Add variety: rotate which foods are prioritized per day
                 offset = day_idx * 2
-                rotated = candidates[offset:] + candidates[:offset]
+                
+                # If we have items in our pantry, prioritize finishing them so they don't go to waste
+                pantry_items = [f for f in candidates if pantry.get(f['foodId'], 0) > 0]
+                non_pantry_items = [f for f in candidates if pantry.get(f['foodId'], 0) == 0]
+                
+                rotated = pantry_items + non_pantry_items[offset:] + non_pantry_items[:offset]
 
-                for food in rotated[:slot['foods_count']]:
+                foods_selected_for_slot = 0
+                
+                for food in rotated:
+                    if foods_selected_for_slot >= slot['foods_count']:
+                        break # We have enough foods for this slot
+                        
                     # Calculate portion to fill calorie target for this slot
                     if food['calories'] > 0:
                         portion_g = round((slot_calories / slot['foods_count']) / food['calories'] * 100)
@@ -211,8 +254,55 @@ class DietRecommender:
                     else:
                         portion_g = 100
 
+                    grams_needed = portion_g
+                    in_pantry = pantry.get(food['foodId'], 0)
+                    
+                    purchase_cost = 0
+                    buy_amount = 0
+
+                    if in_pantry < grams_needed:
+                        # We need to buy more. Simulate a bulk purchase.
+                        buy_amount = max(grams_needed - in_pantry, min_buy_grams.get(food['category'], 300))
+                        purchase_cost = buy_amount * food['price_per_gram']
+                        
+                        # Affordability check against the remaining WEEKLY budget!
+                        # We allow a tiny 5% buffer on the weekly budget for rounding leniency
+                        if purchase_cost > (weekly_budget_remaining * 1.05):
+                            # Too expensive to buy in bulk. 
+                            cheapest_prices = sorted([f['price_per_gram'] for f in scored_foods])[:3]
+                            if food['price_per_gram'] not in cheapest_prices:
+                                continue # Skip this food entirely, cannot afford the bulk buy
+                                
+                            # If it's a staple (rice/lentils), buy exactly what's needed as a fallback, overriding bulk rules
+                            buy_amount = grams_needed - in_pantry
+                            purchase_cost = buy_amount * food['price_per_gram']
+                            
+                        # Execute purchase block
+                        weekly_budget_remaining -= purchase_cost
+                        pantry[food['foodId']] = in_pantry + buy_amount
+                        
+                        # Update the master shopping list with what we just put in the cart
+                        if food['foodId'] in shopping_items:
+                            shopping_items[food['foodId']]['quantity'] += buy_amount
+                        else:
+                            shopping_items[food['foodId']] = {
+                                'foodId': food['foodId'],
+                                'name': food['name'],
+                                'quantity': buy_amount,
+                                'unit': 'g',
+                                'category': food['category'],
+                                'price_per_gram': food['price_per_gram']
+                            }
+
+                    # Now that the pantry is stocked, deduct what we eat for this meal
+                    pantry[food['foodId']] -= portion_g
+                    
+                    # Compute value of the meal on the plate (not the bulk purchase cost)
+                    value_on_plate = food['price_per_gram'] * portion_g
                     item_cal = food['calories'] * portion_g / 100
-                    item_cost = food['price_per_gram'] * portion_g
+
+                    # Accept the food into the meal
+                    foods_selected_for_slot += 1
 
                     meal_items.append({
                         'foodId': food['foodId'],
@@ -226,21 +316,8 @@ class DietRecommender:
                     meal_macros['carbs'] += food['carbs'] * portion_g / 100
                     meal_macros['fats'] += food['fat'] * portion_g / 100
                     meal_macros['fiber'] += food['fiber'] * portion_g / 100
-                    meal_cost += item_cost
+                    meal_cost += value_on_plate
                     used_today.add(food['foodId'])
-
-                    # Track shopping list
-                    if food['foodId'] in shopping_items:
-                        shopping_items[food['foodId']]['quantity'] += portion_g
-                    else:
-                        shopping_items[food['foodId']] = {
-                            'foodId': food['foodId'],
-                            'name': food['name'],
-                            'quantity': portion_g,
-                            'unit': 'g',
-                            'category': food['category'],
-                            'price_per_gram': food['price_per_gram']
-                        }
 
                 day_meals.append({
                     'mealType': slot['type'],

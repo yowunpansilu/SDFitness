@@ -1,60 +1,45 @@
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
-import { Calendar, Clock, X } from 'lucide-react';
+import { Calendar, Clock, X, Loader2 } from 'lucide-react';
 import { Badge } from '../ui/badge';
-
-interface ClassItem {
-    id: string;
-    name: string;
-    type: string;
-    trainer: {
-        name: string;
-        avatar?: string;
-    };
-    date: string;
-    time: string;
-    duration: string;
-}
-
-const mockClasses: ClassItem[] = [
-    {
-        id: '1',
-        name: 'HIIT Training',
-        type: 'High Intensity',
-        trainer: { name: 'John Smith', avatar: '' },
-        date: 'Today',
-        time: '6:00 PM',
-        duration: '45 min',
-    },
-    {
-        id: '2',
-        name: 'Yoga Flow',
-        type: 'Flexibility',
-        trainer: { name: 'Sarah Johnson', avatar: '' },
-        date: 'Tomorrow',
-        time: '8:00 AM',
-        duration: '60 min',
-    },
-    {
-        id: '3',
-        name: 'Spin Class',
-        type: 'Cardio',
-        trainer: { name: 'Mike Davis', avatar: '' },
-        date: 'Friday',
-        time: '7:00 PM',
-        duration: '50 min',
-    },
-];
+import { getClasses } from '@/lib/api/classService';
+import type { GymClass } from '@/lib/api/classService';
+import { format } from 'date-fns';
 
 export function UpcomingClasses() {
+    const [classes, setClasses] = useState<GymClass[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchClasses = async () => {
+            try {
+                setLoading(true);
+                const data = await getClasses();
+                // For Dashboard, we only want the next 3 or so
+                setClasses(data.slice(0, 3));
+            } catch (error) {
+                console.error('Failed to fetch classes:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchClasses();
+    }, []);
+
     return (
         <Card className="glass-card border-border">
             <CardHeader>
                 <CardTitle className="text-foreground">Upcoming Classes</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                {mockClasses.length === 0 ? (
+                {loading ? (
+                    <div className="flex justify-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                ) : classes.length === 0 ? (
                     <div className="text-center py-8">
                         <Calendar className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                         <p className="text-muted-foreground">No upcoming classes</p>
@@ -63,15 +48,15 @@ export function UpcomingClasses() {
                         </Button>
                     </div>
                 ) : (
-                    mockClasses.map((classItem) => (
+                    classes.map((classItem) => (
                         <div
                             key={classItem.id}
                             className="flex items-center gap-4 p-4 rounded-lg bg-card border border-border hover:border-primary-500/50 transition-all"
                         >
                             <Avatar className="h-12 w-12">
-                                <AvatarImage src={classItem.trainer.avatar} />
+                                <AvatarImage src={classItem.image} />
                                 <AvatarFallback>
-                                    {classItem.trainer.name
+                                    {classItem.trainerName
                                         .split(' ')
                                         .map((n) => n[0])
                                         .join('')}
@@ -85,15 +70,15 @@ export function UpcomingClasses() {
                                         {classItem.type}
                                     </Badge>
                                 </div>
-                                <p className="text-sm text-muted-foreground">{classItem.trainer.name}</p>
+                                <p className="text-sm text-muted-foreground">{classItem.trainerName}</p>
                                 <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1">
                                         <Calendar className="w-3 h-3" />
-                                        {classItem.date}
+                                        {format(new Date(classItem.startTime), 'EEEE')}
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <Clock className="w-3 h-3" />
-                                        {classItem.time} ({classItem.duration})
+                                        {format(new Date(classItem.startTime), 'p')} ({classItem.duration} min)
                                     </span>
                                 </div>
                             </div>

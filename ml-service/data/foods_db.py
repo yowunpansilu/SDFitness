@@ -15,26 +15,15 @@ MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME", "keelsPriceDB")
 
 def _get_mongo_client():
-    """Helper to get a connected MongoDB client with safe error handling."""
+    """Helper to get a connected MongoDB client."""
     if not MONGO_URI:
         return None
     try:
-        import urllib.parse
-        uri = MONGO_URI
-        if "@" in MONGO_URI:
-            if uri.startswith("mongodb+srv://") or uri.startswith("mongodb://"):
-                prefix = "mongodb+srv://" if uri.startswith("mongodb+srv://") else "mongodb://"
-                body = uri[len(prefix):]
-                if "@" in body:
-                    last_at = body.rfind("@")
-                    creds = body[:last_at]
-                    host_part = body[last_at+1:]
-                    if ":" in creds:
-                        user, pwd = creds.split(":", 1)
-                        uri = f"{prefix}{urllib.parse.quote_plus(user)}:{urllib.parse.quote_plus(pwd)}@{host_part}"
-        return MongoClient(uri)
+        # Just use the URI directly. 
+        # If it has special characters, the user should have encoded them in the env var.
+        return MongoClient(MONGO_URI)
     except Exception as e:
-        print(f"⚠️  Atlas Connection Error: {e}")
+        print(f"⚠️  MongoDB Connection Error: {e}")
         return None
 
 
@@ -61,22 +50,7 @@ def get_live_prices_from_db():
         return {}
 
     try:
-        # Handle cases where password contains '@' and needs escaping
-        import urllib.parse
-        uri = MONGO_URI
-        if "@" in MONGO_URI:
-            if uri.startswith("mongodb+srv://") or uri.startswith("mongodb://"):
-                prefix = "mongodb+srv://" if uri.startswith("mongodb+srv://") else "mongodb://"
-                body = uri[len(prefix):]
-                if "@" in body:
-                    last_at = body.rfind("@")
-                    creds = body[:last_at]
-                    host_part = body[last_at+1:]
-                    if ":" in creds:
-                        user, pwd = creds.split(":", 1)
-                        uri = f"{prefix}{urllib.parse.quote_plus(user)}:{urllib.parse.quote_plus(pwd)}@{host_part}"
-
-        client = MongoClient(uri)
+        client = MongoClient(MONGO_URI)
         # Use 'test' database as discovered across the Atlas cluster
         db = client["test"]
         

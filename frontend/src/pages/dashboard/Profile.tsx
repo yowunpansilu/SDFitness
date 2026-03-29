@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { User, Heart, Target, Settings, AlertTriangle, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,23 +20,19 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import api from '@/lib/api/axios';
 
 export function Profile() {
-    const { token, login, logout } = useAuthStore();
+    const { token, logout, fetchProfile } = useAuthStore();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     useEffect(() => {
-        const fetchProfile = async () => {
+        const loadProfile = async () => {
             try {
-                const response = await axios.get(`${API_URL}/api/auth/profile`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                if (response.data.success && token) {
-                    // Update the store with latest data
-                    login(response.data.user, token, response.data.member);
+                if (token && fetchProfile) {
+                    await fetchProfile();
                 }
             } catch (error) {
                 console.error('Error fetching profile:', error);
@@ -47,16 +42,14 @@ export function Profile() {
         };
 
         if (token) {
-            fetchProfile();
+            loadProfile();
         }
-    }, [token, API_URL, login]);
+    }, [token, fetchProfile]);
 
     const handleDeleteAccount = async () => {
         setIsDeleting(true);
         try {
-            const response = await axios.delete(`${API_URL}/api/auth/profile`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await api.delete('/auth/profile');
 
             if (response.data.success) {
                 logout();

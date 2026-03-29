@@ -6,7 +6,7 @@ import { Label } from '../ui/label';
 import { DatePicker } from '../ui/date-picker';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/lib/stores/authStore';
-import axios from 'axios';
+import api from '@/lib/api/axios';
 
 interface Step1Data {
     firstName: string;
@@ -62,7 +62,6 @@ export function RegisterForm() {
 
     const navigate = useNavigate();
     const { login } = useAuthStore();
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -86,7 +85,7 @@ export function RegisterForm() {
 
         setIsLoading(true);
         try {
-            const response = await axios.post(`${API_URL}/api/auth/register`, {
+            const response = await api.post('/auth/register', {
                 step1Data,
                 step2Data,
                 step3Data

@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Dumbbell, Flame, Calendar, Zap, Plus } from 'lucide-react';
+import { Dumbbell, Calendar, Zap, Plus, Target, Activity } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { UpcomingClasses } from '@/components/dashboard/UpcomingClasses';
 import { ActivityTimeline } from '@/components/dashboard/ActivityTimeline';
@@ -8,7 +9,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function Dashboard() {
-    const { user } = useAuthStore();
+    const { user, member, fetchProfile } = useAuthStore();
+
+    useEffect(() => {
+        if (fetchProfile) fetchProfile();
+    }, [fetchProfile]);
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -44,7 +49,7 @@ export function Dashboard() {
                             </p>
                             <div className="h-1 w-12 bg-secondary-500 rounded-full" />
                             <div className="px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-xs font-bold text-primary-600 uppercase tracking-widest">
-                                Member Profile Active
+                                {member?.membershipType ? `${member.membershipType.toUpperCase()} PROFILE ACTIVE` : 'MEMBER PROFILE ACTIVE'}
                             </div>
                         </div>
                     </motion.div>
@@ -59,32 +64,26 @@ export function Dashboard() {
             {/* Stats Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <StatsCard
-                    title="Total Workouts"
-                    value="24"
-                    icon={Dumbbell}
-                    trend="up"
-                    trendValue="+12%"
+                    title="Current BMI"
+                    value={member?.bmi?.toFixed(1) || '--'}
+                    icon={Activity}
+                    trend={member?.bmi && member.bmi < 25 ? "down" : "up"}
+                    trendValue={member?.bmi ? (member.bmi < 25 ? "Healthy" : "Attention") : ""}
                 />
                 <StatsCard
-                    title="Calories Burned"
-                    value="12,450"
-                    icon={Flame}
-                    trend="up"
-                    trendValue="+8%"
+                    title="Current Weight"
+                    value={`${member?.currentWeight?.value || '--'} ${member?.currentWeight?.unit || 'kg'}`}
+                    icon={ScaleIcon as any}
                 />
                 <StatsCard
-                    title="Classes Attended"
-                    value="18"
-                    icon={Calendar}
-                    trend="up"
-                    trendValue="+15%"
+                    title="Target Weight"
+                    value={`${member?.targetWeight?.value || '--'} ${member?.targetWeight?.unit || 'kg'}`}
+                    icon={Target}
                 />
                 <StatsCard
-                    title="Attendance Streak"
-                    value="7 days"
+                    title="Status"
+                    value={member?.status?.toUpperCase() || 'ACTIVE'}
                     icon={Zap}
-                    trend="up"
-                    trendValue="+2"
                 />
             </div>
 
@@ -119,5 +118,29 @@ export function Dashboard() {
                 <ActivityTimeline />
             </div>
         </div>
+    );
+}
+
+// Internal helper icons if not available in lucide-react constants above
+function ScaleIcon({ className }: { className?: string }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+        >
+            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+            <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+            <path d="M7 21h10" />
+            <path d="M12 3v18" />
+            <path d="M3 7h18" />
+        </svg>
     );
 }

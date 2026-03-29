@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '@/lib/api/axios';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -15,9 +15,8 @@ import {
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function HealthMetricsTab() {
-    const { member, token, login } = useAuthStore();
+    const { member, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const [formData, setFormData] = useState({
         height: member?.height?.value || '',
         heightUnit: member?.height?.unit || 'cm',
@@ -61,8 +60,8 @@ export function HealthMetricsTab() {
 
     // Calculate BMI whenever height or weight changes
     useEffect(() => {
-        const height = parseFloat(formData.height);
-        const weight = parseFloat(formData.weight);
+        const height = parseFloat(formData.height.toString());
+        const weight = parseFloat(formData.weight.toString());
 
         if (height && weight) {
             let heightInMeters = height;
@@ -98,7 +97,7 @@ export function HealthMetricsTab() {
             const h = parseFloat(formData.height.toString());
             const w = parseFloat(formData.weight.toString());
             
-            const response = await axios.put(`${API_URL}/api/auth/profile`, {
+            const response = await api.put('/auth/profile', {
                 memberData: {
                     height: {
                         value: h,
@@ -111,12 +110,12 @@ export function HealthMetricsTab() {
                     gender: formData.gender,
                     bodyFatPercentage: formData.bodyFat ? parseFloat(formData.bodyFat.toString()) : undefined
                 }
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
 
-            if (response.data.success && token) {
-                login(response.data.user, token, response.data.member);
+            if (response.data.success) {
+                const { user, token: newToken, member: updatedMember } = response.data;
+                // If the backend returns a new token, use it, otherwise keep current
+                login(user, newToken || (useAuthStore.getState().token as string), updatedMember);
                 setIsEditing(false);
             }
         } catch (error) {

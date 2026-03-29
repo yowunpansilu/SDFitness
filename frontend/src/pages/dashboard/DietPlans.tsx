@@ -6,31 +6,34 @@ import { DietPlanWizard } from '@/components/diet/DietPlanWizard';
 import { DietPlanDisplay } from '@/components/diet/DietPlanDisplay';
 import type { DietPlan } from '@/lib/api/dietPlanApi';
 import { fetchDietPlans, saveDietPlan } from '@/lib/api/dietPlanApi';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function DietPlans() {
+    const { member } = useAuthStore();
     const [showWizard, setShowWizard] = useState(false);
     const [currentPlan, setCurrentPlan] = useState<DietPlan | null>(null);
     const [savedPlans, setSavedPlans] = useState<DietPlan[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
-    useEffect(() => {
-        const loadPlans = async () => {
-            setIsLoading(true);
-            try {
-                const plans = await fetchDietPlans();
-                setSavedPlans(plans);
-            } catch (error) {
-                console.error('Error loading plans:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    const loadPlans = async () => {
+        if (!member?._id) return;
+        setIsLoading(true);
+        try {
+            const plans = await fetchDietPlans(member._id);
+            setSavedPlans(plans);
+        } catch (error) {
+            console.error('Error loading plans:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-        if (!showWizard && !currentPlan) {
+    useEffect(() => {
+        if (member?._id && !showWizard && !currentPlan) {
             loadPlans();
         }
-    }, [showWizard, currentPlan]);
+    }, [member?._id, showWizard, currentPlan]);
 
     const handleWizardComplete = (plan: DietPlan) => {
         setCurrentPlan(plan);
@@ -41,8 +44,9 @@ export function DietPlans() {
         if (currentPlan) {
             setIsSaving(true);
             try {
-                const saved = await saveDietPlan(currentPlan);
-                setSavedPlans([saved, ...savedPlans]);
+                await saveDietPlan(currentPlan);
+                // Immediately refresh list
+                await loadPlans();
                 alert('Diet plan saved successfully!');
                 setCurrentPlan(null); // Return to list after saving
             } catch (error) {
@@ -127,8 +131,8 @@ export function DietPlans() {
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {savedPlans.map((plan) => (
                             <Card
-                                key={plan.id}
-                                className="border-border hover:border-primary-500/50 transition-all cursor-pointer"
+                                key={plan._id || plan.id}
+                                className="border-border hover:border-primary-500/50 transition-all cursor-pointer group"
                                 onClick={() => handleViewPlan(plan)}
                             >
                                 <CardContent className="p-6">

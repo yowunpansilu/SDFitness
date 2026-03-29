@@ -210,7 +210,7 @@ const generateDietPlan = async (memberId, shouldSave = true, overrides = {}) => 
         for (const day of mlResult.days) {
             console.log(`[AI] Processing Day ${day.dayOfWeek} (${day.dayName})...`);
             const formattedDayResult = await formatDayWithNvidia(day, userProfile);
-            
+
             processedDays.push({
                 ...day,
                 meals: day.meals.map((meal, j) => {

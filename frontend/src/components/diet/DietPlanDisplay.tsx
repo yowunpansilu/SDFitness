@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Save, Brain, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -12,10 +12,11 @@ import { cn } from '@/lib/utils';
 interface DietPlanDisplayProps {
     plan: DietPlan;
     onSave?: () => void;
+    onChange?: (updates: Partial<DietPlan>) => void;
     isSaving?: boolean;
 }
 
-export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps) {
+export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDisplayProps) {
     const [activeDayIdx, setActiveDayIdx] = useState(0);
 
     // Normalize shopping list
@@ -35,12 +36,30 @@ export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps
 
     const [items, setItems] = useState(shoppingItems);
 
+    // Sync from props if plan changes (e.g. after remote save)
+    useEffect(() => {
+        setItems(shoppingItems);
+    }, [shoppingItems]);
+
     const toggleShoppingItem = (itemId: string) => {
-        setItems(prev =>
-            prev.map(item =>
-                item.id === itemId ? { ...item, checked: !item.checked } : item
-            )
+        const newItems = items.map(item =>
+            item.id === itemId ? { ...item, checked: !item.checked } : item
         );
+        setItems(newItems);
+
+        // Notify parent of change
+        if (onChange) {
+            if (isNewFormat) {
+                onChange({
+                    shoppingList: {
+                        ...(rawShoppingList as ShoppingListData),
+                        items: newItems
+                    }
+                });
+            } else {
+                onChange({ shoppingList: newItems });
+            }
+        }
     };
 
     // Prepare Timeline Data

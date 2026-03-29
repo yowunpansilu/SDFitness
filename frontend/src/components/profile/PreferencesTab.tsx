@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '@/lib/api/axios';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
@@ -18,7 +18,6 @@ import { useAuthStore } from '@/lib/stores/authStore';
 export function PreferencesTab() {
     const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     
     // Helper to format dietary preferences from backend (snake_case) to UI (Capitalized-Hyphenated)
     const formatPref = (p: string) => {
@@ -72,7 +71,7 @@ export function PreferencesTab() {
 
     const handleSave = async () => {
         try {
-            const response = await axios.put(`${API_URL}/api/auth/profile`, {
+            const response = await api.put('/auth/profile', {
                 memberData: {
                     dietaryPreferences: formData.dietaryRestrictions.map((p: string) => p.toLowerCase().replace('-', '_')),
                     allergies: formData.allergies.split(',').map((a: string) => a.trim()).filter((a: string) => a),
@@ -87,8 +86,6 @@ export function PreferencesTab() {
                         push: formData.pushNotifications
                     }
                 }
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
 
             if (response.data.success && token) {

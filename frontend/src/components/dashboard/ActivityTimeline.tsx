@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Dumbbell, Calendar, Apple, DollarSign, CheckCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getAttendanceHistory } from '@/lib/api/attendanceService';
-import type { AttendanceRecord } from '@/lib/api/attendanceService';
+import { getWorkoutHistory } from '@/lib/api/workoutApi';
+import { fetchDietPlans } from '@/lib/api/dietPlanApi';
+import { getUserBookings } from '@/lib/api/classService';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -41,18 +43,70 @@ export function ActivityTimeline() {
             if (!user?.id) return;
             try {
                 setLoading(true);
-                const attendance = await getAttendanceHistory(user.id);
+                const [attendance, workoutsResp, dietPlans, bookings] = await Promise.all([
+                    getAttendanceHistory(user.id).catch(() => []),
+                    getWorkoutHistory(user.id).catch(() => ({ data: [] })),
+                    fetchDietPlans(user.id).catch(() => []),
+                    getUserBookings(user.id).catch(() => [])
+                ]);
                 
-                // Map attendance records to Activity interface
-                const mappedActivities: Activity[] = attendance.map((rec: AttendanceRecord) => ({
-                    id: rec._id,
-                    type: 'checkin',
-                    title: 'Gym Check-in',
-                    description: `At ${rec.facility}`,
-                    timestamp: formatDistanceToNow(new Date(rec.checkInTime), { addSuffix: true })
-                }));
+                const mappedActivities: Activity[] = [];
 
-                setActivities(mappedActivities);
+                // 1. Attendance
+                attendance.forEach((rec: any) => {
+                    mappedActivities.push({
+                        id: `checkin-${rec._id}`,
+                        type: 'checkin',
+                        title: 'Gym Check-in',
+                        description: `At ${rec.facility}`,
+                        timestamp: rec.checkInTime
+                    });
+                });
+
+                // 2. Workouts
+                workoutsResp.data?.forEach((rec: any) => {
+                    mappedActivities.push({
+                        id: `workout-${rec._id}`,
+                        type: 'workout',
+                        title: 'Completed Workout',
+                        description: `Burned ${rec.totalCaloriesBurned || 0} kcal`,
+                        timestamp: rec.workoutDate || rec.createdAt
+                    });
+                });
+
+                // 3. Diet Plans
+                dietPlans.forEach((rec: any) => {
+                    mappedActivities.push({
+                        id: `diet-${rec._id}`,
+                        type: 'diet',
+                        title: 'Generated Diet Plan',
+                        description: rec.name || 'AI Personalized Plan',
+                        timestamp: rec.createdAt
+                    });
+                });
+
+                // 4. Bookings
+                bookings.forEach((rec: any) => {
+                    mappedActivities.push({
+                        id: `booking-${rec._id}`,
+                        type: 'class',
+                        title: `Class Booking: ${rec.gymClass?.name || 'Session'}`,
+                        description: `Status: ${rec.status}`,
+                        timestamp: rec.bookingDate || rec.createdAt
+                    });
+                });
+
+                // Sort by timestamp descending and take top 10
+                const sortedActivities = mappedActivities
+                    .filter(a => a.timestamp)
+                    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                    .slice(0, 10)
+                    .map(a => ({
+                        ...a,
+                        timestamp: formatDistanceToNow(new Date(a.timestamp), { addSuffix: true })
+                    }));
+
+                setActivities(sortedActivities);
             } catch (error) {
                 console.error('Failed to fetch activities:', error);
             } finally {

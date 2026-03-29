@@ -1,24 +1,22 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { User, Heart } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PersonalInfoTab } from '@/components/profile/PersonalInfoTab';
 import { HealthMetricsTab } from '@/components/profile/HealthMetricsTab';
 import { useAuthStore } from '@/lib/stores/authStore';
+import api from '@/lib/api/axios';
 
 export function Profile() {
     const { token, login } = useAuthStore();
     const [isLoading, setIsLoading] = useState(true);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005';
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await axios.get(`${API_URL}/api/auth/profile`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const response = await api.get('/auth/profile');
                 if (response.data.success && token) {
                     // Update the store with latest data
                     login(response.data.user, token, response.data.member);

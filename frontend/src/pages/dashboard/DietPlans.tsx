@@ -5,16 +5,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { DietPlanWizard } from '@/components/diet/DietPlanWizard';
 import { DietPlanDisplay } from '@/components/diet/DietPlanDisplay';
 import type { DietPlan } from '@/lib/api/dietPlanApi';
-import { fetchDietPlans, saveDietPlan } from '@/lib/api/dietPlanApi';
+import { fetchDietPlans, updateDietPlan } from '@/lib/api/dietPlanApi';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { useDietStore } from '@/lib/stores/dietStore';
 
 export function DietPlans() {
     const { member } = useAuthStore();
+    const { currentPlan, isSaving, setCurrentPlan, updateCurrentPlan, saveGeneratedPlan } = useDietStore();
     const [showWizard, setShowWizard] = useState(false);
-    const [currentPlan, setCurrentPlan] = useState<DietPlan | null>(null);
     const [savedPlans, setSavedPlans] = useState<DietPlan[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
 
     const loadPlans = async () => {
         if (!member?._id) return;
@@ -35,25 +35,38 @@ export function DietPlans() {
         }
     }, [member?._id, showWizard, currentPlan]);
 
-    const handleWizardComplete = (plan: DietPlan) => {
-        setCurrentPlan(plan);
-        setShowWizard(false);
+    const handleWizardComplete = async (plan: DietPlan) => {
+        try {
+            await saveGeneratedPlan(plan);
+            setShowWizard(false);
+            loadPlans();
+        } catch (error) {
+            console.error('Error saving new plan:', error);
+            // Even if save fails, we show the plan in the UI
+            setCurrentPlan(plan);
+            setShowWizard(false);
+        }
     };
+
+    const handlePlanChange = (updates: Partial<DietPlan>) => {
+        updateCurrentPlan(updates);
+    };
+
+
 
     const handleSavePlan = async () => {
         if (currentPlan) {
-            setIsSaving(true);
             try {
-                await saveDietPlan(currentPlan);
-                // Immediately refresh list
+                if (currentPlan._id) {
+                    await updateDietPlan(currentPlan._id, currentPlan);
+                } else {
+                    await saveGeneratedPlan(currentPlan);
+                }
                 await loadPlans();
                 alert('Diet plan saved successfully!');
-                setCurrentPlan(null); // Return to list after saving
             } catch (error) {
                 console.error('Error saving plan:', error);
-                alert('Failed to save diet plan. Please try again.');
-            } finally {
-                setIsSaving(false);
+                alert('Failed to save diet plan.');
             }
         }
     };
@@ -93,6 +106,7 @@ export function DietPlans() {
                 <DietPlanDisplay
                     plan={currentPlan}
                     onSave={handleSavePlan}
+                    onChange={handlePlanChange}
                     isSaving={isSaving}
                 />
             </div>

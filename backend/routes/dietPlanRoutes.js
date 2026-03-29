@@ -39,6 +39,27 @@ router.post('/', async (req, res) => {
     }
 });
 
+// PUT /api/diet-plans/:id — update an existing plan
+router.put('/:id', async (req, res) => {
+    try {
+        const planData = req.body;
+        const plan = await DietPlan.findByIdAndUpdate(
+            req.params.id,
+            planData,
+            { new: true, runValidators: true }
+        );
+        
+        if (!plan) {
+            return res.status(404).json({ success: false, error: 'Diet plan not found' });
+        }
+        
+        res.json({ success: true, data: plan });
+    } catch (error) {
+        console.error('❌ Diet plan update error:', error.message);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // GET /api/diet-plans/:id
 router.get('/:id', async (req, res) => {
     try {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '@/lib/api/axios';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -18,7 +18,6 @@ import { useAuthStore } from '@/lib/stores/authStore';
 export function GoalsTab() {
     const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     const [formData, setFormData] = useState({
         fitnessGoal: member?.fitnessGoals?.[0] || '',
@@ -42,7 +41,7 @@ export function GoalsTab() {
 
     const handleSave = async () => {
         try {
-            const response = await axios.put(`${API_URL}/api/auth/profile`, {
+            const response = await api.put('/auth/profile', {
                 memberData: {
                     fitnessGoals: [formData.fitnessGoal.replace('-', '_')],
                     targetWeight: {
@@ -52,8 +51,6 @@ export function GoalsTab() {
                     activityLevel: formData.activityLevel,
                     notes: formData.notes
                 }
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
 
             if (response.data.success && token) {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '@/lib/api/axios';
 import { useNavigate } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,17 +17,14 @@ import {
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function DeleteAccountDialog() {
-    const { token, logout } = useAuthStore();
+    const { logout } = useAuthStore();
     const navigate = useNavigate();
     const [isDeleting, setIsDeleting] = useState(false);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     const handleDeleteAccount = async () => {
         setIsDeleting(true);
         try {
-            const response = await axios.delete(`${API_URL}/api/auth/profile`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await api.delete('/auth/profile');
 
             if (response.data.success) {
                 logout();

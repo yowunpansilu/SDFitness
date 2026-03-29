@@ -1,14 +1,10 @@
-import { produce } from 'immer';
+import api from './axios';
+import { useAuthStore } from '../stores/authStore';
 
 // Types
-export type PlanTier = 'Basic' | 'Pro' | 'Elite';
+export type PlanTier = 'Basic' | 'Standard' | 'Premium' | 'Elite';
 export type BillingCycle = 'monthly' | 'yearly';
 export type MembershipStatus = 'active' | 'expired' | 'cancelled' | 'frozen';
-
-export interface MembershipFeature {
-    name: string;
-    included: boolean;
-}
 
 export interface MembershipPlan {
     id: string;
@@ -23,10 +19,11 @@ export interface MembershipPlan {
 }
 
 export interface UserMembership {
+    id: string;
     planId: string;
     status: MembershipStatus;
     startDate: string;
-    endDate: string; // Renewal date
+    endDate: string;
     billingCycle: BillingCycle;
     autoRenew: boolean;
     paymentMethod?: {
@@ -42,106 +39,118 @@ export interface UsageStats {
     streakDays: number;
 }
 
-// Mock Data
-export const MEMBERSHIP_PLANS: MembershipPlan[] = [
-    {
-        id: 'plan_basic',
-        name: 'Basic',
-        description: 'Essential access to gym facilities.',
-        monthlyPrice: 29.99,
-        yearlyPrice: 299.99, // 2 months free
-        features: [
-            'Access to Gym Floor',
-            'Locker Room Access',
-            'Free Parking',
-            '1 Guest Pass/Month'
-        ],
-        color: 'bg-slate-500',
-        trialDays: 7
-    },
-    {
-        id: 'plan_pro',
-        name: 'Pro',
-        description: 'Perfect for regular gym-goers.',
-        monthlyPrice: 59.99,
-        yearlyPrice: 599.99,
-        popular: true,
-        features: [
-            'All Basic Features',
-            'Unlimited Group Classes',
-            'Sauna & Steam Room',
-            'Access to All Locations',
-            'Quarterly Personal Training Session'
-        ],
-        color: 'bg-primary/80',
-        trialDays: 14
-    },
-    {
-        id: 'plan_elite',
-        name: 'Elite',
-        description: 'Ultimate fitness experience with priority access.',
-        monthlyPrice: 99.99,
-        yearlyPrice: 999.99,
-        features: [
-            'All Pro Features',
-            'Unlimited Personal Training',
-            'Nutritional Consultations',
-            'Massage Therapy (1/month)',
-            'Private Locker',
-            'Laundry Service'
-        ],
-        color: 'bg-amber-500'
-    }
-];
-
-const MOCK_MEMBERSHIP: UserMembership = {
-    planId: 'plan_pro',
-    status: 'active',
-    startDate: '2023-01-15T00:00:00Z',
-    endDate: '2023-12-15T00:00:00Z',
-    billingCycle: 'monthly',
-    autoRenew: true,
-    paymentMethod: {
-        brand: 'Visa',
-        last4: '4242'
-    }
-};
-
-const MOCK_STATS: UsageStats = {
-    checkInsThisMonth: 12,
-    classesAttendedThisMonth: 5,
-    totalWorkouts: 145,
-    streakDays: 3
-};
-
 // Service
 export const getPlans = async (): Promise<MembershipPlan[]> => {
-    return new Promise((resolve) => setTimeout(() => resolve(MEMBERSHIP_PLANS), 500));
+    try {
+        const response = await api.get('/membership/plans');
+        return (response.data || []).map((plan: any) => ({
+            id: plan._id,
+            name: plan.name,
+            description: `${plan.name} access to gym facilities.`,
+            monthlyPrice: plan.price,
+            yearlyPrice: plan.price * 10, // Simulating 2 months free for yearly
+            features: plan.features || [],
+            popular: plan.name === 'Standard',
+            color: plan.name === 'Basic' ? 'bg-slate-500' : (plan.name === 'Premium' ? 'bg-amber-500' : 'bg-primary/80'),
+            trialDays: 7
+        }));
+    } catch (error) {
+        console.error('Failed to fetch membership plans:', error);
+        return [];
+    }
 };
 
 export const getCurrentMembership = async (): Promise<UserMembership> => {
-    return new Promise((resolve) => setTimeout(() => resolve({ ...MOCK_MEMBERSHIP }), 800));
+    try {
+        const response = await api.get('/membership/subscriptions');
+        const subs = response.data || [];
+        // Find the most relevant subscription (active, or just the latest one)
+        const activeSub = subs.find((s: any) => s.status === 'active' || s.status === 'frozen') || subs[0];
+        
+        if (!activeSub) return null as any;
+
+        return {
+            id: activeSub._id,
+            planId: activeSub.plan?._id || activeSub.plan,
+            status: activeSub.status,
+            startDate: activeSub.startDate,
+            endDate: activeSub.endDate,
+            billingCycle: 'monthly',
+            autoRenew: activeSub.status === 'active',
+            paymentMethod: {
+                brand: 'Visa',
+                last4: '4242'
+            }
+        };
+    } catch (error) {
+        console.error('Failed to fetch current membership:', error);
+        return null as any;
+    }
 };
 
 export const getUsageStats = async (): Promise<UsageStats> => {
-    return new Promise((resolve) => setTimeout(() => resolve({ ...MOCK_STATS }), 600));
+    try {
+        // Fetching attendance to calculate stats
+        const response = await api.get('/attendance');
+        const attendance = response.data || [];
+        
+        // Fetching bookings for class count
+        const classesResponse = await api.get('/classes');
+        const classes = classesResponse.data || [];
+        const enrolledClasses = classes.filter((c: any) => c.enrolled > 0).length;
+
+        return {
+            checkInsThisMonth: attendance.length,
+            classesAttendedThisMonth: enrolledClasses,
+            totalWorkouts: attendance.length + enrolledClasses,
+            streakDays: 3 // Mocked streak calculation as it requires sequential history logic
+        };
+    } catch (error) {
+        console.error('Failed to fetch usage stats:', error);
+        return {
+            checkInsThisMonth: 0,
+            classesAttendedThisMonth: 0,
+            totalWorkouts: 0,
+            streakDays: 0
+        };
+    }
 };
 
 export const updateMembershipPlan = async (
     newPlanId: string,
-    billingCycle: BillingCycle
+    _billingCycle: BillingCycle
 ): Promise<UserMembership> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(produce(MOCK_MEMBERSHIP, draft => {
-                draft.planId = newPlanId;
-                draft.billingCycle = billingCycle;
-                // In a real app, we'd calculate pro-ration and new dates
-            }));
-        }, 1500);
-    });
+    try {
+        const { user } = useAuthStore.getState();
+        const userId = user?._id || user?.id;
+        
+        const response = await api.post('/membership/subscriptions', { 
+            plan: newPlanId,
+            user: userId
+        });
+        const sub = response.data;
+        return {
+            id: sub._id,
+            planId: sub.plan?._id || sub.plan,
+            status: sub.status,
+            startDate: sub.startDate,
+            endDate: sub.endDate,
+            billingCycle: 'monthly',
+            autoRenew: true
+        };
+    } catch (error) {
+        console.error('Failed to update membership:', error);
+        throw error;
+    }
 };
 
-export const cancelMembership = async (): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, 1000));
+export const cancelMembership = async (subscriptionId: string): Promise<void> => {
+    await api.put(`/membership/subscriptions/${subscriptionId}/status`, { status: 'cancelled' });
+};
+
+export const freezeMembership = async (subscriptionId: string, resumeDate: Date): Promise<void> => {
+    await api.put(`/membership/subscriptions/${subscriptionId}/status`, { 
+        status: 'frozen',
+        endDate: resumeDate.toISOString() 
+    });
 };

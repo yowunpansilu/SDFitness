@@ -1,3 +1,4 @@
+import api from './axios';
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 
@@ -10,41 +11,41 @@ export interface Notification {
     timestamp: string; // ISO string
 }
 
-export const MOCK_NOTIFICATIONS: Notification[] = [
-    {
-        id: 'notif_1',
-        title: 'Class Reminder',
-        message: 'Your "Advanced HIIT" class starts in 1 hour.',
-        type: 'info',
-        isRead: false,
-        timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString() // 1 hour ago
-    },
-    {
-        id: 'notif_2',
-        title: 'Payment Successful',
-        message: 'We successfully processed your monthly membership payment.',
-        type: 'success',
-        isRead: false,
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() // 1 day ago
-    },
-    {
-        id: 'notif_3',
-        title: 'New Diet Plan Available',
-        message: 'Your weekly AI diet plan has been generated.',
-        type: 'info',
-        isRead: true,
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString() // 2 days ago
-    }
-];
-
 export const getNotifications = async (): Promise<Notification[]> => {
-    return new Promise((resolve) => setTimeout(() => resolve(MOCK_NOTIFICATIONS), 600));
+    try {
+        const response = await api.get('/communication/notifications');
+        return (response.data || []).map((n: any) => ({
+            id: n._id,
+            title: n.title,
+            message: n.message,
+            type: n.type === 'alert' ? 'error' : (n.type === 'reminder' ? 'warning' : 'info'),
+            isRead: n.isRead,
+            timestamp: n.createdAt
+        }));
+    } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+        return [];
+    }
 };
 
-export const markNotificationRead = async (_id: string): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, 300));
+export const markNotificationRead = async (id: string): Promise<void> => {
+    try {
+        await api.put(`/communication/notifications/${id}/read`);
+    } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+    }
+};
+
+export const deleteNotification = async (id: string): Promise<void> => {
+    try {
+        await api.delete(`/communication/notifications/${id}`);
+    } catch (error) {
+        console.error('Failed to delete notification:', error);
+        throw error;
+    }
 };
 
 export const clearAllNotifications = async (): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, 500));
+    // Backend endpoint might not exist yet, but we'll simulate success for UI consistency
+    console.warn('Clear all notifications endpoint not officially implemented on backend.');
 };

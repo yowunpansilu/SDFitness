@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Download, Save, Share2, Brain, Loader2, Sparkles } from 'lucide-react';
+import { Save, Brain, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { MealCard } from './MealCard';
@@ -53,7 +53,7 @@ export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps
                 return {
                     dayName: day.dayName?.substring(0, 3) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
                     date: date.getDate(),
-                    progress: 0, // Initial progress is 0 until user tracks meals
+                    progress: 0.6 + (Math.random() * 0.4), // Mocked completion progress
                     isActive: i === activeDayIdx
                 };
             });
@@ -97,17 +97,9 @@ export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps
                             )}
                         >
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 text-secondary-500" />}
-                            {isSaving ? 'Persisting...' : 'Save Strategy'}
+                            {isSaving ? 'Saving...' : 'Save Plan'}
                         </Button>
                     )}
-                    <Button disabled variant="outline" title="Coming Soon" className="h-12 px-6 rounded-2xl font-bold gap-2 border-primary-100 opacity-50 cursor-not-allowed">
-                        <Download className="w-4 h-4" /> 
-                        Export PDF
-                    </Button>
-                    <Button disabled variant="outline" title="Coming Soon" className="h-12 px-6 rounded-2xl font-bold gap-2 border-primary-100 opacity-50 cursor-not-allowed">
-                        <Share2 className="w-4 h-4" /> 
-                        Share
-                    </Button>
                 </div>
             </div>
 
@@ -192,41 +184,12 @@ export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps
                             <div className="p-3 bg-secondary-50 border border-secondary-100 rounded-2xl shadow-sm">
                                 <Sparkles className="w-6 h-6 text-secondary-500" />
                             </div>
-                            <div className="flex-1">
-                                <h3 className="text-xl font-bold text-primary-900 mb-2">AI Logic & Insights</h3>
-                                <div className="space-y-3">
-                                    <p className="text-primary-800 leading-relaxed">
-                                        {plan.aiMetadata?.generationMethod === 'ml_plus_gemini' 
-                                            ? `Our ML model (${plan.aiMetadata.mlModelVersion || 'v1.2-alpha'}) synchronized with current market prices to optimize for both nutrition and budget.`
-                                            : "This plan was synthesized using nutritional benchmarks for your specific health markers."}
-                                    </p>
-                                    
-                                    {plan.aiMetadata?.mlConfidenceScore && (
-                                        <div className="flex items-center gap-4 py-2 border-y border-dashed border-primary-100">
-                                            <div className="flex flex-col">
-                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">ML Confidence</span>
-                                                <span className="text-sm font-black text-secondary-600">{Math.round(plan.aiMetadata.mlConfidenceScore * 100)}% Match</span>
-                                            </div>
-                                            <div className="flex flex-col border-l border-primary-100 pl-4">
-                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Analysis Speed</span>
-                                                <span className="text-sm font-black text-primary-900">{plan.aiMetadata.mlInferenceTimeMs || '84'}ms</span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {plan.aiMetadata?.featureImportance && plan.aiMetadata.featureImportance.length > 0 && (
-                                        <div>
-                                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Top Optimization Drivers</span>
-                                            <div className="flex flex-wrap gap-2">
-                                                {plan.aiMetadata.featureImportance.slice(0, 3).map((f, i) => (
-                                                    <span key={i} className="px-2 py-1 rounded-lg bg-primary-50 text-[10px] font-bold text-primary-600 border border-primary-100">
-                                                        {f.feature.replace('_', ' ')}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-primary-900 mb-2">AI Generated Insights</h3>
+                                <p className="text-primary-800 leading-relaxed max-w-[90%]">
+                                    Your {timelineDays[activeDayIdx].dayName} plan focus is <strong>{plan.goal === 'LOSE_WEIGHT' ? 'Metabolic Efficiency' : 'Hypertrophy Activation'}</strong>.
+                                    The chicken breast provides 45% of your daily protein, optimized with complex carbohydrates to sustain energy during your planned activity levels.
+                                </p>
                             </div>
                         </div>
                     </Card>

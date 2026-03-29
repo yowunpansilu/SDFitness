@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import api from '@/lib/api/axios';
+import axios from 'axios';
 import { Camera } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -7,12 +7,14 @@ import { Label } from '../ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Card, CardContent } from '../ui/card';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 
 export function PersonalInfoTab() {
-    const { user, login } = useAuthStore();
+    const { user, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
     const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const [formData, setFormData] = useState({
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
@@ -34,15 +36,17 @@ export function PersonalInfoTab() {
 
     const handleSave = async () => {
         try {
-            const response = await api.put('/auth/profile', {
+            const response = await axios.put(`${API_URL}/api/auth/profile`, {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 phone: formData.phone
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
             });
 
-            if (response.data.success) {
-                const { user, token: newToken, member } = response.data;
-                login(user, newToken || (useAuthStore.getState().token as string), member);
+            if (response.data.success && token) {
+                // Update local store with data from server
+                login(response.data.user, token, response.data.member);
                 setIsEditing(false);
             }
         } catch (error) {
@@ -83,13 +87,14 @@ export function PersonalInfoTab() {
         reader.onloadend = async () => {
             const base64String = reader.result;
             try {
-                const response = await api.put('/auth/profile', {
+                const response = await axios.put(`${API_URL}/api/auth/profile`, {
                     avatar: base64String
+                }, {
+                    headers: { Authorization: `Bearer ${token}` }
                 });
 
-                if (response.data.success) {
-                    const { user, token: newToken, member } = response.data;
-                    login(user, newToken || (useAuthStore.getState().token as string), member);
+                if (response.data.success && token) {
+                    login(response.data.user, token, response.data.member);
                 }
             } catch (error) {
                 console.error('Error uploading photo:', error);
@@ -195,9 +200,12 @@ export function PersonalInfoTab() {
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-4">
                         {!isEditing ? (
-                            <Button variant="gym" onClick={() => setIsEditing(true)}>
-                                Edit Profile
-                            </Button>
+                            <div className="flex gap-3">
+                                <Button variant="gym" onClick={() => setIsEditing(true)}>
+                                    Edit Profile
+                                </Button>
+                                <DeleteAccountDialog />
+                            </div>
                         ) : (
                             <>
                                 <Button variant="gym" onClick={handleSave}>

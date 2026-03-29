@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '@/lib/api/axios';
+import axios from 'axios';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -13,10 +13,12 @@ import {
 } from '../ui/select';
 
 import { useAuthStore } from '@/lib/stores/authStore';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 
 export function HealthMetricsTab() {
-    const { member, login } = useAuthStore();
+    const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const [formData, setFormData] = useState({
         height: member?.height?.value || '',
         heightUnit: member?.height?.unit || 'cm',
@@ -60,8 +62,8 @@ export function HealthMetricsTab() {
 
     // Calculate BMI whenever height or weight changes
     useEffect(() => {
-        const height = parseFloat(formData.height.toString());
-        const weight = parseFloat(formData.weight.toString());
+        const height = parseFloat(formData.height);
+        const weight = parseFloat(formData.weight);
 
         if (height && weight) {
             let heightInMeters = height;
@@ -97,7 +99,7 @@ export function HealthMetricsTab() {
             const h = parseFloat(formData.height.toString());
             const w = parseFloat(formData.weight.toString());
             
-            const response = await api.put('/auth/profile', {
+            const response = await axios.put(`${API_URL}/api/auth/profile`, {
                 memberData: {
                     height: {
                         value: h,
@@ -110,12 +112,12 @@ export function HealthMetricsTab() {
                     gender: formData.gender,
                     bodyFatPercentage: formData.bodyFat ? parseFloat(formData.bodyFat.toString()) : undefined
                 }
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
             });
 
-            if (response.data.success) {
-                const { user, token: newToken, member: updatedMember } = response.data;
-                // If the backend returns a new token, use it, otherwise keep current
-                login(user, newToken || (useAuthStore.getState().token as string), updatedMember);
+            if (response.data.success && token) {
+                login(response.data.user, token, response.data.member);
                 setIsEditing(false);
             }
         } catch (error) {
@@ -271,9 +273,12 @@ export function HealthMetricsTab() {
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-4">
                         {!isEditing ? (
-                            <Button variant="gym" onClick={() => setIsEditing(true)}>
-                                Edit Metrics
-                            </Button>
+                            <div className="flex gap-3">
+                                <Button variant="gym" onClick={() => setIsEditing(true)}>
+                                    Edit Metrics
+                                </Button>
+                                <DeleteAccountDialog />
+                            </div>
                         ) : (
                             <>
                                 <Button variant="gym" onClick={handleSave}>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import api from '@/lib/api/axios';
+import axios from 'axios';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Card, CardContent } from '../ui/card';
+import { Checkbox } from '../ui/checkbox';
 import {
     Select,
     SelectContent,
@@ -15,8 +16,9 @@ import {
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function PreferencesTab() {
-    const { member, login } = useAuthStore();
+    const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     
     // Helper to format dietary preferences from backend (snake_case) to UI (Capitalized-Hyphenated)
     const formatPref = (p: string) => {
@@ -70,7 +72,7 @@ export function PreferencesTab() {
 
     const handleSave = async () => {
         try {
-            const response = await api.put('/auth/profile', {
+            const response = await axios.put(`${API_URL}/api/auth/profile`, {
                 memberData: {
                     dietaryPreferences: formData.dietaryRestrictions.map((p: string) => p.toLowerCase().replace('-', '_')),
                     allergies: formData.allergies.split(',').map((a: string) => a.trim()).filter((a: string) => a),
@@ -85,11 +87,12 @@ export function PreferencesTab() {
                         push: formData.pushNotifications
                     }
                 }
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
             });
 
-            if (response.data.success) {
-                const { user, token: newToken, member: updatedMember } = response.data;
-                login(user, newToken || (useAuthStore.getState().token as string), updatedMember);
+            if (response.data.success && token) {
+                login(response.data.user, token, response.data.member);
                 setIsEditing(false);
             }
         } catch (error) {

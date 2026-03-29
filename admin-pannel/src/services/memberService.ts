@@ -1,49 +1,30 @@
-import axios from 'axios';
+import api from '@/lib/api/axios';
 
-const API_URL = 'http://localhost:5000/api/members';
-
-const getAuthHeaders = () => {
-    try {
-        const storage = localStorage.getItem('admin-auth-storage');
-        if (storage) {
-            const { state } = JSON.parse(storage);
-            if (state && state.token) {
-                return {
-                    headers: {
-                        'Authorization': `Bearer ${state.token}`
-                    }
-                };
-            }
-        }
-    } catch (e) {
-        console.error('Error getting auth token:', e);
-    }
-    return { headers: {} };
-};
+const API_URL = '/members';
 
 export const memberService = {
     getMembers: async () => {
-        const response = await axios.get(API_URL, getAuthHeaders());
+        const response = await api.get(API_URL);
         return response.data;
     },
 
     getMemberDetails: async (id: string) => {
-        const response = await axios.get(`${API_URL}/${id}`, getAuthHeaders());
+        const response = await api.get(`${API_URL}/${id}`);
         return response.data;
     },
 
     updateMemberStatus: async (id: string, status: string) => {
-        const response = await axios.put(`${API_URL}/${id}`, { status }, getAuthHeaders());
+        const response = await api.put(`${API_URL}/${id}`, { status });
         return response.data;
     },
 
     deleteMember: async (id: string) => {
-        const response = await axios.delete(`${API_URL}/${id}`, getAuthHeaders());
+        const response = await api.delete(`${API_URL}/${id}`);
         return response.data;
     },
 
     createMember: async (data: any) => {
-        const response = await axios.post(API_URL, data, getAuthHeaders());
+        const response = await api.post(API_URL, data);
         return response.data;
     }
 };

@@ -71,3 +71,43 @@ exports.deleteClass = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// POST book class
+exports.bookClass = async (req, res) => {
+    try {
+        const { classId, userId, classDate } = req.body;
+        const Booking = require('../models/Booking');
+
+        // Check if already booked for THIS specific date
+        // (Allows multiple bookings for the same class on different weeks)
+        const existing = await Booking.findOne({ 
+            user: userId, 
+            class: classId, 
+            classDate: new Date(classDate),
+            status: 'confirmed' 
+        });
+        if (existing) return res.status(400).json({ error: 'Already booked for this specific time' });
+
+        const gymClass = await Class.findById(classId);
+        if (!gymClass) return res.status(404).json({ error: 'Class not found' });
+
+        if (gymClass.enrolled >= gymClass.capacity) {
+            return res.status(400).json({ error: 'Class is full' });
+        }
+
+        const booking = await Booking.create({
+            user: userId,
+            class: classId,
+            classDate: new Date(classDate) || new Date(),
+            status: 'confirmed'
+        });
+
+        // Update class count (this is simplified as it increments the global enrolled count)
+        gymClass.enrolled += 1;
+        await gymClass.save();
+
+        res.status(201).json(booking);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};

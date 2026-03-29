@@ -130,7 +130,7 @@ export function MyBookings() {
                         <h3 className="text-lg font-medium text-foreground mb-2">No upcoming bookings</h3>
                         <p className="text-muted-foreground mb-6">You haven't booked any upcoming classes yet.</p>
                         <Button asChild variant="gym">
-                            <Link to="/classes">Browse Schedule</Link>
+                            <Link to="/dashboard/classes">Browse Schedule</Link>
                         </Button>
                     </div>
                 )}

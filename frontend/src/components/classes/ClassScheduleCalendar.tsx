@@ -126,7 +126,23 @@ export function ClassScheduleCalendar({
             )}>
                 {daysToShow.map((day) => {
                     const daysClasses = classes
-                        .filter(c => isSameDay(new Date(c.startTime), day))
+                        .map(c => {
+                            // If we have a recurring schedule, calculate the date for THIS specific day
+                            if (c.schedule && c.schedule.dayOfWeek) {
+                                const currentDayName = format(day, "EEEE");
+                                if (c.schedule.dayOfWeek === currentDayName) {
+                                    // Set the time from schedule
+                                    const [hours, minutes] = c.schedule.startTime.split(':').map(Number);
+                                    const classDate = new Date(day);
+                                    classDate.setHours(hours, minutes, 0, 0);
+                                    return { ...c, startTime: classDate.toISOString() };
+                                }
+                                return null;
+                            }
+                            // Otherwise fallback to existing isSameDay check
+                            return isSameDay(new Date(c.startTime), day) ? c : null;
+                        })
+                        .filter((c): c is GymClass => c !== null)
                         .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
                     const isTodayDate = isToday(day);

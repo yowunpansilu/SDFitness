@@ -22,11 +22,12 @@ interface ClassState {
 
     fetchClasses: (startDate: Date, endDate: Date) => Promise<void>;
     fetchUserBookings: (userId: string) => Promise<void>;
-    joinClass: (classId: string, userId: string) => Promise<void>;
+    joinClass: (classId: string, userId: string, classDate: string) => Promise<void>;
     leaveClass: (bookingId: string) => Promise<void>;
 }
 
 export const useClassStore = create<ClassState>((set, get) => ({
+    // ... initial state ...
     classes: [],
     userBookings: [],
     loading: false,
@@ -54,7 +55,6 @@ export const useClassStore = create<ClassState>((set, get) => ({
     },
 
     fetchUserBookings: async (userId) => {
-        // Don't set global loading here to avoid full page spinner when just refreshing bookings
         try {
             const userBookings = await getUserBookings(userId);
             set({ userBookings });
@@ -63,17 +63,17 @@ export const useClassStore = create<ClassState>((set, get) => ({
         }
     },
 
-    joinClass: async (classId, userId) => {
+    joinClass: async (classId: string, userId: string, classDate: string) => {
         set({ loading: true, error: null });
         try {
-            await bookClass(classId, userId);
+            await bookClass(classId, userId, classDate);
             // Refresh data
-            await get().fetchClasses(get().selectedDate, get().selectedDate); // Re-fetch for current view (simplified)
+            await get().fetchClasses(get().selectedDate, get().selectedDate);
             await get().fetchUserBookings(userId);
             set({ loading: false });
         } catch (err: any) {
             set({ loading: false, error: err.message || 'Failed to book class' });
-            throw err; // Re-throw so UI can handle success/fail toast
+            throw err;
         }
     },
 

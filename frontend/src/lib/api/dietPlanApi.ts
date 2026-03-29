@@ -1,6 +1,5 @@
-// Types for diet plan data structures — updated for ML pipeline
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import api from './axios';
+import { useAuthStore } from '../stores/authStore';
 
 // ============================================================
 // Core Types
@@ -23,6 +22,7 @@ export interface MealItem {
 
 export interface Meal {
     id: string;
+    _id?: string;
     mealType: 'breakfast' | 'morning_snack' | 'lunch' | 'afternoon_snack' | 'dinner' | 'evening_snack';
     name: string;
     items: MealItem[];
@@ -139,39 +139,29 @@ export interface WizardFormData {
  * Generate a diet plan via the ML-first pipeline
  */
 export async function generateDietPlan(formData: WizardFormData): Promise<DietPlan> {
-    const authData = JSON.parse(localStorage.getItem('auth-storage') || '{}');
-    const memberId = authData.state?.member?._id;
+    const { member } = useAuthStore.getState();
+    const memberId = member?._id;
+
     if (!memberId) {
-        console.warn('No memberId found in localStorage. Ensure user is logged in.');
+        throw new Error('No member profile found. Please complete your profile first.');
     }
 
-    try {
-        const response = await fetch(`${API_BASE}/diet-plans/generate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ memberId: memberId || 'demo', ...formData })
-        });
-
-        if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
-        }
-
-        const result = await response.json();
-        if (result.success) {
-            const plan = result.data;
-            return {
-                ...plan,
-                id: plan._id,
-                name: plan.planName,
-                goal: formData.goal,
-                createdAt: new Date(plan.createdAt),
-            };
-        } else {
-            throw new Error(result.error || 'Failed to generate plan');
-        }
-    } catch (error) {
-        console.warn('⚠️ Backend unreachable, using mock data:', error);
-        return generateMockDietPlan(formData);
+    const response = await api.post('/diet-plans/generate', {
+        ...formData,
+        memberId
+    });
+    
+    if (response.data.success) {
+        const plan = response.data.data;
+        return {
+            ...plan,
+            id: plan._id,
+            name: plan.planName || 'AI Diet Plan',
+            goal: formData.goal,
+            createdAt: plan.createdAt ? new Date(plan.createdAt) : new Date(),
+        };
+    } else {
+        throw new Error(response.data.error || 'Failed to generate plan');
     }
 }
 
@@ -179,166 +169,46 @@ export async function generateDietPlan(formData: WizardFormData): Promise<DietPl
  * Persist a generated diet plan to the database
  */
 export async function saveDietPlan(plan: DietPlan): Promise<DietPlan> {
-    const response = await fetch(`${API_BASE}/diet-plans`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(plan)
-    });
-
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-    }
-
-    const result = await response.json();
-    return { ...result.data, id: result.data._id };
+    const response = await api.post('/diet-plans', plan);
+    return { ...response.data.data, id: response.data.data._id };
 }
 
 /**
  * Fetch all diet plans for the current user
  */
-export async function fetchDietPlans(): Promise<DietPlan[]> {
-    const authData = JSON.parse(localStorage.getItem('auth-storage') || '{}');
-    const memberId = authData.state?.member?._id;
-    if (!memberId) return [];
-
-    try {
-        const response = await fetch(`${API_BASE}/diet-plans?memberId=${memberId}`);
-        if (!response.ok) return [];
-
-        const result = await response.json();
-        if (result.success) {
-            return result.data.map((plan: any) => ({
-                ...plan,
-                id: plan._id,
-                name: plan.planName,
-                createdAt: new Date(plan.createdAt)
-            }));
-        }
-        return [];
-    } catch (error) {
-        console.error('Error fetching diet plans:', error);
-        return [];
+export async function fetchDietPlans(memberId?: string): Promise<DietPlan[]> {
+    const response = await api.get('/diet-plans', { params: { memberId } });
+    if (response.data.success) {
+        return response.data.data.map((plan: any) => ({
+            ...plan,
+            id: plan._id,
+            name: plan.planName || 'AI Diet Plan',
+            createdAt: plan.createdAt ? new Date(plan.createdAt) : new Date()
+        }));
     }
+    return [];
 }
 
 /**
  * Get a specific diet plan
  */
 export async function getDietPlan(planId: string): Promise<DietPlan> {
-    const response = await fetch(`${API_BASE}/diet-plans/${planId}`);
-    const result = await response.json();
-    return { ...result.data, id: result.data._id };
+    const response = await api.get(`/diet-plans/${planId}`);
+    return { ...response.data.data, id: response.data.data._id };
 }
 
 /**
  * Get live cost recalculation for a plan
  */
 export async function getPlanCost(planId: string) {
-    const response = await fetch(`${API_BASE}/diet-plans/${planId}/cost`);
-    return (await response.json()).data;
+    const response = await api.get(`/diet-plans/${planId}/cost`);
+    return response.data.data;
 }
 
 /**
  * Get all food prices
  */
 export async function getFoodPrices() {
-    const response = await fetch(`${API_BASE}/prices`);
-    return (await response.json()).data;
-}
-
-// ============================================================
-// Mock Fallback (when backend is not running)
-// ============================================================
-
-function generateMockDietPlan(formData: WizardFormData): DietPlan {
-    const mockMeals: Meal[] = [
-        {
-            id: '1', mealType: 'breakfast', name: 'Protein Oatmeal Bowl',
-            items: [{ foodId: 'oats', food: 'Oats', quantity: 100, unit: 'g' }, { foodId: 'banana', food: 'Banana', quantity: 120, unit: 'g' }],
-            calories: 350, macros: { calories: 350, protein: 25, carbs: 45, fats: 8, fiber: 5 },
-            estimatedCost: { amount: 180, currency: 'LKR' },
-            description: 'Hearty oatmeal packed with protein and fiber',
-            instructions: ['Cook oats with water', 'Stir in protein powder', 'Top with sliced banana'],
-            prepTime: 10, cookTime: 5, protein: 25, carbs: 45, fats: 8, ingredients: ['100g oats', '1 banana'], servings: 1
-        },
-        {
-            id: '2', mealType: 'lunch', name: 'Chicken & Rice Bowl',
-            items: [{ foodId: 'chicken_breast', food: 'Chicken Breast', quantity: 200, unit: 'g' }, { foodId: 'brown_rice', food: 'Brown Rice', quantity: 150, unit: 'g' }],
-            calories: 550, macros: { calories: 550, protein: 55, carbs: 50, fats: 12, fiber: 3 },
-            estimatedCost: { amount: 420, currency: 'LKR' },
-            description: 'Classic muscle-building lunch',
-            instructions: ['Grill chicken breast', 'Cook brown rice', 'Serve together with steamed vegetables'],
-            prepTime: 15, cookTime: 20, protein: 55, carbs: 50, fats: 12, ingredients: ['200g chicken breast', '150g brown rice'], servings: 1
-        },
-        {
-            id: '3', mealType: 'dinner', name: 'Lentil & Spinach Curry',
-            items: [{ foodId: 'red_lentils', food: 'Red Lentils', quantity: 100, unit: 'g' }, { foodId: 'spinach', food: 'Spinach', quantity: 200, unit: 'g' }],
-            calories: 400, macros: { calories: 400, protein: 28, carbs: 55, fats: 5, fiber: 12 },
-            estimatedCost: { amount: 250, currency: 'LKR' },
-            description: 'Protein-rich Sri Lankan dhal curry',
-            instructions: ['Cook lentils until soft', 'Sauté spinach with garlic', 'Combine and season with turmeric'],
-            prepTime: 10, cookTime: 25, protein: 28, carbs: 55, fats: 5, ingredients: ['100g red lentils', '200g spinach'], servings: 1
-        },
-        {
-            id: '4', mealType: 'morning_snack', name: 'Yogurt & Banana',
-            items: [{ foodId: 'yogurt', food: 'Plain Yogurt', quantity: 150, unit: 'g' }, { foodId: 'banana', food: 'Banana', quantity: 100, unit: 'g' }],
-            calories: 180, macros: { calories: 180, protein: 15, carbs: 25, fats: 2, fiber: 3 },
-            estimatedCost: { amount: 120, currency: 'LKR' },
-            description: 'Light protein snack', instructions: ['Mix yogurt with sliced banana'],
-            prepTime: 2, cookTime: 0, protein: 15, carbs: 25, fats: 2, ingredients: ['150g yogurt', '1 banana'], servings: 1
-        },
-    ];
-
-    const createDay = (dayIdx: number): DayPlan => ({
-        dayOfWeek: dayIdx,
-        dayName: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][dayIdx],
-        meals: mockMeals.map(m => ({ ...m, id: `${dayIdx}-${m.id}` })),
-        totalCalories: mockMeals.reduce((s, m) => s + m.calories, 0),
-    });
-
-    return {
-        _id: 'mock-' + Date.now(),
-        id: 'mock-' + Date.now(),
-        memberId: 'demo',
-        planName: `${formData.goal} Plan`,
-        name: `${formData.goal} Plan`,
-        goal: formData.goal,
-        targetCalories: 2200,
-        macroSplit: {
-            protein: { grams: 120, percentage: 30 },
-            carbs: { grams: 175, percentage: 35 },
-            fats: { grams: 70, percentage: 35 },
-        },
-        days: Array.from({ length: 7 }, (_, i) => createDay(i)),
-        shoppingList: {
-            items: [
-                { id: '1', foodId: 'oats', name: 'Oats', quantity: 700, unit: 'g', category: 'carbs', priceAtGeneration: 434, currentPrice: 434, checked: false },
-                { id: '2', foodId: 'chicken_breast', name: 'Chicken Breast', quantity: 1400, unit: 'g', category: 'protein', priceAtGeneration: 2030, currentPrice: 2030, checked: false },
-                { id: '3', foodId: 'brown_rice', name: 'Brown Rice', quantity: 1050, unit: 'g', category: 'carbs', priceAtGeneration: 399, currentPrice: 399, checked: false },
-                { id: '4', foodId: 'red_lentils', name: 'Red Lentils', quantity: 700, unit: 'g', category: 'protein', priceAtGeneration: 385, currentPrice: 385, checked: false },
-                { id: '5', foodId: 'spinach', name: 'Spinach', quantity: 1400, unit: 'g', category: 'vegetable', priceAtGeneration: 392, currentPrice: 392, checked: false },
-                { id: '6', foodId: 'banana', name: 'Banana', quantity: 1540, unit: 'g', category: 'fruit', priceAtGeneration: 277, currentPrice: 277, checked: false },
-                { id: '7', foodId: 'yogurt', name: 'Plain Yogurt', quantity: 1050, unit: 'g', category: 'dairy', priceAtGeneration: 462, currentPrice: 462, checked: false },
-            ],
-            totalAtGeneration: 4379,
-            currentTotal: 4379,
-            priceChanged: false,
-            currency: 'LKR'
-        },
-        aiMetadata: {
-            mlModelVersion: '1.0.0',
-            mlConfidenceScore: 0.85,
-            mlInferenceTimeMs: 22,
-            gptModel: 'gemini-2.0-flash',
-            generationMethod: 'ml_plus_gemini',
-        },
-        status: 'completed',
-        isActive: true,
-        createdAt: new Date(),
-        preferences: {
-            dietary: formData.dietaryPreferences,
-            allergies: formData.allergies.split(',').map(a => a.trim()).filter(Boolean),
-            budget: formData.budget,
-        },
-    };
+    const response = await api.get('/prices');
+    return response.data.data;
 }

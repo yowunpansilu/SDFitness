@@ -18,10 +18,10 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
     const [generationStage, setGenerationStage] = useState(0);
 
     const generationStages = [
-        { icon: Brain, label: 'Analyzing your profile...', detail: 'Calculating TDEE & macro targets' },
-        { icon: Salad, label: 'ML model scoring foods...', detail: 'Ranking 20 foods for your goals' },
-        { icon: ShoppingCart, label: 'Building 7-day plan...', detail: 'Optimizing portions & budget' },
-        { icon: ChefHat, label: 'Gemini adding recipes...', detail: 'Generating cooking instructions' },
+        { icon: Brain, label: 'Analyzing your health markers...', detail: 'Calculating TDEE & macro targets' },
+        { icon: Salad, label: 'Scoring Atlas food catalog...', detail: 'Ranking 100+ items for your profile' },
+        { icon: ShoppingCart, label: 'Synthesizing 7-day plan...', detail: 'Optimizing portions & market budget' },
+        { icon: ChefHat, label: 'Nvidia AI refining recipes...', detail: 'Generating bespoke instructions' },
     ];
 
     useEffect(() => {
@@ -34,7 +34,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
         goal: '',
         dietaryPreferences: [],
         allergies: '',
-        budget: 200,
+        budget: 5000,
         activityLevel: '',
     });
 
@@ -239,7 +239,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
                                 </div>
                                 <input
                                     type="range"
-                                    min="1000"
+                                    min="1500"
                                     max="15000"
                                     step="500"
                                     value={formData.budget}
@@ -247,7 +247,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
                                     className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary-500"
                                 />
                                 <div className="flex justify-between text-sm text-muted-foreground">
-                                    <span>LKR 1,000</span>
+                                    <span>LKR 1,500</span>
                                     <span>LKR 15,000</span>
                                 </div>
                             </div>

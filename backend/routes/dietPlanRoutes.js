@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const getFoodPriceModel = require('../models/FoodPrice');
 const DietPlan = require('../models/DietPlan');
 
 // GET /api/diet-plans — list diet plans for a member
@@ -54,7 +55,7 @@ router.get('/:id', async (req, res) => {
 // GET /api/diet-plans/:id/cost — recalculate with live prices
 router.get('/:id/cost', async (req, res) => {
     try {
-        const FoodPrice = require('../models/FoodPrice');
+        const FoodPrice = getFoodPriceModel();
         const plan = await DietPlan.findById(req.params.id);
         if (!plan) {
             return res.status(404).json({ success: false, error: 'Diet plan not found' });
@@ -100,7 +101,15 @@ router.post('/generate', async (req, res) => {
 
     try {
         const { generateDietPlan } = require('../services/aiService');
-        const plan = await generateDietPlan(memberId, false); // false = do not save to DB
+        const { goal, dietaryPreferences, allergies, budget, activityLevel } = req.body;
+        
+        const plan = await generateDietPlan(memberId, false, {
+            goal,
+            dietary_preferences: dietaryPreferences,
+            allergies,
+            diet_budget: budget ? { amount: budget, currency: 'LKR', period: 'weekly' } : null,
+            activity_level: activityLevel
+        }); 
 
         res.status(200).json({
             success: true,

@@ -21,6 +21,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { paymentService } from '@/services/paymentService';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 interface Payment {
   id: string;
@@ -130,48 +134,75 @@ const statusColors = {
   refunded: 'bg-slate-100 text-slate-600 border-slate-200  ',
 };
 
-const paymentTypeLabels = {
-  membership: 'Membership',
-  personal_training: 'Personal Training',
-  class_package: 'Class Package',
-  merchandise: 'Merchandise',
-  other: 'Other',
-};
-
 export function PaymentsList() {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [payments, setPayments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
 
-  const filteredPayments = mockPayments.filter((payment) => {
-    const matchesSearch =
-      payment.memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      payment.transactionId.toLowerCase().includes(searchQuery.toLowerCase());
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        setLoading(true);
+        const response = await paymentService.getPayments(statusFilter);
+        if (response.success) {
+          setPayments(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching payments:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch payment records.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
+    fetchPayments();
+  }, [statusFilter, toast]);
+
+  const filteredPayments = payments.filter((payment) => {
+    const memberName = payment.memberId?.userId?.firstName + ' ' + payment.memberId?.userId?.lastName;
+    const matchesSearch =
+      memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      payment.transactionId?.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesType = typeFilter === 'all' || payment.type === typeFilter;
 
-    return matchesSearch && matchesStatus && matchesType;
+    return matchesSearch && matchesType;
   });
 
-  const totalRevenue = mockPayments
+  const totalRevenue = payments
     .filter(p => p.status === 'completed')
-    .reduce((sum, p) => sum + p.amount, 0);
+    .reduce((sum, p) => sum + (p.amount || 0), 0);
 
-  const pendingAmount = mockPayments
+  const pendingAmount = payments
     .filter(p => p.status === 'pending')
-    .reduce((sum, p) => sum + p.amount, 0);
+    .reduce((sum, p) => sum + (p.amount || 0), 0);
 
-  const failedCount = mockPayments.filter(p => p.status === 'failed').length;
+  const failedCount = payments.filter(p => p.status === 'failed').length;
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="h-10 w-10 text-indigo-600 dark:text-indigo-400 animate-spin" />
+        <p className="text-slate-500 dark:text-navy-400 font-bold uppercase tracking-widest text-xs">Loading Payment Records...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            Financial <span className="text-indigo-600 dark:text-indigo-400 italic">Ledger</span>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Payment <span className="text-indigo-600 dark:text-indigo-400">Records</span>
           </h1>
           <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
             Track revenue, pending transactions and billing history.
@@ -179,7 +210,7 @@ export function PaymentsList() {
         </div>
         <Button className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 h-11 px-6 font-bold transition-all hover:scale-105 active:scale-95">
           <Download className="h-4 w-4 mr-2" />
-          Export Ledger
+          Export Report
         </Button>
       </div>
 
@@ -193,8 +224,8 @@ export function PaymentsList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">${totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Total this period</p>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">LKR {totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Total revenue</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -205,8 +236,8 @@ export function PaymentsList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">${pendingAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Awaiting clearance</p>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">LKR {pendingAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Awaiting processing</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -217,10 +248,10 @@ export function PaymentsList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
               {mockPayments.filter(p => p.status === 'completed').length}
             </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Completed orders</p>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Completed orders</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -231,8 +262,8 @@ export function PaymentsList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">{failedCount}</div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Action required</p>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">{failedCount}</div>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Action required</p>
           </CardContent>
         </Card>
       </div>
@@ -286,63 +317,56 @@ export function PaymentsList() {
       {/* Payments Table */}
       <Card className="bg-white dark:bg-navy-900 border-slate-200/60 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden font-medium transition-colors">
         <CardHeader className="border-b border-slate-100 dark:border-navy-800 pb-6 bg-slate-50/30 dark:bg-navy-950/30">
-          <CardTitle className="text-slate-900 dark:text-white font-black text-xl">Recent Transactions</CardTitle>
+          <CardTitle className="text-slate-900 dark:text-white font-bold text-xl">Recent Transactions</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-slate-100 dark:border-navy-800 hover:bg-transparent">
-                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4 pl-6">Transaction ID</TableHead>
-                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Member</TableHead>
-                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Type</TableHead>
-                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Amount</TableHead>
-                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Method</TableHead>
-                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Status</TableHead>
-                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Date</TableHead>
-                  <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4 pr-6 text-right">Actions</TableHead>
+                  <TableHead className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4 pl-6">Transaction ID</TableHead>
+                  <TableHead className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Member</TableHead>
+                  <TableHead className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Type</TableHead>
+                  <TableHead className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Amount</TableHead>
+                  <TableHead className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Status</TableHead>
+                  <TableHead className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4">Date</TableHead>
+                  <TableHead className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 p-4 pr-6 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredPayments.map((payment) => (
                   <TableRow
-                    key={payment.id}
-                    onClick={() => navigate(`/payments/${payment.id}`)}
+                    key={payment._id || payment.id}
+                    onClick={() => navigate(`/payments/${payment._id || payment.id}`)}
                     className="border-b border-slate-50 dark:border-navy-800/50 hover:bg-slate-50/50 dark:hover:bg-navy-950/50 transition-all cursor-pointer group"
                   >
                     <TableCell className="p-4 pl-6">
-                      <span className="text-[10px] font-black font-mono text-slate-500 dark:text-navy-400 bg-slate-100 dark:bg-navy-800 px-2 py-0.5 rounded transition-colors">
-                        {payment.transactionId}
+                      <span className="text-xs font-bold font-mono text-slate-500 dark:text-navy-400 bg-slate-100 dark:bg-navy-800 px-2 py-0.5 rounded transition-colors">
+                        {payment.transactionId || 'N/A'}
                       </span>
                     </TableCell>
                     <TableCell className="p-4">
-                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase text-[11px] tracking-tight">{payment.memberName}</p>
+                      <p className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase text-[11px] tracking-tight">
+                        {payment.memberId?.userId?.firstName} {payment.memberId?.userId?.lastName}
+                      </p>
                     </TableCell>
                     <TableCell className="p-4">
-                      <Badge variant="outline" className="font-black text-[10px] uppercase tracking-wider rounded-lg border-indigo-100 dark:border-navy-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/5 transition-colors">
-                        {paymentTypeLabels[payment.type]}
+                      <Badge variant="outline" className="font-bold text-xs uppercase tracking-wider rounded-lg border-indigo-100 dark:border-navy-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/5 transition-colors">
+                        {payment.type}
                       </Badge>
                     </TableCell>
                     <TableCell className="p-4">
-                      <span className="text-sm font-black text-slate-900 dark:text-white">
-                        ${payment.amount.toFixed(2)}
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">
+                        LKR {payment.amount?.toLocaleString()}
                       </span>
                     </TableCell>
                     <TableCell className="p-4">
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="h-3 w-3 text-slate-400 dark:text-navy-600" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
-                          {payment.paymentMethod.replace('_', ' ')}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="p-4">
-                      <Badge className={cn(statusColors[payment.status], 'font-black text-[10px] uppercase tracking-widest rounded-lg border shadow-none px-2 transition-colors')}>
+                      <Badge className={cn(statusColors[payment.status as keyof typeof statusColors], 'font-bold text-xs uppercase tracking-widest rounded-lg border shadow-none px-2 transition-colors')}>
                         {payment.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="p-4 text-xs font-bold text-slate-500 dark:text-navy-500">
-                      {new Date(payment.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}
+                      {new Date(payment.createdAt || payment.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}
                     </TableCell>
                     <TableCell className="p-4 pr-6 text-right">
                       <div className="flex justify-end gap-1">
@@ -373,8 +397,8 @@ export function PaymentsList() {
               <div className="inline-flex p-4 rounded-full bg-slate-100 dark:bg-navy-950 mb-4 transition-transform hover:rotate-12">
                 <DollarSign className="h-8 w-8 text-slate-400 dark:text-navy-800" />
               </div>
-              <h3 className="text-slate-900 dark:text-white font-black text-lg uppercase tracking-tight">No transactions found</h3>
-              <p className="text-slate-400 dark:text-navy-500 text-sm font-medium italic">Try adjusting your search or filters</p>
+              <h3 className="text-slate-900 dark:text-white font-bold text-lg uppercase tracking-tight">No transactions found</h3>
+              <p className="text-slate-400 dark:text-navy-500 text-sm font-medium">Try adjusting your search or filters</p>
             </div>
           )}
         </CardContent>

@@ -20,11 +20,10 @@ const DAYS_OF_WEEK = [
 ];
 
 const CURRENCIES = [
+  { value: 'LKR', label: 'LKR - Sri Lankan Rupee' },
   { value: 'USD', label: 'USD - US Dollar' },
   { value: 'EUR', label: 'EUR - Euro' },
   { value: 'GBP', label: 'GBP - British Pound' },
-  { value: 'CAD', label: 'CAD - Canadian Dollar' },
-  { value: 'AUD', label: 'AUD - Australian Dollar' },
   { value: 'INR', label: 'INR - Indian Rupee' },
 ];
 
@@ -80,8 +79,8 @@ export function GeneralSettings() {
               <Building2 className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Identity Matrix</CardTitle>
-              <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Core organizational parameters</CardDescription>
+              <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Gym Information</CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Basic details and branding</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -89,7 +88,7 @@ export function GeneralSettings() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* Gym Name */}
             <div className="space-y-2">
-              <Label htmlFor="gymName" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Trading Name</Label>
+              <Label htmlFor="gymName" className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-500 transition-colors">Gym Name</Label>
               <Input
                 id="gymName"
                 value={generalSettings.gymName}
@@ -100,7 +99,7 @@ export function GeneralSettings() {
 
             {/* Website */}
             <div className="space-y-2">
-              <Label htmlFor="website" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Digital Presence</Label>
+              <Label htmlFor="website" className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-500 transition-colors">Website</Label>
               <div className="relative">
                 <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-navy-600 transition-colors" />
                 <Input
@@ -116,7 +115,7 @@ export function GeneralSettings() {
 
           {/* Logo Upload */}
           <div className="space-y-4">
-            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Visual Identity asset</Label>
+            <Label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-500 transition-colors">Logo</Label>
             <div className="p-6 rounded-2xl bg-slate-50 dark:bg-navy-950 border-2 border-dashed border-slate-200 dark:border-navy-800 hover:border-indigo-500/30 transition-all">
               <ImageUpload
                 value={generalSettings.logoUrl}
@@ -135,8 +134,8 @@ export function GeneralSettings() {
               <Mail className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Communication Node</CardTitle>
-              <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Connectivity and location protocols</CardDescription>
+              <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Contact Information</CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Email, phone and address</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -144,7 +143,7 @@ export function GeneralSettings() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Primary Endpoint</Label>
+              <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-500 transition-colors">Email Address</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-navy-600 transition-colors" />
                 <Input
@@ -159,7 +158,7 @@ export function GeneralSettings() {
 
             {/* Phone */}
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Vox Channel</Label>
+              <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-500 transition-colors">Phone Number</Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-navy-600 transition-colors" />
                 <Input
@@ -174,7 +173,7 @@ export function GeneralSettings() {
 
           {/* Address */}
           <div className="space-y-4">
-            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Geographic Vector</Label>
+            <Label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-500 transition-colors">Physical Address</Label>
             <div className="grid gap-4">
               <Input
                 placeholder="Street Address"
@@ -207,7 +206,7 @@ export function GeneralSettings() {
 
           {/* Social Media */}
           <div className="space-y-4">
-            <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Social Amplifiers</Label>
+            <Label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-500 transition-colors">Social Media</Label>
             <div className="grid gap-4 md:grid-cols-3">
               <Input
                 placeholder="Facebook URL"
@@ -240,7 +239,7 @@ export function GeneralSettings() {
               <Clock className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Temporal Matrix</CardTitle>
+              <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Business Hours</CardTitle>
               <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Facility availability schedule</CardDescription>
             </div>
           </div>
@@ -265,10 +264,10 @@ export function GeneralSettings() {
                       onCheckedChange={(checked) =>
                         handleBusinessHoursChange(key, 'isOpen', checked)
                       }
-                      className="data-[state=checked]:bg-emerald-500"
+                      className="data-[state=checked]:bg-indigo-600"
                     />
                     <Label className={cn(
-                      "font-black uppercase text-[11px] tracking-widest transition-colors",
+                      "font-bold uppercase text-[11px] tracking-widest transition-colors",
                       hours.isOpen ? "text-slate-900 dark:text-white" : "text-slate-400 dark:text-navy-600"
                     )}>{label}</Label>
                   </div>
@@ -276,31 +275,31 @@ export function GeneralSettings() {
                   {hours.isOpen ? (
                     <div className="flex items-center gap-2 flex-1 max-w-sm justify-end">
                       <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-navy-950 rounded-xl border border-slate-100 dark:border-navy-800 transition-colors">
-                        <span className="text-[9px] font-black text-slate-400 dark:text-navy-600 uppercase">From</span>
+                        <span className="text-[11px] font-bold text-slate-400 dark:text-navy-600 uppercase">From</span>
                         <input
                           type="time"
                           value={hours.openTime}
                           onChange={(e) =>
                             handleBusinessHoursChange(key, 'openTime', e.target.value)
                           }
-                          className="bg-transparent border-none text-xs font-black text-slate-900 dark:text-white focus:ring-0 w-20 transition-colors"
+                          className="bg-transparent border-none text-xs font-bold text-slate-900 dark:text-white focus:ring-0 w-20 transition-colors"
                         />
                       </div>
                       <div className="h-px w-3 bg-slate-200 dark:bg-navy-800" />
                       <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-navy-950 rounded-xl border border-slate-100 dark:border-navy-800 transition-colors">
-                        <span className="text-[9px] font-black text-slate-400 dark:text-navy-600 uppercase">To</span>
+                        <span className="text-[11px] font-bold text-slate-400 dark:text-navy-600 uppercase">To</span>
                         <input
                           type="time"
                           value={hours.closeTime}
                           onChange={(e) =>
                             handleBusinessHoursChange(key, 'closeTime', e.target.value)
                           }
-                          className="bg-transparent border-none text-xs font-black text-slate-900 dark:text-white focus:ring-0 w-20 transition-colors"
+                          className="bg-transparent border-none text-xs font-bold text-slate-900 dark:text-white focus:ring-0 w-20 transition-colors"
                         />
                       </div>
                     </div>
                   ) : (
-                    <Badge variant="outline" className="bg-slate-100 dark:bg-navy-950 text-slate-400 dark:text-navy-600 border-none font-black text-[10px] uppercase py-1 px-4 transition-colors">Offline</Badge>
+                    <Badge variant="outline" className="bg-slate-100 dark:bg-navy-950 text-slate-400 dark:text-navy-600 border-none font-bold text-xs uppercase py-1 px-4 transition-colors">Offline</Badge>
                   )}
                 </div>
               );
@@ -317,8 +316,8 @@ export function GeneralSettings() {
               <Globe className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Regional Protocol</CardTitle>
-              <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Currency and temporal synchronization</CardDescription>
+              <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight transition-colors">Localization</CardTitle>
+              <CardDescription className="text-xs font-medium text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-0.5 transition-colors">Currency and timezone settings</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -326,7 +325,7 @@ export function GeneralSettings() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* Currency */}
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">Trading Currency</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-500 transition-colors">Currency</Label>
               <Select
                 value={generalSettings.currency}
                 onValueChange={(value) => handleChange('currency', value)}
@@ -346,7 +345,7 @@ export function GeneralSettings() {
 
             {/* Timezone */}
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 transition-colors">System Timezone</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-500 transition-colors">Timezone</Label>
               <Select
                 value={generalSettings.timezone}
                 onValueChange={(value) => handleChange('timezone', value)}

@@ -120,7 +120,6 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
-
 // @desc    Create a new member (Admin)
 // @route   POST /api/members
 // @access  Private/Admin
@@ -177,5 +176,7 @@ router.post('/', async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 });
+
+router.get('/:id/bookings', require('../controllers/memberController').getMemberBookings);
 
 module.exports = router;

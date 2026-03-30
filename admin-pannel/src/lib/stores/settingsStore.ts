@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { settingsService } from '../../services/settingsService';
 
 export interface GeneralSettings {
     gymName: string;
@@ -99,6 +100,7 @@ interface SettingsState {
     updateRole: (roleId: string, updates: Partial<Role>) => void;
     addRole: (role: Role) => void;
     deleteRole: (roleId: string) => void;
+    fetchSettings: () => Promise<void>;
     saveSettings: () => Promise<void>;
     resetSettings: () => void;
     setUnsavedChanges: (value: boolean) => void;
@@ -342,16 +344,50 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
         });
     },
 
+    fetchSettings: async () => {
+        set({ isLoading: true });
+        try {
+            const settings = await settingsService.getAllSettings();
+            const updates: any = {};
+            
+            settings.forEach(s => {
+                if (s.key === 'generalSettings') updates.generalSettings = s.value;
+                if (s.key === 'emailTemplates') updates.emailTemplates = s.value;
+                if (s.key === 'notificationSettings') updates.notificationSettings = s.value;
+                if (s.key === 'roles') updates.roles = s.value;
+            });
+
+            if (Object.keys(updates).length > 0) {
+                set(updates);
+            }
+        } catch (error) {
+            console.error('Failed to fetch settings:', error);
+        } finally {
+            set({ isLoading: false });
+        }
+    },
+
     saveSettings: async () => {
         set({ isLoading: true });
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        try {
+            const { generalSettings, emailTemplates, notificationSettings, roles } = get();
+            
+            await Promise.all([
+                settingsService.updateSetting('generalSettings', generalSettings, 'general'),
+                settingsService.updateSetting('emailTemplates', emailTemplates, 'email'),
+                settingsService.updateSetting('notificationSettings', notificationSettings, 'notifications'),
+                settingsService.updateSetting('roles', roles, 'security')
+            ]);
 
-        set({
-            isLoading: false,
-            hasUnsavedChanges: false,
-        });
+            set({
+                isLoading: false,
+                hasUnsavedChanges: false,
+            });
+        } catch (error) {
+            set({ isLoading: false });
+            throw error;
+        }
     },
 
     resetSettings: () => {

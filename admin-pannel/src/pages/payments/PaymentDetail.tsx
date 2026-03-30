@@ -1,10 +1,13 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Download, Printer, Mail, User, FileText, Hash, Calendar, CreditCard, DollarSign } from 'lucide-react';
+import { ArrowLeft, Download, Printer, Mail, User, CreditCard, DollarSign, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { paymentService } from '@/services/paymentService';
+import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
 
 const statusColors = {
   completed: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20',
@@ -13,44 +16,39 @@ const statusColors = {
   refunded: 'bg-slate-50 dark:bg-navy-800 text-slate-600 dark:text-navy-400 border-slate-200 dark:border-navy-700',
 };
 
-// Mock data
-const mockPayment = {
-  id: '1',
-  transactionId: 'TXN-2024-001234',
-  invoiceNumber: 'INV-2024-001234',
-  date: '2024-02-03T10:30:00',
-  member: {
-    id: '1',
-    name: 'Michael Brown',
-    email: 'michael.brown@email.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Main St, Apt 4B, New York, NY 10001',
-  },
-  amount: 99.00,
-  tax: 8.91,
-  total: 107.91,
-  type: 'membership',
-  status: 'completed' as const,
-  paymentMethod: 'credit_card',
-  cardLast4: '4242',
-  description: 'Monthly Premium Membership',
-  billingPeriod: {
-    start: '2024-02-01',
-    end: '2024-02-29',
-  },
-  items: [
-    {
-      description: 'Premium Membership - Monthly',
-      quantity: 1,
-      unitPrice: 99.00,
-      total: 99.00,
-    },
-  ],
-};
+// Mock data removed in favor of service calls
 
 export function PaymentDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { toast } = useToast();
+  const [payment, setPayment] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPayment = async () => {
+      try {
+        setLoading(true);
+        if (id) {
+          const response = await paymentService.getPaymentDetails(id);
+          if (response.success) {
+            setPayment(response.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching payment:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch payment details.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPayment();
+  }, [id, toast]);
 
   const handlePrint = () => {
     window.print();
@@ -63,6 +61,24 @@ export function PaymentDetail() {
   const handleSendEmail = () => {
     console.log('Sending invoice via email...');
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="h-10 w-10 text-indigo-600 dark:text-indigo-400 animate-spin" />
+        <p className="text-slate-500 dark:text-navy-400 font-bold uppercase tracking-widest text-xs">Loading Transaction Details...</p>
+      </div>
+    );
+  }
+
+  if (!payment) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-slate-500 font-bold">Transaction not found.</p>
+        <Button onClick={() => navigate('/payments')} variant="link">Back to Payments</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
@@ -77,35 +93,35 @@ export function PaymentDetail() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           <div>
-            <h1 className="text-4xl font-black italic tracking-tight text-slate-900 dark:text-white transition-colors">
-              TRANSACTION <span className="text-indigo-600 dark:text-indigo-400 italic">INTEL</span>
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors uppercase">
+              Transaction <span className="text-indigo-600 dark:text-indigo-400">Details</span>
             </h1>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600 mt-1">Ref ID: {mockPayment.transactionId}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 mt-1">Ref ID: {payment.transactionId || 'N/A'}</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-3">
           <Button
             onClick={handleSendEmail}
             variant="ghost"
-            className="h-11 px-6 bg-slate-50 dark:bg-navy-950 border-none text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-navy-800 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all"
+            className="h-11 px-6 bg-slate-50 dark:bg-navy-950 border-none text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-navy-800 rounded-xl font-bold uppercase text-xs tracking-widest transition-all"
           >
             <Mail className="h-4 w-4 mr-2" />
-            Dispatch Comms
+            Send Receipt
           </Button>
           <Button
             onClick={handlePrint}
             variant="ghost"
-            className="h-11 px-6 bg-slate-50 dark:bg-navy-950 border-none text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-navy-800 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all"
+            className="h-11 px-6 bg-slate-50 dark:bg-navy-950 border-none text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-navy-800 rounded-xl font-bold uppercase text-xs tracking-widest transition-all"
           >
             <Printer className="h-4 w-4 mr-2" />
-            Physical Log
+            Print Record
           </Button>
           <Button
             onClick={handleDownload}
-            className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-950/20 h-11 px-8 font-black uppercase text-[10px] tracking-widest transition-all hover:scale-105 active:scale-95"
+            className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-950/20 h-11 px-8 font-bold uppercase text-xs tracking-widest transition-all hover:scale-105 active:scale-95"
           >
             <Download className="h-4 w-4 mr-2" />
-            Export Archive
+            Download PDF
           </Button>
         </div>
       </div>
@@ -120,19 +136,19 @@ export function PaymentDetail() {
                 <div className="p-3 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-500/20 rotate-3">
                   <DollarSign className="h-6 w-6" />
                 </div>
-                <h2 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white print:text-black">FINANCIAL <span className="italic text-indigo-600 dark:text-indigo-400">LEDGER</span></h2>
+                <h2 className="text-4xl font-bold tracking-normal text-slate-900 dark:text-white print:text-black uppercase">PAYMENT <span className="text-indigo-600 dark:text-indigo-400">RECEIPT</span></h2>
               </div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 print:text-slate-600">
-                Authentication Code: {mockPayment.invoiceNumber}
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 print:text-slate-600">
+                Invoice Number: {payment.invoiceNumber || payment.transactionId || 'N/A'}
               </p>
             </div>
             <div className="text-right space-y-2">
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white print:text-black italic tracking-tight">SD FITNESS GLOBAL</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white print:text-black tracking-tight">SD FITNESS GLOBAL</h3>
               <p className="text-xs font-bold text-slate-400 dark:text-navy-400 print:text-slate-600 leading-relaxed uppercase">
-                Sector 456 Fitness Avenue<br />
-                Node: Los Angeles, CA 90001<br />
-                Comms: contact@sdfitness.com<br />
-                Vox: +1 (555) 987-6543
+                SD Fitness Main Branch<br />
+                Colombo, Sri Lanka<br />
+                Email: payments@sdfitness.lk<br />
+                Tel: +94 11 234 5678
               </p>
             </div>
           </div>
@@ -146,16 +162,18 @@ export function PaymentDetail() {
                 <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                   <User className="h-4 w-4" />
                 </div>
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">
-                  TARGET ENTITY
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-600">
+                  BILL TO
                 </h4>
               </div>
               <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-colors">
-                <p className="text-2xl font-black tracking-tight text-slate-900 dark:text-white print:text-black mb-2 uppercase">{mockPayment.member.name}</p>
+                <p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white print:text-black mb-2 uppercase">
+                  {payment.memberId?.userId ? `${payment.memberId.userId.firstName} ${payment.memberId.userId.lastName}` : 'N/A'}
+                </p>
                 <div className="space-y-1 text-sm font-bold text-slate-500 dark:text-navy-400">
-                  <p>{mockPayment.member.email}</p>
-                  <p>{mockPayment.member.phone}</p>
-                  <p className="mt-4 italic">{mockPayment.member.address}</p>
+                  <p>{payment.memberId?.userId?.email}</p>
+                  <p>{payment.memberId?.phone}</p>
+                  <p className="mt-4">{payment.memberId?.address || 'Colombo, Sri Lanka'}</p>
                 </div>
               </div>
             </div>
@@ -164,23 +182,23 @@ export function PaymentDetail() {
                 <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                   <CreditCard className="h-4 w-4" />
                 </div>
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 italic">
-                  PROTOCOL METRICS
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-navy-600">
+                  PAYMENT SUMMARY
                 </h4>
               </div>
-              <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 space-y-6 transition-colors font-bold uppercase text-[10px] tracking-widest text-slate-400 dark:text-navy-600">
+              <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 space-y-6 transition-colors font-bold uppercase text-xs tracking-widest text-slate-400 dark:text-navy-600">
                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-navy-800">
-                  <span>Activation Date</span>
-                  <span className="text-slate-900 dark:text-white">{new Date(mockPayment.date).toLocaleDateString(undefined, {month: 'long', day: 'numeric', year: 'numeric'})}</span>
+                  <span>Payment Date</span>
+                  <span className="text-slate-900 dark:text-white">{new Date(payment.createdAt || payment.date).toLocaleDateString(undefined, {month: 'long', day: 'numeric', year: 'numeric'})}</span>
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-navy-800">
-                  <span>Payment Method</span>
-                  <span className="text-slate-900 dark:text-white">{mockPayment.paymentMethod.replace('_', ' ')} •• {mockPayment.cardLast4}</span>
+                  <span>Method</span>
+                  <span className="text-slate-900 dark:text-white">{payment.paymentMethod?.replace('_', ' ') || 'Cash'} {payment.cardLast4 ? `• ${payment.cardLast4}` : ''}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>Current Status</span>
-                  <Badge className={cn(statusColors[mockPayment.status], 'font-black text-[10px] uppercase tracking-widest rounded-lg border shadow-none px-3 py-1 transition-colors')}>
-                    {mockPayment.status}
+                  <span>Status</span>
+                  <Badge className={cn(statusColors[payment.status as keyof typeof statusColors], 'font-bold text-xs uppercase tracking-widest rounded-lg border shadow-none px-3 py-1 transition-colors')}>
+                    {payment.status}
                   </Badge>
                 </div>
               </div>
@@ -192,22 +210,21 @@ export function PaymentDetail() {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50 dark:bg-navy-950/50 border-b border-slate-100 dark:border-navy-800 transition-colors">
-                  <th className="py-5 px-8 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Description</th>
-                  <th className="py-5 px-8 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Rate</th>
-                  <th className="py-5 px-8 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Qty</th>
-                  <th className="py-5 px-8 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic">Metric Total</th>
+                  <th className="py-5 px-8 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Description</th>
+                  <th className="py-5 px-8 text-center text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Rate</th>
+                  <th className="py-5 px-8 text-center text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Qty</th>
+                  <th className="py-5 px-8 text-right text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Total (LKR)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-navy-950">
-                {mockPayment.items.map((item, index) => (
+                {(payment.items || [{ description: payment.description || payment.type, quantity: 1, unitPrice: payment.amount, total: payment.amount }]).map((item: any, index: number) => (
                   <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-navy-950/30 transition-all">
                     <td className="py-6 px-8">
-                      <p className="text-sm font-black text-slate-900 dark:text-white italic uppercase tracking-tight">{item.description}</p>
-                      <p className="text-[10px] font-bold text-slate-400 dark:text-navy-500 uppercase mt-1">Service ID: 00456-{index}</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{item.description}</p>
                     </td>
-                    <td className="py-6 px-8 text-center text-sm font-bold text-slate-600 dark:text-navy-400">${item.unitPrice.toFixed(2)}</td>
-                    <td className="py-6 px-8 text-center text-sm font-black text-slate-900 dark:text-white">{item.quantity}</td>
-                    <td className="py-6 px-8 text-right text-sm font-black text-indigo-600 dark:text-indigo-400">${item.total.toFixed(2)}</td>
+                    <td className="py-6 px-8 text-center text-sm font-bold text-slate-600 dark:text-navy-400">LKR {item.unitPrice?.toLocaleString()}</td>
+                    <td className="py-6 px-8 text-center text-sm font-bold text-slate-900 dark:text-white">{item.quantity}</td>
+                    <td className="py-6 px-8 text-right text-sm font-bold text-indigo-600 dark:text-indigo-400">LKR {item.total?.toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -217,32 +234,31 @@ export function PaymentDetail() {
           {/* Totals Section */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
             <div className="max-w-md">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 italic mb-4">Operational Addendum</h4>
-              <p className="text-xs font-medium text-slate-500 dark:text-navy-400 leading-relaxed">
-                This transaction represents an authorized deployment of fitness resources for the specified duration. 
-                Values are confirmed via encrypted financial channels. Thank you for maintaining operational excellence.
+              <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 mb-4">Note</h4>
+              <p className="text-xs font-medium text-slate-500 dark:text-navy-400 leading-relaxed uppercase">
+                Thank you for your business. For any billing inquiries, please contact our support team.
               </p>
             </div>
-            <div className="w-full md:w-80 p-8 rounded-[2rem] bg-indigo-600 dark:bg-indigo-500 text-white shadow-2xl shadow-indigo-600/20 space-y-4">
-              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-70">
-                <span>Core Subtotal</span>
-                <span>${mockPayment.amount.toFixed(2)}</span>
+            <div className="w-full md:w-80 p-8 rounded-[2.5rem] bg-indigo-600 dark:bg-indigo-500 text-white shadow-2xl shadow-indigo-600/20 space-y-4">
+              <div className="flex justify-between text-xs font-bold uppercase tracking-widest opacity-70">
+                <span>Subtotal</span>
+                <span>LKR {payment.amount?.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-70 pb-4 border-b border-white/10">
-                <span>Regulatory Tax (9%)</span>
-                <span>${mockPayment.tax.toFixed(2)}</span>
+              <div className="flex justify-between text-xs font-bold uppercase tracking-widest opacity-70 pb-4 border-b border-white/10">
+                <span>Tax</span>
+                <span>LKR 0</span>
               </div>
               <div className="flex justify-between items-baseline">
-                <span className="text-xs font-black uppercase tracking-widest">Total Valuation</span>
-                <span className="text-3xl font-black tracking-tighter">${mockPayment.total.toFixed(2)}</span>
+                <span className="text-xs font-bold uppercase tracking-widest">Total</span>
+                <span className="text-3xl font-bold tracking-normal">LKR {payment.amount?.toLocaleString()}</span>
               </div>
             </div>
           </div>
 
           {/* Footer - Only visible on print or at very bottom */}
           <div className="mt-16 pt-10 border-t border-slate-50 dark:border-navy-950 text-center">
-            <p className="text-[9px] font-black uppercase tracking-[0.5em] text-slate-300 dark:text-navy-800 transition-colors">
-              CONFIDENTIAL TRANSCRIPT // SD FITNESS GLOBAL NETWORKS
+            <p className="text-[11px] font-bold uppercase tracking-[0.5em] text-slate-300 dark:text-navy-800 transition-colors">
+              SD FITNESS OFFICIAL RECEIPT
             </p>
           </div>
         </CardContent>
@@ -252,46 +268,44 @@ export function PaymentDetail() {
       <div className="grid gap-8 md:grid-cols-2 print:hidden">
         <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden group">
           <CardHeader className="p-8 pb-4">
-            <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600 italic flex items-center gap-3">
-              <User className="h-5 w-5 text-indigo-500" />
-              Entity Synchronization
+            <CardTitle className="text-sm font-bold uppercase tracking-tight text-slate-400 dark:text-navy-600 flex items-center gap-3">
+              Member Information
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8 pt-0 space-y-6">
             <div className="p-6 rounded-2xl bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 transition-colors">
-              <label className="text-[9px] font-black text-slate-400 dark:text-navy-600 uppercase mb-1 block">Entity ID</label>
-              <p className="text-sm font-mono font-black text-slate-900 dark:text-white uppercase">US-MB-00000{mockPayment.member.id}</p>
+              <label className="text-[11px] font-bold text-slate-400 dark:text-navy-600 uppercase mb-1 block">Member ID</label>
+              <p className="text-sm font-mono font-bold text-slate-900 dark:text-white uppercase transition-colors">{payment.memberId?._id || 'N/A'}</p>
             </div>
             <Button
-              onClick={() => navigate(`/members/${mockPayment.member.id}`)}
-              className="w-full h-14 bg-white dark:bg-navy-950 border-2 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white hover:border-indigo-500 font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all shadow-sm"
+              onClick={() => navigate(`/members/${payment.memberId?._id}`)}
+              className="w-full h-14 bg-white dark:bg-navy-950 border-2 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white hover:border-indigo-500 font-bold uppercase text-xs tracking-widest rounded-2xl transition-all shadow-sm"
             >
-              Access Entity Profile
+              View Member Profile
             </Button>
           </CardContent>
         </Card>
 
         <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden group">
           <CardHeader className="p-8 pb-4">
-            <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600 italic flex items-center gap-3">
-              <FileText className="h-5 w-5 text-indigo-500" />
-              Node Metadata
+            <CardTitle className="text-sm font-bold uppercase tracking-tight text-slate-400 dark:text-navy-600 flex items-center gap-3">
+              System Metadata
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8 pt-0 space-y-4">
-            <div className="grid grid-cols-2 gap-4 font-bold uppercase text-[9px] tracking-widest">
+            <div className="grid grid-cols-2 gap-4 font-bold uppercase text-[11px] tracking-widest">
               <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 transition-colors">
-                <span className="text-slate-400 dark:text-navy-600 block mb-1">TX Hash</span>
-                <span className="text-slate-900 dark:text-white truncate block">{mockPayment.transactionId}</span>
+                <span className="text-slate-400 dark:text-navy-600 block mb-1">TX REFERENCE</span>
+                <span className="text-slate-900 dark:text-white truncate block">{payment.transactionId || 'N/A'}</span>
               </div>
               <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 transition-colors">
                 <span className="text-slate-400 dark:text-navy-600 block mb-1">Process Node</span>
-                <span className="text-slate-900 dark:text-white">SD-FIN-US-01</span>
+                <span className="text-slate-900 dark:text-white">SD-FIN-MAIN</span>
               </div>
             </div>
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 text-center transition-colors">
-              <span className="text-slate-400 dark:text-navy-600 text-[9px] font-black uppercase tracking-widest">System Synchronized at</span>
-              <p className="text-sm font-black text-slate-900 dark:text-white mt-1">{new Date(mockPayment.date).toLocaleTimeString()}</p>
+              <span className="text-slate-400 dark:text-navy-600 text-[11px] font-bold uppercase tracking-widest text-xs">Recorded at</span>
+              <p className="text-sm font-bold text-slate-900 dark:text-white mt-1 uppercase">{new Date(payment.createdAt || payment.date).toLocaleTimeString()}</p>
             </div>
           </CardContent>
         </Card>

@@ -1,109 +1,133 @@
-import { useState } from 'react';
-import { Brain, Zap, TrendingUp, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Activity, TrendingUp, CheckCircle2, AlertTriangle, RefreshCw, Loader2, Gauge } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/lib/contexts/ThemeContext';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
+import { mlService } from '@/services/mlService';
 
-const modelInfo = {
-    version: '1.0.0',
-    trainedAt: '2026-02-21T10:00:00Z',
-    algorithm: 'Gradient Boosting Regressor',
-    samples: 10000,
-    metrics: { r2: 0.963, rmse: 0.029 },
-    avgInferenceMs: 22.7,
-};
-
-const featureImportanceData = [
-    { feature: 'goal_alignment', importance: 28 },
-    { feature: 'budget_fit', importance: 22 },
-    { feature: 'protein_density', importance: 18 },
-    { feature: 'calorie_density', importance: 12 },
-    { feature: 'variety_score', importance: 8 },
-    { feature: 'fiber_content', importance: 5 },
-    { feature: 'price_per_gram', importance: 4 },
-    { feature: 'bmi_factor', importance: 3 },
-];
-
-const comparisonData = [
-    { metric: 'Budget OK', ml: 94.2, gemini: 71.5 },
-    { metric: 'Macro Acc.', ml: 91.8, gemini: 68.3 },
-    { metric: 'Confidence', ml: 87.0, gemini: 62.0 },
-    { metric: 'Diet Adhere.', ml: 98.6, gemini: 88.1 },
-];
-
-const generationStats = { totalPlans: 142, mlPlans: 128, fallbackPlans: 14 };
+// Colors for bar chart
+const COLORS = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#f97316', '#84cc16'];
 
 export function MLDashboard() {
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const { theme } = useTheme();
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState<any>(null);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const result = await mlService.getMLStats();
+            setData(result);
+        } catch (error) {
+            console.error('Failed to fetch ML stats:', error);
+        } finally {
+            setLoading(false);
+            setIsRefreshing(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const handleRefresh = () => {
         setIsRefreshing(true);
-        setTimeout(() => setIsRefreshing(false), 1500);
+        fetchData();
     };
 
+    if (loading || !data) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <Loader2 className="h-10 w-10 text-indigo-600 dark:text-indigo-400 animate-spin" />
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Synchronizing AI Models...</p>
+            </div>
+        );
+    }
+
+    const { modelInfo, generationStats, featureImportance, comparison } = data;
+
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
+        <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white dark:bg-gradient-to-r dark:from-white dark:to-gray-400 dark:bg-clip-text dark:text-transparent">
-                        ML Dashboard
+                    <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white uppercase transition-colors">
+                        AI Model <span className="text-indigo-600 dark:text-indigo-400">Analytics</span>
                     </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2">Model performance, metrics, and generation analytics</p>
+                    <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
+                        Predictive model performance, generation metrics, and feature importance.
+                    </p>
                 </div>
-                <Button variant="outline" onClick={handleRefresh} className="gap-2 bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-dark-700" disabled={isRefreshing}>
-                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                    Refresh
+                <Button 
+                    variant="outline" 
+                    onClick={handleRefresh} 
+                    className="h-11 px-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-xl font-bold text-slate-600 dark:text-white focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all hover:border-indigo-500/50 gap-2" 
+                    disabled={isRefreshing}
+                >
+                    <RefreshCw className={`w-4 h-4 text-indigo-500 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    Refresh Stats
                 </Button>
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'R² Score', value: modelInfo.metrics.r2, color: 'text-purple-600 dark:text-purple-400', bg: 'from-purple-500/10 dark:from-purple-500/20', icon: Brain },
-                    { label: 'RMSE', value: modelInfo.metrics.rmse, color: 'text-blue-600 dark:text-blue-400', bg: 'from-blue-500/10 dark:from-blue-500/20', icon: Zap },
-                    { label: 'Avg Inference', value: `${modelInfo.avgInferenceMs}ms`, color: 'text-cyan-600 dark:text-cyan-400', bg: 'from-cyan-500/10 dark:from-cyan-500/20', icon: Zap },
-                    { label: 'ML Success Rate', value: `${((generationStats.mlPlans / generationStats.totalPlans) * 100).toFixed(1)}%`, color: 'text-green-600 dark:text-green-400', bg: 'from-green-500/10 dark:from-green-500/20', icon: TrendingUp },
+                    { label: 'Model Accuracy', value: modelInfo.metrics.r2, color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-50 dark:bg-indigo-500/10', icon: Gauge },
+                    { label: 'Error Rate (RMSE)', value: modelInfo.metrics.rmse, color: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-50 dark:bg-violet-500/10', icon: Activity },
+                    { label: 'Latency (Avg)', value: `${modelInfo.avgInferenceMs}ms`, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/10', icon: TrendingUp },
+                    { label: 'Plan Success Rate', value: `${generationStats.successRate}%`, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-500/10', icon: CheckCircle2 },
                 ].map(({ label, value, color, bg, icon: Icon }) => (
-                    <Card key={label} className={`bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm bg-gradient-to-br ${bg} to-transparent`}>
-                        <CardContent className="p-5">
-                            <Icon className={`w-5 h-5 mb-2 ${color}`} />
-                            <div className={`text-2xl font-bold ${color}`}>{value}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</div>
+                    <Card key={label} className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500">
+                        <CardContent className="p-6">
+                            <div className={cn("inline-flex p-2 rounded-xl mb-3 transition-transform group-hover:scale-110", bg, color)}>
+                                <Icon className="w-5 h-5" />
+                            </div>
+                            <div className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">{value}</div>
+                            <div className="text-xs font-bold text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-1 transition-colors">{label}</div>
                         </CardContent>
                     </Card>
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Feature Importance */}
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardHeader>
-                        <CardTitle className="text-gray-900 dark:text-white">Feature Importance</CardTitle>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">GBM model feature weights</p>
+                <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-lg">
+                    <CardHeader className="p-8 pb-4">
+                        <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Generation Factors</CardTitle>
+                        <p className="text-xs font-bold text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-1">Impact of individual parameters on plan generation</p>
                     </CardHeader>
-                    <CardContent>
-                        <ResponsiveContainer width="100%" height={260}>
-                            <BarChart data={featureImportanceData} layout="vertical" margin={{ left: 20, right: 20 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#334155' : '#e2e8f0'} />
-                                <XAxis type="number" stroke={theme === 'dark' ? '#94a3b8' : '#64748b'} tickFormatter={v => `${v}%`} />
-                                <YAxis type="category" dataKey="feature" stroke={theme === 'dark' ? '#94a3b8' : '#64748b'} tick={{ fontSize: 11 }} width={110}
-                                    tickFormatter={v => v.replace(/_/g, ' ')} />
-                                <Tooltip
-                                    contentStyle={{ 
-                                        backgroundColor: theme === 'dark' ? '#1e293b' : '#fff', 
-                                        border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`, 
-                                        borderRadius: '8px', 
-                                        color: theme === 'dark' ? '#fff' : '#1e293b' 
-                                    }}
-                                    formatter={(v: number | undefined) => [`${v ?? 0}%`, 'Importance']}
+                    <CardContent className="p-8 pt-4">
+                        <ResponsiveContainer width="100%" height={320}>
+                            <BarChart data={featureImportance} layout="vertical" margin={{ left: 0, right: 30 }}>
+                                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-navy-800 transition-colors" />
+                                <XAxis type="number" hide />
+                                <YAxis 
+                                    type="category" 
+                                    dataKey="feature" 
+                                    tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
+                                    className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
+                                    width={120}
+                                    tickFormatter={v => v.replace(/_/g, ' ').toUpperCase()} 
                                 />
-                                <Bar dataKey="importance" radius={[0, 4, 4, 0]}>
-                                    {featureImportanceData.map((_, i) => (
-                                        <Cell key={i} fill={`hsl(${270 + i * 10}, 70%, ${60 - i * 4}%)`} />
+                                <Tooltip
+                                    cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }}
+                                    contentStyle={{ 
+                                        backgroundColor: '#fff', 
+                                        border: 'none', 
+                                        borderRadius: '16px', 
+                                        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+                                        color: '#1e293b' 
+                                    }}
+                                    itemStyle={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}
+                                    formatter={(v: any) => [`${Math.round(v * 100)}%`, 'Weight']}
+                                />
+                                <Bar dataKey="importance" radius={[0, 12, 12, 0]} barSize={24}>
+                                    {featureImportance.map((_: any, i: number) => (
+                                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
                                     ))}
                                 </Bar>
                             </BarChart>
@@ -112,44 +136,47 @@ export function MLDashboard() {
                 </Card>
 
                 {/* ML vs Gemini Comparison */}
-                <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                    <CardHeader>
-                        <CardTitle className="text-gray-900 dark:text-white">ML vs Gemini-Only</CardTitle>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Accuracy across key metrics</p>
+                <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-[2rem] overflow-hidden transition-all duration-500 hover:shadow-lg">
+                    <CardHeader className="p-8 pb-4">
+                        <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Model Performance Comparison</CardTitle>
+                        <p className="text-xs font-bold text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-1">Accuracy improvement with hybrid architecture</p>
                     </CardHeader>
-                    <CardContent>
-                        <ResponsiveContainer width="100%" height={200}>
-                            <BarChart data={comparisonData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#334155' : '#e2e8f0'} />
-                                <XAxis dataKey="metric" stroke={theme === 'dark' ? '#94a3b8' : '#64748b'} tick={{ fontSize: 11 }} />
-                                <YAxis stroke={theme === 'dark' ? '#94a3b8' : '#64748b'} tickFormatter={v => `${v}%`} domain={[50, 100]} />
+                    <CardContent className="p-8 pt-4">
+                        <ResponsiveContainer width="100%" height={240}>
+                            <BarChart data={comparison}>
+                                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-navy-800 transition-colors" />
+                                <XAxis dataKey="metric" tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }} className="text-slate-400 dark:text-navy-500 transition-colors font-bold uppercase" />
+                                <YAxis stroke="currentColor" className="text-slate-400 dark:text-navy-500 transition-colors font-bold" tickFormatter={v => `${v}%`} domain={[0, 100]} />
                                 <Tooltip
+                                    cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }}
                                     contentStyle={{ 
-                                        backgroundColor: theme === 'dark' ? '#1e293b' : '#fff', 
-                                        border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`, 
-                                        borderRadius: '8px', 
-                                        color: theme === 'dark' ? '#fff' : '#1e293b' 
+                                        backgroundColor: '#fff', 
+                                        border: 'none', 
+                                        borderRadius: '16px', 
+                                        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+                                        color: '#1e293b' 
                                     }}
-                                    formatter={(v: number | undefined) => [`${v ?? 0}%`]}
+                                    itemStyle={{ fontSize: '11px', fontWeight: 900, textTransform: 'uppercase' }}
+                                    formatter={(v: any) => [`${v}%`]}
                                 />
-                                <Bar dataKey="ml" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="ML + Gemini" />
-                                <Bar dataKey="gemini" fill={theme === 'dark' ? '#475569' : '#94a3b8'} radius={[4, 4, 0, 0]} name="Gemini Only" />
+                                <Bar dataKey="ml" fill="#6366f1" radius={[8, 8, 0, 0]} name="Hybrid Architecture" barSize={30} />
+                                <Bar dataKey="gemini" fill="#cbd5e1" radius={[8, 8, 0, 0]} name="Baseline Model" barSize={30} />
                             </BarChart>
                         </ResponsiveContainer>
 
                         {/* ML vs fallback counts */}
-                        <div className="mt-4 space-y-2">
-                            <div className="flex items-center justify-between text-sm">
-                                <span className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                                    <CheckCircle2 className="w-4 h-4 text-green-500" /> ML + Gemini plans
+                        <div className="mt-8 grid grid-cols-2 gap-4">
+                            <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100/50 dark:border-emerald-500/20">
+                                <span className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-2">
+                                    <CheckCircle2 className="w-4 h-4" /> AI Validated Plans
                                 </span>
-                                <span className="font-bold text-green-600 dark:text-green-400">{generationStats.mlPlans}</span>
+                                <div className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">{generationStats.mlPlans}</div>
                             </div>
-                            <div className="flex items-center justify-between text-sm">
-                                <span className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                                    <AlertTriangle className="w-4 h-4 text-yellow-500 dark:text-yellow-400" /> Gemini fallback plans
+                            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100/50 dark:border-amber-500/20">
+                                <span className="flex items-center gap-2 text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-2">
+                                    <AlertTriangle className="w-4 h-4" /> Manual Fallbacks
                                 </span>
-                                <span className="font-bold text-yellow-600 dark:text-yellow-400">{generationStats.fallbackPlans}</span>
+                                <div className="text-3xl font-bold text-amber-700 dark:text-amber-300">{generationStats.fallbackPlans}</div>
                             </div>
                         </div>
                     </CardContent>
@@ -157,23 +184,29 @@ export function MLDashboard() {
             </div>
 
             {/* Model Info */}
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="text-gray-900 dark:text-white">Model Information</CardTitle>
+            <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:shadow-lg">
+                <CardHeader className="p-10 pb-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-normal">Model Architecture</CardTitle>
+                            <p className="text-xs font-bold text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-1 transition-colors">Current production deployment specifications</p>
+                        </div>
+                        <Badge className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-navy-800 font-bold text-xs uppercase py-1 px-3 rounded-xl shadow-none">Active Production</Badge>
+                    </div>
                 </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <CardContent className="p-10 pt-6">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
                         {[
-                            ['Version', modelInfo.version],
-                            ['Algorithm', modelInfo.algorithm],
-                            ['Training Samples', modelInfo.samples.toLocaleString()],
-                            ['Trained On', new Date(modelInfo.trainedAt).toLocaleDateString()],
-                            ['RMSE', modelInfo.metrics.rmse.toFixed(4)],
-                            ['R² Score', modelInfo.metrics.r2.toFixed(3)],
+                            ['System Version', modelInfo.version],
+                            ['Architecture', modelInfo.algorithm],
+                            ['Training Dataset', `${modelInfo.samples.toLocaleString()} samples`],
+                            ['Last Deployment', new Date(modelInfo.trainedAt).toLocaleDateString()],
+                            ['Validation RMSE', modelInfo.metrics.rmse.toFixed(4)],
+                            ['Confidence Score', (modelInfo.metrics.r2 * 100).toFixed(1) + '%'],
                         ].map(([label, value]) => (
-                            <div key={label as string} className="p-3 rounded-lg bg-gray-50 dark:bg-dark-800/50 border border-gray-200 dark:border-dark-700">
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</div>
-                                <div className="text-gray-900 dark:text-white font-medium">{value}</div>
+                            <div key={label as string} className="p-5 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-100 dark:border-navy-800/50 transition-colors">
+                                <div className="text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-navy-500 font-black mb-2">{label}</div>
+                                <div className="text-lg font-bold text-slate-900 dark:text-white">{value}</div>
                             </div>
                         ))}
                     </div>

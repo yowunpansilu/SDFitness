@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Admin = require('../models/Admin');
 
 /**
  * protect — JWT auth middleware
@@ -22,12 +23,17 @@ const protect = async (req, res, next) => {
         // 2. Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        // 3. Fetch user (exclude password)
-        const user = await User.findById(decoded.id).select('-password');
-        if (!user || !user.isActive) {
+        // 3. Fetch user or admin (exclude password)
+        let user = await User.findById(decoded.id).select('-password');
+        
+        if (!user) {
+            user = await Admin.findById(decoded.id).select('-password');
+        }
+
+        if (!user) {
             return res.status(401).json({
                 success: false,
-                error: 'Not authorised — user not found or inactive'
+                error: 'Not authorised — identity not found in matrix'
             });
         }
 
@@ -35,8 +41,8 @@ const protect = async (req, res, next) => {
         next();
     } catch (err) {
         const message = err.name === 'TokenExpiredError'
-            ? 'Token expired — please log in again'
-            : 'Not authorised — invalid token';
+            ? 'Token expired — reconnect to matrix'
+            : 'Not authorised — invalid neural link';
         return res.status(401).json({ success: false, error: message });
     }
 };

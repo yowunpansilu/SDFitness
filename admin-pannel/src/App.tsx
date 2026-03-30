@@ -20,6 +20,8 @@ import { EquipmentForm } from './pages/equipment/EquipmentForm';
 import { EquipmentDetail } from './pages/equipment/EquipmentDetail';
 import { AnalyticsDashboard } from './pages/analytics/AnalyticsDashboard';
 import { Settings } from './pages/settings/Settings';
+import { FoodPrices } from './pages/prices/FoodPrices';
+import { ScraperReview } from './pages/scraper/ScraperReview';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
 
@@ -91,6 +93,8 @@ function App() {
             <Route path="equipment/edit/:id" element={<EquipmentForm />} />
             <Route path="equipment/:id" element={<EquipmentDetail />} />
             <Route path="analytics" element={<AnalyticsDashboard />} />
+            <Route path="prices" element={<FoodPrices />} />
+            <Route path="scraper/review" element={<ScraperReview />} />
             <Route path="settings" element={<Settings />} />
           </Route>
 

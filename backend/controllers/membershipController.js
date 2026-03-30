@@ -5,9 +5,27 @@ const Subscription = require('../models/Subscription');
 exports.getPlans = async (req, res) => {
     try {
         const plans = await MembershipPlan.find().sort({ price: 1 });
-        res.json(plans);
+        
+        // Calculate member counts for each plan
+        const plansWithCounts = await Promise.all(plans.map(async (plan) => {
+            const count = await Subscription.countDocuments({ plan: plan._id, status: 'active' });
+            
+            // Map Mongoose object and ensure defaults for frontend compatibility
+            const planObj = plan.toJSON();
+            return {
+                ...planObj,
+                memberCount: count || 0,
+                // Handle legacy durationDays mapping if duration is missing
+                duration: planObj.duration || (planObj.durationDays ? Math.round(planObj.durationDays / 30) : 1),
+                durationType: planObj.durationType || 'months',
+                description: planObj.description || `Enjoy our ${planObj.name} features.`,
+                color: planObj.color || 'from-slate-400 to-slate-500'
+            };
+        }));
+
+        res.json({ success: true, data: plansWithCounts });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 
@@ -15,9 +33,9 @@ exports.getPlans = async (req, res) => {
 exports.createPlan = async (req, res) => {
     try {
         const plan = await MembershipPlan.create(req.body);
-        res.status(201).json(plan);
+        res.status(201).json({ success: true, data: plan });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(400).json({ success: false, error: err.message });
     }
 };
 
@@ -25,10 +43,10 @@ exports.createPlan = async (req, res) => {
 exports.updatePlan = async (req, res) => {
     try {
         const plan = await MembershipPlan.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-        if (!plan) return res.status(404).json({ error: 'Plan not found' });
-        res.json(plan);
+        if (!plan) return res.status(404).json({ success: false, error: 'Plan not found' });
+        res.json({ success: true, data: plan });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(400).json({ success: false, error: err.message });
     }
 };
 
@@ -36,10 +54,10 @@ exports.updatePlan = async (req, res) => {
 exports.deletePlan = async (req, res) => {
     try {
         const plan = await MembershipPlan.findByIdAndDelete(req.params.id);
-        if (!plan) return res.status(404).json({ error: 'Plan not found' });
-        res.json({ message: 'Plan deleted successfully' });
+        if (!plan) return res.status(404).json({ success: false, error: 'Plan not found' });
+        res.json({ success: true, message: 'Plan deleted successfully' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 
@@ -51,9 +69,9 @@ exports.getSubscriptions = async (req, res) => {
         const subs = await Subscription.find(filter)
             .populate('plan')
             .sort({ createdAt: -1 });
-        res.json(subs);
+        res.json({ success: true, data: subs });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 
@@ -62,15 +80,13 @@ exports.createSubscription = async (req, res) => {
     try {
         const { user, plan } = req.body;
         
-        // If changing plans, find any current active subscription and mark it as cancelled or expired
         if (user) {
             await Subscription.updateMany(
                 { user, status: 'active' },
-                { status: 'expired' } // Mark old as expired
+                { status: 'expired' }
             );
         }
 
-        // Calculate end date based on plan (defaulting to 30 days)
         const endDate = new Date();
         endDate.setDate(endDate.getDate() + 30);
 
@@ -80,11 +96,10 @@ exports.createSubscription = async (req, res) => {
             status: 'active'
         });
 
-        // Ensure we populate the plan for the response
         const populatedSub = await sub.populate('plan');
-        res.status(201).json(populatedSub);
+        res.status(201).json({ success: true, data: populatedSub });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(400).json({ success: false, error: err.message });
     }
 };
 
@@ -98,11 +113,11 @@ exports.updateSubscriptionStatus = async (req, res) => {
         if (endDate) update.endDate = new Date(endDate);
 
         const sub = await Subscription.findByIdAndUpdate(id, update, { new: true }).populate('plan');
-        if (!sub) return res.status(404).json({ error: 'Subscription not found' });
+        if (!sub) return res.status(404).json({ success: false, error: 'Subscription not found' });
         
-        res.json(sub);
+        res.json({ success: true, data: sub });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(400).json({ success: false, error: err.message });
     }
 };
 
@@ -115,10 +130,10 @@ const Member = require('../models/Member');
 exports.getPaymentMethods = async (req, res) => {
     try {
         const member = await Member.findOne({ userId: req.query.userId || req.params.userId });
-        if (!member) return res.json([]); // Return empty list instead of 404
-        res.json(member.paymentMethods || []);
+        if (!member) return res.json({ success: true, data: [] });
+        res.json({ success: true, data: member.paymentMethods || [] });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 
@@ -154,10 +169,9 @@ exports.addPaymentMethod = async (req, res) => {
         member.paymentMethods.push(newMethod);
         await member.save();
         
-        // Return the newly added method with its ID
-        res.status(201).json(member.paymentMethods[member.paymentMethods.length - 1]);
+        res.status(201).json({ success: true, data: member.paymentMethods[member.paymentMethods.length - 1] });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(400).json({ success: false, error: err.message });
     }
 };
 
@@ -166,13 +180,13 @@ exports.deletePaymentMethod = async (req, res) => {
     try {
         const { userId, methodId } = req.params;
         const member = await Member.findOne({ userId });
-        if (!member) return res.status(404).json({ error: 'Member not found' });
+        if (!member) return res.status(404).json({ success: false, error: 'Member not found' });
 
         member.paymentMethods = member.paymentMethods.filter(m => m._id.toString() !== methodId);
         await member.save();
-        res.json({ message: 'Payment method deleted' });
+        res.json({ success: true, message: 'Payment method deleted' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 
@@ -181,15 +195,15 @@ exports.setDefaultPaymentMethod = async (req, res) => {
     try {
         const { userId, methodId } = req.params;
         const member = await Member.findOne({ userId });
-        if (!member) return res.status(404).json({ error: 'Member not found' });
+        if (!member) return res.status(404).json({ success: false, error: 'Member not found' });
 
         member.paymentMethods.forEach(m => {
             m.isDefault = m._id.toString() === methodId;
         });
 
         await member.save();
-        res.json(member.paymentMethods);
+        res.json({ success: true, data: member.paymentMethods });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };

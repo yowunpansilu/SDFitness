@@ -172,10 +172,10 @@ export function MembersList() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-navy-950 dark:text-white">
-            Members <span className="text-navy-400 dark:text-navy-500 italic">Management</span>
+          <h1 className="text-4xl font-bold tracking-tight text-navy-950 dark:text-white">
+            Members <span className="text-navy-400 dark:text-navy-500">Management</span>
           </h1>
-          <p className="text-navy-500 dark:text-navy-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
+          <p className="text-navy-500 dark:text-navy-400 font-bold uppercase tracking-wider text-xs mt-2">
             Organize and maintain your fitness community.
           </p>
         </div>
@@ -259,7 +259,7 @@ export function MembersList() {
           {/* Bulk Actions */}
           {selectedMembers.length > 0 && (
             <div className="mt-6 flex items-center gap-4 p-3 bg-indigo-50/30 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20 rounded-2xl animate-in fade-in slide-in-from-top-2">
-              <span className="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 px-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 px-3">
                 {selectedMembers.length} selected
               </span>
               <div className="h-4 w-px bg-indigo-200 dark:bg-indigo-900" />
@@ -279,9 +279,9 @@ export function MembersList() {
       {/* Members Table */}
       <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden min-h-[400px]">
         <CardHeader className="border-b border-navy-50 dark:border-navy-800/50 pb-6 flex flex-row items-center justify-between bg-navy-50/20 dark:bg-navy-950/20">
-          <CardTitle className="text-navy-950 dark:text-white font-black text-xl flex items-center gap-2 uppercase tracking-tight">
+          <CardTitle className="text-navy-950 dark:text-white font-bold text-xl flex items-center gap-2 uppercase tracking-tight">
             Member List
-            <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-white dark:bg-navy-950 text-navy-500 dark:text-navy-400 border border-navy-100 dark:border-navy-800 shadow-sm">
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white dark:bg-navy-950 text-navy-500 dark:text-navy-400 border border-navy-100 dark:border-navy-800 shadow-sm">
               {filteredMembers.length}
             </span>
           </CardTitle>
@@ -295,7 +295,7 @@ export function MembersList() {
           ) : filteredMembers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 gap-2">
               <p className="text-navy-400 dark:text-navy-500 font-bold">No members found matching your criteria.</p>
-              <Button variant="link" onClick={() => { setSearchQuery(''); setStatusFilter('all'); setMembershipFilter('all'); }} className="text-indigo-600 dark:text-indigo-400 font-black uppercase text-[10px] tracking-widest">Clear Filters</Button>
+              <Button variant="link" onClick={() => { setSearchQuery(''); setStatusFilter('all'); setMembershipFilter('all'); }} className="text-indigo-600 dark:text-indigo-400 font-bold uppercase text-xs tracking-widest">Clear Filters</Button>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -309,13 +309,13 @@ export function MembersList() {
                         className="rounded-md border-navy-200 dark:border-navy-800 data-[state=checked]:bg-indigo-600"
                       />
                     </TableHead>
-                    <TableHead className="text-xs font-black uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">Member Info</TableHead>
-                    <TableHead className="text-xs font-black uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">ID Number</TableHead>
-                    <TableHead className="text-xs font-black uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">Contact</TableHead>
-                    <TableHead className="text-xs font-black uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">Membership</TableHead>
-                    <TableHead className="text-xs font-black uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">Status</TableHead>
-                    <TableHead className="text-xs font-black uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">Joined</TableHead>
-                    <TableHead className="text-xs font-black uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4 text-right pr-6">Actions</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">Member Info</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">ID Number</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">Contact</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">Membership</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">Status</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4">Joined</TableHead>
+                    <TableHead className="text-xs font-bold uppercase tracking-widest text-navy-400 dark:text-navy-500 p-4 text-right pr-6">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -357,12 +357,12 @@ export function MembersList() {
                         {member.phone || 'N/A'}
                       </TableCell>
                       <TableCell className="p-4">
-                        <Badge variant="outline" className="font-black text-[10px] uppercase tracking-wider rounded-lg border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/5">
+                        <Badge variant="outline" className="font-bold text-xs uppercase tracking-wider rounded-lg border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/5">
                           {member.membershipType}
                         </Badge>
                       </TableCell>
                       <TableCell className="p-4">
-                        <Badge className={cn("font-black text-[10px] uppercase tracking-widest rounded-lg border shadow-none px-2", statusColors[member.status as keyof typeof statusColors])}>
+                        <Badge className={cn("font-bold text-xs uppercase tracking-widest rounded-lg border shadow-none px-2", statusColors[member.status as keyof typeof statusColors])}>
                           {member.status}
                         </Badge>
                       </TableCell>

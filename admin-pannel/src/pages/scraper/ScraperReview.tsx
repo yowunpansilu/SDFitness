@@ -103,7 +103,7 @@ export function ScraperReview() {
             {openDropdown === item._id && (
                 <div className="absolute right-0 top-full mt-2 w-64 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                     <div className="p-2 border-b border-border bg-muted/30">
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-2">Select Target Product</div>
+                        <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-2">Select Target Product</div>
                     </div>
                     <div className="max-h-64 overflow-y-auto scrollbar-thin">
                         {foodList.map((f: { foodId: string }) => (
@@ -214,11 +214,11 @@ export function ScraperReview() {
 
                                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-muted/30 p-4 rounded-2xl border border-border lg:border-none lg:bg-transparent lg:p-0">
                                             <div className="flex flex-col">
-                                                <div className="text-[10px] font-bold text-muted-foreground mb-1">Proposed Match</div>
+                                                <div className="text-xs font-bold text-muted-foreground mb-1">Proposed Match</div>
                                                 <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-lg">
                                                     <Link2 className="w-3 h-3 text-primary" />
                                                     <span className="text-xs font-semibold text-primary">{item.suggestedMatch?.replace(/_/g, ' ')}</span>
-                                                    <div className="ml-2 px-1.5 py-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded">
+                                                    <div className="ml-2 px-1.5 py-0.5 bg-primary text-primary-foreground text-xs font-bold rounded">
                                                         {Math.round((item.matchConfidence || 0) * 100)}%
                                                     </div>
                                                 </div>
@@ -253,7 +253,7 @@ export function ScraperReview() {
                                 <AlertCircle className="w-4 h-4 text-amber-500" />
                                 Unclassified Assets
                             </CardTitle>
-                            <span className="text-[10px] font-bold text-muted-foreground">{nonFoodItems.length} items</span>
+                            <span className="text-xs font-bold text-muted-foreground">{nonFoodItems.length} items</span>
                         </div>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -262,7 +262,7 @@ export function ScraperReview() {
                                 <div key={item._id} className="p-6 flex flex-col sm:flex-row sm:items-center gap-4 hover:bg-muted/20 transition-all opacity-80 hover:opacity-100">
                                     <div className="flex-1">
                                         <div className="text-sm font-bold text-foreground">{item.rawName}</div>
-                                        <div className="flex items-center gap-2 mt-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                        <div className="flex items-center gap-2 mt-1 text-xs font-bold text-muted-foreground uppercase tracking-widest">
                                             <span>LKR {item.price}</span>
                                             <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                                             <span>{item.store}</span>

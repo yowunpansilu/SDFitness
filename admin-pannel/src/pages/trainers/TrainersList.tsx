@@ -93,7 +93,7 @@ export function TrainersList() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <Loader2 className="h-12 w-12 text-indigo-600 animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600">Synchronizing Faculty Matrix</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Synchronizing Faculty System</p>
       </div>
     );
   }
@@ -103,10 +103,10 @@ export function TrainersList() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
             Elite <span className="text-indigo-600 dark:text-indigo-400">Trainers</span>
           </h1>
-          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1 uppercase text-[10px] tracking-widest font-black">
+          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1 uppercase text-xs tracking-widest font-bold">
             Oversee your professional coaching staff and their portfolio.
           </p>
         </div>
@@ -129,8 +129,8 @@ export function TrainersList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">{trainers.length}</div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Professionals onboarded</p>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">{trainers.length}</div>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Professionals onboarded</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -141,10 +141,10 @@ export function TrainersList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
               {trainers.filter((t: any) => t.status === 'active').length}
             </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Currently teaching</p>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Currently teaching</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -155,10 +155,10 @@ export function TrainersList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
               {trainers.reduce((sum: number, t: any) => sum + (t.assignedMembers || 0), 0)}
             </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Assigned members</p>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Assigned members</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -169,12 +169,12 @@ export function TrainersList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
               {trainers.length > 0
                 ? (trainers.reduce((sum: number, t: any) => sum + (t.rating || 0), 0) / trainers.length).toFixed(1)
                 : '0.0'}
             </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Service quality</p>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Service quality</p>
           </CardContent>
         </Card>
       </div>
@@ -197,20 +197,20 @@ export function TrainersList() {
                 <SelectValue placeholder="All Specializations" />
               </SelectTrigger>
               <SelectContent className="rounded-xl border-slate-200 dark:border-navy-800 dark:bg-navy-900 dark:text-white">
-                <SelectItem value="all">All Specializations Matrix</SelectItem>
+                <SelectItem value="all">All Specializations System</SelectItem>
                 <SelectItem value="HIIT">HIIT Protocol</SelectItem>
                 <SelectItem value="Yoga">Yoga Specialization</SelectItem>
                 <SelectItem value="CrossFit">CrossFit Elite</SelectItem>
                 <SelectItem value="Boxing">Combat Boxing</SelectItem>
                 <SelectItem value="Pilates">Core Pilates</SelectItem>
                 <SelectItem value="Strength Training">Strength Performance</SelectItem>
-                <SelectItem value="Cardio">Cardio Matrix</SelectItem>
+                <SelectItem value="Cardio">Cardio System</SelectItem>
                 <SelectItem value="Spinning">Spinning Cycle</SelectItem>
                 <SelectItem value="Zumba">Zumba Flow</SelectItem>
                 <SelectItem value="Functional Training">Functional Ops</SelectItem>
                 <SelectItem value="Bodybuilding">Bodybuilding Prime</SelectItem>
                 <SelectItem value="Powerlifting">Powerlifting Force</SelectItem>
-                <SelectItem value="Athletic Performance">Athletic Matrix</SelectItem>
+                <SelectItem value="Athletic Performance">Athletic System</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -231,7 +231,7 @@ export function TrainersList() {
                 <div className="relative">
                   <Avatar className="h-24 w-24 ring-4 ring-indigo-50 dark:ring-navy-950 group-hover:ring-indigo-100 dark:group-hover:ring-indigo-900/50 transition-all duration-500 hvr-pulse-grow shadow-md">
                     <AvatarImage src={trainer.photoUrl} className="object-cover" />
-                    <AvatarFallback className="bg-indigo-600 dark:bg-navy-950 text-white text-2xl font-black">
+                    <AvatarFallback className="bg-indigo-600 dark:bg-navy-950 text-white text-2xl font-bold">
                       {trainer.firstName[0]}{trainer.lastName[0]}
                     </AvatarFallback>
                   </Avatar>
@@ -242,10 +242,10 @@ export function TrainersList() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase tracking-tight">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase tracking-tight">
                     {trainer.firstName} {trainer.lastName}
                   </h3>
-                  <Badge className={cn('mt-2 font-black text-[9px] uppercase tracking-widest rounded-lg border shadow-none px-2', statusColors[trainer.status])}>
+                  <Badge className={cn('mt-2 font-bold text-[11px] uppercase tracking-widest rounded-lg border shadow-none px-2', statusColors[trainer.status])}>
                     {trainer.status.replace('_', ' ')}
                   </Badge>
                 </div>
@@ -271,16 +271,16 @@ export function TrainersList() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Award className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                  <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-navy-600">Expertise</span>
+                  <span className="text-xs uppercase font-bold tracking-widest text-slate-400 dark:text-navy-600">Expertise</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {trainer.specializations.slice(0, 2).map((spec) => (
-                    <Badge key={spec} variant="outline" className="border-indigo-100 dark:border-navy-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/5 font-black text-[9px] uppercase tracking-widest py-0.5 rounded-lg">
+                    <Badge key={spec} variant="outline" className="border-indigo-100 dark:border-navy-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/5 font-bold text-[11px] uppercase tracking-widest py-0.5 rounded-lg">
                       {spec}
                     </Badge>
                   ))}
                   {trainer.specializations.length > 2 && (
-                    <Badge className="bg-slate-100 dark:bg-navy-800 text-slate-500 dark:text-navy-500 border-none font-black text-[9px] uppercase tracking-widest rounded-lg">
+                    <Badge className="bg-slate-100 dark:bg-navy-800 text-slate-500 dark:text-navy-500 border-none font-bold text-[11px] uppercase tracking-widest rounded-lg">
                       +{trainer.specializations.length - 2}
                     </Badge>
                   )}
@@ -290,17 +290,17 @@ export function TrainersList() {
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-navy-800 transition-colors">
                 <div className="space-y-1">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Members</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Members</p>
                   <div className="flex items-center gap-2">
                     <Users className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
-                    <p className="text-sm font-black text-slate-900 dark:text-white">{trainer.assignedMembers}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{trainer.assignedMembers}</p>
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Rating</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Rating</p>
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
-                    <p className="text-sm font-black text-slate-900 dark:text-white">{trainer.rating}<span className="text-[10px] font-normal text-slate-400 dark:text-navy-600 ml-0.5">/ 5.0</span></p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{trainer.rating}<span className="text-xs font-normal text-slate-400 dark:text-navy-600 ml-0.5">/ 5.0</span></p>
                   </div>
                 </div>
               </div>
@@ -314,7 +314,7 @@ export function TrainersList() {
           <div className="inline-flex p-6 rounded-full bg-slate-50 dark:bg-navy-950 mb-6">
             <Users className="h-10 w-10 text-slate-300 dark:text-navy-800" />
           </div>
-          <h3 className="text-slate-900 dark:text-white font-black text-xl uppercase tracking-tight">No trainers found</h3>
+          <h3 className="text-slate-900 dark:text-white font-bold text-xl uppercase tracking-tight">No trainers found</h3>
           <p className="text-slate-400 dark:text-navy-500 font-medium">Try refining your search or specialization filter</p>
         </div>
       )}

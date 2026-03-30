@@ -142,7 +142,7 @@ export function ClassForm() {
       }
 
       toast({
-        title: isEditMode ? 'Class Synchronized' : 'Class Initialized',
+        title: isEditMode ? 'Class Synchronized' : 'Class Registed',
         description: `${data.name} sequence updated successfully.`,
       });
 
@@ -160,7 +160,7 @@ export function ClassForm() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-slate-400 font-black uppercase text-xs tracking-widest animate-pulse">Initializing Interface...</div>
+        <div className="text-slate-400 font-bold uppercase text-xs tracking-widest animate-pulse">Registing Interface...</div>
       </div>
     );
   }
@@ -178,10 +178,10 @@ export function ClassForm() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           <div>
-            <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white transition-colors">
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
               {isEditMode ? 'EDIT CLASS PROTOCOL' : 'INITIALIZE CLASS'}
             </h1>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-500 dark:text-navy-600 mt-1">
+            <p className="text-xs font-bold uppercase tracking-widest text-indigo-500 dark:text-navy-600 mt-1">
               {isEditMode ? 'System Override Active' : 'New Deployment Sequence'}
             </p>
           </div>
@@ -191,14 +191,14 @@ export function ClassForm() {
           <Button
             variant="outline"
             onClick={() => navigate('/classes')}
-            className="h-12 px-8 border-slate-200 dark:border-navy-800 text-slate-400 dark:text-navy-500 hover:bg-slate-50 dark:hover:bg-navy-800/50 font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all flex items-center gap-3"
+            className="h-12 px-8 border-slate-200 dark:border-navy-800 text-slate-400 dark:text-navy-500 hover:bg-slate-50 dark:hover:bg-navy-800/50 font-bold uppercase text-xs tracking-widest rounded-2xl transition-all flex items-center gap-3"
           >
             <X className="h-4 w-4" />
             Abort
           </Button>
           <Button
             onClick={handleSubmit(onSubmit)}
-            className="h-12 px-10 bg-slate-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-700 text-white font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all shadow-xl shadow-indigo-500/20 flex items-center gap-3"
+            className="h-12 px-10 bg-slate-900 dark:bg-indigo-600 hover:bg-black dark:hover:bg-indigo-700 text-white font-bold uppercase text-xs tracking-widest rounded-2xl transition-all shadow-xl shadow-indigo-500/20 flex items-center gap-3"
           >
             <Save className="h-4 w-4" />
             {isEditMode ? 'Synchronize' : 'Confirm Dispatch'}
@@ -210,12 +210,12 @@ export function ClassForm() {
         {/* Class Details */}
         <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden">
           <CardHeader className="p-10 pb-4">
-            <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600">CORE COMMAND</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-tight text-slate-400 dark:text-navy-600">CORE COMMAND</CardTitle>
           </CardHeader>
           <CardContent className="p-10 pt-0 space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="md:col-span-2 space-y-3">
-                <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Class Designation <span className="text-rose-500">*</span>
                 </Label>
                 <Input
@@ -228,12 +228,12 @@ export function ClassForm() {
                   placeholder="E.G. TITAN BOOTCAMP"
                 />
                 {errors.name && (
-                  <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.name.message}</p>
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.name.message}</p>
                 )}
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="type" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                <Label htmlFor="type" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Faculty Type <span className="text-rose-500">*</span>
                 </Label>
                 <Select onValueChange={(value) => setValue('type', value)} value={watch('type')}>
@@ -245,20 +245,20 @@ export function ClassForm() {
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
                     {CLASS_TYPES.map((type) => (
-                      <SelectItem key={type} value={type} className="hover:bg-indigo-50 dark:hover:bg-navy-800 text-[10px] font-black uppercase tracking-widest py-3">
+                      <SelectItem key={type} value={type} className="hover:bg-indigo-50 dark:hover:bg-navy-800 text-xs font-bold uppercase tracking-widest py-3">
                         {type}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {errors.type && (
-                  <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.type.message}</p>
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.type.message}</p>
                 )}
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="level" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
-                  Difficulty Matrix <span className="text-rose-500">*</span>
+                <Label htmlFor="level" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                  Difficulty System <span className="text-rose-500">*</span>
                 </Label>
                 <Select onValueChange={(value) => setValue('level', value)} value={watch('level')}>
                   <SelectTrigger className={cn(
@@ -268,15 +268,15 @@ export function ClassForm() {
                     <SelectValue placeholder="Intensity Level" />
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
-                    <SelectItem value="beginner" className="hover:bg-indigo-50 dark:hover:bg-navy-800 text-[10px] font-black uppercase tracking-widest py-3">Beginner (Level 1)</SelectItem>
-                    <SelectItem value="intermediate" className="hover:bg-indigo-50 dark:hover:bg-navy-800 text-[10px] font-black uppercase tracking-widest py-3">Intermediate (Level 2)</SelectItem>
-                    <SelectItem value="advanced" className="hover:bg-indigo-50 dark:hover:bg-navy-800 text-[10px] font-black uppercase tracking-widest py-3">Advanced (Level 3)</SelectItem>
+                    <SelectItem value="beginner" className="hover:bg-indigo-50 dark:hover:bg-navy-800 text-xs font-bold uppercase tracking-widest py-3">Beginner (Level 1)</SelectItem>
+                    <SelectItem value="intermediate" className="hover:bg-indigo-50 dark:hover:bg-navy-800 text-xs font-bold uppercase tracking-widest py-3">Intermediate (Level 2)</SelectItem>
+                    <SelectItem value="advanced" className="hover:bg-indigo-50 dark:hover:bg-navy-800 text-xs font-bold uppercase tracking-widest py-3">Advanced (Level 3)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="duration" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                <Label htmlFor="duration" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Active Runtime (MIN) <span className="text-rose-500">*</span>
                 </Label>
                 <Input
@@ -290,12 +290,12 @@ export function ClassForm() {
                   placeholder="60"
                 />
                 {errors.duration && (
-                  <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.duration.message}</p>
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.duration.message}</p>
                 )}
               </div>
 
               <div className="md:col-span-2 space-y-3">
-                <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                <Label htmlFor="description" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Mission Overview <span className="text-rose-500">*</span>
                 </Label>
                 <Textarea
@@ -309,7 +309,7 @@ export function ClassForm() {
                   rows={4}
                 />
                 {errors.description && (
-                  <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.description.message}</p>
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.description.message}</p>
                 )}
               </div>
             </div>
@@ -319,12 +319,12 @@ export function ClassForm() {
         {/* Schedule */}
         <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden">
           <CardHeader className="p-10 pb-4">
-            <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600">CHRONOS SYNC</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-tight text-slate-400 dark:text-navy-600">CHRONOS SYNC</CardTitle>
           </CardHeader>
           <CardContent className="p-10 pt-0 space-y-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                <Label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Deployment Day <span className="text-rose-500">*</span>
                 </Label>
                 <Select onValueChange={(value) => setValue('dayOfWeek', value)} value={watch('dayOfWeek')}>
@@ -341,12 +341,12 @@ export function ClassForm() {
                   </SelectContent>
                 </Select>
                 {errors.dayOfWeek && (
-                  <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.dayOfWeek.message}</p>
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.dayOfWeek.message}</p>
                 )}
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="startTime" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                <Label htmlFor="startTime" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Zero Hour <span className="text-rose-500">*</span>
                 </Label>
                 <Input
@@ -359,7 +359,7 @@ export function ClassForm() {
                   )}
                 />
                 {errors.startTime && (
-                  <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.startTime.message}</p>
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.startTime.message}</p>
                 )}
               </div>
             </div>
@@ -371,12 +371,12 @@ export function ClassForm() {
         {/* Capacity & Location */}
         <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden">
           <CardHeader className="p-10 pb-4">
-            <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600">LOGISTICS</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-tight text-slate-400 dark:text-navy-600">LOGISTICS</CardTitle>
           </CardHeader>
           <CardContent className="p-10 pt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
-                <Label htmlFor="capacity" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                <Label htmlFor="capacity" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Max Cadet Capacity <span className="text-rose-500">*</span>
                 </Label>
                 <Input
@@ -390,14 +390,14 @@ export function ClassForm() {
                   placeholder="20"
                 />
                 {errors.capacity && (
-                  <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1">
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">
                     {errors.capacity.message}
                   </p>
                 )}
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="price" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                <Label htmlFor="price" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Price Metric (USD) <span className="text-rose-500">*</span>
                 </Label>
                 <Input
@@ -411,12 +411,12 @@ export function ClassForm() {
                   placeholder="0.00"
                 />
                 {errors.price && (
-                  <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.price.message}</p>
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.price.message}</p>
                 )}
               </div>
 
               <div className="space-y-3">
-                <Label htmlFor="location" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                <Label htmlFor="location" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Deployment Sector <span className="text-rose-500">*</span>
                 </Label>
                 <Select onValueChange={(value) => setValue('location', value)} value={watch('location')}>
@@ -433,7 +433,7 @@ export function ClassForm() {
                   </SelectContent>
                 </Select>
                 {errors.location && (
-                  <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.location.message}</p>
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.location.message}</p>
                 )}
               </div>
             </div>
@@ -443,12 +443,12 @@ export function ClassForm() {
         {/* Trainer Assignment */}
         <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-[2.5rem] shadow-sm transition-colors overflow-hidden">
           <CardHeader className="p-10 pb-4">
-            <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600">FACULTY LEADS</CardTitle>
+            <CardTitle className="text-sm font-bold uppercase tracking-tight text-slate-400 dark:text-navy-600">FACULTY LEADS</CardTitle>
           </CardHeader>
           <CardContent className="p-10 pt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
-                <Label htmlFor="trainerId" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-navy-500">
+                <Label htmlFor="trainerId" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Prime Instructor <span className="text-rose-500">*</span>
                 </Label>
                 <Select onValueChange={(value) => setValue('trainerId', value)} value={watch('trainerId')}>
@@ -465,12 +465,12 @@ export function ClassForm() {
                   </SelectContent>
                 </Select>
                 {errors.trainerId && (
-                  <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.trainerId.message}</p>
+                  <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.trainerId.message}</p>
                 )}
               </div>
 
               <div className="space-y-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-300 dark:text-navy-800">Auxiliary Leads Offline</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-300 dark:text-navy-800">Auxiliary Leads Offline</p>
               </div>
             </div>
           </CardContent>

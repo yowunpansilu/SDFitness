@@ -111,8 +111,8 @@ export function MemberDetail() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-              Member <span className="text-indigo-600 dark:text-indigo-400 italic">Profile</span>
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Member <span className="text-indigo-600 dark:text-indigo-400">Profile</span>
             </h1>
             <p className="text-slate-500 dark:text-navy-500 font-medium mt-1 uppercase text-xs tracking-widest transition-colors">
               {member.memberNumber || 'UNASSIGNED ID'} • Joined {new Date(member.joinDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
@@ -146,19 +146,19 @@ export function MemberDetail() {
             <div className="relative mb-6">
               <Avatar className="h-40 w-40 border-8 border-slate-50 dark:border-navy-950 shadow-inner">
                 <AvatarImage src={userData.avatar || undefined} />
-                <AvatarFallback className="bg-indigo-600 dark:bg-indigo-500 text-white text-5xl font-black italic">
+                <AvatarFallback className="bg-indigo-600 dark:bg-indigo-500 text-white text-5xl font-bold">
                   {(userData.firstName || 'U')[0]}{(userData.lastName || '')[0]}
                 </AvatarFallback>
               </Avatar>
-              <Badge className={cn("absolute bottom-2 right-2 px-4 py-1.5 rounded-full border-4 border-white dark:border-navy-900 font-black text-[10px] uppercase tracking-widest shadow-lg transition-colors", statusColors[member.status as keyof typeof statusColors])}>
+              <Badge className={cn("absolute bottom-2 right-2 px-4 py-1.5 rounded-full border-4 border-white dark:border-navy-900 font-bold text-xs uppercase tracking-widest shadow-lg transition-colors", statusColors[member.status as keyof typeof statusColors])}>
                 {member.status}
               </Badge>
             </div>
             
-            <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-1 transition-colors">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 transition-colors">
               {userData.firstName} {userData.lastName}
             </h2>
-            <p className="text-slate-400 dark:text-navy-500 font-bold uppercase text-[10px] tracking-[0.2em] mb-8 transition-colors">
+            <p className="text-slate-400 dark:text-navy-500 font-bold uppercase text-xs tracking-wider mb-8 transition-colors">
               {userData.role || 'Member'}
             </p>
 
@@ -168,7 +168,7 @@ export function MemberDetail() {
                   <Mail className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Email Address</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Email Address</p>
                   <p className="text-sm font-bold text-slate-700 dark:text-navy-200 transition-colors">{userData.email}</p>
                 </div>
               </div>
@@ -177,7 +177,7 @@ export function MemberDetail() {
                   <Phone className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Phone Number</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Phone Number</p>
                   <p className="text-sm font-bold text-slate-700 dark:text-navy-200 transition-colors">{userData.phone || 'Not Provided'}</p>
                 </div>
               </div>
@@ -186,7 +186,7 @@ export function MemberDetail() {
                   <Calendar className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Date of Birth</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Date of Birth</p>
                   <p className="text-sm font-bold text-slate-700 dark:text-navy-200 transition-colors">
                     {member.dateOfBirth ? new Date(member.dateOfBirth).toLocaleDateString() : 'N/A'}
                   </p>
@@ -205,8 +205,8 @@ export function MemberDetail() {
                 <CreditCard className="h-24 w-24" />
               </div>
               <CardContent className="p-8">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-indigo-200 mb-2">Current Tier</p>
-                <h3 className="text-4xl font-black mb-4 italic">Standard <span className="text-indigo-900/30 dark:text-white/10">Plan</span></h3>
+                <p className="text-xs font-bold uppercase tracking-wider text-indigo-200 mb-2">Current Tier</p>
+                <h3 className="text-4xl font-bold mb-4">Standard <span className="text-indigo-900/30 dark:text-white/10">Plan</span></h3>
                 <div className="flex items-center gap-3 bg-white/10 w-fit px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10">
                   <Calendar className="h-4 w-4" />
                   <span className="text-sm font-bold leading-none">Valid until Dec 2026</span>
@@ -218,7 +218,7 @@ export function MemberDetail() {
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent" />
               <CardContent className="p-8 relative">
                 <div className="flex justify-between items-start mb-6">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-navy-600">ML Predictions</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-navy-600">Progress Analytics</p>
                   <Activity className="h-5 w-5 text-indigo-400" />
                 </div>
                 <p className="text-xl font-bold leading-snug">
@@ -227,7 +227,7 @@ export function MemberDetail() {
                     : 'No fitness data recorded'
                   }
                 </p>
-                <Button variant="link" className="text-indigo-400 dark:text-indigo-300 p-0 h-auto font-black text-[10px] uppercase tracking-widest mt-4">View ML Report</Button>
+                <Button variant="link" className="text-indigo-400 dark:text-indigo-300 p-0 h-auto font-bold text-xs uppercase tracking-widest mt-4">View Analytics Report</Button>
               </CardContent>
             </Card>
           </div>
@@ -235,13 +235,13 @@ export function MemberDetail() {
           {/* Detailed Data Tabs */}
           <Tabs defaultValue="overview" className="space-y-6">
             <TabsList className="bg-white dark:bg-navy-900 p-1.5 rounded-2xl border border-slate-100 dark:border-navy-800 shadow-sm w-full md:w-auto h-auto transition-colors">
-              <TabsTrigger value="overview" className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all">
+              <TabsTrigger value="overview" className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all">
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="health" className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all">
-                Health Lab
+              <TabsTrigger value="health" className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all">
+                Health Info
               </TabsTrigger>
-              <TabsTrigger value="billing" className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all">
+              <TabsTrigger value="billing" className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all">
                 Billing
               </TabsTrigger>
             </TabsList>
@@ -250,28 +250,28 @@ export function MemberDetail() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="bg-white dark:bg-navy-900 border-slate-100 dark:border-navy-800 rounded-3xl shadow-sm transition-colors">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 flex items-center gap-2">
                       <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                      Safety Protocols
+                      Emergency Information
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-navy-600 mb-1">Emergency POC</p>
+                      <p className="text-xs font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-navy-600 mb-1">Emergency Contact</p>
                       <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">{member.emergencyContact?.name || 'Not Recorded'}</p>
                       <p className="text-xs font-medium text-slate-500 dark:text-navy-500">{member.emergencyContact?.relationship || 'Contact'} • {member.emergencyContact?.phoneNumber || 'No Phone'}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-navy-600 mb-2">Medical Notes</p>
+                      <p className="text-xs font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-navy-600 mb-2">Medical Notes</p>
                       <div className="flex flex-wrap gap-2">
                         {member.medicalConditions?.length > 0 ? (
                           member.medicalConditions.map((c: string) => (
-                            <Badge key={c} variant="outline" className="rounded-lg border-rose-100 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold uppercase text-[9px] transition-colors">
+                            <Badge key={c} variant="outline" className="rounded-lg border-rose-100 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold uppercase text-[11px] transition-colors">
                               {c}
                             </Badge>
                           ))
                         ) : (
-                          <span className="text-sm font-bold text-slate-400 dark:text-navy-600 italic transition-colors">No conditions reported</span>
+                          <span className="text-sm font-bold text-slate-400 dark:text-navy-600 transition-colors">No conditions reported</span>
                         )}
                       </div>
                     </div>
@@ -280,21 +280,21 @@ export function MemberDetail() {
 
                 <Card className="bg-white dark:bg-navy-900 border-slate-100 dark:border-navy-800 rounded-3xl shadow-sm transition-colors">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 flex items-center gap-2">
+                    <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 flex items-center gap-2">
                       <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                      Focus Targets
+                      Fitness Goals
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
                       {member.fitnessGoals?.length > 0 ? (
                         member.fitnessGoals.map((goal: string) => (
-                          <Badge key={goal} className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/50 font-black text-[10px] uppercase tracking-wider shadow-none transition-colors">
+                          <Badge key={goal} className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/50 font-bold text-xs uppercase tracking-wider shadow-none transition-colors">
                             {goal.replace('_', ' ')}
                           </Badge>
                         ))
                       ) : (
-                        <span className="text-sm font-bold text-slate-400 dark:text-navy-600 italic transition-colors">No specific goals set</span>
+                        <span className="text-sm font-bold text-slate-400 dark:text-navy-600 transition-colors">No specific goals set</span>
                       )}
                     </div>
                   </CardContent>
@@ -312,8 +312,8 @@ export function MemberDetail() {
                 ].map((stat) => (
                   <Card key={stat.label} className="bg-white dark:bg-navy-900 border-slate-100 dark:border-navy-800 rounded-2xl shadow-sm hover:border-indigo-100 dark:hover:border-navy-700 transition-colors">
                     <CardContent className="p-4 pt-6">
-                      <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 dark:text-navy-600 mb-1">{stat.label}</p>
-                      <p className="text-xl font-black text-slate-900 dark:text-white transition-colors">{stat.value}</p>
+                      <p className="text-xs font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-navy-600 mb-1">{stat.label}</p>
+                      <p className="text-xl font-bold text-slate-900 dark:text-white transition-colors">{stat.value}</p>
                     </CardContent>
                   </Card>
                 ))}
@@ -326,7 +326,7 @@ export function MemberDetail() {
                       <Activity className="h-6 w-6" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-slate-900 dark:text-white italic transition-colors">Dietary Matrix</h3>
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white transition-colors">Dietary Information</h3>
                       <p className="text-xs font-bold text-slate-500 dark:text-navy-500 uppercase tracking-widest transition-colors">Preferences & Restrictions</p>
                     </div>
                   </div>
@@ -338,7 +338,7 @@ export function MemberDetail() {
                         </Badge>
                       ))
                     ) : (
-                      <span className="text-sm font-bold text-slate-400 dark:text-navy-600 italic transition-colors">No dietary preferences recorded</span>
+                      <span className="text-sm font-bold text-slate-400 dark:text-navy-600 transition-colors">No dietary preferences recorded</span>
                     )}
                   </div>
                 </CardContent>
@@ -348,24 +348,24 @@ export function MemberDetail() {
             <TabsContent value="billing">
               <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden transition-colors">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Transaction History</CardTitle>
+                  <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Transaction History</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-slate-50/50 dark:bg-navy-950/50 border-y border-slate-100 dark:border-navy-800 transition-colors">
-                        <TableHead className="font-black text-[10px] uppercase tracking-widest pl-8 text-slate-700 dark:text-navy-400">Reference</TableHead>
-                        <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400">Amount</TableHead>
-                        <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400">Status</TableHead>
-                        <TableHead className="font-black text-[10px] uppercase tracking-widest text-right pr-8 text-slate-700 dark:text-navy-400">Date</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-widest pl-8 text-slate-700 dark:text-navy-400">Reference</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-widest text-slate-700 dark:text-navy-400">Amount</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-widest text-slate-700 dark:text-navy-400">Status</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-widest text-right pr-8 text-slate-700 dark:text-navy-400">Date</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       <TableRow className="border-b border-slate-50 dark:border-navy-950 group transition-colors">
                         <TableCell className="pl-8 font-bold text-slate-700 dark:text-navy-300">#TR-89021</TableCell>
-                        <TableCell className="font-black text-slate-900 dark:text-white">$99.00</TableCell>
+                        <TableCell className="font-bold text-slate-900 dark:text-white">LKR 25,000</TableCell>
                         <TableCell>
-                          <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900 font-black text-[9px] uppercase tracking-widest shadow-none">Paid</Badge>
+                          <Badge className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900 font-bold text-[11px] uppercase tracking-widest shadow-none">Paid</Badge>
                         </TableCell>
                         <TableCell className="text-right pr-8 font-bold text-slate-400 dark:text-navy-600 group-hover:text-slate-600 dark:group-hover:text-navy-300 transition-colors">Oct 24, 2024</TableCell>
                       </TableRow>

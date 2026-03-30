@@ -94,7 +94,7 @@ export function ClassSchedule() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-slate-400 font-black uppercase text-xs tracking-widest animate-pulse">Synchronizing Schedules...</div>
+        <div className="text-slate-400 font-bold uppercase text-xs tracking-widest animate-pulse">Synchronizing Schedules...</div>
       </div>
     );
   }
@@ -104,7 +104,7 @@ export function ClassSchedule() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
             Class <span className="text-indigo-600 dark:text-indigo-400">Schedule</span>
           </h1>
           <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
@@ -130,8 +130,8 @@ export function ClassSchedule() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">{classes.length}</div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">In system active</p>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">{classes.length}</div>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">In system active</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -142,8 +142,8 @@ export function ClassSchedule() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">42</div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Planned sessions</p>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">42</div>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Planned sessions</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -154,10 +154,10 @@ export function ClassSchedule() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
               {classes.reduce((sum, c) => sum + c.enrolled, 0)}
             </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Total bookers</p>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Total bookers</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -168,8 +168,8 @@ export function ClassSchedule() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">87%</div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Avg attendance</p>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">87%</div>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Avg attendance</p>
           </CardContent>
         </Card>
       </div>
@@ -190,7 +190,7 @@ export function ClassSchedule() {
               <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                 <CalendarIcon className="h-4 w-4" />
               </div>
-              <span className="text-slate-900 dark:text-white font-black uppercase text-xs tracking-widest">{currentMonthYear} • Week {currentWeek + 10}</span>
+              <span className="text-slate-900 dark:text-white font-bold uppercase text-xs tracking-widest">{currentMonthYear} • Week {currentWeek + 10}</span>
             </div>
             <Button
               variant="ghost"
@@ -220,13 +220,13 @@ export function ClassSchedule() {
                   : "bg-white dark:bg-navy-900 border-slate-200/60 dark:border-navy-800"
               )}>
                 <p className={cn(
-                  "font-black uppercase text-[10px] tracking-[0.2em]",
+                  "font-bold uppercase text-xs tracking-wider",
                   isToday ? "text-indigo-100" : "text-slate-400 dark:text-navy-500"
                 )}>
                   {day.slice(0, 3)}
                 </p>
                 <p className={cn(
-                  "text-xl font-black mt-0.5",
+                  "text-xl font-bold mt-0.5",
                   isToday ? "text-white" : "text-slate-900 dark:text-white"
                 )}>
                   {15 + index}
@@ -251,22 +251,22 @@ export function ClassSchedule() {
                         <CardContent className="p-4 space-y-4">
                           <div>
                             <Badge className={cn(
-                              "text-[9px] font-black uppercase tracking-widest border-none px-2 rounded-lg mb-2 shadow-none",
+                              "text-[11px] font-bold uppercase tracking-widest border-none px-2 rounded-lg mb-2 shadow-none",
                               classTypeColors[classSession.type]
                             )}>
                               {classSession.type}
                             </Badge>
-                            <h3 className="font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-sm leading-tight">
+                            <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-sm leading-tight">
                               {classSession.name}
                             </h3>
                           </div>
 
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 dark:text-navy-500 group-hover:text-slate-600 dark:group-hover:text-navy-400 transition-colors">
+                            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 dark:text-navy-500 group-hover:text-slate-600 dark:group-hover:text-navy-400 transition-colors">
                               <Clock className="h-3 w-3" />
                               <span>{classSession.time} • {classSession.duration}m</span>
                             </div>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 dark:text-navy-500 group-hover:text-slate-600 dark:group-hover:text-navy-400 transition-colors">
+                            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 dark:text-navy-500 group-hover:text-slate-600 dark:group-hover:text-navy-400 transition-colors">
                               <MapPin className="h-3 w-3" />
                               <span className="uppercase tracking-widest">{classSession.location}</span>
                             </div>
@@ -275,21 +275,21 @@ export function ClassSchedule() {
                           <div className="flex items-center gap-2 pt-2 border-t border-slate-50 dark:border-navy-800">
                             <Avatar className="h-6 w-6 border-2 border-white dark:border-navy-800 shadow-sm">
                               <AvatarImage src={classSession.trainer.photoUrl} />
-                              <AvatarFallback className="bg-indigo-600 dark:bg-navy-950 text-white text-[8px] font-black">
+                              <AvatarFallback className="bg-indigo-600 dark:bg-navy-950 text-white text-[8px] font-bold">
                                 {classSession.trainer.name.split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
                             </Avatar>
-                            <span className="text-[10px] font-bold text-slate-500 dark:text-navy-400 truncate">{classSession.trainer.name}</span>
+                            <span className="text-xs font-bold text-slate-500 dark:text-navy-400 truncate">{classSession.trainer.name}</span>
                           </div>
 
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tighter">
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white uppercase tracking-normal">
                                 <Users className="h-3 w-3 text-indigo-500 dark:text-indigo-400" />
                                 <span>{classSession.enrolled} Enrolled</span>
                               </div>
                               {isFull && (
-                                <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">Full</span>
+                                <span className="text-[11px] font-bold text-rose-500 uppercase tracking-widest">Full</span>
                               )}
                             </div>
                             <div className="w-full bg-slate-100 dark:bg-navy-800 rounded-full h-1.5 overflow-hidden">
@@ -310,7 +310,7 @@ export function ClassSchedule() {
                   })
                 ) : (
                   <div className="p-8 text-center rounded-3xl border-2 border-dashed border-slate-100 dark:border-navy-800 bg-slate-50/10 dark:bg-navy-950/20">
-                    <p className="text-slate-300 dark:text-navy-600 font-black uppercase text-[9px] tracking-[0.2em]">Empty</p>
+                    <p className="text-slate-300 dark:text-navy-600 font-bold uppercase text-[11px] tracking-wider">Empty</p>
                   </div>
                 )}
               </div>

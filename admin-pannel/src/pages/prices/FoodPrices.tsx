@@ -255,18 +255,18 @@ export function FoodPrices() {
                                             <div className="flex flex-col max-w-[250px]">
                                                 <span className="text-foreground font-semibold text-sm truncate group-hover:text-primary transition-colors">{product.name}</span>
                                                 <div className="flex items-center gap-1 mt-1 text-muted-foreground">
-                                                    {product.imageUrl && <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded border border-border">img</span>}
+                                                    {product.imageUrl && <span className="text-xs bg-muted px-1.5 py-0.5 rounded border border-border">img</span>}
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="p-4">
                                             <div className="flex flex-col">
                                                 <span className="text-muted-foreground font-medium text-xs font-mono">{product.sku}</span>
-                                                <span className="text-muted-foreground/50 text-[10px] font-mono mt-0.5">{product.itemID}</span>
+                                                <span className="text-muted-foreground/50 text-xs font-mono mt-0.5">{product.itemID}</span>
                                             </div>
                                         </td>
                                         <td className="p-4">
-                                            <Badge variant="secondary" className="font-semibold capitalize text-[10px] bg-muted/50 border-border">
+                                            <Badge variant="secondary" className="font-semibold capitalize text-xs bg-muted/50 border-border">
                                                 {product.departmentName}
                                             </Badge>
                                         </td>
@@ -278,16 +278,16 @@ export function FoodPrices() {
                                         </td>
                                         <td className="p-4">
                                             {product.isAvailable ? (
-                                                <Badge variant="outline" className="text-emerald-600 bg-emerald-500/10 border-emerald-500/20 font-semibold gap-1 px-2 py-0.5text-[10px]">
+                                                <Badge variant="outline" className="text-emerald-600 bg-emerald-500/10 border-emerald-500/20 font-semibold gap-1 px-2 py-0.5text-xs">
                                                     <CheckCircle2 className="w-3 h-3" /> Available
                                                 </Badge>
                                             ) : (
-                                                <Badge variant="outline" className="text-destructive bg-destructive/10 border-destructive/20 font-semibold gap-1 px-2 py-0.5text-[10px]">
+                                                <Badge variant="outline" className="text-destructive bg-destructive/10 border-destructive/20 font-semibold gap-1 px-2 py-0.5text-xs">
                                                     <XCircle className="w-3 h-3" /> Offline
                                                 </Badge>
                                             )}
                                         </td>
-                                        <td className="p-4 text-muted-foreground text-[10px]">
+                                        <td className="p-4 text-muted-foreground text-xs">
                                             {new Date(product.lastUpdated).toLocaleDateString()}
                                         </td>
                                         <td className="p-4 text-right">
@@ -433,7 +433,7 @@ export function FoodPrices() {
                             <div className="flex items-center justify-between p-4 bg-muted/40 rounded-xl border border-border mt-6">
                                 <div className="space-y-0.5">
                                     <Label className="text-sm font-semibold">Store Availability</Label>
-                                    <p className="text-[10px] text-muted-foreground leading-snug">
+                                    <p className="text-xs text-muted-foreground leading-snug">
                                         Is this product currently in stock at the primary source?
                                     </p>
                                 </div>

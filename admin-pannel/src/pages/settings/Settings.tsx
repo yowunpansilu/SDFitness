@@ -21,8 +21,12 @@ export function Settings() {
   const [activeTab, setActiveTab] = useState('general');
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
   const [pendingTab, setPendingTab] = useState<string | null>(null);
-  const { hasUnsavedChanges, isLoading, saveSettings, resetSettings, setUnsavedChanges } = useSettingsStore();
+  const { hasUnsavedChanges, isLoading, saveSettings, resetSettings, setUnsavedChanges, fetchSettings } = useSettingsStore();
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
   // Warn before leaving if unsaved changes
   useEffect(() => {
@@ -87,11 +91,11 @@ export function Settings() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            System <span className="text-indigo-600 dark:text-indigo-400 italic">Configuration</span>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white uppercase transition-colors">
+            System <span className="text-indigo-600 dark:text-indigo-400">Settings</span>
           </h1>
           <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
-            Orchestrate organizational parameters, communication protocols and security matrices.
+            Configure gym information, email templates, and system notifications.
           </p>
         </div>
 
@@ -99,7 +103,7 @@ export function Settings() {
           {hasUnsavedChanges && (
             <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-900 animate-pulse">
               <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 transition-colors">Pending Changes</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 transition-colors">Pending Changes</span>
             </div>
           )}
 
@@ -107,7 +111,7 @@ export function Settings() {
             variant="ghost"
             onClick={handleDiscardChanges}
             disabled={!hasUnsavedChanges || isLoading}
-            className="h-11 px-6 rounded-xl font-black uppercase text-xs tracking-widest text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all disabled:opacity-30"
+            className="h-11 px-6 rounded-xl font-bold uppercase text-xs tracking-widest text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all disabled:opacity-30"
           >
             Discard
           </Button>
@@ -115,17 +119,17 @@ export function Settings() {
           <Button
             onClick={handleSaveSettings}
             disabled={!hasUnsavedChanges || isLoading}
-            className="h-11 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase text-xs tracking-widest shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 transition-all hover:scale-105 active:scale-95 disabled:grayscale disabled:opacity-50"
+            className="h-11 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold uppercase text-xs tracking-widest shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 transition-all hover:scale-105 active:scale-95 disabled:grayscale disabled:opacity-50"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Syncing...</span>
+                <span>Saving...</span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Save className="h-4 w-4" />
-                <span>Commit Changes</span>
+                <span>Save Changes</span>
               </div>
             )}
           </Button>
@@ -136,21 +140,21 @@ export function Settings() {
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-10">
         <div className="p-1 w-fit bg-slate-100 dark:bg-navy-900 rounded-2xl border border-slate-200 dark:border-navy-800 transition-colors">
           <TabsList className="bg-transparent gap-1">
-            <TabsTrigger value="general" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-navy-500 transition-all">
+            <TabsTrigger value="general" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-bold uppercase text-xs tracking-widest text-slate-500 dark:text-navy-500 transition-all">
               <Building2 className="h-3.5 w-3.5 mr-2 transition-transform group-data-[state=active]:scale-110" />
               General
             </TabsTrigger>
-            <TabsTrigger value="email" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-navy-500 transition-all">
+            <TabsTrigger value="email" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-bold uppercase text-xs tracking-widest text-slate-500 dark:text-navy-500 transition-all">
               <Mail className="h-3.5 w-3.5 mr-2 transition-transform group-data-[state=active]:scale-110" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-navy-500 transition-all">
+            <TabsTrigger value="notifications" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-bold uppercase text-xs tracking-widest text-slate-500 dark:text-navy-500 transition-all">
               <Bell className="h-3.5 w-3.5 mr-2 transition-transform group-data-[state=active]:scale-110" />
               Alerts
             </TabsTrigger>
-            <TabsTrigger value="roles" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-navy-500 transition-all">
+            <TabsTrigger value="roles" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white dark:data-[state=active]:bg-navy-800 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 data-[state=active]:shadow-sm font-bold uppercase text-xs tracking-widest text-slate-500 dark:text-navy-500 transition-all">
               <Shield className="h-3.5 w-3.5 mr-2 transition-transform group-data-[state=active]:scale-110" />
-              Security
+              Roles
             </TabsTrigger>
           </TabsList>
         </div>
@@ -182,21 +186,21 @@ export function Settings() {
               <AlertCircle className="h-10 w-10" />
             </div>
             <div className="space-y-2">
-              <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white transition-colors">Uncommitted Data</AlertDialogTitle>
-              <AlertDialogDescription className="text-slate-500 dark:text-navy-400 font-medium italic transition-colors">
-                You have pending configuration changes. Leaving this matrix will result in permanent data loss.
+              <AlertDialogTitle className="text-2xl font-bold uppercase tracking-tight text-slate-900 dark:text-white transition-colors">Unsaved Changes</AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-500 dark:text-navy-400 font-medium transition-colors">
+                You have unsaved changes. Leaving this page will discard your modifications.
               </AlertDialogDescription>
             </div>
             <div className="flex items-center gap-3 w-full">
               <AlertDialogCancel
                 onClick={handleCancelWarning}
-                className="flex-1 h-12 rounded-2xl bg-slate-50 dark:bg-navy-950 hover:bg-slate-100 dark:hover:bg-navy-800 border-none text-slate-600 dark:text-white font-black uppercase text-xs tracking-widest transition-all"
+                className="flex-1 h-12 rounded-2xl bg-slate-50 dark:bg-navy-950 hover:bg-slate-100 dark:hover:bg-navy-800 border-none text-slate-600 dark:text-white font-bold uppercase text-xs tracking-widest transition-all"
               >
                 Stay Here
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDiscardChanges}
-                className="flex-1 h-12 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black uppercase text-xs tracking-widest shadow-lg shadow-rose-200 dark:shadow-rose-900/20 transition-all"
+                className="flex-1 h-12 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold uppercase text-xs tracking-widest shadow-lg shadow-rose-200 dark:shadow-rose-900/20 transition-all"
               >
                 Discard
               </AlertDialogAction>

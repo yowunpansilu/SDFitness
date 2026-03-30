@@ -138,7 +138,7 @@ export function TrainerDetail() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <Loader2 className="h-12 w-12 text-indigo-600 animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600">Retrieving Faculty Matrix</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Retrieving Faculty System</p>
       </div>
     );
   }
@@ -146,7 +146,7 @@ export function TrainerDetail() {
   if (!trainer) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase">Profile Not Located</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white uppercase">Profile Not Located</h2>
         <Button onClick={() => navigate('/trainers')} className="mt-4">Return to Faculty List</Button>
       </div>
     );
@@ -158,10 +158,10 @@ export function TrainerDetail() {
       <Button
         variant="ghost"
         onClick={() => navigate('/trainers')}
-        className="text-slate-400 dark:text-navy-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-navy-800/50 rounded-xl transition-all font-black uppercase text-[10px] tracking-widest"
+        className="text-slate-400 dark:text-navy-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-navy-800/50 rounded-xl transition-all font-bold uppercase text-xs tracking-widest"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Faculty Matrix
+        Back to Faculty System
       </Button>
 
       {/* Trainer Header */}
@@ -170,7 +170,7 @@ export function TrainerDetail() {
           <div className="flex flex-col md:flex-row gap-8">
             <Avatar className="h-32 w-32 ring-4 ring-indigo-500/20 shadow-2xl">
               <AvatarImage src={trainer.photoUrl} />
-              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-3xl font-black italic">
+              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white text-3xl font-bold">
                 {trainer.firstName[0]}{trainer.lastName[0]}
               </AvatarFallback>
             </Avatar>
@@ -178,10 +178,10 @@ export function TrainerDetail() {
             <div className="flex-1">
               <div className="flex items-start justify-between">
                 <div>
-                  <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white transition-colors uppercase">
+                  <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors uppercase">
                     {trainer.firstName} <span className="text-indigo-600 dark:text-indigo-400">{trainer.lastName}</span>
                   </h1>
-                  <Badge className={cn('mt-3 px-4 py-1 rounded-full font-black text-[10px] uppercase tracking-widest transition-colors', statusColors[trainer.status])}>
+                  <Badge className={cn('mt-3 px-4 py-1 rounded-full font-bold text-xs uppercase tracking-widest transition-colors', statusColors[trainer.status])}>
                     {trainer.status.replace('_', ' ')}
                   </Badge>
                 </div>
@@ -242,19 +242,19 @@ export function TrainerDetail() {
           { label: 'Assigned Members', value: trainer.assignedMembers, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
           { label: 'Avg Rating', value: trainer.rating, icon: TrendingUp, color: 'text-amber-500', bg: 'bg-amber-500/10' },
           { label: 'Simulated Sessions', value: '156', icon: Clock, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-          { label: 'Simulated Revenue', value: `$${(trainer.hourlyRate * 156 * 0.7).toLocaleString()}`, icon: DollarSign, color: 'text-indigo-500', bg: 'bg-indigo-500/10' }
+          { label: 'Simulated Revenue', value: `LKR${(trainer.hourlyRate * 156 * 0.7).toLocaleString()}`, icon: DollarSign, color: 'text-indigo-500', bg: 'bg-indigo-500/10' }
         ].map((stat, i) => (
           <Card key={i} className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-2xl shadow-sm transition-colors overflow-hidden group">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">{stat.label}</CardTitle>
+                <CardTitle className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">{stat.label}</CardTitle>
                 <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", stat.bg)}>
                   <stat.icon className={cn("h-4 w-4", stat.color)} />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-black text-slate-900 dark:text-white transition-colors">{stat.value}</div>
+              <div className="text-3xl font-bold text-slate-900 dark:text-white transition-colors">{stat.value}</div>
             </CardContent>
           </Card>
         ))}
@@ -267,7 +267,7 @@ export function TrainerDetail() {
             <TabsTrigger 
               key={t} 
               value={t} 
-              className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all capitalize"
+              className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all capitalize"
             >
               {t}
             </TabsTrigger>
@@ -278,7 +278,7 @@ export function TrainerDetail() {
         <TabsContent value="overview" className="space-y-6">
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors">
             <CardHeader>
-              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Biography</CardTitle>
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-navy-600">Biography</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-slate-600 dark:text-navy-300 font-medium leading-relaxed transition-colors">{trainer.bio}</p>
@@ -288,7 +288,7 @@ export function TrainerDetail() {
           <div className="grid md:grid-cols-2 gap-6">
             <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors">
               <CardHeader>
-                <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600 flex items-center gap-2">
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-navy-600 flex items-center gap-2">
                   <Award className="h-5 w-5 text-indigo-500" />
                   Performance Specializations
                 </CardTitle>
@@ -296,7 +296,7 @@ export function TrainerDetail() {
               <CardContent>
                 <div className="flex flex-wrap gap-2">
                   {trainer.specializations.map((spec) => (
-                    <Badge key={spec} className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/50 font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-xl transition-colors">
+                    <Badge key={spec} className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/50 font-bold text-xs uppercase tracking-widest px-4 py-2 rounded-xl transition-colors">
                       {spec}
                     </Badge>
                   ))}
@@ -306,15 +306,15 @@ export function TrainerDetail() {
 
             <Card className="bg-slate-50 dark:bg-navy-950 border-none rounded-3xl transition-colors">
               <CardHeader>
-                <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Emergency Protocol</CardTitle>
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-navy-600">Emergency Protocol</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 mb-1">Contact Name</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 mb-1">Contact Name</p>
                   <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">{trainer.emergencyContact.name}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 mb-1">Secure Line</p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 mb-1">Secure Line</p>
                   <p className="text-lg font-bold text-slate-900 dark:text-white transition-colors">{trainer.emergencyContact.phone}</p>
                 </div>
               </CardContent>
@@ -326,21 +326,21 @@ export function TrainerDetail() {
         <TabsContent value="members">
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl overflow-hidden transition-colors shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Student Matrix ({trainer.assignedMembers})</CardTitle>
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-navy-600">Student System ({trainer.assignedMembers})</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50/50 dark:bg-navy-950/50 border-y border-slate-100 dark:border-navy-800 transition-colors">
-                    <TableHead className="font-black text-[10px] uppercase tracking-widest pl-8 text-slate-700 dark:text-navy-400">Student Profile</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400">Tier Status</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400">Enrolled On</TableHead>
-                    <TableHead className="font-black text-[10px] uppercase tracking-widest text-slate-700 dark:text-navy-400 text-right pr-8">Sessions</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-widest pl-8 text-slate-700 dark:text-navy-400">Student Profile</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-widest text-slate-700 dark:text-navy-400">Tier Status</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-widest text-slate-700 dark:text-navy-400">Enrolled On</TableHead>
+                    <TableHead className="font-bold text-xs uppercase tracking-widest text-slate-700 dark:text-navy-400 text-right pr-8">Sessions</TableHead>
                   </TableRow>
                 </TableHeader>
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan={4} className="h-32 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">
+                      <TableCell colSpan={4} className="h-32 text-center text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">
                         No active student units assigned to this faculty
                       </TableCell>
                     </TableRow>
@@ -354,13 +354,13 @@ export function TrainerDetail() {
         <TabsContent value="schedule">
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors shadow-sm">
             <CardHeader>
-              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Shift Protocol Matrix</CardTitle>
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-navy-600">Shift Protocol System</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
               <div className="h-32 flex flex-col items-center justify-center text-center space-y-4">
                 <Globe className="h-8 w-8 text-slate-200 dark:text-navy-800" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Standard faculty shifts currently in reconciliation</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Standard faculty shifts currently in reconciliation</p>
               </div>
               </div>
             </CardContent>
@@ -371,7 +371,7 @@ export function TrainerDetail() {
         <TabsContent value="certifications">
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl transition-colors shadow-sm">
             <CardHeader>
-              <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-slate-400 dark:text-navy-600">Certified Matrix Credentials</CardTitle>
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-navy-600">Certified System Credentials</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-4">
@@ -385,15 +385,15 @@ export function TrainerDetail() {
                         <Award className="h-6 w-6" />
                       </div>
                       <div>
-                        <p className="text-base font-black text-slate-900 dark:text-white leading-none mb-1 uppercase tracking-tight transition-colors">{cert.name}</p>
-                        <p className="text-[10px] text-slate-400 dark:text-navy-600 font-bold uppercase tracking-widest">{cert.issuer} • {new Date(cert.issueDate).getFullYear()}</p>
+                        <p className="text-base font-bold text-slate-900 dark:text-white leading-none mb-1 uppercase tracking-tight transition-colors">{cert.name}</p>
+                        <p className="text-xs text-slate-400 dark:text-navy-600 font-bold uppercase tracking-widest">{cert.issuer} • {new Date(cert.issueDate).getFullYear()}</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="col-span-2 py-12 flex flex-col items-center justify-center text-center space-y-4">
                     <ShieldAlert className="h-8 w-8 text-slate-200 dark:text-navy-800" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">No validated credentials on file for this faculty unit</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">No validated credentials on file for this faculty unit</p>
                   </div>
                 )}
               </div>

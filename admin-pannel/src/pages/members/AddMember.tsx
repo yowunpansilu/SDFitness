@@ -142,8 +142,8 @@ export function AddMember() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            Enroll <span className="text-indigo-600 dark:text-indigo-400 italic">Member</span>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Enroll <span className="text-indigo-600 dark:text-indigo-400">Member</span>
           </h1>
           <p className="text-slate-500 dark:text-navy-500 font-medium mt-1 uppercase text-xs tracking-widest transition-colors">
             New Membership Onboarding Process
@@ -178,7 +178,7 @@ export function AddMember() {
                 </div>
                 <div className="mt-3 text-center">
                   <p className={cn(
-                    'text-[10px] font-black uppercase tracking-widest transition-colors',
+                    'text-xs font-bold uppercase tracking-widest transition-colors',
                     isActive || isCompleted ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-navy-600'
                   )}>
                     {step.name}
@@ -200,11 +200,11 @@ export function AddMember() {
                   {steps[currentStep-1].id}
                 </div>
                 <div>
-                  <CardTitle className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic transition-colors">
-                    {steps[currentStep - 1].name} <span className="text-slate-400 dark:text-navy-600 not-italic">Phase</span>
+                  <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-tight transition-colors">
+                    {steps[currentStep - 1].name} <span className="text-slate-400 dark:text-navy-600 not-italic">Information</span>
                   </CardTitle>
                   <CardDescription className="text-slate-500 dark:text-navy-500 font-bold text-xs uppercase tracking-widest transition-colors">
-                    Phase {currentStep} of {steps.length}
+                    Step {currentStep} of {steps.length}
                   </CardDescription>
                 </div>
               </div>
@@ -229,7 +229,7 @@ export function AddMember() {
                         </div>
                       </label>
                     </div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600 transition-colors">Headshot Profile Matrix</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 transition-colors">Member Profile Photo</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -238,11 +238,11 @@ export function AddMember() {
                       name="firstName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Legal First Name</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">First Name</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="John" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50/30 dark:bg-navy-950/50 focus:bg-white dark:focus:bg-navy-950 dark:text-white transition-all text-sm font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                           </FormControl>
-                          <FormMessage className="text-[10px] font-bold" />
+                          <FormMessage className="text-xs font-bold" />
                         </FormItem>
                       )}
                     />
@@ -251,11 +251,11 @@ export function AddMember() {
                       name="lastName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Legal Last Name</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Last Name</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="Doe" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50/30 dark:bg-navy-950/50 focus:bg-white dark:focus:bg-navy-950 dark:text-white transition-all text-sm font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                           </FormControl>
-                          <FormMessage className="text-[10px] font-bold" />
+                          <FormMessage className="text-xs font-bold" />
                         </FormItem>
                       )}
                     />
@@ -264,11 +264,11 @@ export function AddMember() {
                       name="dateOfBirth"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Date of Birth</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Date of Birth</FormLabel>
                           <FormControl>
                             <Input {...field} type="date" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50/30 dark:bg-navy-950/50 focus:bg-white dark:focus:bg-navy-950 dark:text-white transition-all text-sm font-bold" />
                           </FormControl>
-                          <FormMessage className="text-[10px] font-bold" />
+                          <FormMessage className="text-xs font-bold" />
                         </FormItem>
                       )}
                     />
@@ -277,7 +277,7 @@ export function AddMember() {
                       name="gender"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Gender Identity</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Gender</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50/30 dark:bg-navy-950/50 focus:bg-white dark:focus:bg-navy-950 dark:text-white transition-all text-sm font-bold">
@@ -291,7 +291,7 @@ export function AddMember() {
                               <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
                             </SelectContent>
                           </Select>
-                          <FormMessage className="text-[10px] font-bold" />
+                          <FormMessage className="text-xs font-bold" />
                         </FormItem>
                       )}
                     />
@@ -308,11 +308,11 @@ export function AddMember() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Professional Email</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Email Address</FormLabel>
                           <FormControl>
                             <Input {...field} type="email" placeholder="john.doe@matrix.com" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50/30 dark:bg-navy-950/50 focus:bg-white dark:focus:bg-navy-950 dark:text-white transition-all text-sm font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                           </FormControl>
-                          <FormMessage className="text-[10px] font-bold" />
+                          <FormMessage className="text-xs font-bold" />
                         </FormItem>
                       )}
                     />
@@ -321,25 +321,25 @@ export function AddMember() {
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Secure Phone Line</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Phone Number</FormLabel>
                           <FormControl>
                             <Input {...field} placeholder="+1 000 000 0000" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50/30 dark:bg-navy-950/50 focus:bg-white dark:focus:bg-navy-950 dark:text-white transition-all text-sm font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                           </FormControl>
-                          <FormMessage className="text-[10px] font-bold" />
+                          <FormMessage className="text-xs font-bold" />
                         </FormItem>
                       )}
                     />
                   </div>
 
                   <div className="border-t border-slate-100 dark:border-navy-800 pt-10 transition-colors">
-                    <h3 className="text-xl font-black text-slate-900 dark:text-white mb-6 italic transition-colors">Emergency Protocols</h3>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 transition-colors">Emergency Contact</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <FormField
                         control={form.control}
                         name="emergencyContactName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Contact Name</FormLabel>
+                            <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Contact Name</FormLabel>
                             <FormControl>
                               <Input {...field} placeholder="Full legal name" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50/30 dark:bg-navy-950/50 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                             </FormControl>
@@ -352,7 +352,7 @@ export function AddMember() {
                         name="emergencyContactPhone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Contact Phone</FormLabel>
+                            <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Contact Phone</FormLabel>
                             <FormControl>
                               <Input {...field} placeholder="Emergency number" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50/30 dark:bg-navy-950/50 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                             </FormControl>
@@ -365,7 +365,7 @@ export function AddMember() {
                         name="emergencyContactRelationship"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Relationship</FormLabel>
+                            <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Relationship</FormLabel>
                             <FormControl>
                               <Input {...field} placeholder="Relationship status" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50/30 dark:bg-navy-950/50 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                             </FormControl>
@@ -386,12 +386,12 @@ export function AddMember() {
                     name="membershipPlan"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Select Access Tier</FormLabel>
+                        <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Select Membership Plan</FormLabel>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                           {[
                             { id: 'standard', name: 'Standard', price: '49', features: ['Gym Access', 'Lockers'] },
                             { id: 'premium', name: 'Premium', price: '99', features: ['Pool Access', 'Classes', 'Sauna'] },
-                            { id: 'vip', name: 'VIP Matrix', price: '149', features: ['Personal Trainer', 'Diet Plan', 'All-Access'] }
+                            { id: 'vip', name: 'VIP System', price: '149', features: ['Personal Trainer', 'Diet Plan', 'All-Access'] }
                           ].map((plan) => (
                             <div 
                               key={plan.id}
@@ -404,13 +404,13 @@ export function AddMember() {
                               )}
                             >
                               <div className="flex justify-between items-start mb-4">
-                                <CardTitle className="text-lg font-black uppercase tracking-tight dark:text-white transition-colors">{plan.name}</CardTitle>
+                                <CardTitle className="text-lg font-bold uppercase tracking-tight dark:text-white transition-colors">{plan.name}</CardTitle>
                                 {field.value === plan.id && <Check className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />}
                               </div>
-                              <p className="text-2xl font-black text-slate-900 dark:text-white mb-6 italic transition-colors">${plan.price}<span className="text-xs not-italic text-slate-400 dark:text-navy-500 font-bold tracking-widest ml-1">/MO</span></p>
+                              <p className="text-2xl font-bold text-slate-900 dark:text-white mb-6 transition-colors">LKR {plan.price}<span className="text-xs not-text-slate-400 dark:text-navy-500 font-bold tracking-widest ml-1">/MO</span></p>
                               <ul className="space-y-2">
                                 {plan.features.map(f => (
-                                  <li key={f} className="text-[10px] font-bold text-slate-500 dark:text-navy-400 flex items-center gap-2 transition-colors">
+                                  <li key={f} className="text-xs font-bold text-slate-500 dark:text-navy-400 flex items-center gap-2 transition-colors">
                                     <div className="h-1 w-1 rounded-full bg-slate-300 dark:bg-navy-800 transition-colors" /> {f}
                                   </li>
                                 ))}
@@ -434,7 +434,7 @@ export function AddMember() {
                       name="height"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Height (cm)</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Height (cm)</FormLabel>
                           <FormControl>
                             <Input {...field} type="number" placeholder="175" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50 dark:bg-navy-950/50 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                           </FormControl>
@@ -446,7 +446,7 @@ export function AddMember() {
                       name="weight"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Weight (kg)</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Weight (kg)</FormLabel>
                           <FormControl>
                             <Input {...field} type="number" placeholder="75" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50 dark:bg-navy-950/50 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                           </FormControl>
@@ -458,7 +458,7 @@ export function AddMember() {
                       name="targetWeight"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Target (kg)</FormLabel>
+                          <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Target (kg)</FormLabel>
                           <FormControl>
                             <Input {...field} type="number" placeholder="70" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50 dark:bg-navy-950/50 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                           </FormControl>
@@ -472,11 +472,11 @@ export function AddMember() {
                     name="fitnessGoals"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Strategic Fitness Goals</FormLabel>
+                        <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Fitness Goals</FormLabel>
                         <FormControl>
                           <Input {...field} placeholder="E.g., Weight loss, Muscle gain, Endurance" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50 dark:bg-navy-950/50 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                         </FormControl>
-                        <FormDescription className="text-[10px] font-bold text-slate-400 dark:text-navy-600 transition-colors">Comma separated objectives</FormDescription>
+                        <FormDescription className="text-xs font-bold text-slate-400 dark:text-navy-600 transition-colors">Comma separated objectives</FormDescription>
                       </FormItem>
                     )}
                   />
@@ -486,11 +486,11 @@ export function AddMember() {
                     name="medicalConditions"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 dark:text-navy-300 font-black uppercase text-[10px] tracking-[0.15em] transition-colors">Critical Medical Data</FormLabel>
+                        <FormLabel className="text-slate-700 dark:text-navy-300 font-bold uppercase text-xs tracking-[0.15em] transition-colors">Medical Conditions</FormLabel>
                         <FormControl>
                           <Input {...field} placeholder="E.g., Asthma, Leg injury, Hypertension" className="h-12 rounded-xl border-slate-200 dark:border-navy-800 bg-slate-50 dark:bg-navy-950/50 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-navy-700" />
                         </FormControl>
-                        <FormDescription className="text-[10px] font-black uppercase tracking-widest text-rose-400 dark:text-rose-500 transition-colors">Privacy ensured via encryption</FormDescription>
+                        <FormDescription className="text-xs font-bold uppercase tracking-widest text-rose-400 dark:text-rose-500 transition-colors">Privacy ensured via encryption</FormDescription>
                       </FormItem>
                     )}
                   />
@@ -505,24 +505,24 @@ export function AddMember() {
                 variant="outline"
                 onClick={prevStep}
                 disabled={currentStep === 1 || isSubmitting}
-                className="h-14 px-10 rounded-2xl border-slate-200 dark:border-navy-800 font-black uppercase text-[10px] tracking-[0.2em] text-slate-400 dark:text-navy-500 hover:text-slate-600 dark:hover:text-navy-200 hover:bg-white dark:hover:bg-navy-900 disabled:opacity-30 dark:disabled:opacity-10 transition-all shadow-sm"
+                className="h-14 px-10 rounded-2xl border-slate-200 dark:border-navy-800 font-bold uppercase text-xs tracking-wider text-slate-400 dark:text-navy-500 hover:text-slate-600 dark:hover:text-navy-200 hover:bg-white dark:hover:bg-navy-900 disabled:opacity-30 dark:disabled:opacity-10 transition-all shadow-sm"
               >
-                Revert Phase
+                Previous Step
               </Button>
               
               {currentStep < steps.length ? (
                 <Button
                   type="button"
                   onClick={nextStep}
-                  className="h-14 px-12 rounded-2xl bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-indigo-100 dark:shadow-navy-950/30 active:scale-95 transition-all text-white border-none"
+                  className="h-14 px-12 rounded-2xl bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 font-bold uppercase text-xs tracking-wider shadow-lg shadow-indigo-100 dark:shadow-navy-950/30 active:scale-95 transition-all text-white border-none"
                 >
-                  Proceed Phase <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
+                  Next Step <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
                 </Button>
               ) : (
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="h-14 px-12 rounded-2xl bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-indigo-200 dark:shadow-navy-950/40 active:scale-95 transition-all text-white border-none"
+                  className="h-14 px-12 rounded-2xl bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 font-bold uppercase text-xs tracking-wider shadow-lg shadow-indigo-200 dark:shadow-navy-950/40 active:scale-95 transition-all text-white border-none"
                 >
                   {isSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />

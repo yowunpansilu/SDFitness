@@ -56,6 +56,9 @@ app.use('/api/scraper', require('./routes/scraperRoutes'));
 app.use('/api/trainers', require('./routes/trainerRoutes'));
 app.use('/api/trainer', require('./routes/trainerRoutes'));
 app.use('/api/workouts', require('./routes/workoutRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/settings', require('./routes/settingsRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
 // Error handler
 app.use((err, req, res, next) => {

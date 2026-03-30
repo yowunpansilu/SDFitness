@@ -29,7 +29,7 @@ const trainerSchema = z.object({
   phone: z.string()
     .trim()
     .min(10, 'Secure line must be at least 10 digits')
-    .refine(val => /^[0-9+ \-]{10,}$/.test(val), 'Invalid phone format (numbers and + only)'),
+    .refine(val => /^[0-9+ \-]{10,}$/.test(val), 'Invalid phone format'),
   dateOfBirth: z.string().optional(),
   gender: z.enum(['male', 'female', 'other']).optional(),
   photo: z.string().optional(),
@@ -233,7 +233,7 @@ export function TrainerForm() {
           </Button>
           <div>
             <div>
-              <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white transition-colors">
+              <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
                 {isEditMode ? 'Edit' : 'Add'} <span className="text-indigo-600 dark:text-indigo-400">Trainer</span>
               </h1>
               <p className="text-sm font-medium text-slate-400 dark:text-navy-600 mt-1">
@@ -273,7 +273,7 @@ export function TrainerForm() {
           {/* Personal Information */}
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl shadow-sm overflow-hidden transition-colors">
             <CardHeader className="p-10 pb-4">
-              <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600">Personal Information</CardTitle>
+              <CardTitle className="text-sm font-bold uppercase tracking-tight text-slate-400 dark:text-navy-600">Personal Information</CardTitle>
             </CardHeader>
             <CardContent className="p-10 pt-0 space-y-8">
               {/* Photo Upload */}
@@ -315,7 +315,7 @@ export function TrainerForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-3">
-                  <Label htmlFor="firstName" className="text-sm font-medium text-slate-500 dark:text-navy-500 ml-1">
+                  <Label htmlFor="firstName" className="text-base font-semibold text-slate-700 dark:text-navy-400 ml-1">
                     First Name <span className="text-rose-500">*</span>
                   </Label>
                   <Input
@@ -333,7 +333,7 @@ export function TrainerForm() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label htmlFor="lastName" className="text-sm font-medium text-slate-500 dark:text-navy-500 ml-1">
+                  <Label htmlFor="lastName" className="text-base font-semibold text-slate-700 dark:text-navy-400 ml-1">
                     Last Name <span className="text-rose-500">*</span>
                   </Label>
                   <Input
@@ -351,7 +351,7 @@ export function TrainerForm() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label htmlFor="email" className="text-sm font-medium text-slate-500 dark:text-navy-500 ml-1">
+                  <Label htmlFor="email" className="text-base font-semibold text-slate-700 dark:text-navy-400 ml-1">
                     Email Address <span className="text-rose-500">*</span>
                   </Label>
                   <Input
@@ -372,7 +372,7 @@ export function TrainerForm() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label htmlFor="phone" className="text-sm font-medium text-slate-500 dark:text-navy-500 ml-1">
+                  <Label htmlFor="phone" className="text-base font-semibold text-slate-700 dark:text-navy-400 ml-1">
                     Phone Number <span className="text-rose-500">*</span>
                   </Label>
                   <Input
@@ -423,11 +423,11 @@ export function TrainerForm() {
           {/* Professional Details */}
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl shadow-sm overflow-hidden transition-colors">
             <CardHeader className="p-10 pb-4">
-              <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600">Professional Details</CardTitle>
+              <CardTitle className="text-sm font-bold uppercase tracking-tight text-slate-400 dark:text-navy-600">Professional Details</CardTitle>
             </CardHeader>
             <CardContent className="p-10 pt-0 space-y-10">
               <div className="space-y-3">
-                <Label htmlFor="bio" className="text-sm font-medium text-slate-500 dark:text-navy-500 ml-1">
+                <Label htmlFor="bio" className="text-base font-semibold text-slate-700 dark:text-navy-400 ml-1">
                   Professional Bio
                 </Label>
                 <Textarea
@@ -463,8 +463,8 @@ export function TrainerForm() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label htmlFor="hourlyRate" className="text-sm font-medium text-slate-500 dark:text-navy-500 ml-1">
-                    Hourly Rate ($) <span className="text-rose-500">*</span>
+                  <Label htmlFor="hourlyRate" className="text-base font-semibold text-slate-700 dark:text-navy-400 ml-1">
+                    Hourly Rate (LKR) <span className="text-rose-500">*</span>
                   </Label>
                   <Input
                     id="hourlyRate"
@@ -547,7 +547,7 @@ export function TrainerForm() {
           {/* Employment */}
           <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl shadow-sm overflow-hidden transition-colors">
             <CardHeader className="p-10 pb-4">
-              <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-slate-400 dark:text-navy-600">Employment Details</CardTitle>
+              <CardTitle className="text-sm font-bold uppercase tracking-tight text-slate-400 dark:text-navy-600">Employment Details</CardTitle>
             </CardHeader>
             <CardContent className="p-10 pt-0 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -623,7 +623,7 @@ export function TrainerForm() {
           {/* Emergency Contact */}
           <Card className="bg-slate-900 dark:bg-indigo-600 border-none rounded-3xl shadow-2xl overflow-hidden transition-all">
             <CardHeader className="p-10 pb-4">
-              <CardTitle className="text-sm font-black uppercase tracking-[0.25em] text-indigo-400 dark:text-indigo-200">Emergency Contact</CardTitle>
+              <CardTitle className="text-sm font-bold uppercase tracking-tight text-indigo-400 dark:text-indigo-200">Emergency Contact</CardTitle>
             </CardHeader>
             <CardContent className="p-10 pt-0 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

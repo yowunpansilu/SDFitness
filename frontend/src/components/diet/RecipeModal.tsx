@@ -82,7 +82,7 @@ export function RecipeModal({ meal, open, onOpenChange }: RecipeModalProps) {
                                     <span className="w-2 h-2 rounded-full bg-primary-500" />
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    {(meal.items || meal.ingredients || []).map((ingredient: any, idx) => (
+                                    {(meal.items || meal.ingredients || []).map((ingredient: string | { food?: string; name?: string; quantity?: string | number; unit?: string }, idx) => (
                                         <div key={idx} className="flex items-center gap-3 p-3 rounded-2xl bg-secondary-50 border border-secondary-100 group hover:border-primary-100 hover:bg-white transition-all">
                                             <div className="w-6 h-6 rounded-lg bg-white border border-secondary-200 flex items-center justify-center text-[10px] font-bold text-secondary-400 group-hover:border-primary-200 group-hover:text-primary-500 transition-colors">
                                                 {idx + 1}

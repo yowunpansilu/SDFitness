@@ -1,0 +1,161 @@
+/* =============================================================
+   Progress & Profile Page Styles
+   ============================================================= */
+
+/* --- PROFILE HEADER --- */
+.profile-header {
+  @apply flex flex-col items-center pt-8 pb-6;
+  padding-left: var(--page-padding-x);
+  padding-right: var(--page-padding-x);
+}
+
+.profile-avatar-wrap {
+  @apply relative mb-4;
+}
+
+.profile-avatar {
+  @apply w-24 h-24 rounded-3xl object-cover;
+  border: 3px solid var(--color-brand);
+  box-shadow: 0 0 0 6px var(--color-brand-muted);
+}
+
+.profile-avatar__edit {
+  @apply absolute -bottom-2 -right-2 w-8 h-8 rounded-xl bg-brand text-white
+         flex items-center justify-center cursor-pointer active:scale-90 shadow-brand;
+}
+
+.profile-name {
+  @apply font-headline font-bold text-2xl text-ink-strong;
+}
+
+.profile-meta {
+  @apply text-sm text-ink-muted font-sans mt-1;
+}
+
+.profile-stats-row {
+  @apply flex items-center gap-6 mt-5;
+}
+
+.profile-stat {
+  @apply flex flex-col items-center gap-1;
+}
+
+.profile-stat__value {
+  @apply font-headline font-bold text-xl text-ink-strong;
+}
+
+.profile-stat__label {
+  @apply text-xs text-ink-muted font-sans uppercase tracking-wide;
+}
+
+/* --- PROGRESS CHARTS --- */
+.progress-section {
+  padding: 0 var(--page-padding-x);
+  margin-bottom: 1.5rem;
+}
+
+/* Recharts custom style overrides */
+.progress-chart-wrap .recharts-cartesian-grid-horizontal line {
+  stroke: var(--color-ink-faint);
+}
+
+.progress-chart-wrap .recharts-tooltip-wrapper {
+  outline: none;
+}
+
+/* --- BADGE GRID --- */
+.badge-grid {
+  @apply grid grid-cols-3 gap-3;
+  padding: 0 var(--page-padding-x);
+  margin-bottom: 1.5rem;
+}
+
+.badge {
+  @apply flex flex-col items-center gap-2 bento-cell;
+}
+
+.badge__icon-wrap {
+  @apply relative flex items-center justify-center w-14 h-14 rounded-2xl;
+}
+
+.badge--earned .badge__icon-wrap {
+  @apply bg-brand-gradient;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.badge--locked .badge__icon-wrap {
+  @apply bg-ink-faint;
+}
+
+.badge--locked {
+  @apply opacity-60;
+}
+
+.badge__icon {
+  @apply text-2xl;
+}
+
+.badge__name {
+  @apply text-xs font-semibold font-sans text-ink-medium text-center leading-tight;
+}
+
+/* --- STREAK CALENDAR (GitHub heatmap) --- */
+.streak-calendar {
+  @apply card p-4;
+  margin: 0 var(--page-padding-x) 1.5rem;
+}
+
+.streak-calendar__grid {
+  @apply flex gap-1 overflow-x-auto scroll-hide;
+}
+
+.streak-calendar__col {
+  @apply flex flex-col gap-1;
+}
+
+.streak-calendar__cell {
+  @apply w-4 h-4 rounded-sm;
+  transition: transform var(--duration-fast) ease;
+  cursor: default;
+}
+
+.streak-calendar__cell--0 { background-color: var(--color-ink-faint); }
+.streak-calendar__cell--1 { background-color: #FEE2E2; }
+.streak-calendar__cell--2 { background-color: #FCA5A5; }
+.streak-calendar__cell--3 { background-color: var(--color-brand-light); }
+.streak-calendar__cell--4 { background-color: var(--color-brand); }
+
+/* --- SETTINGS ROWS --- */
+.settings-group {
+  @apply card overflow-hidden;
+  margin: 0 var(--page-padding-x) 1rem;
+}
+
+.settings-row {
+  @apply flex items-center justify-between px-4 py-3.5 cursor-pointer
+         transition-colors duration-150 hover:bg-surface-hover;
+}
+
+.settings-row:not(:last-child) {
+  @apply border-b border-ink-faint;
+}
+
+.settings-row__left {
+  @apply flex items-center gap-3;
+}
+
+.settings-row__icon {
+  @apply w-9 h-9 rounded-xl flex items-center justify-center;
+}
+
+.settings-row__label {
+  @apply font-sans font-medium text-ink text-sm;
+}
+
+.settings-row__value {
+  @apply text-sm text-ink-muted font-sans;
+}
+
+.settings-row--danger .settings-row__label {
+  color: var(--color-brand);
+}

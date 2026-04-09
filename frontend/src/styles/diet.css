@@ -1,0 +1,126 @@
+/* =============================================================
+   Diet / Nutrition Page Styles
+   ============================================================= */
+
+/* --- CALORIE SUMMARY BAR --- */
+.calorie-bar {
+  @apply card mx-4 p-5 mb-4;
+}
+
+.calorie-bar__header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.calorie-bar__title {
+  @apply section-title text-xl;
+}
+
+.calorie-bar__total {
+  @apply font-headline font-bold text-brand text-2xl;
+}
+
+.calorie-bar__track {
+  @apply w-full h-3 rounded-full bg-ink-faint overflow-hidden mb-2;
+}
+
+.calorie-bar__fill {
+  @apply h-full rounded-full transition-all duration-700;
+  background: linear-gradient(90deg, var(--color-brand) 0%, var(--color-energy) 100%);
+}
+
+.calorie-bar__labels {
+  @apply flex justify-between text-xs text-ink-muted font-sans;
+}
+
+/* --- MACRO RINGS GRID --- */
+.macro-grid {
+  @apply grid grid-cols-3 gap-3;
+  padding: 0 var(--page-padding-x);
+  margin-bottom: 1.5rem;
+}
+
+.macro-ring-card {
+  @apply bento-cell items-center;
+}
+
+/* SVG ring wrapper */
+.macro-ring__svg-wrap {
+  @apply relative flex items-center justify-center w-16 h-16 mb-2;
+}
+
+.macro-ring__svg {
+  @apply w-full h-full;
+  transform: rotate(-90deg);
+}
+
+.macro-ring__track {
+  fill: none;
+  stroke: var(--color-ink-faint);
+  stroke-width: 6;
+}
+
+.macro-ring__fill {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s var(--ease-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.macro-ring__fill--protein { stroke: var(--color-brand); }
+.macro-ring__fill--carbs   { stroke: var(--color-energy); }
+.macro-ring__fill--fat     { stroke: var(--color-cta); }
+
+.macro-ring__center {
+  @apply absolute flex flex-col items-center justify-center;
+}
+
+.macro-ring__value {
+  @apply font-headline font-bold text-sm text-ink-strong leading-none;
+}
+
+.macro-ring__unit {
+  @apply text-xs text-ink-muted font-sans;
+}
+
+.macro-ring__name {
+  @apply text-xs font-semibold font-sans text-ink-medium text-center;
+}
+
+/* --- MEAL CARDS --- */
+.meal-list {
+  @apply flex flex-col gap-3;
+  padding: 0 var(--page-padding-x);
+}
+
+.meal-card {
+  @apply card-interactive flex items-center gap-4 p-4;
+}
+
+.meal-card__icon {
+  @apply w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl;
+  background-color: var(--color-brand-muted);
+}
+
+.meal-card__info {
+  @apply flex-1 min-w-0;
+}
+
+.meal-card__name {
+  @apply font-headline font-semibold text-base text-ink-strong truncate;
+}
+
+.meal-card__meta {
+  @apply text-xs text-ink-muted font-sans mt-0.5;
+}
+
+.meal-card__cal {
+  @apply font-headline font-bold text-brand text-lg flex-shrink-0;
+}
+
+/* --- ADD MEAL FAB --- */
+.meal-fab {
+  @apply fixed right-5 z-30 flex items-center justify-center w-14 h-14 rounded-2xl
+         bg-brand-gradient text-white shadow-brand-lg cursor-pointer
+         active:scale-90 hover:shadow-brand transition-all duration-200;
+  bottom: calc(var(--nav-height) + 1.25rem);
+}

@@ -4,9 +4,9 @@ const Equipment = require('../models/Equipment');
 exports.getAllEquipment = async (req, res) => {
     try {
         const equipment = await Equipment.find().sort({ createdAt: -1 });
-        res.json(equipment);
+        res.json({ success: true, data: equipment });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 
@@ -14,10 +14,10 @@ exports.getAllEquipment = async (req, res) => {
 exports.getEquipmentById = async (req, res) => {
     try {
         const equipment = await Equipment.findById(req.params.id);
-        if (!equipment) return res.status(404).json({ error: 'Equipment not found' });
-        res.json(equipment);
+        if (!equipment) return res.status(404).json({ success: false, error: 'Equipment not found' });
+        res.json({ success: true, data: equipment });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };
 
@@ -25,9 +25,9 @@ exports.getEquipmentById = async (req, res) => {
 exports.createEquipment = async (req, res) => {
     try {
         const equipment = await Equipment.create(req.body);
-        res.status(201).json(equipment);
+        res.status(201).json({ success: true, data: equipment });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(400).json({ success: false, error: err.message });
     }
 };
 
@@ -35,10 +35,10 @@ exports.createEquipment = async (req, res) => {
 exports.updateEquipment = async (req, res) => {
     try {
         const equipment = await Equipment.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-        if (!equipment) return res.status(404).json({ error: 'Equipment not found' });
-        res.json(equipment);
+        if (!equipment) return res.status(404).json({ success: false, error: 'Equipment not found' });
+        res.json({ success: true, data: equipment });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(400).json({ success: false, error: err.message });
     }
 };
 
@@ -46,9 +46,9 @@ exports.updateEquipment = async (req, res) => {
 exports.deleteEquipment = async (req, res) => {
     try {
         const equipment = await Equipment.findByIdAndDelete(req.params.id);
-        if (!equipment) return res.status(404).json({ error: 'Equipment not found' });
-        res.json({ message: 'Equipment deleted successfully' });
+        if (!equipment) return res.status(404).json({ success: false, error: 'Equipment not found' });
+        res.json({ success: true, message: 'Equipment deleted successfully' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, error: err.message });
     }
 };

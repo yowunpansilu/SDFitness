@@ -1,0 +1,45 @@
+/* =============================================================
+   Layout Styles — AppShell, Page Wrapper
+   ============================================================= */
+
+.app-shell {
+  @apply relative flex flex-col;
+  min-height: 100dvh;
+  background-color: var(--color-surface-bg);
+}
+
+/* Main scrollable page area — accounts for bottom nav */
+.page-content {
+  @apply flex-1 overflow-y-auto overflow-x-hidden;
+  padding-bottom: var(--nav-height);
+  scroll-behavior: smooth;
+}
+
+/* Standard page padding */
+.page-inner {
+  padding-left: var(--page-padding-x);
+  padding-right: var(--page-padding-x);
+  padding-top: var(--page-padding-top);
+}
+
+/* Page header (sticky) */
+.page-header {
+  @apply sticky top-0 z-30 flex items-center justify-between;
+  padding: 1rem var(--page-padding-x);
+  background-color: rgba(254, 242, 242, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* --- ANIMATED PAGE TRANSITIONS --- */
+.page-enter {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--duration-normal) ease-out,
+              transform var(--duration-normal) var(--ease-spring);
+}

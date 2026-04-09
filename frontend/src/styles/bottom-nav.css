@@ -1,0 +1,81 @@
+/* =============================================================
+   Bottom Navigation Styles — Uber-style
+   ============================================================= */
+
+.bottom-nav {
+  @apply fixed bottom-0 left-0 right-0 z-40 flex items-center;
+  height: var(--nav-bar-height);
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--tw-shadow, 0 -1px 20px rgba(31, 41, 55, 0.08));
+  border-top: 1px solid rgba(229, 231, 235, 0.6);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.bottom-nav__list {
+  @apply flex items-center w-full h-full;
+  list-style: none;
+}
+
+.bottom-nav__item {
+  @apply flex-1;
+}
+
+.bottom-nav__btn {
+  @apply flex flex-col items-center justify-center gap-1 w-full h-full cursor-pointer
+         transition-transform duration-150 active:scale-90 select-none;
+  background: transparent;
+  border: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav__icon {
+  @apply flex items-center justify-center w-6 h-6 rounded-xl transition-all duration-200;
+}
+
+/* Active state: icon gets brand background pill */
+.bottom-nav__btn--active .bottom-nav__icon {
+  @apply bg-brand-muted;
+}
+
+.bottom-nav__btn--active .bottom-nav__icon svg {
+  color: var(--color-brand);
+}
+
+.bottom-nav__btn:not(.bottom-nav__btn--active) .bottom-nav__icon svg {
+  color: var(--color-ink-subtle);
+}
+
+.bottom-nav__label {
+  @apply text-xs font-medium transition-all duration-200;
+  font-family: var(--font-sans, 'Barlow', sans-serif);
+}
+
+.bottom-nav__btn--active .bottom-nav__label {
+  color: var(--color-brand);
+  font-weight: 600;
+}
+
+.bottom-nav__btn:not(.bottom-nav__btn--active) .bottom-nav__label {
+  color: var(--color-ink-subtle);
+}
+
+/* Center "action" button (start workout) */
+.bottom-nav__action {
+  @apply flex flex-col items-center justify-center cursor-pointer select-none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav__action-btn {
+  @apply flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-gradient
+         text-white shadow-brand transition-all duration-200 active:scale-90 hover:shadow-brand-lg;
+  margin-top: -20px; /* Lift above the nav bar */
+  border: 3px solid var(--color-surface-bg);
+}
+
+.bottom-nav__action-label {
+  @apply text-xs font-semibold mt-0.5;
+  color: var(--color-ink-muted);
+}

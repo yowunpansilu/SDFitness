@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import api from '../api/axios';
+import { AxiosError } from 'axios';
 
 export interface User {
     id: string;
@@ -14,9 +15,9 @@ export interface User {
 }
 
 export interface Member {
-    _id: string;
+    _id?: string;
     memberNumber?: string;
-    userId: string;
+    userId?: string;
     dateOfBirth?: string | Date;
     gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
     height?: { value: number; unit: string };
@@ -48,10 +49,10 @@ interface AuthState {
     member: Member | null;
     token: string | null;
     isAuthenticated: boolean;
-    login: (user: User, token: string, member?: any) => void;
+    login: (user: User, token: string, member?: Member) => void;
     logout: () => void;
     updateUser: (user: Partial<User>) => void;
-    updateMember: (member: any) => void;
+    updateMember: (member: Partial<Member>) => void;
     fetchProfile: () => Promise<void>;
 }
 
@@ -62,30 +63,31 @@ export const useAuthStore = create<AuthState>()(
             member: null,
             token: null,
             isAuthenticated: false,
-            login: (user, token, member) => set({ user, token, member, isAuthenticated: true }),
+            login: (user: User, token: string, member?: Member) => set({ user, token, member, isAuthenticated: true }),
             logout: () => set({ user: null, token: null, member: null, isAuthenticated: false }),
-            updateUser: (userData) =>
-                set((state) => ({
+            updateUser: (userData: Partial<User>) =>
+                set((state: AuthState) => ({
                     user: state.user ? { ...state.user, ...userData } : null,
                 })),
-            updateMember: (memberData) =>
-                set((state) => ({
-                    member: state.member ? { ...state.member, ...memberData } : memberData,
+            updateMember: (memberData: Partial<Member>) =>
+                set((state: AuthState) => ({
+                    member: state.member ? { ...state.member, ...memberData } : memberData as Member,
                 })),
             fetchProfile: async () => {
-                const { token } = (get as any)();
+                const { token } = get();
                 if (!token) return;
 
                 try {
-                    const response = await api.get('/auth/profile');
+                    const response = await api.get<{ success: boolean; user: User; member: Member }>('/auth/profile');
                     if (response.data.success) {
                         const { user, member } = response.data;
                         set({ user, member, isAuthenticated: true });
                         console.log('✅ Profile synced');
                     }
-                } catch (error: any) {
-                    console.error('❌ Profile sync failed:', error.message);
-                    if (error.response?.status === 401) {
+                } catch (error) {
+                    const axiosError = error as AxiosError;
+                    console.error('❌ Profile sync failed:', axiosError.message);
+                    if (axiosError.response?.status === 401) {
                         set({ user: null, member: null, token: null, isAuthenticated: false });
                     }
                 }

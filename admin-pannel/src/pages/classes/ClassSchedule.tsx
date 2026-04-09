@@ -49,6 +49,7 @@ export function ClassSchedule() {
       try {
         setIsLoading(true);
         const response = await api.get('/classes');
+        const rawClasses = response.data && response.data.success ? response.data.data : (Array.isArray(response.data) ? response.data : []);
         
         // Map backend data to frontend ClassSession interface
         const dayMap: Record<string, number> = {
@@ -56,7 +57,7 @@ export function ClassSchedule() {
           'Thursday': 4, 'Friday': 5, 'Saturday': 6
         };
 
-        const mappedClasses: ClassSession[] = response.data.map((c: any) => ({
+        const mappedClasses: ClassSession[] = rawClasses.map((c: any) => ({
           id: c._id,
           name: c.name,
           trainer: {
@@ -70,7 +71,7 @@ export function ClassSchedule() {
           enrolled: c.enrolled || 0,
           location: c.location || 'Studio A',
           type: (c.type?.toLowerCase() || 'cardio') as ClassSession['type'],
-          day: dayMap[c.schedule?.dayOfWeek] || 0
+          day: dayMap[c.schedule?.dayOfWeek as keyof typeof dayMap] || 0
         }));
 
         setClasses(mappedClasses);

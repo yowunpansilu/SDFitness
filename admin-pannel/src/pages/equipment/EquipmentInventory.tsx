@@ -83,7 +83,11 @@ export function EquipmentInventory() {
     const fetchEquipment = async () => {
       try {
         const response = await api.get('/api/equipment');
-        setEquipment(response.data);
+        if (response.data && response.data.success) {
+          setEquipment(response.data.data);
+        } else {
+          setEquipment(Array.isArray(response.data) ? response.data : []);
+        }
       } catch (error) {
         console.error('Error fetching equipment:', error);
       } finally {

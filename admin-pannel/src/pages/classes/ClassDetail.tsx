@@ -30,7 +30,11 @@ export function ClassDetail() {
       try {
         setIsLoading(true);
         const response = await api.get(`/classes/${id}`);
-        setGymClass(response.data);
+        if (response.data && response.data.success) {
+          setGymClass(response.data.data);
+        } else {
+          setGymClass(response.data);
+        }
       } catch (error) {
         console.error('Error fetching class details:', error);
       } finally {

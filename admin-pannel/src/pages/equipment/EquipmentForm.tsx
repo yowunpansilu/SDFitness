@@ -91,9 +91,15 @@ export function EquipmentForm() {
       const fetchEquipment = async () => {
         try {
           const response = await api.get(`/api/equipment/${id}`);
-          const data = response.data;
-          reset(data);
-          if (data.specifications) setSpecifications(data.specifications);
+          if (response.data && response.data.success) {
+            const data = response.data.data;
+            reset(data);
+            if (data.specifications) setSpecifications(data.specifications);
+          } else {
+            const data = response.data;
+            reset(data);
+            if (data.specifications) setSpecifications(data.specifications);
+          }
         } catch (error) {
           console.error('Error fetching equipment:', error);
           toast({
@@ -123,11 +129,11 @@ export function EquipmentForm() {
       });
 
       navigate('/equipment');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving equipment:', error);
       toast({
         title: 'Error',
-        description: 'Failed to save equipment record',
+        description: error.response?.data?.error || 'Failed to save equipment record',
         variant: 'destructive',
       });
     } finally {

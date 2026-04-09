@@ -1,0 +1,125 @@
+/* =============================================================
+   3D Elements Styles — Pure CSS 3D, no external deps
+   ============================================================= */
+
+/* -------------------------------
+   FITNESS ORB — animated 3D sphere
+   ------------------------------- */
+.fitness-orb {
+  @apply relative flex items-center justify-center;
+  perspective: 600px;
+}
+
+.fitness-orb__sphere {
+  @apply relative flex items-center justify-center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  animation: orb-float 4s ease-in-out infinite;
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(255, 255, 255, 0.6),
+    var(--color-brand) 30%,
+    var(--color-brand-dark) 70%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  box-shadow:
+    0 0 40px rgba(220, 38, 38, 0.4),
+    inset -8px -8px 24px rgba(0, 0, 0, 0.25),
+    inset 4px 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* Inner ring */
+.fitness-orb__ring {
+  @apply absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px solid rgba(220, 38, 38, 0.25);
+  animation: orb-ring 6s linear infinite;
+}
+
+.fitness-orb__ring--2 {
+  width: 168px;
+  height: 168px;
+  border-color: rgba(220, 38, 38, 0.12);
+  animation-duration: 9s;
+  animation-direction: reverse;
+}
+
+/* Lightning bolt icon inside orb */
+.fitness-orb__icon {
+  @apply relative z-10 text-white;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Reflection highlight */
+.fitness-orb__sphere::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 35%;
+  height: 25%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  filter: blur(6px);
+  transform: rotate(-20deg);
+}
+
+/* Shadow beneath orb */
+.fitness-orb__shadow {
+  @apply absolute;
+  bottom: -16px;
+  width: 80px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(220, 38, 38, 0.25) 0%, transparent 70%);
+  animation: orb-shadow 4s ease-in-out infinite;
+}
+
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0) rotateY(0deg); }
+  25%  { transform: translateY(-8px) rotateY(5deg); }
+  75%  { transform: translateY(-4px) rotateY(-5deg); }
+}
+
+@keyframes orb-ring {
+  0%   { transform: rotate(0deg) rotateX(60deg); }
+  100% { transform: rotate(360deg) rotateX(60deg); }
+}
+
+@keyframes orb-shadow {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50%       { transform: scale(0.85); opacity: 0.4; }
+}
+
+/* -------------------------------
+   ENERGY PULSE INDICATOR
+   ------------------------------- */
+.pulse-indicator {
+  @apply relative flex items-center justify-center;
+}
+
+.pulse-indicator__core {
+  @apply relative z-10 w-3 h-3 rounded-full bg-cta;
+}
+
+.pulse-indicator::before,
+.pulse-indicator::after {
+  content: '';
+  @apply absolute rounded-full bg-cta;
+  width: 100%;
+  height: 100%;
+  animation: pulse-expand 2s ease-out infinite;
+}
+
+.pulse-indicator::after {
+  animation-delay: 0.8s;
+}
+
+@keyframes pulse-expand {
+  0%   { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}

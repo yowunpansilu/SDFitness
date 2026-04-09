@@ -1,0 +1,61 @@
+/* =============================================================
+   Shared UI Components Styles
+   ============================================================= */
+
+/* --- TAG CHIPS --- */
+.tag-chip {
+  @apply inline-flex items-center justify-center px-2 py-1 rounded-md text-[10px] font-bold font-sans uppercase tracking-wider leading-none;
+}
+
+.tag-chip--brand {
+  @apply bg-brand-light text-brand-dark;
+}
+
+.tag-chip--energy {
+  @apply bg-[#FEF3C7] text-[#D97706];
+}
+
+.tag-chip--neutral {
+  @apply bg-ink-faint text-ink-medium;
+}
+
+/* --- PROGRESS BARS --- */
+.progress-bar-wrap {
+  @apply w-full h-2 rounded-full overflow-hidden;
+  background-color: var(--color-ink-faint);
+}
+
+.progress-bar-fill {
+  @apply h-full rounded-full transition-all;
+  transition-duration: 0.6s;
+  transition-timing-function: var(--ease-spring);
+}
+
+.progress-bar-fill--brand {
+  background: linear-gradient(90deg, var(--color-brand) 0%, var(--color-brand-dark) 100%);
+}
+
+.progress-bar-fill--energy {
+  background: linear-gradient(90deg, var(--color-energy) 0%, #D97706 100%);
+}
+
+/* --- SECURE AVATAR --- */
+.avatar-wrap {
+  @apply relative inline-flex items-center justify-center rounded-full overflow-hidden flex-shrink-0;
+  background-color: var(--color-surface-hover);
+}
+
+.avatar-image {
+  @apply w-full h-full object-cover;
+}
+
+.avatar-fallback {
+  @apply font-headline font-bold text-ink-muted;
+}
+
+.avatar-status-ring {
+  @apply absolute inset-0 rounded-full border-2 border-white;
+}
+
+.avatar-status-ring--online { border-color: var(--color-brand); }
+.avatar-status-ring--offline { border-color: var(--color-ink-faint); }

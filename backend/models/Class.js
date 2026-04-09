@@ -19,6 +19,15 @@ const classSchema = new mongoose.Schema({
     capacity: { type: Number, default: 20 },
     enrolled: { type: Number, default: 0 },
     price: { type: Number, default: 0 }
-}, { timestamps: true });
+}, { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
+
+// Virtual for id to match frontend expectation
+classSchema.virtual('id').get(function() {
+    return this._id.toHexString();
+});
 
 module.exports = mongoose.model('Class', classSchema);

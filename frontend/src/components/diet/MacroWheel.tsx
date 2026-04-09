@@ -74,7 +74,7 @@ export function MacroWheel({ protein, carbs, fats }: MacroWheelProps) {
                         <Cell fill={ringData[0].bg} />
                         <Label
                             content={({ viewBox }) => {
-                                const { cx, cy } = viewBox as any;
+                                const { cx, cy } = viewBox as { cx: number; cy: number };
                                 return (
                                     <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
                                         <tspan x={cx} dy="-0.5em" className="text-xl font-black fill-primary-900">

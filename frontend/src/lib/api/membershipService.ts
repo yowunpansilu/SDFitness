@@ -43,12 +43,12 @@ export interface UsageStats {
 export const getPlans = async (): Promise<MembershipPlan[]> => {
     try {
         const response = await api.get('/membership/plans');
-        return (response.data || []).map((plan: any) => ({
+        return (response.data || []).map((plan: { _id: string; name: PlanTier; price: number; features?: string[] }) => ({
             id: plan._id,
             name: plan.name,
             description: `${plan.name} access to gym facilities.`,
             monthlyPrice: plan.price,
-            yearlyPrice: plan.price * 10, // Simulating 2 months free for yearly
+            yearlyPrice: plan.price * 10,
             features: plan.features || [],
             popular: plan.name === 'Standard',
             color: plan.name === 'Basic' ? 'bg-slate-500' : (plan.name === 'Premium' ? 'bg-amber-500' : 'bg-primary/80'),
@@ -65,7 +65,7 @@ export const getCurrentMembership = async (): Promise<UserMembership> => {
         const response = await api.get('/membership/subscriptions');
         const subs = response.data || [];
         // Find the most relevant subscription (active, or just the latest one)
-        const activeSub = subs.find((s: any) => s.status === 'active' || s.status === 'frozen') || subs[0];
+        const activeSub = subs.find((s: { status: string }) => s.status === 'active' || s.status === 'frozen') || subs[0];
         
         if (!activeSub) return null as any;
 
@@ -97,7 +97,7 @@ export const getUsageStats = async (): Promise<UsageStats> => {
         // Fetching bookings for class count
         const classesResponse = await api.get('/classes');
         const classes = classesResponse.data || [];
-        const enrolledClasses = classes.filter((c: any) => c.enrolled > 0).length;
+        const enrolledClasses = classes.filter((c: { enrolled: number }) => c.enrolled > 0).length;
 
         return {
             checkInsThisMonth: attendance.length,

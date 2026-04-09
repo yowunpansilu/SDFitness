@@ -37,7 +37,7 @@ export const getPaymentMethods = async (): Promise<PaymentMethod[]> => {
 
     try {
         const response = await api.get(`/membership/payment-methods/${userId}`);
-        return response.data.map((m: any) => ({
+        return response.data.map((m: PaymentMethod & { _id?: string }) => ({
             ...m,
             id: m._id || m.id
         }));
@@ -56,9 +56,9 @@ export const getTransactions = async (): Promise<Transaction[]> => {
         });
         const subscriptions = response.data;
         
-        return subscriptions.map((sub: any) => ({
+        return subscriptions.map((sub: { _id: string; startDate?: string; createdAt?: string; plan?: { price: number; name: string }; status: string }) => ({
             id: sub._id,
-            date: sub.startDate || sub.createdAt,
+            date: sub.startDate || sub.createdAt || '',
             amount: sub.plan?.price || 0,
             description: `${sub.plan?.name || 'Membership'} Subscription`,
             status: sub.status === 'active' ? 'paid' : 'failed',

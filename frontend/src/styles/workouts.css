@@ -1,0 +1,129 @@
+/* =============================================================
+   Workouts / Discover Page Styles
+   ============================================================= */
+
+/* --- HORIZONTAL SCROLL TRACK --- */
+.workout-track {
+  @apply overflow-x-auto scroll-hide;
+  padding: 0 var(--page-padding-x);
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.workout-track__inner {
+  @apply inline-flex gap-4;
+  padding-right: var(--page-padding-x);
+}
+
+/* --- WORKOUT CARD --- */
+.workout-card {
+  @apply relative flex flex-col rounded-2xl overflow-hidden cursor-pointer;
+  width: 240px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  transition: transform var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+}
+
+.workout-card:active { transform: scale(0.97); }
+
+.workout-card__image {
+  @apply w-full object-cover;
+  height: 160px;
+  background: linear-gradient(135deg, var(--color-brand-muted) 0%, var(--color-energy-muted) 100%);
+}
+
+.workout-card__body {
+  @apply bg-white p-4 flex flex-col gap-2;
+  border: 1px solid var(--color-ink-faint);
+  border-top: none;
+  border-radius: 0 0 1rem 1rem;
+}
+
+.workout-card__tags {
+  @apply flex flex-wrap gap-1.5;
+}
+
+.workout-card__name {
+  @apply font-headline font-bold text-lg text-ink-strong leading-tight;
+}
+
+.workout-card__meta {
+  @apply flex items-center gap-3 text-xs text-ink-muted font-sans;
+}
+
+.workout-card__meta-item {
+  @apply flex items-center gap-1;
+}
+
+/* Difficulty bar */
+.difficulty-bar {
+  @apply flex items-center gap-1 mt-1;
+}
+
+.difficulty-bar__segment {
+  @apply flex-1 h-1 rounded-full;
+  background-color: var(--color-ink-faint);
+  transition: background-color var(--duration-normal) ease;
+}
+
+.difficulty-bar__segment--active {
+  background-color: var(--color-brand);
+}
+
+.difficulty-bar__segment--active.hard {
+  background-color: var(--color-brand-dark);
+}
+
+/* Favorite/bookmark pill */
+.workout-card__fav {
+  @apply absolute top-3 right-3 w-8 h-8 rounded-xl bg-white/80 flex items-center justify-center
+         cursor-pointer active:scale-90 transition-all duration-150;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* --- CATEGORY FILTER PILLS --- */
+.filter-pills {
+  @apply flex gap-2 overflow-x-auto scroll-hide pb-1;
+  padding-left: var(--page-padding-x);
+  padding-right: var(--page-padding-x);
+  margin-bottom: 0.75rem;
+}
+
+.filter-pill {
+  @apply flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold font-sans
+         border border-ink-faint transition-all duration-150 cursor-pointer active:scale-95;
+  background: white;
+  color: var(--color-ink-muted);
+}
+
+.filter-pill--active {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: white;
+}
+
+/* --- FEATURED / WIDE CARD --- */
+.workout-featured {
+  @apply relative rounded-3xl overflow-hidden cursor-pointer;
+  margin: 0 var(--page-padding-x) 1.5rem;
+  height: 200px;
+  background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+}
+
+.workout-featured__overlay {
+  @apply absolute inset-0 flex flex-col justify-end p-5;
+  background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.7) 100%);
+}
+
+.workout-featured__badge {
+  @apply tag-brand mb-2 self-start;
+}
+
+.workout-featured__title {
+  @apply font-headline font-bold text-white text-2xl leading-tight;
+}
+
+.workout-featured__meta {
+  @apply flex items-center gap-3 text-white/70 text-sm font-sans mt-1;
+}

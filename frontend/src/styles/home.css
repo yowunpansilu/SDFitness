@@ -1,0 +1,155 @@
+/* =============================================================
+   Home / Action Center Page Styles
+   ============================================================= */
+
+/* --- GREETING HERO SECTION --- */
+.home-greeting {
+  @apply pt-4 pb-6;
+  padding-left: var(--page-padding-x);
+  padding-right: var(--page-padding-x);
+}
+
+.home-greeting__meta {
+  @apply flex items-center gap-2 text-sm text-ink-muted font-sans mb-1;
+}
+
+.home-greeting__name {
+  @apply font-headline font-bold text-4xl text-ink-strong;
+  letter-spacing: -0.02em;
+}
+
+.home-greeting__sub {
+  @apply text-ink-muted font-sans text-base mt-1;
+}
+
+/* 3D orb area */
+.home-3d-wrap {
+  @apply relative flex items-center justify-center h-40 my-4;
+  perspective: 800px;
+}
+
+/* --- BENTO GRID --- */
+.bento-grid {
+  @apply grid grid-cols-2 gap-3;
+  padding: 0 var(--page-padding-x);
+  margin-bottom: 1.5rem;
+}
+
+.bento-cell--wide {
+  @apply col-span-2;
+}
+
+.bento-cell__icon {
+  @apply flex items-center justify-center w-9 h-9 rounded-xl mb-2;
+}
+
+.bento-cell__value {
+  @apply font-headline font-bold text-2xl text-ink-strong leading-none;
+}
+
+.bento-cell__unit {
+  @apply text-sm font-sans text-ink-muted ml-1;
+}
+
+.bento-cell__label {
+  @apply text-xs font-sans text-ink-muted uppercase tracking-wider mt-1;
+}
+
+/* Progress bar inside bento cell */
+.bento-cell__progress {
+  @apply w-full h-1.5 rounded-full bg-ink-faint mt-3 overflow-hidden;
+}
+
+.bento-cell__progress-fill {
+  @apply h-full rounded-full transition-all duration-500;
+  background: var(--color-brand);
+}
+
+/* --- QUICK START CARD --- */
+.quick-start {
+  @apply mx-4 mb-6 rounded-3xl overflow-hidden relative;
+  background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-dark) 100%);
+  box-shadow: 0 8px 32px rgba(220, 38, 38, 0.35);
+}
+
+.quick-start__inner {
+  @apply flex items-center justify-between p-6;
+}
+
+.quick-start__text {
+  @apply flex flex-col gap-1;
+}
+
+.quick-start__label {
+  @apply text-red-200 text-xs font-sans font-semibold uppercase tracking-widest;
+}
+
+.quick-start__title {
+  @apply font-headline font-bold text-white text-2xl leading-tight;
+}
+
+.quick-start__meta {
+  @apply text-red-200 text-sm font-sans mt-1;
+}
+
+.quick-start__btn {
+  @apply flex items-center justify-center w-14 h-14 rounded-2xl bg-white/20 text-white
+         cursor-pointer active:scale-90 hover:bg-white/30 transition-all duration-200;
+  backdrop-filter: blur(8px);
+  flex-shrink: 0;
+}
+
+/* Decorative bg shape */
+.quick-start::before {
+  content: '';
+  position: absolute;
+  right: -20px;
+  top: -20px;
+  width: 160px;
+  height: 160px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 50%;
+}
+
+/* --- RECENT SECTION --- */
+.home-section {
+  padding: 0 var(--page-padding-x);
+  margin-bottom: 1.5rem;
+}
+
+.home-section__header {
+  @apply flex items-center justify-between mb-3;
+}
+
+.home-section__see-all {
+  @apply text-sm text-brand font-semibold font-sans cursor-pointer hover:text-brand-dark transition-colors duration-150;
+}
+
+/* Days of week streak row */
+.streak-row {
+  @apply flex items-center gap-1.5;
+}
+
+.streak-day {
+  @apply flex flex-col items-center gap-1 flex-1;
+}
+
+.streak-day__circle {
+  @apply w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold font-sans border-2 transition-all duration-200;
+}
+
+.streak-day--done .streak-day__circle {
+  @apply bg-cta border-cta text-white;
+}
+
+.streak-day--rest .streak-day__circle {
+  @apply bg-ink-faint border-ink-faint text-ink-muted;
+}
+
+.streak-day--today .streak-day__circle {
+  @apply bg-brand-muted border-brand text-brand;
+}
+
+.streak-day__label {
+  @apply text-xs text-ink-subtle font-sans;
+}

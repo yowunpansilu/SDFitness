@@ -1,0 +1,79 @@
+/* =============================================================
+   Auth Page Styles — Login, Register
+   ============================================================= */
+
+.auth-page {
+  @apply min-h-dvh flex flex-col;
+  background: linear-gradient(160deg, var(--color-surface-bg) 0%, #FFFFFF 70%);
+  padding: env(safe-area-inset-top, 0px) 0 0 0;
+}
+
+.auth-hero {
+  @apply flex flex-col items-center pt-16 pb-10 px-6;
+}
+
+.auth-logo {
+  @apply w-16 h-16 rounded-2xl bg-brand-gradient flex items-center justify-center text-white shadow-brand mb-6;
+}
+
+.auth-headline {
+  @apply font-headline font-bold text-3xl text-ink-strong text-center;
+  letter-spacing: -0.02em;
+}
+
+.auth-subline {
+  @apply text-base text-ink-muted text-center mt-2 font-sans;
+}
+
+/* Card that contains form */
+.auth-card {
+  @apply flex-1 bg-white rounded-t-3xl px-6 pt-8 pb-8;
+  box-shadow: 0 -4px 32px rgba(220, 38, 38, 0.07);
+  min-height: 0;
+}
+
+.auth-form {
+  @apply flex flex-col gap-4 max-w-sm mx-auto;
+}
+
+.auth-divider {
+  @apply flex items-center gap-3 my-2;
+}
+
+.auth-divider__line {
+  @apply flex-1 h-px bg-ink-faint;
+}
+
+.auth-divider__text {
+  @apply text-xs text-ink-subtle font-sans font-medium;
+}
+
+.auth-footer {
+  @apply flex items-center justify-center gap-1.5 mt-6 text-sm font-sans;
+}
+
+.auth-footer__text {
+  @apply text-ink-muted;
+}
+
+.auth-footer__link {
+  @apply text-brand font-semibold cursor-pointer hover:text-brand-dark transition-colors duration-150;
+}
+
+/* Password eye toggle */
+.input-password-wrap {
+  @apply relative;
+}
+
+.input-password-wrap .input-field {
+  @apply pr-12;
+}
+
+.input-eye-btn {
+  @apply absolute right-3 top-1/2 -translate-y-1/2 btn-icon w-8 h-8 text-ink-muted;
+}
+
+/* Error message */
+.field-error {
+  @apply text-xs text-brand font-sans mt-1;
+}

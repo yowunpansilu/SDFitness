@@ -1,4 +1,5 @@
-import { useMemberStats } from '../../hooks/queries/useMemberQueries';
+import { useMemberStats, useMemberProfile } from '../../hooks/queries/useMemberQueries';
+import { useMemberBadges } from '../../hooks/queries/useBadgeQueries';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { StatCard } from '../../components/progress/StatCard';
 import { ActivityChart } from '../../components/progress/ActivityChart';
@@ -6,8 +7,11 @@ import { BadgeGrid } from '../../components/progress/BadgeGrid';
 import { StreakCalendar } from '../../components/progress/StreakCalendar';
 
 export function ProgressPage() {
-  const { data: stats, isLoading, error } = useMemberStats();
+  const { data: stats, isLoading: isStatsLoading, error } = useMemberStats();
+  const { data: badges, isLoading: isBadgesLoading } = useMemberBadges();
   const { member } = useAuthStore();
+  
+  const isLoading = isStatsLoading || isBadgesLoading;
 
   if (error) {
     return (
@@ -39,14 +43,12 @@ export function ProgressPage() {
     { label: 'S', value: 0 },
   ];
 
-  const badges = [
-    { id: 1, name: 'First Workout', icon: '🎉', earned: (stats?.totalWorkouts || 0) > 0 },
-    { id: 2, name: '3 Day Streak', icon: '🔥', earned: (stats?.streakDays || 0) >= 3 },
-    { id: 3, name: '100 Kg Club', icon: '🏋️', earned: false },
-    { id: 4, name: 'Early Bird', icon: '🌅', earned: false },
-    { id: 5, name: 'Marathon', icon: '🏃', earned: (stats?.totalWorkouts || 0) >= 26 },
-    { id: 6, name: 'Iron Will', icon: '🛡️', earned: (stats?.streakDays || 0) >= 7 },
-  ];
+  const displayBadges = badges?.map(b => ({
+    id: b._id,
+    name: b.name,
+    icon: b.icon === 'Dumbbell' ? '🏋️' : b.icon === 'Flame' ? '🔥' : b.icon === 'Award' ? '🏆' : b.icon === 'Apple' ? '🍎' : '🎉',
+    earned: true
+  })) || [];
 
   return (
     <div className="pb-32 page-animate-in">
@@ -106,7 +108,7 @@ export function ProgressPage() {
       {/* Milestones / Badges (Externalized Component) */}
       <section className="mb-8">
         <h2 className="px-6 section-title">Recent Badges</h2>
-        <BadgeGrid badges={badges} isLoading={isLoading} />
+        <BadgeGrid badges={displayBadges} isLoading={isLoading} />
       </section>
     </div>
   );

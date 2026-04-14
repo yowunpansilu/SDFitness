@@ -2,12 +2,14 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, LogOut, Settings, Bell, Shield } from 'lucide-react';
 import { useAuthStore } from '../../lib/stores/authStore';
 import { useMemberStats } from '../../hooks/queries/useMemberQueries';
+import { useMemberBadges } from '../../hooks/queries/useBadgeQueries';
 import { AppAvatar } from '../../components/ui/AppAvatar';
 
 export function ProfilePage() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const { data: stats, isLoading: isStatsLoading } = useMemberStats();
+  const { data: badges } = useMemberBadges();
 
   const handleLogout = () => {
     logout();
@@ -16,7 +18,7 @@ export function ProfilePage() {
 
   const workoutsCount = stats?.totalWorkouts || 0;
   const caloriesBurned = stats?.burnedCalories || 0;
-  const badgesCount = 0; // TODO: Integrate with badges API when available
+  const badgesCount = badges?.length || 0;
 
   return (
     <div className="pb-32 page-animate-in bg-base min-h-screen">

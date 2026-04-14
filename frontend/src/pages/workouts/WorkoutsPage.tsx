@@ -3,11 +3,11 @@ import { useWorkoutTemplates } from '../../hooks/queries/useWorkoutQueries';
 import { WorkoutTrack } from '../../components/workouts/WorkoutTrack';
 import { ActiveWorkout } from '../../components/workouts/ActiveWorkout';
 import { Search, Filter, Loader2 } from 'lucide-react';
-import type { WorkoutItem } from '../../components/workouts/WorkoutTrack';
+import type { WorkoutTemplate } from '../../hooks/queries/useWorkoutQueries';
 
 export function WorkoutsPage() {
   const { data: templates, isLoading, error } = useWorkoutTemplates();
-  const [activeWorkout, setActiveWorkout] = useState<WorkoutItem | null>(null);
+  const [activeWorkout, setActiveWorkout] = useState<WorkoutTemplate | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   if (error) {
@@ -70,7 +70,10 @@ export function WorkoutsPage() {
                 image: t.image || 'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?q=80&w=600&auto=format&fit=crop'
               }))} 
               isLoading={isLoading} 
-              onWorkoutClick={setActiveWorkout}
+              onWorkoutClick={(w) => {
+                const template = templates?.find(t => t._id === w.id);
+                if (template) setActiveWorkout(template);
+              }}
             />
             <div className="h-8" />
             <WorkoutTrack 
@@ -85,7 +88,10 @@ export function WorkoutsPage() {
                 image: t.image || 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop'
               }))} 
               isLoading={isLoading} 
-              onWorkoutClick={setActiveWorkout}
+              onWorkoutClick={(w) => {
+                const template = templates?.find(t => t._id === w.id);
+                if (template) setActiveWorkout(template);
+              }}
             />
           </>
         )}

@@ -82,7 +82,7 @@ export function EquipmentInventory() {
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
-        const response = await api.get('/api/equipment');
+        const response = await api.get('/equipment');
         if (response.data && response.data.success) {
           setEquipment(response.data.data);
         } else {

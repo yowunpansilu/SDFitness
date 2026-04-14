@@ -14,12 +14,11 @@
 }
 
 .home-greeting__name {
-  @apply font-headline font-bold text-4xl text-ink-strong;
-  letter-spacing: -0.02em;
+  @apply font-headline font-black text-5xl text-ink-strong italic tracking-tighter uppercase leading-tight;
 }
 
 .home-greeting__sub {
-  @apply text-ink-muted font-sans text-base mt-1;
+  @apply text-brand font-black uppercase tracking-[0.2em] text-[10px] mt-2;
 }
 
 /* 3D orb area */
@@ -44,15 +43,15 @@
 }
 
 .bento-cell__value {
-  @apply font-headline font-bold text-2xl text-ink-strong leading-none;
+  @apply font-headline font-black text-4xl text-ink-strong leading-none italic;
 }
 
 .bento-cell__unit {
-  @apply text-sm font-sans text-ink-muted ml-1;
+  @apply text-[10px] font-black uppercase tracking-widest text-brand ml-1;
 }
 
 .bento-cell__label {
-  @apply text-xs font-sans text-ink-muted uppercase tracking-wider mt-1;
+  @apply text-[10px] font-black text-ink-muted uppercase tracking-[0.2em] mt-1;
 }
 
 /* Progress bar inside bento cell */
@@ -135,21 +134,21 @@
 }
 
 .streak-day__circle {
-  @apply w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold font-sans border-2 transition-all duration-200;
+  @apply w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-black border-2 transition-all duration-300;
 }
 
 .streak-day--done .streak-day__circle {
-  @apply bg-cta border-cta text-white;
+  @apply bg-cta border-white/10 text-white shadow-lg shadow-cta/20;
 }
 
 .streak-day--rest .streak-day__circle {
-  @apply bg-ink-faint border-ink-faint text-ink-muted;
+  @apply bg-zinc-900 border-white/5 text-ink-muted;
 }
 
 .streak-day--today .streak-day__circle {
-  @apply bg-brand-muted border-brand text-brand;
+  @apply bg-brand border-white/20 text-white shadow-lg shadow-brand/40 scale-110 rotate-3;
 }
 
 .streak-day__label {
-  @apply text-xs text-ink-subtle font-sans;
+  @apply text-[10px] font-black text-ink-muted uppercase tracking-widest mt-1;
 }

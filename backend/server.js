@@ -38,11 +38,14 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+const { errorHandler, notFound } = require('./middleware/errorMiddleware');
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/prices', require('./routes/priceRoutes'));
 app.use('/api/diet-plans', require('./routes/dietPlanRoutes'));
 app.use('/api/diet-plan', require('./routes/dietPlanRoutes'));
+app.use('/api/nutrition', require('./routes/nutritionRoutes'));
 app.use('/api/members', require('./routes/memberRoutes'));
 app.use('/api/member', require('./routes/memberRoutes'));
 app.use('/api/attendance', require('./routes/attendanceRoutes'));
@@ -56,18 +59,14 @@ app.use('/api/scraper', require('./routes/scraperRoutes'));
 app.use('/api/trainers', require('./routes/trainerRoutes'));
 app.use('/api/trainer', require('./routes/trainerRoutes'));
 app.use('/api/workouts', require('./routes/workoutRoutes'));
+app.use('/api/badges', require('./routes/badgeRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
-// Error handler
-app.use((err, req, res, next) => {
-    console.error('❌ Server Error:', err.message);
-    res.status(500).json({
-        success: false,
-        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error'
-    });
-});
+// Error handling
+app.use(notFound);
+app.use(errorHandler);
 
 // Start
 const PORT = process.env.PORT || 5000;

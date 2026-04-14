@@ -39,7 +39,7 @@ export function BentoGrid({ isLoading = false, stats }: BentoGridProps) {
 
       {/* Class Schedule Block */}
       <AppSkeleton name="bento-class" loading={isLoading}>
-        <div className="bento-cell bg-ink-faint">
+        <div className="bento-cell bg-zinc-900 border border-white/5">
           <div className="bento-cell__icon bg-white text-ink-medium shadow-sm">
             <CalendarClock size={20} strokeWidth={2.5} />
           </div>
@@ -53,10 +53,10 @@ export function BentoGrid({ isLoading = false, stats }: BentoGridProps) {
 
       {/* Streak Block (Wide) */}
       <AppSkeleton name="bento-streak" loading={isLoading}>
-        <div className="bento-cell bento-cell--wide flex-row items-center justify-between">
+        <div className="bento-cell bento-cell--wide flex-row items-center justify-between bg-zinc-900 border border-white/5 overflow-hidden">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-energy-light text-energy-dark flex items-center justify-center">
-              <Trophy size={24} strokeWidth={2.5} />
+            <div className="w-14 h-14 rounded-2xl bg-brand text-white flex items-center justify-center shadow-lg shadow-brand/40 rotate-3">
+              <Trophy size={28} strokeWidth={2.5} />
             </div>
             <div>
               <p className="bento-cell__label mt-0">Current Streak</p>

@@ -1,6 +1,7 @@
 const WorkoutTemplate = require('../models/WorkoutTemplate');
 const WorkoutLog = require('../models/WorkoutLog');
 const mongoose = require('mongoose');
+const { checkAchievements } = require('../services/achievementService');
 
 // GET all workout templates
 exports.getTemplates = async (req, res) => {
@@ -46,6 +47,9 @@ exports.logWorkout = async (req, res) => {
             success: true,
             data: workoutLog
         });
+
+        // Background check for badges
+        checkAchievements(memberId);
     } catch (err) {
         console.error('❌ LogWorkout Error:', err);
         res.status(400).json({ success: false, message: err.message });

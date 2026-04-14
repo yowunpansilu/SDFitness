@@ -14,12 +14,16 @@ interface SkeletonProps {
  * the exact pixel dimensions of the children when loading is false.
  */
 export function AppSkeleton({ name, loading, children }: SkeletonProps) {
-  // If boneyard doesn't find the bone, we can provide a fallback UI,
-  // or boneyard natively renders an empty block of equivalent flex layout.
-  return (
-    // @ts-expect-error boneyard-js types incorrectly expect HTMLCollection for children
-    <BoneyardSkeleton name={name} loading={loading}>
-      <div className="contents">{children}</div>
-    </BoneyardSkeleton>
-  );
+  // Safe rendering to prevent boneyard-js from crashing the app
+  try {
+    if (loading) {
+      return (
+        <div className="skeleton-base w-full h-full min-h-[100px] animate-pulse rounded-2xl bg-zinc-800/50" />
+      );
+    }
+    return <>{children}</>;
+  } catch (error) {
+    console.error(`Skeleton error [${name}]:`, error);
+    return <>{children}</>;
+  }
 }

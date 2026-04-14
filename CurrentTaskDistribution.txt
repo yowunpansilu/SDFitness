@@ -5,7 +5,6 @@ Withana -
 
 - [ ] Dashboard: components/dashboard/ActivityTimeline.tsx, StatsCard.tsx, UpcomingClasses.tsx — Dashboard widgets.
 - [ ] Profile: components/profile/GoalsTab.tsx, HealthMetricsTab.tsx, PersonalInfoTab.tsx, PreferencesTab.tsx — User profile management view.
-- [ ] pages/trainers/TrainerList.tsx & TrainerDetail.tsx & TrainerForm.tsx: CRUD pages for gym trainers.
 
 AIML Contribution - 
 Data Scrapers for data Gathering and Updating the price Database. 

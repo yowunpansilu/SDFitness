@@ -7,7 +7,7 @@
 ---
 
 **Project:** SDFitness
-**Generated:** 2026-04-06 12:34:14
+**Generated:** 2026-04-14 16:49:50
 **Category:** Fitness/Gym App
 
 ---
@@ -163,12 +163,10 @@
 
 ### Page Pattern
 
-**Pattern Name:** Horizontal Scroll Journey
+**Pattern Name:** Feature-Rich + Data
 
-- **Conversion Strategy:** Immersive product discovery. High engagement. Keep navigation visible.
-28,Bento Grid Showcase,bento
-- **CTA Placement:** Floating Sticky CTA or End of Horizontal Track
-- **Section Order:** 1. Intro (Vertical), 2. The Journey (Horizontal Track), 3. Detail Reveal, 4. Vertical Footer
+- **CTA Placement:** Above fold
+- **Section Order:** Hero > Features > CTA
 
 ---
 

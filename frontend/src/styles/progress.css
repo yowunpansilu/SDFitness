@@ -63,40 +63,77 @@
   outline: none;
 }
 
+/* --- STAT CARD --- */
+.stat-card {
+  @apply card p-5 flex flex-col gap-1 transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl hover:shadow-brand/20 hover:border-brand/40;
+}
+
+.stat-card__label {
+  @apply text-xs font-bold uppercase tracking-widest text-ink-muted;
+}
+
+.stat-card__value {
+  @apply text-3xl font-headline font-black text-ink-strong italic;
+}
+
+.stat-card__unit {
+  @apply text-sm font-bold text-ink-muted;
+}
+
+.stat-card__trend {
+  @apply flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase self-start mt-2;
+}
+
+.stat-card__trend--up {
+  @apply bg-green-500/10 text-green-600;
+}
+
+.stat-card__trend--down {
+  @apply bg-red-500/10 text-red-600;
+}
+
+.stat-card__trend--neutral {
+  @apply bg-zinc-500/10 text-zinc-500;
+}
+
 /* --- BADGE GRID --- */
 .badge-grid {
-  @apply grid grid-cols-3 gap-3;
+  @apply grid grid-cols-3 gap-4;
   padding: 0 var(--page-padding-x);
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .badge {
-  @apply flex flex-col items-center gap-2 bento-cell;
+  @apply flex flex-col items-center gap-3 p-4 rounded-3xl bg-white/5 border border-white/10 transition-all duration-300 hover:bg-brand/10 hover:border-brand/30 hover:-translate-y-1 hover:scale-105;
 }
 
 .badge__icon-wrap {
-  @apply relative flex items-center justify-center w-14 h-14 rounded-2xl;
+  @apply relative flex items-center justify-center w-16 h-16 rounded-2xl bg-zinc-900 border border-white/5 transition-transform;
+}
+
+.badge--earned {
+  @apply opacity-100;
 }
 
 .badge--earned .badge__icon-wrap {
-  @apply bg-brand-gradient;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  @apply bg-brand shadow-[0_0_25px_rgba(220,38,38,0.4)];
+  border-color: rgba(255,255,255,0.2);
 }
 
-.badge--locked .badge__icon-wrap {
-  @apply bg-ink-faint;
-}
-
-.badge--locked {
-  @apply opacity-60;
+.badge:hover .badge__icon-wrap {
+  @apply rotate-12 scale-110;
 }
 
 .badge__icon {
-  @apply text-2xl;
+  @apply text-3xl;
 }
 
 .badge__name {
-  @apply text-xs font-semibold font-sans text-ink-medium text-center leading-tight;
+  @apply text-[10px] font-black font-sans text-ink-muted uppercase tracking-[0.2em] text-center leading-tight;
+}
+
+.badge--earned .badge__name {
+  @apply text-white;
 }
 
 /* --- STREAK CALENDAR (GitHub heatmap) --- */

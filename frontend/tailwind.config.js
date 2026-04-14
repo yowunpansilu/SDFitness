@@ -134,6 +134,9 @@ export default {
                 'nav': '0 -1px 20px rgba(31, 41, 55, 0.08)',
                 'cta': '0 4px 20px rgba(22, 163, 74, 0.35)',
             },
+            transitionTimingFunction: {
+                'spring': 'cubic-bezier(0.16, 1, 0.3, 1)',
+            },
         },
     },
     plugins: [

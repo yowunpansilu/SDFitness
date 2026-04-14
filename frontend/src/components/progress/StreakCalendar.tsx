@@ -1,13 +1,22 @@
+import { useWorkoutHistory } from '../../hooks/queries/useWorkoutQueries';
+import { useAuthStore } from '@/lib/stores/authStore';
+
 interface StreakProps {
   isLoading?: boolean;
 }
 
-export function StreakCalendar({ isLoading = false }: StreakProps) {
-  // Generate mock heatmap data
-  const cols = Array.from({ length: 14 }).map(() => {
-    return Array.from({ length: 7 }).map(() => {
-      // Randomly assign weights (0-4) for github style contribution
-      return Math.floor(Math.random() * 5); 
+export function StreakCalendar({ isLoading: isSyncing = false }: StreakProps) {
+  const { data: history, isLoading: isHistoryLoading } = useWorkoutHistory();
+  const isLoading = isSyncing || isHistoryLoading;
+
+  // Generate real activity heatmap data
+  const workoutDates = new Set(history?.map((w: any) => new Date(w.workoutDate).toDateString()));
+  
+  const cols = Array.from({ length: 14 }).map((_, x) => {
+    return Array.from({ length: 7 }).map((_, y) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (13 - x) * 7 - (6 - y));
+      return workoutDates.has(date.toDateString()) ? 4 : 0; 
     });
   });
 

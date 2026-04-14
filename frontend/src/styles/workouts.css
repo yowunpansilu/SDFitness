@@ -127,3 +127,48 @@
 .workout-featured__meta {
   @apply flex items-center gap-3 text-white/70 text-sm font-sans mt-1;
 }
+/* --- ACTIVE WORKOUT SESSION MODAL --- */
+.active-workout-overlay {
+  @apply fixed inset-0 z-[100] bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-500;
+}
+
+.active-workout-overlay--open {
+  @apply opacity-100 pointer-events-auto;
+}
+
+.active-workout-sheet {
+  @apply fixed inset-0 z-[101] bg-zinc-950 flex flex-col translate-y-full transition-transform duration-500 ease-spring;
+}
+
+.active-workout-overlay--open .active-workout-sheet {
+  @apply translate-y-0;
+}
+
+.active-workout-header__overlay {
+  @apply absolute inset-0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 40%, rgba(9,9,11,1) 100%);
+}
+
+.active-workout-close {
+  @apply transition-transform duration-200 active:scale-90 hover:rotate-90;
+}
+
+/* Animations for session tracking */
+@keyframes pulse-brand {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+.animate-pulse-brand {
+  animation: pulse-brand 2s infinite;
+}
+
+/* No Scrollbar Utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

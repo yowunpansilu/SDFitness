@@ -74,24 +74,29 @@ export function ProfilePage() {
       <section className="mt-8 px-6">
         <h3 className="section-title mb-4 opacity-50">Account Settings</h3>
         <div className="settings-group space-y-2">
-          <div className="settings-row flex items-center justify-between p-4 bg-surface/20 rounded-2xl border border-white/5 hover:bg-surface/30 cursor-pointer transition-all">
+          {/* Edit Profile */}
+          <div onClick={() => navigate('/profile/edit')} className="settings-row flex items-center justify-between p-4 bg-surface/20 rounded-2xl border border-white/5 hover:bg-surface/30 cursor-pointer transition-all">
             <div className="settings-row__left flex items-center gap-3">
               <div className="settings-row__icon w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center"><Settings size={18} /></div>
-              <span className="settings-row__label font-medium text-white">Preferences</span>
+              <span className="settings-row__label font-medium text-white">Edit Profile</span>
             </div>
             <ChevronLeft size={16} className="text-ink-muted rotate-180" />
           </div>
-          <div className="settings-row flex items-center justify-between p-4 bg-surface/20 rounded-2xl border border-white/5 hover:bg-surface/30 cursor-pointer transition-all">
+
+          {/* Finances & Admission */}
+          <div onClick={() => navigate('/profile/payments')} className="settings-row flex items-center justify-between p-4 bg-surface/20 rounded-2xl border border-white/5 hover:bg-surface/30 cursor-pointer transition-all">
             <div className="settings-row__left flex items-center gap-3">
-              <div className="settings-row__icon w-10 h-10 rounded-xl bg-energy/10 text-energy flex items-center justify-center"><Bell size={18} /></div>
-              <span className="settings-row__label font-medium text-white">Notifications</span>
+              <div className="settings-row__icon w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center"><Shield size={18} /></div>
+              <span className="settings-row__label font-medium text-white">Payments & Admissions</span>
             </div>
             <ChevronLeft size={16} className="text-ink-muted rotate-180" />
           </div>
-          <div className="settings-row flex items-center justify-between p-4 bg-surface/20 rounded-2xl border border-white/5 hover:bg-surface/30 cursor-pointer transition-all">
+
+          {/* Messages & Communications */}
+          <div onClick={() => navigate('/profile/messages')} className="settings-row flex items-center justify-between p-4 bg-surface/20 rounded-2xl border border-white/5 hover:bg-surface/30 cursor-pointer transition-all">
             <div className="settings-row__left flex items-center gap-3">
-              <div className="settings-row__icon w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center"><Shield size={18} /></div>
-              <span className="settings-row__label font-medium text-white">Privacy & Security</span>
+              <div className="settings-row__icon w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center"><Bell size={18} /></div>
+              <span className="settings-row__label font-medium text-white">Trainer Messages</span>
             </div>
             <ChevronLeft size={16} className="text-ink-muted rotate-180" />
           </div>

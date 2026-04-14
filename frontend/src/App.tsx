@@ -11,6 +11,10 @@ import { WorkoutsPage } from './pages/workouts/WorkoutsPage';
 import { DietPage } from './pages/diet/DietPage';
 import { ProgressPage } from './pages/progress/ProgressPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
+import { EditProfile } from './pages/profile/edit/EditProfile';
+import { PaymentPage } from './pages/payments/PaymentPage';
+import { MessagesPage } from './pages/messages/MessagesPage';
+import { DietWizard } from './pages/diet-wizard/DietWizard';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -64,6 +68,11 @@ export default function App() {
             <Route path="/diet" element={<DietPage />} />
             <Route path="/progress" element={<ProgressPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            {/* Sub-pages */}
+            <Route path="/profile/edit" element={<EditProfile />} />
+            <Route path="/profile/payments" element={<PaymentPage />} />
+            <Route path="/profile/messages" element={<MessagesPage />} />
+            <Route path="/diet-wizard" element={<DietWizard />} />
           </Route>
 
           {/* Default redirect based on auth */}

@@ -24,8 +24,8 @@ export interface NutritionLog {
 }
 
 export function useDailyNutrition(date?: string) {
-    const { user, token } = useAuthStore();
-    const memberId = user?._id;
+    const { member, token } = useAuthStore();
+    const memberId = member?._id;
 
     return useQuery({
         queryKey: ['nutrition-daily', memberId, date],
@@ -41,13 +41,13 @@ export function useDailyNutrition(date?: string) {
 
 export function useLogMeal() {
     const queryClient = useQueryClient();
-    const { user } = useAuthStore();
+    const { member } = useAuthStore();
 
     return useMutation({
         mutationFn: async (data: { mealType: string; items: NutritionItem[] }) => {
             const response = await api.post('/nutrition', {
                 ...data,
-                memberId: user?._id
+                memberId: member?._id
             });
             return response.data;
         },

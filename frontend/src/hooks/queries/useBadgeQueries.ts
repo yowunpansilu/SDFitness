@@ -12,8 +12,8 @@ export interface Badge {
 }
 
 export function useMemberBadges() {
-    const { user, token } = useAuthStore();
-    const memberId = user?._id;
+    const { member, token } = useAuthStore();
+    const memberId = member?._id;
 
     return useQuery({
         queryKey: ['member-badges', memberId],

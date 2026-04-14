@@ -3,7 +3,7 @@ import { useDailyNutrition, useLogMeal } from '../../hooks/queries/useNutritionQ
 import { MacroRing } from '../../components/diet/MacroRing';
 import { MealLog } from '../../components/diet/MealLog';
 import { AppSkeleton } from '../../components/ui/AppSkeleton';
-import { Flame, Loader2, Plus, Utensils } from 'lucide-react';
+import { Flame, Loader2, Plus, Utensils, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import type { DietPlan, DayPlan, Meal } from '@/lib/api/dietPlanApi';
 import { useToast } from '../../hooks/use-toast';
@@ -87,11 +87,21 @@ export function DietPage() {
 
   return (
     <div className="pb-32 page-animate-in">
-      <header className="px-6 py-6 pt-10">
-        <h1 className="font-headline text-3xl font-bold text-white">Nutrition</h1>
-        <p className="text-ink-muted mt-1">
-          {dietPlan?.name || 'No active plan'}
-        </p>
+      <header className="px-6 py-6 pt-10 flex justify-between items-start">
+        <div>
+          <h1 className="font-headline text-3xl font-bold text-white">Nutrition</h1>
+          <p className="text-ink-muted mt-1">
+            {dietPlan?.name || 'No active plan'}
+          </p>
+        </div>
+        {!dietPlan?.name && (
+          <button 
+            onClick={() => window.location.href = '/diet-wizard'}
+            className="flex items-center gap-1 text-sm font-bold bg-brand/10 text-brand px-3 py-1.5 rounded-lg active:scale-95 transition-all"
+          >
+            <Sparkles size={14} /> Generator
+          </button>
+        )}
       </header>
 
       {/* Hero Calorie Section */}

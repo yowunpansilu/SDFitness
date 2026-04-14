@@ -18,7 +18,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   }, [onComplete]);
 
   return (
-    <div className={`splash${exiting ? ' splash--exit' : ''}`} role="status" aria-label="Loading SDFitness">
+    <div className={`splash${exiting ? ' splash--exit' : ''}`} role="status" aria-label="Loading SDFitness Downtown">
       {/* Animated rings */}
       <div className="splash__logo-wrap">
         <span className="splash__ring splash__ring--1" aria-hidden="true" />

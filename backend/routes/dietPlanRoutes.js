@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const getFoodPriceModel = require('../models/FoodPrice');
 const DietPlan = require('../models/DietPlan');
 
 // GET /api/diet-plans — list diet plans for a member
@@ -23,10 +24,14 @@ router.get('/', async (req, res) => {
 // POST /api/diet-plans — save a generated plan
 router.post('/', async (req, res) => {
     try {
-        const planData = req.body;
+        const planData = { ...req.body };
         if (!planData.memberId) {
             return res.status(400).json({ success: false, error: 'memberId is required' });
         }
+
+        // Strip IDs if they exist to ensure Mongoose generates a fresh one
+        delete planData._id;
+        delete planData.id;
 
         const dietPlan = new DietPlan(planData);
         await dietPlan.save();
@@ -34,6 +39,33 @@ router.post('/', async (req, res) => {
         res.status(201).json({ success: true, data: dietPlan });
     } catch (error) {
         console.error('❌ Diet plan save error:', error.message);
+        if (error.errors) {
+            console.error('Validation Errors:', Object.keys(error.errors).map(k => `${k}: ${error.errors[k].message}`).join(', '));
+        }
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// PUT /api/diet-plans/:id — update an existing plan
+router.put('/:id', async (req, res) => {
+    try {
+        const planData = req.body;
+        const plan = await DietPlan.findByIdAndUpdate(
+            req.params.id,
+            planData,
+            { new: true, runValidators: true }
+        );
+        
+        if (!plan) {
+            return res.status(404).json({ success: false, error: 'Diet plan not found' });
+        }
+        
+        res.json({ success: true, data: plan });
+    } catch (error) {
+        console.error('❌ Diet plan update error:', error.message);
+        if (error.errors) {
+            console.error('Validation Errors:', Object.keys(error.errors).map(k => `${k}: ${error.errors[k].message}`).join(', '));
+        }
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -54,7 +86,7 @@ router.get('/:id', async (req, res) => {
 // GET /api/diet-plans/:id/cost — recalculate with live prices
 router.get('/:id/cost', async (req, res) => {
     try {
-        const FoodPrice = require('../models/FoodPrice');
+        const FoodPrice = getFoodPriceModel();
         const plan = await DietPlan.findById(req.params.id);
         if (!plan) {
             return res.status(404).json({ success: false, error: 'Diet plan not found' });
@@ -100,7 +132,15 @@ router.post('/generate', async (req, res) => {
 
     try {
         const { generateDietPlan } = require('../services/aiService');
-        const plan = await generateDietPlan(memberId, false); // false = do not save to DB
+        const { goal, dietaryPreferences, allergies, budget, activityLevel } = req.body;
+        
+        const plan = await generateDietPlan(memberId, false, {
+            goal,
+            dietary_preferences: dietaryPreferences,
+            allergies,
+            diet_budget: budget ? { amount: budget, currency: 'LKR', period: 'weekly' } : null,
+            activity_level: activityLevel
+        }); 
 
         res.status(200).json({
             success: true,

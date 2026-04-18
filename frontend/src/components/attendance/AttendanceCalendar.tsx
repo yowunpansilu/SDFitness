@@ -9,7 +9,7 @@ interface Props {
 
 export function AttendanceCalendar({ history }: Props) {
     // Extract dates from history for highlighting
-    const attendedDates = history.map(record => parseISO(record.date));
+    const attendedDates = history.map(record => parseISO(record.checkInTime));
 
     return (
         <Card className="h-full">

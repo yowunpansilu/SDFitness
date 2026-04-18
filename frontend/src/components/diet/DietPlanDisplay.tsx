@@ -1,22 +1,26 @@
-import { useState, useMemo } from 'react';
-import { Download, Save, Share2, Brain, Loader2, Sparkles } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Save, Brain, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { MealCard } from './MealCard';
 import { ShoppingList } from './ShoppingList';
 import { MacroWheel } from './MacroWheel';
 import { WeeklyTimeline } from './WeeklyTimeline';
+import { RecipeModal } from './RecipeModal';
 import type { DietPlan, ShoppingListData, ShoppingItem } from '@/lib/api/dietPlanApi';
 import { cn } from '@/lib/utils';
 
 interface DietPlanDisplayProps {
     plan: DietPlan;
     onSave?: () => void;
+    onChange?: (updates: Partial<DietPlan>) => void;
     isSaving?: boolean;
 }
 
-export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps) {
+export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDisplayProps) {
     const [activeDayIdx, setActiveDayIdx] = useState(0);
+    const [selectedMeal, setSelectedMeal] = useState<any>(null);
+    const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
 
     // Normalize shopping list
     const rawShoppingList = plan.shoppingList;
@@ -35,12 +39,30 @@ export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps
 
     const [items, setItems] = useState(shoppingItems);
 
+    // Sync from props if plan changes (e.g. after remote save)
+    useEffect(() => {
+        setItems(shoppingItems);
+    }, [shoppingItems]);
+
     const toggleShoppingItem = (itemId: string) => {
-        setItems(prev =>
-            prev.map(item =>
-                item.id === itemId ? { ...item, checked: !item.checked } : item
-            )
+        const newItems = items.map(item =>
+            item.id === itemId ? { ...item, checked: !item.checked } : item
         );
+        setItems(newItems);
+
+        // Notify parent of change
+        if (onChange) {
+            if (isNewFormat) {
+                onChange({
+                    shoppingList: {
+                        ...(rawShoppingList as ShoppingListData),
+                        items: newItems
+                    }
+                });
+            } else {
+                onChange({ shoppingList: newItems });
+            }
+        }
     };
 
     // Prepare Timeline Data
@@ -53,7 +75,7 @@ export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps
                 return {
                     dayName: day.dayName?.substring(0, 3) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
                     date: date.getDate(),
-                    progress: 0.6 + (Math.random() * 0.4), // Mocked completion progress
+                    progress: 0, // No longer mocked
                     isActive: i === activeDayIdx
                 };
             });
@@ -97,11 +119,9 @@ export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps
                             )}
                         >
                             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 text-secondary-500" />}
-                            {isSaving ? 'Persisting...' : 'Save Strategy'}
+                            {isSaving ? 'Saving...' : 'Save Plan'}
                         </Button>
                     )}
-                    <Button variant="outline" className="h-12 px-6 rounded-2xl font-bold gap-2 border-primary-100"><Download className="w-4 h-4" /> Export PDF</Button>
-                    <Button variant="outline" className="h-12 px-6 rounded-2xl font-bold gap-2 border-primary-100"><Share2 className="w-4 h-4" /> Share</Button>
                 </div>
             </div>
 
@@ -171,7 +191,10 @@ export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps
                                 <MealCard 
                                     key={`${activeDayIdx}-${j}`} 
                                     meal={meal} 
-                                    onSwap={(m) => alert(`Swapping AI alternative for ${m.name}...`)}
+                                    onMakeNow={(m) => {
+                                        setSelectedMeal(m);
+                                        setIsRecipeModalOpen(true);
+                                    }}
                                 />
                             ))}
                         </div>
@@ -207,6 +230,12 @@ export function DietPlanDisplay({ plan, onSave, isSaving }: DietPlanDisplayProps
                 </div>
 
             </div>
+            {/* Recipe Modal */}
+            <RecipeModal 
+                meal={selectedMeal} 
+                open={isRecipeModalOpen} 
+                onOpenChange={setIsRecipeModalOpen} 
+            />
         </div>
     );
 }

@@ -51,7 +51,7 @@ export function ClassSchedule() {
 
         setBookingLoading(true);
         try {
-            await joinClass(selectedClass.id, user.id);
+            await joinClass(selectedClass.id, user.id, selectedClass.startTime);
             toast({
                 title: "Booking Confirmed",
                 description: `You have successfully booked ${selectedClass.name}`,

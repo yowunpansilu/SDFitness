@@ -16,6 +16,7 @@ const bookingSchema = new mongoose.Schema({
         enum: ['confirmed', 'cancelled', 'attended'],
         default: 'confirmed'
     },
+    classDate: { type: Date, required: true },
     bookingDate: { type: Date, default: Date.now }
 }, { timestamps: true });
 

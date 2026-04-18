@@ -8,7 +8,7 @@ interface MacroWheelProps {
     targetCalories?: number;
 }
 
-export function MacroWheel({ calories, protein, carbs, fats, targetCalories = 2000 }: MacroWheelProps) {
+export function MacroWheel({ protein, carbs, fats }: MacroWheelProps) {
     // Calculate percentages for the nested rings
     const proteinCal = protein * 4;
     const carbsCal = carbs * 4;
@@ -18,19 +18,18 @@ export function MacroWheel({ calories, protein, carbs, fats, targetCalories = 20
     const data = [
         { name: 'Protein', value: Math.round((proteinCal / totalMacrosCal) * 100), color: '#38BDF8' }, // Blue
         { name: 'Carbs', value: Math.round((carbsCal / totalMacrosCal) * 100), color: '#F59E0B' },   // Orange/Amber
-        { name: 'Fats', value: Math.round((fatsCal / totalMacrosCal) * 100), color: '#10B981' },    // Green (Screenshot shows yellow/green)
+        { name: 'Fats', value: Math.round((fatsCal / totalMacrosCal) * 100), color: '#10B981' },    // Green
     ];
 
     // Data for nested rings (Inner to Outer)
-    // 0: Protein, 1: Carbs, 2: Fats
     const ringData = [
-        { value: data[0].value, color: data[0].color, bg: '#F0F9FF' },
-        { value: data[1].value, color: data[1].color, bg: '#FFFBEB' },
-        { value: data[2].value, color: data[2].color, bg: '#F0FDF4' },
+        { value: data[0].value, color: data[0].color, bg: '#F0F9FF', name: 'Protein' },
+        { value: data[1].value, color: data[1].color, bg: '#FFFBEB', name: 'Carbs' },
+        { value: data[2].value, color: data[2].color, bg: '#F0FDF4', name: 'Fats' },
     ];
 
     return (
-        <div className="relative h-[250px] w-full flex items-center justify-center">
+        <div className="relative h-[280px] w-full flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     {/* Ring 3: Fats (Outer) */}
@@ -78,11 +77,11 @@ export function MacroWheel({ calories, protein, carbs, fats, targetCalories = 20
                                 const { cx, cy } = viewBox as any;
                                 return (
                                     <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
-                                        <tspan x={cx} dy="-0.5em" className="text-lg font-bold fill-foreground" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                                        <tspan x={cx} dy="-0.5em" className="text-xl font-black fill-primary-900">
                                             Macro
                                         </tspan>
-                                        <tspan x={cx} dy="1.2em" className="text-lg font-bold fill-foreground" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
-                                            Wheel
+                                        <tspan x={cx} dy="1.2em" className="text-xl font-black fill-primary-900">
+                                            Breakdown
                                         </tspan>
                                     </text>
                                 );
@@ -92,20 +91,24 @@ export function MacroWheel({ calories, protein, carbs, fats, targetCalories = 20
                 </PieChart>
             </ResponsiveContainer>
 
-            {/* Labels around the wheel */}
-            <div className="absolute top-4 left-4 text-xs font-semibold text-muted-foreground">
-                <div style={{ color: ringData[0].color }}>Protein</div>
-                <div className="text-foreground">{data[0].value}%</div>
-            </div>
-            <div className="absolute top-4 right-4 text-xs font-semibold text-muted-foreground text-right">
-                <div style={{ color: ringData[1].color }}>Carbs</div>
-                <div className="text-foreground">{data[1].value}%</div>
-            </div>
-            <div className="absolute bottom-4 right-4 text-xs font-semibold text-muted-foreground text-right filter brightness-90">
-                <div style={{ color: ringData[0].color }}>Protein</div>
-                <div className="text-foreground">{data[0].value}%</div>
+            {/* Legend Labels - Cleaned up and positioned better */}
+            <div className="absolute inset-0 pointer-events-none">
+                {/* Protein Label */}
+                <div className="absolute top-2 left-6 flex flex-col items-start">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#38BDF8]">Protein</span>
+                    <span className="text-sm font-bold text-primary-900">{data[0].value}%</span>
+                </div>
+                {/* Carbs Label */}
+                <div className="absolute top-2 right-6 flex flex-col items-end">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#F59E0B]">Carbs</span>
+                    <span className="text-sm font-bold text-primary-900">{data[1].value}%</span>
+                </div>
+                {/* Fats Label */}
+                <div className="absolute bottom-6 right-8 flex flex-col items-end">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#10B981]">Fats</span>
+                    <span className="text-sm font-bold text-primary-900">{data[2].value}%</span>
+                </div>
             </div>
         </div>
     );
 }
-

@@ -107,7 +107,7 @@ export function Workouts() {
         try {
             const savedWorkout = await logWorkout({
                 memberId: user.id,
-                templateId: selectedTemplate?.templateId,
+                templateId: selectedTemplate?._id,
                 workoutDate: new Date(),
                 ...workoutData,
             });

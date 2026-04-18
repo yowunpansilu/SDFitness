@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useAuthStore } from '@/lib/stores/authStore';
-import axios from 'axios';
+import api from '@/lib/api/axios';
 
 export function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
@@ -18,14 +18,13 @@ export function LoginForm() {
 
     const { login } = useAuthStore();
     const navigate = useNavigate();
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
         try {
-            const response = await axios.post(`${API_URL}/api/auth/login`, {
+            const response = await api.post('/auth/login', {
                 email: formData.email,
                 password: formData.password
             });

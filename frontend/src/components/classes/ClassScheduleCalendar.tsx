@@ -93,6 +93,15 @@ export function ClassScheduleCalendar({
                     >
                         <ChevronRight className="w-5 h-5" />
                     </Button>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onDateChange(new Date())}
+                        className="ml-2 bg-background border-border text-foreground hover:bg-card"
+                    >
+                        Today
+                    </Button>
                 </div>
 
                 <div className="flex items-center bg-background p-1 rounded-md border border-border">
@@ -126,7 +135,41 @@ export function ClassScheduleCalendar({
             )}>
                 {daysToShow.map((day) => {
                     const daysClasses = classes
-                        .filter(c => isSameDay(new Date(c.startTime), day))
+                        .map(c => {
+                            // If we have a recurring schedule, calculate the date for THIS specific day
+                            if (c.schedule && c.schedule.dayOfWeek) {
+                                const currentDayName = format(day, "EEEE");
+                                if (c.schedule.dayOfWeek.trim().toLowerCase() === currentDayName.toLowerCase()) {
+                                    // Set the time from schedule
+                                    const timeStr = c.schedule.startTime || "09:00";
+                                    let [hours, minutes] = [0, 0];
+                                    
+                                    if (timeStr.toLowerCase().includes('am') || timeStr.toLowerCase().includes('pm')) {
+                                        // Handle 12h format
+                                        const match = timeStr.match(/(\d+):(\d+)\s*(am|pm)/i);
+                                        if (match) {
+                                            hours = parseInt(match[1]);
+                                            minutes = parseInt(match[2]);
+                                            const ampm = match[3].toLowerCase();
+                                            if (ampm === 'pm' && hours < 12) hours += 12;
+                                            if (ampm === 'am' && hours === 12) hours = 0;
+                                        }
+                                    } else {
+                                        // Handle 24h format
+                                        [hours, minutes] = timeStr.split(':').map(Number);
+                                    }
+                                    
+                                    const classDate = new Date(day);
+                                    classDate.setHours(hours || 0, minutes || 0, 0, 0);
+                                    return { ...c, startTime: classDate.toISOString() };
+                                }
+                                return null;
+                            }
+                            // Otherwise fallback to existing isSameDay check
+                            // Only if it's not a recurring class that didn't match today
+                            return (c.startTime && isSameDay(new Date(c.startTime), day)) ? c : null;
+                        })
+                        .filter((c): c is GymClass => c !== null)
                         .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
                     const isTodayDate = isToday(day);
@@ -158,15 +201,24 @@ export function ClassScheduleCalendar({
                                 {loading ? (
                                     <div className="h-24 bg-card animate-pulse rounded-lg" />
                                 ) : daysClasses.length > 0 ? (
-                                    daysClasses.map(gymClass => (
-                                        <ClassCard
-                                            key={gymClass.id}
-                                            gymClass={gymClass}
-                                            onBook={onBookClass}
-                                            userBooking={userBookings.find(b => b.classId === gymClass.id)}
-                                            isPast={new Date(gymClass.startTime) < new Date()}
-                                        />
-                                    ))
+                                    daysClasses.map(gymClass => {
+                                        const startTime = new Date(gymClass.startTime).getTime();
+                                        const endTime = startTime + gymClass.duration * 60 * 1000;
+                                        const now = new Date().getTime();
+                                        const isPast = endTime < now;
+                                        const isLive = now >= startTime && now <= endTime;
+
+                                        return (
+                                            <ClassCard
+                                                key={gymClass.id}
+                                                gymClass={gymClass}
+                                                onBook={onBookClass}
+                                                userBooking={userBookings.find(b => b.classId === gymClass.id)}
+                                                isPast={isPast}
+                                                isLive={isLive}
+                                            />
+                                        );
+                                    })
                                 ) : (
                                     <div className="flex-1 flex items-center justify-center text-center p-4 border-2 border-dashed border-border rounded-lg">
                                         <p className="text-xs text-gray-600">No classes</p>

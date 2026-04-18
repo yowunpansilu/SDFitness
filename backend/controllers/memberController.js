@@ -59,3 +59,44 @@ exports.deleteMember = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// GET member bookings
+exports.getMemberBookings = async (req, res) => {
+    try {
+        const Booking = require('../models/Booking');
+        const bookings = await Booking.find({ user: req.params.id, status: 'confirmed' })
+            .populate({
+                path: 'class',
+                populate: {
+                    path: 'trainer',
+                    populate: { path: 'user', select: 'firstName lastName email' }
+                }
+            })
+            .sort({ createdAt: -1 });
+
+        // Map to frontend expected format
+        const formatted = bookings.map(b => ({
+            id: b._id,
+            classId: b.class?._id,
+            userId: b.user,
+            status: b.status,
+            bookingDate: b.bookingDate,
+            gymClass: {
+                id: b.class?._id,
+                name: b.class?.name || 'Unknown Class',
+                description: b.class?.description || '',
+                trainerName: b.class?.trainer?.user ? `${b.class.trainer.user.firstName} ${b.class.trainer.user.lastName}` : 'Unknown Trainer',
+                startTime: b.classDate || b.class?.startTime || new Date().toISOString(), // Use booking specific date
+                duration: b.class?.duration || 60,
+                capacity: b.class?.capacity || 20,
+                bookedCount: b.class?.enrolled || 0,
+                type: b.class?.type || 'Strength',
+                location: b.class?.location || 'Main Gym'
+            }
+        }));
+
+        res.json(formatted);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

@@ -1,285 +1,468 @@
 import { useState, useEffect } from 'react';
-import { Search, Edit2, Plus, RefreshCw, Clock, Store, Loader2, AlertCircle } from 'lucide-react';
+import { Search, Edit2, Plus, RefreshCw, Trash2, CheckCircle2, XCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import api from '@/lib/api/axios';
+import { useToast } from '@/hooks/use-toast';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
-interface FoodItem {
+interface Product {
     _id: string;
-    foodId: string;
+    sku: string;
+    itemID: string;
     name: string;
-    category: string;
-    averagePricePerGram: number;
-    lowestPricePerGram: number;
-    prices: { store: string; pricePerUnit: number; unit: string; source: string }[];
-    isVerified: boolean;
-    updatedAt: string;
+    currentPrice: number;
+    imageUrl: string;
+    uom: string;
+    isAvailable: boolean;
+    departmentId: string;
+    departmentName: string;
+    lastUpdated: string;
 }
 
-interface ScraperStatus {
-    lastRun: string | null;
-    itemsScraped: number;
-    errors: number;
-    running: boolean;
-}
-
-const categoryVariants: Record<string, string> = {
-    protein: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-    carbs: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20',
-    vegetable: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
-    fruit: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
-    dairy: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20',
-    fats: 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20',
-    other: 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20',
-};
+const DEPARTMENTS = ['Vegetables', 'Foods', 'Grocery', 'Meat & Seafood', 'Chilled', 'Frozen', 'Beverages', 'Other'];
 
 export function FoodPrices() {
-    const [foods, setFoods] = useState<FoodItem[]>([]);
+    const { toast } = useToast();
+    const [products, setProducts] = useState<Product[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [selectedDepartment, setSelectedDepartment] = useState('all');
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [scraperStatus, setScraperStatus] = useState<ScraperStatus>({
-        lastRun: null, itemsScraped: 0, errors: 0, running: false
+
+    // Form State
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+    const [formData, setFormData] = useState({
+        sku: '',
+        itemID: '',
+        name: '',
+        currentPrice: 0,
+        imageUrl: '',
+        uom: '',
+        isAvailable: true,
+        departmentId: '',
+        departmentName: 'Other'
     });
-    const [triggeringScrape, setTriggeringScrape] = useState(false);
 
     useEffect(() => {
-        fetchFoods();
-        fetchScraperStatus();
-    }, []);
+        fetchProducts();
+    }, [selectedDepartment]);
 
-    const fetchFoods = async () => {
-        setLoading(true);
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            fetchProducts();
+        }, 500);
+        return () => clearTimeout(timeoutId);
+    }, [searchQuery]);
+
+    const fetchProducts = async () => {
         try {
-            const res = await api.get('/prices');
-            setFoods(res.data.data || []);
+            setLoading(true);
+            const params: any = {};
+            if (selectedDepartment !== 'all') params.departmentName = selectedDepartment;
+            if (searchQuery.trim() !== '') params.search = searchQuery;
+            
+            const res = await api.get('/prices', { params });
+            // the API currently does filtering internally, but we can also filter on client-side
+            let data = res.data.data || [];
+            
+            // Client side filter just in case the backend text search isn't rigorous enough
+            if (searchQuery.trim() !== '') {
+                const q = searchQuery.toLowerCase();
+                data = data.filter((p: Product) => 
+                    (p.name && p.name.toLowerCase().includes(q)) || 
+                    (p.sku && p.sku.toLowerCase().includes(q))
+                );
+            }
+
+            setProducts(data);
         } catch (err: any) {
-            setError(err.message || 'Failed to load food prices');
+            toast({
+                title: 'Sync Failed',
+                description: err.message || 'Failed to sync with Atlas products',
+                variant: 'destructive'
+            });
         } finally {
             setLoading(false);
         }
     };
 
-    const fetchScraperStatus = async () => {
-        try {
-            const res = await api.get('/prices/scrape-status');
-            setScraperStatus(res.data);
-        } catch {
-            // ML service may not be running — that's OK
-        }
+    const handleAddClick = () => {
+        setEditingProduct(null);
+        setFormData({
+            sku: '',
+            itemID: '',
+            name: '',
+            currentPrice: 0,
+            imageUrl: '',
+            uom: 'kg',
+            isAvailable: true,
+            departmentId: '',
+            departmentName: 'Other'
+        });
+        setIsDialogOpen(true);
     };
 
-    const triggerScrape = async () => {
-        setTriggeringScrape(true);
+    const handleEditClick = (product: Product) => {
+        setEditingProduct(product);
+        setFormData({
+            sku: product.sku || '',
+            itemID: product.itemID || '',
+            name: product.name || '',
+            currentPrice: product.currentPrice || 0,
+            imageUrl: product.imageUrl || '',
+            uom: product.uom || '',
+            isAvailable: product.isAvailable ?? true,
+            departmentId: product.departmentId || '',
+            departmentName: product.departmentName || 'Other'
+        });
+        setIsDialogOpen(true);
+    };
+
+    const handleDeleteClick = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to delete ${name}? This will remove it from the Atlas database permanently.`)) return;
         try {
-            await api.post('/prices/trigger-scrape', { stores: ['keells', 'cargills'], dry_run: false });
-            setScraperStatus(prev => ({ ...prev, running: true }));
+            await api.delete(`/prices/${id}`);
+            setProducts(prev => prev.filter(p => p._id !== id));
+            toast({ title: 'Product Deleted', description: `${name} has been removed.` });
         } catch (err: any) {
-            alert(err.response?.data?.error || 'Failed to trigger scrape — is the ML service running?');
-        } finally {
-            setTriggeringScrape(false);
+            toast({ title: 'Deletion Failed', description: err.message, variant: 'destructive' });
         }
     };
 
-    const categories = ['all', ...new Set(foods.map(f => f.category))];
-    const filteredFoods = foods.filter(food => {
-        const matchesSearch = food.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesCategory = selectedCategory === 'all' || food.category === selectedCategory;
-        return matchesSearch && matchesCategory;
-    });
-
-    const formatTime = (dateStr: string) => {
-        const diff = Date.now() - new Date(dateStr).getTime();
-        const hours = Math.floor(diff / 3600000);
-        if (hours < 1) return 'Just now';
-        if (hours < 24) return `${hours}h ago`;
-        return `${Math.floor(hours / 24)}d ago`;
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            if (editingProduct) {
+                const res = await api.put(`/prices/${editingProduct._id}`, formData);
+                setProducts(prev => prev.map(p => p._id === editingProduct._id ? res.data.data : p));
+                toast({ title: 'Product Updated', description: `${formData.name} was successfully modified.` });
+            } else {
+                const res = await api.post('/prices', formData);
+                setProducts(prev => [res.data.data, ...prev]);
+                toast({ title: 'Product Created', description: `${formData.name} was successfully added.` });
+            }
+            setIsDialogOpen(false);
+        } catch (err: any) {
+            toast({
+                title: 'Operation Failed',
+                description: err.response?.data?.error || err.message,
+                variant: 'destructive'
+            });
+        }
     };
-
-    const getStoresFromItem = (item: FoodItem): string[] => {
-        return item.prices?.map(p => p.store) || [];
-    };
-
-    const getAvgPricePerUnit = (item: FoodItem): { price: number; unit: string } => {
-        if (!item.prices || item.prices.length === 0) return { price: 0, unit: 'kg' };
-        const avg = item.prices.reduce((s, p) => s + p.pricePerUnit, 0) / item.prices.length;
-        return { price: Math.round(avg), unit: item.prices[0]?.unit || 'kg' };
-    };
-
-    const getLowestPrice = (item: FoodItem): number => {
-        if (!item.prices || item.prices.length === 0) return 0;
-        return Math.min(...item.prices.map(p => p.pricePerUnit));
-    };
-
-    const getSource = (item: FoodItem): string => {
-        const sources = item.prices?.map(p => p.source) || [];
-        return sources.includes('scraper_catalog') || sources.includes('api') ? 'auto' : 'manual';
-    };
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 text-purple-600 dark:text-purple-500 animate-spin" />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                <CardContent className="p-12 text-center">
-                    <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">Error</h3>
-                    <p className="text-gray-500 dark:text-gray-400">{error}</p>
-                    <Button onClick={fetchFoods} className="mt-4 bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/20">Retry</Button>
-                </CardContent>
-            </Card>
-        );
-    }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 text-foreground">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        Food Prices
+                    <h1 className="text-4xl font-bold tracking-tight">
+                        Atlas <span className="text-primary">Products</span>
                     </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2">Manage food prices for the ML diet plan engine • {foods.length} items</p>
+                    <p className="text-muted-foreground font-medium text-sm mt-1.5 opacity-80">
+                        Direct CRUD interface for the external scraper database
+                    </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button
+                <div className="flex gap-3">
+                    <Button 
+                        onClick={fetchProducts}
                         variant="outline"
-                        className="gap-2 bg-white dark:bg-dark-800/50 border-gray-200 dark:border-dark-700 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-dark-700 shadow-sm"
-                        onClick={triggerScrape}
-                        disabled={triggeringScrape}
+                        className="rounded-xl h-11 px-4 border-border transition-all shadow-sm"
                     >
-                        <RefreshCw className={`w-4 h-4 ${triggeringScrape ? 'animate-spin' : ''}`} />
-                        {triggeringScrape ? 'Triggering...' : 'Trigger Scrape'}
+                        <RefreshCw className={cn("w-4 h-4", loading ? 'animate-spin' : '')} />
                     </Button>
-                    <Button className="gap-2 bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/20">
-                        <Plus className="w-4 h-4" />
-                        Add Food
+                    <Button 
+                        onClick={handleAddClick}
+                        className="rounded-xl shadow-lg h-11 px-8 font-semibold text-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                        <Plus className="mr-2 h-4 w-4" /> Add Product
                     </Button>
                 </div>
             </div>
 
-            {/* Scraper Status */}
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm">
-                <CardContent className="p-4">
-                    <div className="flex flex-wrap items-center gap-6 text-sm">
-                        <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            <span className="text-gray-500 dark:text-gray-400">Last scrape:</span>
-                            <span className="text-gray-900 dark:text-white font-medium">
-                                {scraperStatus.lastRun ? new Date(scraperStatus.lastRun).toLocaleTimeString() : 'Never'}
-                            </span>
-                        </div>
-                        {scraperStatus.itemsScraped > 0 && (
-                            <div className="flex items-center gap-2">
-                                <Store className="w-4 h-4 text-green-600 dark:text-green-400" />
-                                <span className="text-green-600 dark:text-green-400 font-medium">{scraperStatus.itemsScraped} items scraped</span>
-                            </div>
-                        )}
-                        {scraperStatus.errors > 0 && (
-                            <Badge className="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20">
-                                ⚠ {scraperStatus.errors} errors
-                            </Badge>
-                        )}
-                        {scraperStatus.running && (
-                            <Badge className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 animate-pulse">
-                                🔄 Scraping in progress…
-                            </Badge>
-                        )}
+            {/* Controls */}
+            <div className="flex flex-col md:flex-row gap-4">
+                <Card className="flex-1 border-border shadow-sm p-1">
+                    <div className="relative group">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Query products by Name or SKU..."
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className="w-full pl-12 pr-4 h-12 bg-transparent border-none rounded-xl text-foreground text-sm font-medium placeholder:text-muted-foreground/50 outline-none"
+                        />
                     </div>
-                </CardContent>
-            </Card>
-
-            {/* Search & Category Filter */}
-            <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1 group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400 group-focus-within:text-purple-600 dark:group-focus-within:text-purple-400 transition-colors" />
-                    <input
-                        type="text"
-                        placeholder="Search foods..."
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-dark-800/50 border border-gray-200 dark:border-dark-700 rounded-lg text-gray-900 dark:text-white text-sm placeholder-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-purple-500 transition-colors shadow-sm"
-                    />
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                    {categories.map(cat => (
-                        <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`px-3 py-2 rounded-lg text-xs font-medium transition-all capitalize shadow-sm ${selectedCategory === cat ? 'bg-purple-600 text-white shadow-purple-500/20' : 'bg-white dark:bg-dark-800/50 border border-gray-200 dark:border-dark-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-dark-700 hover:text-purple-600 dark:hover:text-purple-400 hover:border-purple-500/50'}`}
-                        >
-                            {cat}
-                        </button>
-                    ))}
+                </Card>
+                <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 no-scrollbar px-1">
+                    <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                        <SelectTrigger className="w-[180px] h-12 rounded-xl text-xs font-semibold border-border bg-card">
+                            <SelectValue placeholder="Department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Departments</SelectItem>
+                            {DEPARTMENTS.map(dept => (
+                                <SelectItem key={dept} value={dept} className="text-xs font-medium">{dept}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 
-            {/* Food Table */}
-            <Card className="bg-white dark:bg-dark-900/50 border-gray-200 dark:border-dark-800 backdrop-blur-sm shadow-sm overflow-hidden">
+            {/* Data Grid */}
+            <Card className="border-border shadow-md overflow-hidden rounded-2xl">
                 <CardContent className="p-0">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead className="bg-gray-50 dark:bg-dark-800/50">
-                                <tr className="border-b border-gray-200 dark:border-dark-700">
-                                    {['Food', 'Category', 'Avg Price', 'Lowest', 'Stores', 'Source', 'Updated', ''].map(h => (
-                                        <th key={h} className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider p-4">{h}</th>
+                    <div className="overflow-x-auto font-medium text-xs">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="border-b border-border bg-muted/30">
+                                    {['Product Details', 'SKU / ItemID', 'Department', 'UOM', 'Current Price', 'Status', 'Updated', ''].map(h => (
+                                        <th key={h} className="text-left text-muted-foreground p-4 font-semibold uppercase tracking-wider text-[11px] whitespace-nowrap">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody>
-                                {filteredFoods.map(food => {
-                                    const { price: avgPrice, unit } = getAvgPricePerUnit(food);
-                                    const lowestPrice = getLowestPrice(food);
-                                    const stores = getStoresFromItem(food);
-                                    const source = getSource(food);
-
-                                    return (
-                                        <tr key={food.foodId} className="border-b border-gray-100 dark:border-dark-800 hover:bg-gray-50 dark:hover:bg-dark-800/30 transition-colors group">
-                                            <td className="p-4 text-gray-900 dark:text-white font-medium">{food.name}</td>
-                                            <td className="p-4">
-                                                <Badge className={cn("border", categoryVariants[food.category] || 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20')}>
-                                                    {food.category}
-                                                </Badge>
-                                            </td>
-                                            <td className="p-4 text-gray-900 dark:text-white font-medium">
-                                                LKR {avgPrice}<span className="text-gray-500 text-xs">/{unit}</span>
-                                            </td>
-                                            <td className="p-4 text-green-600 dark:text-green-400 font-medium">LKR {lowestPrice}</td>
-                                            <td className="p-4">
-                                                <div className="flex gap-1 flex-wrap">
-                                                    {stores.map(s => (
-                                                        <span key={s} className="px-1.5 py-0.5 text-[10px] bg-gray-100 dark:bg-dark-700 border border-gray-200 dark:border-dark-600 text-gray-600 dark:text-gray-300 rounded uppercase font-medium">{s}</span>
-                                                    ))}
+                            <tbody className="divide-y divide-border/50">
+                                {products.length === 0 && !loading && (
+                                    <tr>
+                                        <td colSpan={8} className="p-10 text-center text-muted-foreground">
+                                            No products found matching your criteria.
+                                        </td>
+                                    </tr>
+                                )}
+                                {products.map(product => (
+                                    <tr key={product._id} className="hover:bg-muted/10 transition-colors group">
+                                        <td className="p-4">
+                                            <div className="flex flex-col max-w-[250px]">
+                                                <span className="text-foreground font-semibold text-sm truncate group-hover:text-primary transition-colors">{product.name}</span>
+                                                <div className="flex items-center gap-1 mt-1 text-muted-foreground">
+                                                    {product.imageUrl && <span className="text-xs bg-muted px-1.5 py-0.5 rounded border border-border">img</span>}
                                                 </div>
-                                            </td>
-                                            <td className="p-4">
-                                                <span className={`text-xs font-medium ${source === 'auto' ? 'text-blue-600 dark:text-blue-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
-                                                    {source === 'auto' ? '🤖 Auto' : '✏️ Manual'}
-                                                </span>
-                                            </td>
-                                            <td className="p-4 text-sm text-gray-500 dark:text-gray-400">{formatTime(food.updatedAt)}</td>
-                                            <td className="p-4">
-                                                <Button variant="ghost" size="sm" className="gap-1 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-500/10 transition-colors">
-                                                    <Edit2 className="w-3 h-3" /> Edit
+                                            </div>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-muted-foreground font-medium text-xs font-mono">{product.sku}</span>
+                                                <span className="text-muted-foreground/50 text-xs font-mono mt-0.5">{product.itemID}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-4">
+                                            <Badge variant="secondary" className="font-semibold capitalize text-xs bg-muted/50 border-border">
+                                                {product.departmentName}
+                                            </Badge>
+                                        </td>
+                                        <td className="p-4 text-muted-foreground">
+                                            {product.uom}
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="text-emerald-500 font-bold">LKR {product.currentPrice?.toLocaleString()}</span>
+                                        </td>
+                                        <td className="p-4">
+                                            {product.isAvailable ? (
+                                                <Badge variant="outline" className="text-emerald-600 bg-emerald-500/10 border-emerald-500/20 font-semibold gap-1 px-2 py-0.5text-xs">
+                                                    <CheckCircle2 className="w-3 h-3" /> Available
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="outline" className="text-destructive bg-destructive/10 border-destructive/20 font-semibold gap-1 px-2 py-0.5text-xs">
+                                                    <XCircle className="w-3 h-3" /> Offline
+                                                </Badge>
+                                            )}
+                                        </td>
+                                        <td className="p-4 text-muted-foreground text-xs">
+                                            {new Date(product.lastUpdated).toLocaleDateString()}
+                                        </td>
+                                        <td className="p-4 text-right">
+                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    onClick={() => handleEditClick(product)}
+                                                    className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"
+                                                >
+                                                    <Edit2 className="w-3.5 h-3.5" />
                                                 </Button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    onClick={() => handleDeleteClick(product._id, product.name)}
+                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-lg"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Add/Edit Dialog */}
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl p-0 border-none shadow-2xl">
+                    <div className="bg-primary h-1.5 w-full" />
+                    <div className="p-6">
+                        <DialogHeader className="mb-6">
+                            <DialogTitle className="text-2xl font-bold tracking-tight">
+                                <span className={editingProduct ? "text-primary" : "text-emerald-500"}>
+                                    {editingProduct ? 'Edit Product' : 'Add New Product'}
+                                </span>
+                            </DialogTitle>
+                            <DialogDescription className="text-xs font-medium text-muted-foreground mt-1">
+                                Modified attributes will be immediately synchronized with the external Atlas database.
+                            </DialogDescription>
+                        </DialogHeader>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-semibold text-muted-foreground">SKU (Foreign Key)</Label>
+                                    <Input 
+                                        required
+                                        placeholder="e.g. 104523"
+                                        value={formData.sku}
+                                        onChange={e => setFormData({...formData, sku: e.target.value})}
+                                        className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
+                                    />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-semibold text-muted-foreground">Item ID (Internal)</Label>
+                                    <Input 
+                                        placeholder="e.g. ITM-99"
+                                        value={formData.itemID}
+                                        onChange={e => setFormData({...formData, itemID: e.target.value})}
+                                        className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
+                                    />
+                                </div>
+
+                                <div className="space-y-2 col-span-2">
+                                    <Label className="text-xs font-semibold text-muted-foreground">Product Name</Label>
+                                    <Input 
+                                        required
+                                        placeholder="e.g. Keells Fresh Carrots"
+                                        value={formData.name}
+                                        onChange={e => setFormData({...formData, name: e.target.value})}
+                                        className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
+                                    />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-semibold text-muted-foreground">Current Price (LKR)</Label>
+                                    <Input 
+                                        required
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={formData.currentPrice}
+                                        onChange={e => setFormData({...formData, currentPrice: parseFloat(e.target.value)})}
+                                        className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-semibold text-muted-foreground">Unit of Measurement (UOM)</Label>
+                                    <Input 
+                                        placeholder="e.g. 1kg, 500g, bunch"
+                                        value={formData.uom}
+                                        onChange={e => setFormData({...formData, uom: e.target.value})}
+                                        className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
+                                    />
+                                </div>
+                                
+                                <div className="space-y-2 col-span-2">
+                                    <Label className="text-xs font-semibold text-muted-foreground">Image URL</Label>
+                                    <Input 
+                                        placeholder="https://..."
+                                        value={formData.imageUrl}
+                                        onChange={e => setFormData({...formData, imageUrl: e.target.value})}
+                                        className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-semibold text-muted-foreground">Department Name</Label>
+                                    <Select 
+                                        value={formData.departmentName} 
+                                        onValueChange={v => setFormData({...formData, departmentName: v})}
+                                    >
+                                        <SelectTrigger className="h-10 text-sm font-medium rounded-xl focus:ring-primary/50">
+                                            <SelectValue placeholder="Department" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {DEPARTMENTS.map(dept => (
+                                                <SelectItem key={dept} value={dept} className="text-xs">{dept}</SelectItem>
+                                            ))}
+                                            <SelectItem value="Other">Other</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-semibold text-muted-foreground">Department ID</Label>
+                                    <Input 
+                                        placeholder="e.g. DEP-001"
+                                        value={formData.departmentId}
+                                        onChange={e => setFormData({...formData, departmentId: e.target.value})}
+                                        className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-between p-4 bg-muted/40 rounded-xl border border-border mt-6">
+                                <div className="space-y-0.5">
+                                    <Label className="text-sm font-semibold">Store Availability</Label>
+                                    <p className="text-xs text-muted-foreground leading-snug">
+                                        Is this product currently in stock at the primary source?
+                                    </p>
+                                </div>
+                                <Switch
+                                    checked={formData.isAvailable}
+                                    onCheckedChange={checked => setFormData({...formData, isAvailable: checked})}
+                                />
+                            </div>
+
+                            <DialogFooter className="gap-2 sm:gap-2 pt-6">
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    onClick={() => setIsDialogOpen(false)}
+                                    className="flex-1 rounded-xl font-semibold text-xs h-11"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button 
+                                    type="submit"
+                                    className="flex-1 rounded-xl font-semibold text-xs h-11 transition-all hover:scale-[1.02] shadow-md active:scale-95"
+                                >
+                                    {editingProduct ? 'Save Changes' : 'Create Product'}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

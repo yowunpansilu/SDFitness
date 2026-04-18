@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Dumbbell, Flame, Calendar, Zap, Plus } from 'lucide-react';
+import { Dumbbell, Calendar, Zap, Plus, Target, Activity } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { UpcomingClasses } from '@/components/dashboard/UpcomingClasses';
 import { ActivityTimeline } from '@/components/dashboard/ActivityTimeline';
@@ -8,7 +10,28 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function Dashboard() {
-    const { user } = useAuthStore();
+    const { user, member, fetchProfile } = useAuthStore();
+
+    // Calculate BMI dynamically if missing from DB but we have height and weight
+    let computedBmi = member?.bmi || 0;
+    if (!computedBmi && member?.height?.value && member?.currentWeight?.value) {
+        let heightM = member.height.value;
+        if (member.height.unit === 'cm') heightM = heightM / 100;
+        else if (member.height.unit === 'in') heightM = heightM * 0.0254;
+
+        let weightKg = member.currentWeight.value;
+        if (member.currentWeight.unit === 'lbs') weightKg = weightKg * 0.453592;
+
+        if (heightM > 0) {
+            computedBmi = weightKg / (heightM * heightM);
+        }
+    }
+
+    const displayBmi = computedBmi > 0 ? computedBmi.toFixed(1) : 'Not set';
+
+    useEffect(() => {
+        if (fetchProfile) fetchProfile();
+    }, [fetchProfile]);
 
     return (
         <div className="space-y-8 animate-fade-in">
@@ -40,11 +63,11 @@ export function Dashboard() {
                         </h1>
                         <div className="flex items-center gap-4 mt-3">
                             <p className="text-primary-600 text-xl font-medium">
-                                Ready to crush your fitness goals today?
+                                Ready to crush your {member?.fitnessGoals?.[0]?.toLowerCase() || 'fitness goals'} today?
                             </p>
                             <div className="h-1 w-12 bg-secondary-500 rounded-full" />
                             <div className="px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-xs font-bold text-primary-600 uppercase tracking-widest">
-                                Member Profile Active
+                                {member?.membershipType ? `${member.membershipType.toUpperCase()} PROFILE ACTIVE` : 'MEMBER PROFILE ACTIVE'}
                             </div>
                         </div>
                     </motion.div>
@@ -59,32 +82,26 @@ export function Dashboard() {
             {/* Stats Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <StatsCard
-                    title="Total Workouts"
-                    value="24"
-                    icon={Dumbbell}
-                    trend="up"
-                    trendValue="+12%"
+                    title="Current BMI"
+                    value={displayBmi}
+                    icon={Activity}
+                    trend={computedBmi ? (computedBmi < 25 ? "down" : "up") : undefined}
+                    trendValue={computedBmi ? (computedBmi < 18.5 ? "Underweight" : computedBmi < 25 ? "Healthy" : "Attention") : ""}
                 />
                 <StatsCard
-                    title="Calories Burned"
-                    value="12,450"
-                    icon={Flame}
-                    trend="up"
-                    trendValue="+8%"
+                    title="Current Weight"
+                    value={member?.currentWeight?.value ? `${member.currentWeight.value} ${member.currentWeight.unit || 'kg'}` : 'Not set'}
+                    icon={ScaleIcon as any}
                 />
                 <StatsCard
-                    title="Classes Attended"
-                    value="18"
-                    icon={Calendar}
-                    trend="up"
-                    trendValue="+15%"
+                    title="Target Weight"
+                    value={member?.targetWeight?.value ? `${member.targetWeight.value} ${member.targetWeight.unit || 'kg'}` : 'Not set'}
+                    icon={Target}
                 />
                 <StatsCard
-                    title="Attendance Streak"
-                    value="7 days"
+                    title="Status"
+                    value={member?.status?.toUpperCase() || 'Not Active'}
                     icon={Zap}
-                    trend="up"
-                    trendValue="+2"
                 />
             </div>
 
@@ -93,22 +110,30 @@ export function Dashboard() {
                 <CardContent className="p-6">
                     <h2 className="text-xl font-bold text-foreground mb-4">Quick Actions</h2>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <Button variant="gym" className="h-auto py-4 flex-col gap-2">
-                            <Calendar className="w-6 h-6" />
-                            <span>Book a Class</span>
-                        </Button>
-                        <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                            <Dumbbell className="w-6 h-6" />
-                            <span>Log Workout</span>
-                        </Button>
-                        <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                            <Plus className="w-6 h-6" />
-                            <span>View Diet Plan</span>
-                        </Button>
-                        <Button variant="outline" className="h-auto py-4 flex-col gap-2">
-                            <Zap className="w-6 h-6" />
-                            <span>Check-in</span>
-                        </Button>
+                        <Link to="/classes" className="w-full">
+                            <Button variant="gym" className="h-auto w-full py-4 flex-col gap-2">
+                                <Calendar className="w-6 h-6" />
+                                <span>Book a Class</span>
+                            </Button>
+                        </Link>
+                        <Link to="/workouts" className="w-full">
+                            <Button variant="outline" className="h-auto w-full py-4 flex-col gap-2">
+                                <Dumbbell className="w-6 h-6" />
+                                <span>Log Workout</span>
+                            </Button>
+                        </Link>
+                        <Link to="/diet-plans" className="w-full">
+                            <Button variant="outline" className="h-auto w-full py-4 flex-col gap-2">
+                                <Plus className="w-6 h-6" />
+                                <span>View Diet Plan</span>
+                            </Button>
+                        </Link>
+                        <div className="w-full">
+                            <Button variant="outline" className="h-auto w-full py-4 flex-col gap-2">
+                                <Zap className="w-6 h-6" />
+                                <span>Check-in</span>
+                            </Button>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -119,5 +144,29 @@ export function Dashboard() {
                 <ActivityTimeline />
             </div>
         </div>
+    );
+}
+
+// Internal helper icons if not available in lucide-react constants above
+function ScaleIcon({ className }: { className?: string }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+        >
+            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+            <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+            <path d="M7 21h10" />
+            <path d="M12 3v18" />
+            <path d="M3 7h18" />
+        </svg>
     );
 }

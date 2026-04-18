@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Mail, Phone, Award, Users, TrendingUp } from 'lucide-react';
+import { Search, Plus, Mail, Phone, Award, Users, TrendingUp, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import api from '@/lib/api/axios';
 
 interface Trainer {
   id: string;
@@ -22,90 +23,62 @@ interface Trainer {
   email: string;
   phone: string;
   specializations: string[];
-  certifications: string[];
+  certifications: any[];
   assignedMembers: number;
   rating: number;
   photoUrl?: string;
   status: 'active' | 'inactive' | 'on_leave';
-  hireDate: string;
+  joinDate: string;
 }
 
-// Mock data
-const mockTrainers: Trainer[] = [
-  {
-    id: '1',
-    firstName: 'Sarah',
-    lastName: 'Johnson',
-    email: 'sarah.j@sdfitness.com',
-    phone: '+1 234 567 8901',
-    specializations: ['Strength Training', 'Bodybuilding', 'Powerlifting'],
-    certifications: ['NASM-CPT', 'CSCS'],
-    assignedMembers: 24,
-    rating: 4.8,
-    photoUrl: undefined,
-    status: 'active',
-    hireDate: '2023-01-15',
-  },
-  {
-    id: '2',
-    firstName: 'Mike',
-    lastName: 'Ross',
-    email: 'mike.r@sdfitness.com',
-    phone: '+1 234 567 8902',
-    specializations: ['HIIT', 'Cardio', 'Weight Loss'],
-    certifications: ['ACE-CPT', 'ACSM-CPT'],
-    assignedMembers: 31,
-    rating: 4.9,
-    photoUrl: undefined,
-    status: 'active',
-    hireDate: '2022-08-20',
-  },
-  {
-    id: '3',
-    firstName: 'Emma',
-    lastName: 'Wilson',
-    email: 'emma.w@sdfitness.com',
-    phone: '+1 234 567 8903',
-    specializations: ['Yoga', 'Pilates', 'Flexibility'],
-    certifications: ['RYT-500', 'NASM-CPT'],
-    assignedMembers: 28,
-    rating: 5.0,
-    photoUrl: undefined,
-    status: 'active',
-    hireDate: '2023-03-10',
-  },
-  {
-    id: '4',
-    firstName: 'David',
-    lastName: 'Chen',
-    email: 'david.c@sdfitness.com',
-    phone: '+1 234 567 8904',
-    specializations: ['CrossFit', 'Functional Training', 'Sports Performance'],
-    certifications: ['CrossFit L2', 'NSCA-CSCS'],
-    assignedMembers: 19,
-    rating: 4.7,
-    photoUrl: undefined,
-    status: 'on_leave',
-    hireDate: '2021-11-05',
-  },
-];
-
 const statusColors = {
-  active: 'bg-emerald-50 text-emerald-600 border-emerald-100  ',
-  inactive: 'bg-slate-100 text-slate-600 border-slate-200  ',
-  on_leave: 'bg-amber-50 text-amber-600 border-amber-100  ',
+  active: 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
+  inactive: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-navy-800 dark:text-navy-400 dark:border-navy-700',
+  on_leave: 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
 };
 
 export function TrainersList() {
   const navigate = useNavigate();
+  const [trainers, setTrainers] = useState<Trainer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [specializationFilter, setSpecializationFilter] = useState('all');
 
-  const filteredTrainers = mockTrainers.filter((trainer) => {
+  useEffect(() => {
+    const fetchTrainers = async () => {
+      try {
+        const response = await api.get('/trainers');
+        // Map backend structure to frontend interface
+        const mappedTrainers = response.data.map((t: any) => ({
+          id: t._id,
+          firstName: t.userId?.firstName || 'Unknown',
+          lastName: t.userId?.lastName || 'Faculty',
+          email: t.userId?.email || 'N/A',
+          phone: t.userId?.phone || 'N/A',
+          specializations: t.specializations || [],
+          certifications: t.certifications || [],
+          assignedMembers: t.assignedMembers || 0,
+          rating: t.rating || 5.0,
+          photoUrl: t.userId?.avatar,
+          status: t.status || 'active',
+          joinDate: t.joinDate || t.createdAt
+        }));
+        setTrainers(mappedTrainers);
+      } catch (error) {
+        console.error('Failed to fetch trainers:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTrainers();
+  }, []);
+
+  const filteredTrainers = trainers.filter((trainer) => {
     const matchesSearch =
       trainer.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trainer.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      trainer.email.toLowerCase().includes(searchQuery.toLowerCase());
+      trainer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trainer.specializations.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesSpecialization =
       specializationFilter === 'all' ||
@@ -116,15 +89,24 @@ export function TrainersList() {
     return matchesSearch && matchesSpecialization;
   });
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <Loader2 className="h-12 w-12 text-indigo-600 animate-spin" />
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Synchronizing Faculty System</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            Elite <span className="text-indigo-600 dark:text-indigo-400 italic">Trainers</span>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Elite <span className="text-indigo-600 dark:text-indigo-400">Trainers</span>
           </h1>
-          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
+          <p className="text-slate-500 dark:text-navy-400 font-medium mt-1 uppercase text-xs tracking-widest font-bold">
             Oversee your professional coaching staff and their portfolio.
           </p>
         </div>
@@ -147,8 +129,8 @@ export function TrainersList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">{mockTrainers.length}</div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Professionals onboarded</p>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">{trainers.length}</div>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Professionals onboarded</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -159,10 +141,10 @@ export function TrainersList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
-              {mockTrainers.filter((t) => t.status === 'active').length}
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              {trainers.filter((t: any) => t.status === 'active').length}
             </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Currently teaching</p>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Currently teaching</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -173,10 +155,10 @@ export function TrainersList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
-              {mockTrainers.reduce((sum, t) => sum + t.assignedMembers, 0)}
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              {trainers.reduce((sum: number, t: any) => sum + (t.assignedMembers || 0), 0)}
             </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Assigned members</p>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Assigned members</p>
           </CardContent>
         </Card>
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-2xl overflow-hidden group transition-colors">
@@ -187,10 +169,12 @@ export function TrainersList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
-              {(mockTrainers.reduce((sum, t) => sum + t.rating, 0) / mockTrainers.length).toFixed(1)}
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
+              {trainers.length > 0
+                ? (trainers.reduce((sum: number, t: any) => sum + (t.rating || 0), 0) / trainers.length).toFixed(1)
+                : '0.0'}
             </div>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Service quality</p>
+            <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Service quality</p>
           </CardContent>
         </Card>
       </div>
@@ -213,11 +197,20 @@ export function TrainersList() {
                 <SelectValue placeholder="All Specializations" />
               </SelectTrigger>
               <SelectContent className="rounded-xl border-slate-200 dark:border-navy-800 dark:bg-navy-900 dark:text-white">
-                <SelectItem value="all">All Specializations</SelectItem>
-                <SelectItem value="strength">Strength Training</SelectItem>
-                <SelectItem value="cardio">Cardio</SelectItem>
-                <SelectItem value="yoga">Yoga</SelectItem>
-                <SelectItem value="crossfit">CrossFit</SelectItem>
+                <SelectItem value="all">All Specializations System</SelectItem>
+                <SelectItem value="HIIT">HIIT Protocol</SelectItem>
+                <SelectItem value="Yoga">Yoga Specialization</SelectItem>
+                <SelectItem value="CrossFit">CrossFit Elite</SelectItem>
+                <SelectItem value="Boxing">Combat Boxing</SelectItem>
+                <SelectItem value="Pilates">Core Pilates</SelectItem>
+                <SelectItem value="Strength Training">Strength Performance</SelectItem>
+                <SelectItem value="Cardio">Cardio System</SelectItem>
+                <SelectItem value="Spinning">Spinning Cycle</SelectItem>
+                <SelectItem value="Zumba">Zumba Flow</SelectItem>
+                <SelectItem value="Functional Training">Functional Ops</SelectItem>
+                <SelectItem value="Bodybuilding">Bodybuilding Prime</SelectItem>
+                <SelectItem value="Powerlifting">Powerlifting Force</SelectItem>
+                <SelectItem value="Athletic Performance">Athletic System</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -238,7 +231,7 @@ export function TrainersList() {
                 <div className="relative">
                   <Avatar className="h-24 w-24 ring-4 ring-indigo-50 dark:ring-navy-950 group-hover:ring-indigo-100 dark:group-hover:ring-indigo-900/50 transition-all duration-500 hvr-pulse-grow shadow-md">
                     <AvatarImage src={trainer.photoUrl} className="object-cover" />
-                    <AvatarFallback className="bg-indigo-600 dark:bg-navy-950 text-white text-2xl font-black">
+                    <AvatarFallback className="bg-indigo-600 dark:bg-navy-950 text-white text-2xl font-bold">
                       {trainer.firstName[0]}{trainer.lastName[0]}
                     </AvatarFallback>
                   </Avatar>
@@ -249,10 +242,10 @@ export function TrainersList() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase tracking-tight">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors uppercase tracking-tight">
                     {trainer.firstName} {trainer.lastName}
                   </h3>
-                  <Badge className={cn('mt-2 font-black text-[9px] uppercase tracking-widest rounded-lg border shadow-none px-2', statusColors[trainer.status])}>
+                  <Badge className={cn('mt-2 font-bold text-[11px] uppercase tracking-widest rounded-lg border shadow-none px-2', statusColors[trainer.status])}>
                     {trainer.status.replace('_', ' ')}
                   </Badge>
                 </div>
@@ -278,16 +271,16 @@ export function TrainersList() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Award className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                  <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-navy-600">Expertise</span>
+                  <span className="text-xs uppercase font-bold tracking-widest text-slate-400 dark:text-navy-600">Expertise</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {trainer.specializations.slice(0, 2).map((spec) => (
-                    <Badge key={spec} variant="outline" className="border-indigo-100 dark:border-navy-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/5 font-black text-[9px] uppercase tracking-widest py-0.5 rounded-lg">
+                    <Badge key={spec} variant="outline" className="border-indigo-100 dark:border-navy-800 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-500/5 font-bold text-[11px] uppercase tracking-widest py-0.5 rounded-lg">
                       {spec}
                     </Badge>
                   ))}
                   {trainer.specializations.length > 2 && (
-                    <Badge className="bg-slate-100 dark:bg-navy-800 text-slate-500 dark:text-navy-500 border-none font-black text-[9px] uppercase tracking-widest rounded-lg">
+                    <Badge className="bg-slate-100 dark:bg-navy-800 text-slate-500 dark:text-navy-500 border-none font-bold text-[11px] uppercase tracking-widest rounded-lg">
                       +{trainer.specializations.length - 2}
                     </Badge>
                   )}
@@ -297,17 +290,17 @@ export function TrainersList() {
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-navy-800 transition-colors">
                 <div className="space-y-1">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Members</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Members</p>
                   <div className="flex items-center gap-2">
                     <Users className="h-3.5 w-3.5 text-indigo-500 dark:text-indigo-400" />
-                    <p className="text-sm font-black text-slate-900 dark:text-white">{trainer.assignedMembers}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{trainer.assignedMembers}</p>
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-navy-600">Rating</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Rating</p>
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
-                    <p className="text-sm font-black text-slate-900 dark:text-white">{trainer.rating}<span className="text-[10px] font-normal text-slate-400 dark:text-navy-600 ml-0.5">/ 5.0</span></p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">{trainer.rating}<span className="text-xs font-normal text-slate-400 dark:text-navy-600 ml-0.5">/ 5.0</span></p>
                   </div>
                 </div>
               </div>
@@ -321,7 +314,7 @@ export function TrainersList() {
           <div className="inline-flex p-6 rounded-full bg-slate-50 dark:bg-navy-950 mb-6">
             <Users className="h-10 w-10 text-slate-300 dark:text-navy-800" />
           </div>
-          <h3 className="text-slate-900 dark:text-white font-black text-xl uppercase tracking-tight">No trainers found</h3>
+          <h3 className="text-slate-900 dark:text-white font-bold text-xl uppercase tracking-tight">No trainers found</h3>
           <p className="text-slate-400 dark:text-navy-500 font-medium">Try refining your search or specialization filter</p>
         </div>
       )}

@@ -1,3 +1,4 @@
+import api from './axios';
 
 export interface User {
     id: string;
@@ -15,7 +16,7 @@ export interface Message {
     timestamp: string;
     read: boolean;
     type: 'text' | 'image' | 'file';
-    fileUrl?: string; // Mock URL for attachments
+    fileUrl?: string;
 }
 
 export interface Conversation {
@@ -25,135 +26,86 @@ export interface Conversation {
     unreadCount: number;
 }
 
-const MOCK_TRAINERS: User[] = [
-    {
-        id: 'trainer_1',
-        name: 'Sarah Connor',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-        role: 'trainer',
-        status: 'online'
-    },
-    {
-        id: 'trainer_2',
-        name: 'John Wick',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-        role: 'trainer',
-        status: 'busy'
-    }
-];
-
-const MOCK_CONVERSATIONS: Conversation[] = [
-    {
-        id: 'conv_1',
-        participants: [MOCK_TRAINERS[0]],
-        lastMessage: {
-            id: 'msg_100',
-            conversationId: 'conv_1',
-            senderId: 'trainer_1',
-            content: 'Great job on the HIIT session today!',
-            timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-            read: true,
-            type: 'text'
-        },
-        unreadCount: 0
-    },
-    {
-        id: 'conv_2',
-        participants: [MOCK_TRAINERS[1]],
-        lastMessage: {
-            id: 'msg_200',
-            conversationId: 'conv_2',
-            senderId: 'trainer_2',
-            content: 'Don\'t forget to send your meal log.',
-            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-            read: false,
-            type: 'text'
-        },
-        unreadCount: 1
-    }
-];
-
-const MOCK_MESSAGES: Record<string, Message[]> = {
-    'conv_1': [
-        {
-            id: 'msg_1',
-            conversationId: 'conv_1',
-            senderId: 'trainer_1',
-            content: 'Hey! Ready for our session?',
-            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-            read: true,
-            type: 'text'
-        },
-        {
-            id: 'msg_2',
-            conversationId: 'conv_1',
-            senderId: 'user_123',
-            content: 'Yes! Just warming up.',
-            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 23.9).toISOString(),
-            read: true,
-            type: 'text'
-        },
-        {
-            id: 'msg_100',
-            conversationId: 'conv_1',
-            senderId: 'trainer_1',
-            content: 'Great job on the HIIT session today!',
-            timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-            read: true,
-            type: 'text'
-        }
-    ],
-    'conv_2': [
-        {
-            id: 'msg_200',
-            conversationId: 'conv_2',
-            senderId: 'trainer_2',
-            content: 'Don\'t forget to send your meal log.',
-            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-            read: false,
-            type: 'text'
-        }
-    ]
-};
-
-// Simulated API calls
+// Service calls
 export const getConversations = async (): Promise<Conversation[]> => {
-    return new Promise((resolve) => setTimeout(() => resolve(MOCK_CONVERSATIONS), 500));
+    try {
+        const response = await api.get('/communication/conversations');
+        // Map backend conversations to frontend interface
+        return (response.data || []).map((conv: any) => ({
+            id: conv._id,
+            participants: conv.participants.map((p: any) => ({
+                id: p._id,
+                name: `${p.firstName} ${p.lastName}`.trim(),
+                avatar: p.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p._id}`,
+                role: p.role,
+                status: 'online'
+            })),
+            lastMessage: conv.lastMessage ? {
+                id: conv.lastMessage._id,
+                conversationId: conv._id,
+                senderId: conv.lastMessage.sender,
+                content: conv.lastMessage.text,
+                timestamp: conv.lastMessage.createdAt,
+                read: conv.lastMessage.isRead,
+                type: 'text'
+            } : null,
+            unreadCount: 0 // Backend doesn't provide unread count per conv yet
+        }));
+    } catch (error) {
+        console.error('Failed to fetch conversations:', error);
+        return [];
+    }
 };
 
 export const getMessages = async (conversationId: string): Promise<Message[]> => {
-    return new Promise((resolve) => setTimeout(() => resolve(MOCK_MESSAGES[conversationId] || []), 500));
+    try {
+        const response = await api.get('/communication/messages', { params: { conversationId } });
+        return (response.data || []).map((msg: any) => ({
+            id: msg._id,
+            conversationId: msg.conversation,
+            senderId: msg.sender,
+            content: msg.text,
+            timestamp: msg.createdAt,
+            read: msg.isRead,
+            type: 'text'
+        }));
+    } catch (error) {
+        console.error('Failed to fetch messages:', error);
+        return [];
+    }
 };
 
 export const sendMessageAPI = async (conversationId: string, content: string, type: 'text' | 'image' = 'text'): Promise<Message> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const newMessage: Message = {
-                id: `msg_${Date.now()}`,
-                conversationId,
-                senderId: 'user_123', // Current user
-                content,
-                timestamp: new Date().toISOString(),
-                read: true,
-                type
-            };
-            resolve(newMessage);
-        }, 300);
-    });
+    try {
+        const response = await api.post('/communication/messages', { conversationId, text: content });
+        const msg = response.data;
+        return {
+            id: msg._id,
+            conversationId: msg.conversation,
+            senderId: msg.sender,
+            content: msg.text,
+            timestamp: msg.createdAt,
+            read: msg.isRead,
+            type
+        };
+    } catch (error) {
+        console.error('Failed to send message:', error);
+        throw error;
+    }
 };
 
-// Mock Socket Service
+// Placeholder Socket Service (Real implementation would use Socket.io)
 type MessageHandler = (message: Message) => void;
 
-class MockSocketService {
+class SocketService {
     private handlers: MessageHandler[] = [];
 
     connect() {
-        console.log('Mock Socket Connected');
+        console.log('Real-time Socket Service Placeholder Connected');
     }
 
     disconnect() {
-        console.log('Mock Socket Disconnected');
+        console.log('Real-time Socket Service Placeholder Disconnected');
     }
 
     onMessage(handler: MessageHandler) {
@@ -164,21 +116,7 @@ class MockSocketService {
         this.handlers = this.handlers.filter(h => h !== handler);
     }
 
-    // Simulate receiving a message from a trainer
-    simulateIncomingMessage(conversationId: string) {
-        setTimeout(() => {
-            const incomingMsg: Message = {
-                id: `msg_inc_${Date.now()}`,
-                conversationId,
-                senderId: conversationId === 'conv_1' ? 'trainer_1' : 'trainer_2',
-                content: 'This is a real-time update!',
-                timestamp: new Date().toISOString(),
-                read: false,
-                type: 'text'
-            };
-            this.handlers.forEach(h => h(incomingMsg));
-        }, 3000); // 3 seconds delay
-    }
+    // No simulation in production-ready code
 }
 
-export const socketService = new MockSocketService();
+export const socketService = new SocketService();

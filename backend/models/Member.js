@@ -99,7 +99,14 @@ const memberSchema = new mongoose.Schema({
         enum: ['active', 'inactive', 'suspended', 'frozen'],
         default: 'active'
     },
-    notes: String
+    notes: String,
+    paymentMethods: [{
+        brand: { type: String, enum: ['visa', 'mastercard', 'amex', 'paypal'] },
+        last4: String,
+        expiryMonth: Number,
+        expiryYear: Number,
+        isDefault: { type: Boolean, default: false }
+    }]
 }, {
     timestamps: true
 });

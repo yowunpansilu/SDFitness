@@ -30,13 +30,20 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
             return () => clearTimeout(timer);
         }
     }, [isGenerating, generationStage]);
-    const [formData, setFormData] = useState<WizardFormData>({
-        goal: '',
-        dietaryPreferences: [],
-        allergies: '',
-        budget: 200,
-        activityLevel: '',
+    const [formData, setFormData] = useState<WizardFormData>(() => {
+        const saved = localStorage.getItem('diet_wizard_form');
+        return saved ? JSON.parse(saved) : {
+            goal: '',
+            dietaryPreferences: [],
+            allergies: '',
+            budget: 1000,
+            activityLevel: '',
+        };
     });
+
+    useEffect(() => {
+        localStorage.setItem('diet_wizard_form', JSON.stringify(formData));
+    }, [formData]);
 
     const totalSteps = 5;
 
@@ -108,6 +115,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
         setGenerationStage(0);
         try {
             const plan = await generateDietPlan(formData);
+            localStorage.removeItem('diet_wizard_form');
             onComplete(plan);
         } catch (error) {
             console.error('Error generating diet plan:', error);

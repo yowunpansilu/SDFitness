@@ -6,8 +6,8 @@ import {
     checkInUser,
     checkOutUser
 } from '@/lib/api/attendanceService';
-import { produce } from 'immer';
-import { differenceInMinutes, parseISO } from 'date-fns';
+import { useAuthStore } from './authStore';
+import { differenceInMinutes } from 'date-fns';
 
 interface AttendanceState {
     history: AttendanceRecord[];
@@ -17,7 +17,7 @@ interface AttendanceState {
     error: string | null;
 
     fetchHistory: () => Promise<void>;
-    checkIn: (method: 'qr' | 'manual') => Promise<void>;
+    checkIn: (facility?: string) => Promise<void>;
     checkOut: () => Promise<void>;
 }
 
@@ -29,73 +29,109 @@ export const useAttendanceStore = create<AttendanceState>((set, get) => ({
     error: null,
 
     fetchHistory: async () => {
+        const userId = useAuthStore.getState().user?.id;
+        if (!userId) return;
+
         set({ isLoading: true, error: null });
         try {
-            const history = await getAttendanceHistory();
+            const history = await getAttendanceHistory(userId);
 
             // Calculate stats
             const totalVisits = history.length;
             const currentStreak = calculateStreak(history);
-            const totalDuration = history.reduce((acc, curr) => acc + (curr.durationMinutes || 0), 0);
-            const avgDurationMinutes = totalVisits > 0 ? Math.round(totalDuration / totalVisits) : 0;
-            const lastVisitDate = history.length > 0 ? history[0].date : undefined;
+            
+            // Backend AttendanceRecord might not have durationMinutes if it's just raw records
+            const completedVisits = history.filter(h => h.checkInTime && h.checkOutTime);
+            const totalDuration = completedVisits.reduce((acc, curr) => {
+                return acc + differenceInMinutes(new Date(curr.checkOutTime!), new Date(curr.checkInTime));
+            }, 0);
+            
+            const avgDurationMinutes = completedVisits.length > 0 ? Math.round(totalDuration / completedVisits.length) : 0;
+            const lastVisitDate = history.length > 0 ? history[0].checkInTime : undefined;
 
             set({
                 history,
                 stats: { totalVisits, currentStreak, avgDurationMinutes, lastVisitDate },
                 isLoading: false
             });
-        } catch (err) {
-            set({ error: 'Failed to fetch attendance history', isLoading: false });
+        } catch (err: any) {
+            console.error('Error fetching attendance history:', err);
+            set({ error: `Failed to fetch attendance history: ${err.message || 'Unknown error'}`, isLoading: false });
         }
     },
 
-    checkIn: async (method) => {
+    checkIn: async (facility = 'Main Gym') => {
+        const userId = useAuthStore.getState().user?.id;
+        if (!userId) {
+            set({ error: 'User not authenticated' });
+            return;
+        }
+
         set({ isLoading: true, error: null });
         try {
-            const session = await checkInUser(method);
+            const session = await checkInUser(userId, facility);
             set({ currentSession: session, isLoading: false });
+            get().fetchHistory(); // Refresh history
         } catch (err) {
             set({ error: 'Failed to check in', isLoading: false });
         }
     },
 
     checkOut: async () => {
-        const { currentSession } = get();
-        if (!currentSession) return;
+        const userId = useAuthStore.getState().user?.id;
+        if (!userId) return;
 
         set({ isLoading: true, error: null });
         try {
-            const completedSession = await checkOutUser(currentSession.id);
-            // Update the completed session with actual duration calculations if needed in a real app
-            const endTime = new Date();
-            const startTime = parseISO(currentSession.checkInTime);
-            const duration = differenceInMinutes(endTime, startTime);
-
-            const finalRecord = { ...completedSession, checkOutTime: endTime.toISOString(), durationMinutes: duration };
-
-            set(produce((state: AttendanceState) => {
-                state.history.unshift(finalRecord);
-                state.currentSession = null;
-                // Update stats
-                if (state.stats) {
-                    state.stats.totalVisits += 1;
-                    // Recalculate average approx
-                    const totalDur = (state.stats.avgDurationMinutes * (state.stats.totalVisits - 1)) + duration;
-                    state.stats.avgDurationMinutes = Math.round(totalDur / state.stats.totalVisits);
-                }
-                state.isLoading = false;
-            }));
+            await checkOutUser(userId);
+            set({ currentSession: null, isLoading: false });
+            get().fetchHistory(); // Refresh history and accurately recalculate stats
         } catch (err) {
             set({ error: 'Failed to check out', isLoading: false });
         }
     }
 }));
 
-// Helper to calculate streak (mock logic for now - consecutive days)
+// Helper to calculate streak accurately from history
 function calculateStreak(history: AttendanceRecord[]): number {
-    // Determine streak based on history dates
-    // Simplified logic: just returning a mock number or simple calculation
-    // In real app, sort by date desc and check consecutiveness
-    return history.length > 0 ? 3 : 0;
+    if (!history || history.length === 0) return 0;
+
+    // Normalize dates to midnight to compare just the days
+    const dates = history
+        .filter(h => h.checkInTime)
+        .map(h => {
+             const d = new Date(h.checkInTime);
+             d.setHours(0, 0, 0, 0);
+             return d.getTime();
+        })
+        .sort((a, b) => b - a);
+
+    const uniqueDates = Array.from(new Set(dates));
+    
+    if (uniqueDates.length === 0) return 0;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const msInDay = 24 * 60 * 60 * 1000;
+    
+    let streak = 0;
+    const diffDaysFirst = Math.round((today.getTime() - uniqueDates[0]) / msInDay);
+    
+    // If the most recent visit is today or yesterday, start counting streak
+    if (diffDaysFirst <= 1) {
+        streak = 1;
+        let currentDate = uniqueDates[0];
+
+        for (let i = 1; i < uniqueDates.length; i++) {
+            const diffDays = Math.round((currentDate - uniqueDates[i]) / msInDay);
+            if (diffDays === 1) {
+                streak++;
+                currentDate = uniqueDates[i];
+            } else {
+                break;
+            }
+        }
+    }
+
+    return streak;
 }

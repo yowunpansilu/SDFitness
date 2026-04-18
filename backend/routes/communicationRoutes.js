@@ -7,5 +7,6 @@ router.get('/messages', commController.getMessages);
 router.post('/messages', commController.sendMessage);
 router.get('/notifications', commController.getNotifications);
 router.put('/notifications/:id/read', commController.markNotificationRead);
+router.delete('/notifications/:id', commController.deleteNotification);
 
 module.exports = router;

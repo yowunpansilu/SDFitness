@@ -12,24 +12,32 @@ interface ClassCardProps {
     onBook: (gymClass: GymClass) => void;
     userBooking?: Booking;
     isPast?: boolean;
+    isLive?: boolean;
 }
 
-export function ClassCard({ gymClass, onBook, userBooking, isPast }: ClassCardProps) {
+export function ClassCard({ gymClass, onBook, userBooking, isPast, isLive }: ClassCardProps) {
     const isFull = gymClass.bookedCount >= gymClass.capacity;
     const isBooked = !!userBooking;
 
     return (
         <Card className={cn(
             "bg-card border-border overflow-hidden hover:border-primary-600/50 transition-colors h-full flex flex-col",
-            isPast && "opacity-60"
+            isPast && !isLive && "opacity-60"
         )}>
-            <div className="h-2 bg-primary-600 w-full" />
+            <div className={cn("h-2 w-full", isLive ? "bg-emerald-500 animate-pulse" : "bg-primary-600")} />
             <CardHeader className="p-4 pb-2">
                 <div className="flex justify-between items-start gap-2">
                     <div className="space-y-1">
-                        <Badge variant="outline" className="border-primary-600/50 text-primary-800 text-[10px] uppercase tracking-wider">
-                            {gymClass.type}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="border-primary-600/50 text-primary-800 text-[10px] uppercase tracking-wider">
+                                {gymClass.type}
+                            </Badge>
+                            {isLive && (
+                                <Badge className="bg-emerald-500 text-white text-[10px] uppercase animate-pulse border-none">
+                                    LIVE
+                                </Badge>
+                            )}
+                        </div>
                         <h3 className="font-bold text-lg text-foreground leading-tight">{gymClass.name}</h3>
                     </div>
                 </div>

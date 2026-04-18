@@ -24,10 +24,14 @@ router.get('/', async (req, res) => {
 // POST /api/diet-plans — save a generated plan
 router.post('/', async (req, res) => {
     try {
-        const planData = req.body;
+        const planData = { ...req.body };
         if (!planData.memberId) {
             return res.status(400).json({ success: false, error: 'memberId is required' });
         }
+
+        // Strip IDs if they exist to ensure Mongoose generates a fresh one
+        delete planData._id;
+        delete planData.id;
 
         const dietPlan = new DietPlan(planData);
         await dietPlan.save();
@@ -35,6 +39,9 @@ router.post('/', async (req, res) => {
         res.status(201).json({ success: true, data: dietPlan });
     } catch (error) {
         console.error('❌ Diet plan save error:', error.message);
+        if (error.errors) {
+            console.error('Validation Errors:', Object.keys(error.errors).map(k => `${k}: ${error.errors[k].message}`).join(', '));
+        }
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -56,6 +63,9 @@ router.put('/:id', async (req, res) => {
         res.json({ success: true, data: plan });
     } catch (error) {
         console.error('❌ Diet plan update error:', error.message);
+        if (error.errors) {
+            console.error('Validation Errors:', Object.keys(error.errors).map(k => `${k}: ${error.errors[k].message}`).join(', '));
+        }
         res.status(500).json({ success: false, error: error.message });
     }
 });

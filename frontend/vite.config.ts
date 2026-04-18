@@ -10,4 +10,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    // Use polling for file watching inside Docker on macOS (virtioFS doesn't support inotify)
+    watch: {
+      usePolling: true,
+      interval: 1000,
+    },
+  },
 })

@@ -257,7 +257,7 @@ const generateDietPlan = async (memberId, shouldSave = true, overrides = {}) => 
     // 5. Save to MongoDB
     const dietPlan = new DietPlan({
         memberId,
-        planName: `${userProfile.goal.replace('_', ' ')} plan`,
+        planName: `${userProfile.goal.replace(/[_-]/g, ' ')} plan`,
         targetCalories: planData.targetCalories,
         macroSplit: planData.macroSplit,
         budget: userProfile.diet_budget,

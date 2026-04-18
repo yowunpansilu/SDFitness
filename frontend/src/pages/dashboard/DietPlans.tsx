@@ -58,12 +58,23 @@ export function DietPlans() {
         if (currentPlan) {
             try {
                 if (currentPlan._id) {
-                    await updateDietPlan(currentPlan._id, currentPlan);
+                    try {
+                        await updateDietPlan(currentPlan._id, currentPlan);
+                        alert('Diet plan updated successfully!');
+                    } catch (updateError: any) {
+                        // If update fails (e.g. 404), it might be a generated plan not yet in DB
+                        if (updateError.response?.status === 404) {
+                            await saveGeneratedPlan(currentPlan);
+                            alert('Diet plan saved successfully!');
+                        } else {
+                            throw updateError;
+                        }
+                    }
                 } else {
                     await saveGeneratedPlan(currentPlan);
+                    alert('Diet plan saved successfully!');
                 }
                 await loadPlans();
-                alert('Diet plan saved successfully!');
             } catch (error) {
                 console.error('Error saving plan:', error);
                 alert('Failed to save diet plan.');

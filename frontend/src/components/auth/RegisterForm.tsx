@@ -204,11 +204,11 @@ export function RegisterForm() {
 
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
-                <div className="grid grid-cols-2 gap-x-3 gap-y-2 animate-fade-in">
-                    <h3 className="col-span-2 text-sm font-bold text-foreground">Basic Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-2 animate-fade-in">
+                    <h3 className="col-span-1 md:col-span-2 text-sm font-bold text-foreground">Basic Information</h3>
                     
                     <div className="space-y-1">
-                        <Label htmlFor="firstName" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">First Name</Label>
+                        <Label htmlFor="firstName" className="text-primary-900 font-semibold text-xs uppercase">First Name</Label>
                         <div className="relative group">
                             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
                             <Input
@@ -223,7 +223,7 @@ export function RegisterForm() {
                     </div>
 
                     <div className="space-y-1">
-                        <Label htmlFor="lastName" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Last Name</Label>
+                        <Label htmlFor="lastName" className="text-primary-900 font-semibold text-xs uppercase">Last Name</Label>
                         <div className="relative group">
                             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
                             <Input
@@ -238,7 +238,7 @@ export function RegisterForm() {
                     </div>
 
                     <div className="space-y-1 col-span-2 md:col-span-1">
-                        <Label htmlFor="email" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Email Address</Label>
+                        <Label htmlFor="email" className="text-primary-900 font-semibold text-xs uppercase">Email Address</Label>
                         <div className="relative group">
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
                             <Input
@@ -254,7 +254,7 @@ export function RegisterForm() {
                     </div>
 
                     <div className="space-y-1 col-span-2 md:col-span-1">
-                        <Label htmlFor="phone" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Phone Number</Label>
+                        <Label htmlFor="phone" className="text-primary-900 font-semibold text-xs uppercase">Phone Number</Label>
                         <div className="relative group">
                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
                             <Input
@@ -270,7 +270,7 @@ export function RegisterForm() {
                     </div>
 
                     <div className="space-y-1 col-span-2 md:col-span-1">
-                        <Label htmlFor="password" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Password</Label>
+                        <Label htmlFor="password" className="text-primary-900 font-semibold text-xs uppercase">Password</Label>
                         <div className="relative group">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-secondary-500 transition-colors" />
                             <Input
@@ -286,7 +286,7 @@ export function RegisterForm() {
                     </div>
 
                     <div className="space-y-1 col-span-2 md:col-span-1">
-                        <Label htmlFor="confirmPassword" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Confirm Password</Label>
+                        <Label htmlFor="confirmPassword" className="text-primary-900 font-semibold text-xs uppercase">Confirm Password</Label>
                         <div className="relative group">
                             <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
                                 step1Data.confirmPassword && step1Data.password !== step1Data.confirmPassword
@@ -328,7 +328,7 @@ export function RegisterForm() {
                     />
 
                     <div className="space-y-1">
-                        <Label className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Gender</Label>
+                        <Label className="text-primary-900 font-semibold text-xs uppercase">Gender</Label>
                         <div className="grid grid-cols-3 gap-2">
                             {['Male', 'Female', 'Other'].map((gender) => (
                                 <button
@@ -346,9 +346,9 @@ export function RegisterForm() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                            <Label htmlFor="height" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Height</Label>
+                            <Label htmlFor="height" className="text-primary-900 font-semibold text-xs uppercase">Height</Label>
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
                                     <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
@@ -374,7 +374,7 @@ export function RegisterForm() {
                         </div>
 
                         <div className="space-y-1">
-                            <Label htmlFor="weight" className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Weight</Label>
+                            <Label htmlFor="weight" className="text-primary-900 font-semibold text-xs uppercase">Weight</Label>
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
                                     <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
@@ -408,8 +408,8 @@ export function RegisterForm() {
                     <h3 className="text-sm font-bold text-foreground">Goals & Preferences</h3>
 
                     <div className="space-y-1">
-                        <Label className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Fitness Goals</Label>
-                        <div className="grid grid-cols-3 gap-1">
+                        <Label className="text-primary-900 font-semibold text-xs uppercase">Fitness Goals</Label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                             {['Weight Loss', 'Muscle Gain', 'Endurance', 'Flexibility', 'General Fitness', 'Sports Performance'].map((goal) => (
                                 <button
                                     key={goal}
@@ -427,7 +427,7 @@ export function RegisterForm() {
                     </div>
 
                     <div className="space-y-0.5">
-                        <Label className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Activity Level</Label>
+                        <Label className="text-primary-900 font-semibold text-xs uppercase">Activity Level</Label>
                         <div className="grid grid-cols-1 gap-1">
                             {[
                                 { value: 'sedentary', label: 'Sedentary' },
@@ -452,8 +452,8 @@ export function RegisterForm() {
                     </div>
 
                     <div className="space-y-1">
-                        <Label className="text-primary-900 font-semibold text-[10px] uppercase opacity-70">Dietary Preferences</Label>
-                        <div className="grid grid-cols-3 gap-1">
+                        <Label className="text-primary-900 font-semibold text-xs uppercase">Dietary Preferences</Label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                             {['Vegetarian', 'Vegan', 'Keto', 'Paleo', 'Gluten-Free', 'Dairy-Free'].map((pref) => (
                                 <button
                                     key={pref}

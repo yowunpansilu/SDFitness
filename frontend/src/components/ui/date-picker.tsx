@@ -40,7 +40,7 @@ export function DatePicker({
                         {value ? value.toLocaleDateString() : placeholder}
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                <PopoverContent className="w-auto overflow-hidden p-0" align="center">
                     <Calendar
                         mode="single"
                         selected={value}

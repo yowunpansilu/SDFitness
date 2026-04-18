@@ -88,7 +88,7 @@ export function LoginForm() {
             </div>
 
             {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between pt-1 pb-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-1 pb-2">
                 <label className="flex items-center gap-2.5 cursor-pointer group">
                     <div className="relative flex items-center justify-center">
                         <input
@@ -133,7 +133,7 @@ export function LoginForm() {
             </div>
 
             {/* Social Login Buttons */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Button
                     type="button"
                     variant="outline"

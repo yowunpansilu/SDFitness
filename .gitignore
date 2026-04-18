@@ -23,3 +23,5 @@ ml-service/data/training_data.csv
 # OS
 .DS_Store
 Thumbs.db
+
+.agent

@@ -1,19 +1,20 @@
 import { useState } from 'react';
-import { 
-    Package, 
-    Apple, 
-    Beef, 
-    Milk, 
-    Wheat, 
-    CheckCircle2,
+import {
+    Package,
+    Apple,
+    Beef,
+    Milk,
+    Wheat,
     ChevronDown,
     ChevronUp,
     TrendingUp,
     TrendingDown,
     Copy,
-    Check
+    Check,
+    Sparkles
 } from 'lucide-react';
 
+import { Checkbox } from '../ui/checkbox';
 import { cn } from '@/lib/utils';
 import type { ShoppingItem, ShoppingListData } from '@/lib/api/dietPlanApi';
 
@@ -34,6 +35,7 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
         if (cat.includes('protein') || cat.includes('meat') || cat.includes('fish')) return <Beef className="w-5 h-5 text-red-500" />;
         if (cat.includes('dairy') || cat.includes('milk')) return <Milk className="w-5 h-5 text-blue-500" />;
         if (cat.includes('grain') || cat.includes('carb') || cat.includes('bread')) return <Wheat className="w-5 h-5 text-amber-600" />;
+        if (cat.includes('pantry') || cat.includes('spices')) return <Sparkles className="w-5 h-5 text-orange-500" />;
         return <Package className="w-5 h-5 text-muted-foreground" />;
     };
 
@@ -47,9 +49,9 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
     }, {} as Record<string, ShoppingItem[]>);
 
     const toggleCategory = (category: string) => {
-        setExpandedCategories(prev => 
-            prev.includes(category) 
-                ? prev.filter(c => c !== category) 
+        setExpandedCategories(prev =>
+            prev.includes(category)
+                ? prev.filter(c => c !== category)
                 : [...prev, category]
         );
     };
@@ -58,7 +60,7 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
         const text = items
             .map(item => `- [${item.checked ? 'x' : ' '}] ${item.name}: ${item.quantity}${item.unit || ''}`)
             .join('\n');
-        
+
         navigator.clipboard.writeText(text).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
@@ -79,7 +81,7 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
                         </p>
                     )}
                 </div>
-                <button 
+                <button
                     onClick={copyToClipboard}
                     className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary-50 text-primary-700 text-xs font-bold hover:bg-primary-100 transition-colors"
                 >
@@ -95,7 +97,7 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
                     return (
                         <div key={category} className="group animate-fade-in">
                             {/* Category Header */}
-                            <button 
+                            <button
                                 onClick={() => toggleCategory(category)}
                                 className={cn(
                                     "w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300",
@@ -123,30 +125,29 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
                                         const priceIncreased = priceChanged && (item.currentPrice || 0) > (item.priceAtGeneration || 0);
 
                                         return (
-                                            <div 
+                                            <div
                                                 key={item.id}
                                                 className={cn(
-                                                    "flex items-center justify-between p-3 rounded-xl transition-all group/item",
+                                                    "flex items-center justify-between p-3.5 rounded-xl transition-all group/item min-h-[56px]",
                                                     item.checked ? "opacity-60" : "hover:bg-white hover:shadow-md hover:shadow-primary-900/5 group/item"
                                                 )}
                                             >
-                                                <div className="flex items-center gap-3">
-                                                    <button 
-                                                        onClick={() => onToggleItem(item.id)}
-                                                        className={cn(
-                                                            "w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all",
-                                                            item.checked 
-                                                                ? "bg-primary-900 border-primary-900 text-white" 
-                                                                : "border-primary-100 bg-white group-hover/item:border-primary-300"
-                                                        )}
-                                                    >
-                                                        {item.checked && <CheckCircle2 className="w-4 h-4 ml-0.5" />}
-                                                    </button>
+                                                <div className="flex items-center gap-4">
+                                                    <Checkbox
+                                                        checked={item.checked}
+                                                        onCheckedChange={() => onToggleItem(item.id)}
+                                                        className="w-5 h-5 rounded-md data-[state=checked]:bg-primary-900 data-[state=checked]:text-white border-primary-200"
+                                                    />
                                                     <span className={cn(
-                                                        "text-sm font-bold text-primary-900",
-                                                        item.checked && "line-through"
+                                                        "text-sm font-bold text-primary-900 flex flex-wrap items-center gap-2 leading-tight",
+                                                        item.checked && "line-through text-muted-foreground"
                                                     )}>
                                                         {item.name}
+                                                        {item.isEssential && (
+                                                            <span className="text-[9px] uppercase tracking-widest text-orange-700 bg-orange-100/80 px-2 py-0.5 rounded-full border border-orange-200">
+                                                                Essential
+                                                            </span>
+                                                        )}
                                                     </span>
                                                 </div>
 
@@ -155,7 +156,7 @@ export function ShoppingList({ items, onToggleItem, priceData }: ShoppingListPro
                                                         <div className="flex flex-col items-end min-w-[100px]">
                                                             <div className={cn(
                                                                 "text-sm font-bold flex items-center gap-1",
-                                                                priceChanged 
+                                                                priceChanged
                                                                     ? (priceIncreased ? 'text-red-500' : 'text-green-600')
                                                                     : 'text-primary-800'
                                                             )}>

@@ -31,6 +31,7 @@ export interface Meal {
     estimatedCost: { amount: number; currency: string };
     description?: string;
     instructions?: string[];
+    essentialIngredients?: string[];
     prepTime?: number;
     cookTime?: number;
     // Legacy support
@@ -67,6 +68,7 @@ export interface ShoppingItem {
     currentPrice?: number;
     store?: string;
     checked: boolean;
+    isEssential?: boolean;
 }
 
 export interface ShoppingListData {
@@ -150,7 +152,7 @@ export async function generateDietPlan(formData: WizardFormData): Promise<DietPl
         ...formData,
         memberId
     });
-    
+
     if (response.data.success) {
         const plan = response.data.data;
         return {

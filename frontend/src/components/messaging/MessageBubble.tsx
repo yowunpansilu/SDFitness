@@ -2,7 +2,6 @@ import { type Message } from "@/lib/api/messageService";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Check, CheckCheck } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface Props {
     message: Message;
@@ -11,11 +10,8 @@ interface Props {
 
 export function MessageBubble({ message, isOwn }: Props) {
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className={cn("flex w-full mb-2", isOwn ? "justify-end" : "justify-start")}
+        <div
+            className={cn("flex w-full mb-2 animate-in fade-in slide-in-from-bottom-2 duration-300", isOwn ? "justify-end" : "justify-start")}
         >
             <div
                 className={cn(
@@ -45,6 +41,6 @@ export function MessageBubble({ message, isOwn }: Props) {
                     )}
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 }

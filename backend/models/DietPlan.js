@@ -59,6 +59,7 @@ const dietPlanSchema = new mongoose.Schema({
             },
             // GPT-generated content
             instructions: [String],
+            essentialIngredients: [String],
             prepTime: Number,
             cookTime: Number,
             description: String
@@ -76,7 +77,8 @@ const dietPlanSchema = new mongoose.Schema({
             priceAtGeneration: Number,
             currentPrice: Number,
             store: String,
-            checked: { type: Boolean, default: false }
+            checked: { type: Boolean, default: false },
+            isEssential: { type: Boolean, default: false }
         }],
         totalAtGeneration: Number,
         currentTotal: Number,

@@ -1,6 +1,6 @@
-import { 
-    Dialog, 
-    DialogContent, 
+import {
+    Dialog,
+    DialogContent,
     DialogTitle,
 } from '../ui/dialog';
 import { Badge } from '../ui/badge';
@@ -26,8 +26,8 @@ export function RecipeModal({ meal, open, onOpenChange }: RecipeModalProps) {
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-[2.5rem] border-none shadow-2xl">
                 <div className="relative h-48 w-full">
-                    <img 
-                        src={meal.image || 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=800&auto=format&fit=crop'} 
+                    <img
+                        src={meal.image || 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=800&auto=format&fit=crop'}
                         alt={meal.name}
                         className="w-full h-full object-cover"
                     />
@@ -73,8 +73,8 @@ export function RecipeModal({ meal, open, onOpenChange }: RecipeModalProps) {
                         </div>
                     </div>
 
-                    <ScrollArea className="h-[400px] pr-6">
-                        <div className="space-y-8">
+                    <ScrollArea className="h-auto max-h-[500px] w-full">
+                        <div className="space-y-8 px-4 md:px-0 pr-0 md:pr-6 pb-6">
                             {/* Ingredients */}
                             <div>
                                 <h4 className="text-lg font-black text-primary-900 mb-4 flex items-center gap-2">
@@ -95,6 +95,26 @@ export function RecipeModal({ meal, open, onOpenChange }: RecipeModalProps) {
                                 </div>
                             </div>
 
+                            {/* Essential Ingredients (Pantry) */}
+                            {meal.essentialIngredients && meal.essentialIngredients.length > 0 && (
+                                <div>
+                                    <h4 className="text-lg font-black text-orange-600 mb-4 flex items-center gap-2">
+                                        Pantry & Spices Needed
+                                        <span className="w-2 h-2 rounded-full bg-orange-500" />
+                                    </h4>
+                                    <div className="grid grid-cols-1 gap-3 p-5 rounded-3xl bg-orange-50/70 border border-orange-100/50">
+                                        {meal.essentialIngredients.map((ingredient: string, idx) => (
+                                            <div key={idx} className="flex items-center gap-3">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-orange-400 flex-shrink-0" />
+                                                <span className="text-sm font-bold text-orange-900/80">
+                                                    {ingredient}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Instructions */}
                             <div>
                                 <h4 className="text-lg font-black text-primary-900 mb-4 flex items-center gap-2">
@@ -108,8 +128,8 @@ export function RecipeModal({ meal, open, onOpenChange }: RecipeModalProps) {
                                                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center text-xs font-black shadow-lg shadow-primary-500/20">
                                                     {idx + 1}
                                                 </div>
-                                                <p className="text-sm text-secondary-600 leading-relaxed font-medium pt-1">
-                                                    {step}
+                                                <p className="text-sm text-secondary-800 leading-relaxed font-medium pt-1">
+                                                    {step.replace(/^Step\\s*\\d+[:.]?\\s*/i, '')}
                                                 </p>
                                             </div>
                                         ))
@@ -121,7 +141,7 @@ export function RecipeModal({ meal, open, onOpenChange }: RecipeModalProps) {
                                     )}
                                 </div>
                             </div>
-                            
+
                             {/* Description/Tips */}
                             {meal.description && (
                                 <div className="p-6 rounded-3xl bg-primary-50/50 border border-primary-100">

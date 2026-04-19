@@ -22,6 +22,7 @@ import { AnalyticsDashboard } from './pages/analytics/AnalyticsDashboard';
 import { Settings } from './pages/settings/Settings';
 import { FoodPrices } from './pages/prices/FoodPrices';
 import { ScraperReview } from './pages/scraper/ScraperReview';
+import { SubscriptionsDashboard } from './pages/subscriptions/SubscriptionsDashboard';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
 
@@ -88,6 +89,7 @@ function App() {
             <Route path="payments" element={<PaymentsList />} />
             <Route path="payments/add" element={<PaymentForm />} />
             <Route path="payments/:id" element={<PaymentDetail />} />
+            <Route path="subscriptions" element={<SubscriptionsDashboard />} />
             <Route path="equipment" element={<EquipmentInventory />} />
             <Route path="equipment/add" element={<EquipmentForm />} />
             <Route path="equipment/edit/:id" element={<EquipmentForm />} />

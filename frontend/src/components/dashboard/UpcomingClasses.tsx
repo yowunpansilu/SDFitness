@@ -17,10 +17,15 @@ export function UpcomingClasses() {
             try {
                 setLoading(true);
                 const data = await getClasses();
-                // For Dashboard, we only want the next 3 or so
-                setClasses(data.slice(0, 3));
+                // Ensure data is an array
+                if (Array.isArray(data)) {
+                    setClasses(data.slice(0, 3));
+                } else {
+                    setClasses([]);
+                }
             } catch (error) {
                 console.error('Failed to fetch classes:', error);
+                setClasses([]);
             } finally {
                 setLoading(false);
             }
@@ -28,6 +33,16 @@ export function UpcomingClasses() {
 
         fetchClasses();
     }, []);
+
+    const formatSafeDate = (dateString: string, formatStr: string) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Invalid Date';
+            return format(date, formatStr);
+        } catch (e) {
+            return 'Invalid Date';
+        }
+    };
 
     return (
         <Card className="glass-card border-border">
@@ -56,7 +71,7 @@ export function UpcomingClasses() {
                             <Avatar className="h-12 w-12">
                                 <AvatarImage src={classItem.image} />
                                 <AvatarFallback>
-                                    {classItem.trainerName
+                                    {(classItem.trainerName || 'Trainer')
                                         .split(' ')
                                         .map((n) => n[0])
                                         .join('')}
@@ -65,20 +80,20 @@ export function UpcomingClasses() {
 
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <h4 className="font-semibold text-foreground">{classItem.name}</h4>
+                                    <h4 className="font-semibold text-foreground">{classItem.name || 'Unnamed Class'}</h4>
                                     <Badge variant="secondary" className="text-xs">
-                                        {classItem.type}
+                                        {classItem.type || 'General'}
                                     </Badge>
                                 </div>
-                                <p className="text-sm text-muted-foreground">{classItem.trainerName}</p>
+                                <p className="text-sm text-muted-foreground">{classItem.trainerName || 'TBA'}</p>
                                 <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1">
                                         <Calendar className="w-3 h-3" />
-                                        {format(new Date(classItem.startTime), 'EEEE')}
+                                        {formatSafeDate(classItem.startTime, 'EEEE')}
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <Clock className="w-3 h-3" />
-                                        {format(new Date(classItem.startTime), 'p')} ({classItem.duration} min)
+                                        {formatSafeDate(classItem.startTime, 'p')} ({classItem.duration || 60} min)
                                     </span>
                                 </div>
                             </div>

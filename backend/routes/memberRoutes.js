@@ -38,7 +38,7 @@ router.get('/', async (req, res) => {
                 email: m.userId?.email,
                 phone: m.userId?.phone,
                 status: m.status,
-                membershipType: m.membershipType || 'standard',
+                membershipType: m.membershipType || 'basic',
                 joinDate: m.joinDate,
                 profilePhoto: m.userId?.avatar
             }))
@@ -151,7 +151,7 @@ router.post('/', async (req, res) => {
                 dateOfBirth: new Date(dateOfBirth),
                 gender: gender || 'prefer_not_to_say',
                 status: status || 'active',
-                membershipType: membershipPlan || 'standard',
+                membershipType: membershipPlan || 'basic',
                 height: { value: parseFloat(height) || 0, unit: 'cm' },
                 currentWeight: { value: parseFloat(weight) || 0, unit: 'kg' },
                 targetWeight: { value: parseFloat(targetWeight) || 0, unit: 'kg' },

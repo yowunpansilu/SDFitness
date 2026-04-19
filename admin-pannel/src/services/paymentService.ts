@@ -12,7 +12,7 @@ export const paymentService = {
     },
 
     createPayment: async (data: any) => {
-        const response = await api.post('/payments', data);
+        const response = await api.post('/payments/admin-record', data);
         return response.data;
     },
 

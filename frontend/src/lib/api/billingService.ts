@@ -12,7 +12,7 @@ export interface PaymentMethod {
     _id?: string; // MongoDB ID
 }
 
-export type TransactionStatus = 'paid' | 'pending' | 'failed';
+export type TransactionStatus = 'paid' | 'pending' | 'failed' | 'cancelled';
 
 export interface Transaction {
     id: string;
@@ -21,15 +21,48 @@ export interface Transaction {
     description: string;
     status: TransactionStatus;
     invoiceUrl: string;
+    orderId?: string;
 }
 
-export interface BillingSummary {
-    nextBillingDate: string;
-    nextBillingAmount: number;
-    currency: string;
+export interface PayhereInitResponse {
+    success: boolean;
+    checkoutUrl: string;
+    formData: {
+        merchant_id: string;
+        return_url: string;
+        cancel_url: string;
+        notify_url: string;
+        first_name: string;
+        last_name: string;
+        email: string;
+        phone: string;
+        address: string;
+        city: string;
+        country: string;
+        order_id: string;
+        items: string;
+        currency: string;
+        amount: number;
+        hash: string;
+    };
 }
 
 // Service
+export const initiatePayherePayment = async (data: {
+    amount: number;
+    currency: string;
+    description: string;
+    planId?: string;
+}): Promise<PayhereInitResponse> => {
+    const response = await api.post('/payments/initiate', data);
+    return response.data;
+};
+
+export const getPaymentByOrderId = async (orderId: string): Promise<any> => {
+    const response = await api.get(`/payments/status/${orderId}`);
+    return response.data;
+};
+
 export const getPaymentMethods = async (): Promise<PaymentMethod[]> => {
     const { user } = useAuthStore.getState();
     const userId = user?._id || user?.id;
@@ -48,21 +81,18 @@ export const getPaymentMethods = async (): Promise<PaymentMethod[]> => {
 };
 
 export const getTransactions = async (): Promise<Transaction[]> => {
-    const { user } = useAuthStore.getState();
-    const userId = user?._id || user?.id;
     try {
-        const response = await api.get('/membership/subscriptions', {
-            params: { userId }
-        });
-        const subscriptions = response.data;
+        const response = await api.get('/payments');
+        const payments = response.data;
         
-        return subscriptions.map((sub: any) => ({
-            id: sub._id,
-            date: sub.startDate || sub.createdAt,
-            amount: sub.plan?.price || 0,
-            description: `${sub.plan?.name || 'Membership'} Subscription`,
-            status: sub.status === 'active' ? 'paid' : 'failed',
-            invoiceUrl: '#'
+        return payments.map((p: any) => ({
+            id: p._id,
+            date: p.createdAt,
+            amount: p.amount,
+            description: p.description,
+            status: p.status === 'completed' ? 'paid' : p.status,
+            invoiceUrl: '#',
+            orderId: p.orderId
         }));
     } catch (error) {
         console.error('Failed to fetch transactions:', error);
@@ -70,34 +100,17 @@ export const getTransactions = async (): Promise<Transaction[]> => {
     }
 };
 
-export const addPaymentMethod = async (method: Omit<PaymentMethod, 'id'>): Promise<PaymentMethod> => {
-    const { user } = useAuthStore.getState();
-    const userId = user?._id || user?.id;
-    if (!userId) throw new Error('Authentication session not found. Please log in again.');
+// ... other existing methods remain same or can be removed if strictly using PayHere
 
-    const response = await api.post('/membership/payment-methods', {
-        ...method,
-        userId
-    });
-    
-    return {
-        ...response.data,
-        id: response.data._id || response.data.id
-    };
-};
-
-export const deletePaymentMethod = async (id: string): Promise<void> => {
-    const { user } = useAuthStore.getState();
-    const userId = user?._id || user?.id;
-    if (!userId) throw new Error('Authentication session not found.');
-
-    await api.delete(`/membership/payment-methods/${userId}/${id}`);
-};
-
-export const setDefaultPaymentMethod = async (id: string): Promise<void> => {
-    const { user } = useAuthStore.getState();
-    const userId = user?._id || user?.id;
-    if (!userId) throw new Error('Authentication session not found.');
-
-    await api.put(`/membership/payment-methods/${userId}/${id}/default`);
+export const recordAdminPayment = async (data: {
+    memberId: string;
+    amount: number;
+    currency: string;
+    method: string;
+    description?: string;
+    planId?: string;
+    transactionId?: string;
+}): Promise<any> => {
+    const response = await api.post('/payments/admin-record', data);
+    return response.data;
 };

@@ -3,13 +3,12 @@ import {
     type MembershipPlan,
     type UserMembership,
     type UsageStats,
-    type BillingCycle,
     getPlans,
     getCurrentMembership,
     getUsageStats,
-    updateMembershipPlan,
+    initiatePlanPayment,
     cancelMembership,
-    freezeMembership
+    freezeMembership,
 } from '../api/membershipService';
 
 interface MembershipState {
@@ -18,13 +17,14 @@ interface MembershipState {
     usageStats: UsageStats | null;
     isLoading: boolean;
     error: string | null;
+    paymentData: { checkoutUrl: string; orderId: string; formData: Record<string, string> } | null;
 
-    // Actions
     fetchPlans: () => Promise<void>;
     fetchMembershipData: () => Promise<void>;
-    changePlan: (planId: string, billingCycle: BillingCycle) => Promise<void>;
+    startPlanPayment: (planId: string) => Promise<void>;
     cancelSubscription: () => Promise<void>;
     freezeSubscription: (resumeDate: Date) => Promise<void>;
+    clearPaymentData: () => void;
 }
 
 export const useMembershipStore = create<MembershipState>((set, get) => ({
@@ -33,13 +33,14 @@ export const useMembershipStore = create<MembershipState>((set, get) => ({
     usageStats: null,
     isLoading: false,
     error: null,
+    paymentData: null,
 
     fetchPlans: async () => {
         set({ isLoading: true, error: null });
         try {
             const plans = await getPlans();
             set({ plans, isLoading: false });
-        } catch (err) {
+        } catch {
             set({ error: 'Failed to fetch membership plans', isLoading: false });
         }
     },
@@ -49,21 +50,22 @@ export const useMembershipStore = create<MembershipState>((set, get) => ({
         try {
             const [currentMembership, usageStats] = await Promise.all([
                 getCurrentMembership(),
-                getUsageStats()
+                getUsageStats(),
             ]);
             set({ currentMembership, usageStats, isLoading: false });
-        } catch (err) {
+        } catch {
             set({ error: 'Failed to fetch membership details', isLoading: false });
         }
     },
 
-    changePlan: async (planId, billingCycle) => {
+    startPlanPayment: async (planId: string) => {
         set({ isLoading: true, error: null });
         try {
-            const updatedMembership = await updateMembershipPlan(planId, billingCycle);
-            set({ currentMembership: updatedMembership, isLoading: false });
-        } catch (err) {
-            set({ error: 'Failed to update plan', isLoading: false });
+            const data = await initiatePlanPayment(planId);
+            set({ paymentData: data, isLoading: false });
+        } catch (err: any) {
+            const message = err.response?.data?.error || err.message || 'Failed to initiate payment';
+            set({ error: message, isLoading: false });
             throw err;
         }
     },
@@ -71,38 +73,38 @@ export const useMembershipStore = create<MembershipState>((set, get) => ({
     cancelSubscription: async () => {
         const { currentMembership } = get();
         if (!currentMembership) return;
-
         set({ isLoading: true, error: null });
         try {
             await cancelMembership(currentMembership.id);
-            set((state) => ({
+            set(state => ({
                 currentMembership: state.currentMembership
-                    ? { ...state.currentMembership, status: 'cancelled', autoRenew: false }
+                    ? { ...state.currentMembership, status: 'cancelled' }
                     : null,
-                isLoading: false
+                isLoading: false,
             }));
-        } catch (err) {
+        } catch {
             set({ error: 'Failed to cancel subscription', isLoading: false });
-            throw err;
+            throw new Error('Cancel failed');
         }
     },
 
     freezeSubscription: async (resumeDate: Date) => {
         const { currentMembership } = get();
         if (!currentMembership) return;
-
         set({ isLoading: true, error: null });
         try {
             await freezeMembership(currentMembership.id, resumeDate);
-            set((state) => ({
+            set(state => ({
                 currentMembership: state.currentMembership
                     ? { ...state.currentMembership, status: 'frozen', endDate: resumeDate.toISOString() }
                     : null,
-                isLoading: false
+                isLoading: false,
             }));
-        } catch (err) {
+        } catch {
             set({ error: 'Failed to freeze subscription', isLoading: false });
-            throw err;
+            throw new Error('Freeze failed');
         }
-    }
+    },
+
+    clearPaymentData: () => set({ paymentData: null }),
 }));

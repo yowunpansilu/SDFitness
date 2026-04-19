@@ -82,7 +82,7 @@ const memberSchema = new mongoose.Schema({
 
     // Membership
     membershipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Membership', default: null },
-    membershipType: { type: String, enum: ['basic', 'standard', 'premium', 'elite'], default: 'standard' },
+    membershipType: { type: String, enum: ['basic', 'standard', 'premium', 'elite'], default: 'basic' },
     assignedTrainerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trainer', default: null },
 
     qrCode: { type: String, unique: true, sparse: true },
@@ -105,6 +105,7 @@ const memberSchema = new mongoose.Schema({
         last4: String,
         expiryMonth: Number,
         expiryYear: Number,
+        payhereCustomerToken: String, // Stored for automated charging
         isDefault: { type: Boolean, default: false }
     }]
 }, {

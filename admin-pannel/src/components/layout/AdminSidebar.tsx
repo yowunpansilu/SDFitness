@@ -11,6 +11,7 @@ import {
   LogOut,
   Store,
   MessageSquareQuote,
+  RefreshCw
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { cn } from '@/lib/utils';
@@ -39,6 +40,7 @@ const navigationGoups = [
     items: [
       { name: 'Equipment', href: '/equipment', icon: Package },
       { name: 'Payments', href: '/payments', icon: CreditCard },
+      { name: 'Subscriptions', href: '/subscriptions', icon: RefreshCw },
     ]
   },
   {

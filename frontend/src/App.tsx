@@ -30,6 +30,8 @@ import { TrainerForm } from './pages/admin/trainers/TrainerForm';
 import { ClassForm } from './pages/admin/classes/ClassForm';
 import { EquipmentForm } from './pages/admin/equipment/EquipmentForm';
 import { PaymentForm } from './pages/admin/payments/PaymentForm';
+import PaymentSuccess from './pages/dashboard/PaymentSuccess';
+import PaymentCancel from './pages/dashboard/PaymentCancel';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -95,6 +97,8 @@ function App() {
             <Route path="membership" element={<MembershipDetails />} />
             <Route path="membership/plans" element={<MembershipPlans />} />
             <Route path="payments" element={<BillingOverview />} />
+            <Route path="payment/success" element={<PaymentSuccess />} />
+            <Route path="payment/cancel" element={<PaymentCancel />} />
             <Route path="attendance" element={<AttendancePage />} />
 
             <Route path="messages" element={<MessagesPage />} />

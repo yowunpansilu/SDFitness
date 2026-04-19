@@ -11,6 +11,7 @@ const app = express();
 // Middleware
 const allowedOrigins = [
     process.env.FRONT_END_URL || 'http://localhost:5173',
+    'http://127.0.0.1:5173',
     'http://localhost:3001'
 ];
 
@@ -18,12 +19,13 @@ app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not ' +
-                        'allow access from the specified Origin.';
-            return callback(new Error(msg), false);
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+            return callback(null, true);
+        } else {
+            console.warn(`⚠️ CORS blocked for origin: ${origin}`);
+            return callback(new Error('Not allowed by CORS'), false);
         }
-        return callback(null, true);
     },
     credentials: true
 }));
@@ -60,6 +62,9 @@ app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
+// Background Tasks
+require('./tasks/subscriptionCleanup');
+
 // Error handler
 app.use((err, req, res, next) => {
     console.error('❌ Server Error:', err.message);
@@ -73,13 +78,21 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 const start = async () => {
-    await connectDB();
-    await connectFoodDB();
-    // Bind explicitly to IPv4 so Docker port mappings work reliably.
-    // (Some environments bind Node to IPv6-only when host is omitted.)
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`🚀 SDFitness Backend running on port ${PORT}`);
-    });
+    try {
+        console.log('🏁 Starting SDFitness Backend...');
+        await connectDB();
+        console.log('✅ Primary DB connection established.');
+        
+        await connectFoodDB();
+        
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 SDFitness Backend running on port ${PORT}`);
+            console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
+        });
+    } catch (error) {
+        console.error('❌ Failed to start server:', error);
+        process.exit(1);
+    }
 };
 
 start();

@@ -21,6 +21,7 @@ export function LoginForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('⏳ [LOGIN] Sending credentials to backend...', { email: formData.email });
         setIsLoading(true);
 
         try {
@@ -28,11 +29,12 @@ export function LoginForm() {
                 email: formData.email,
                 password: formData.password
             });
+            console.log('✅ [LOGIN] Success response:', response.data);
             const { user, token, member } = response.data;
             login(user, token, member);
             navigate('/dashboard');
         } catch (error: any) {
-            console.error('Login failed', error.response?.data?.message || error.message);
+            console.error('❌ [LOGIN] Login failed', error.response?.data || error.message);
             alert(error.response?.data?.message || 'Login failed! Please check credentials.');
         } finally {
             setIsLoading(false);

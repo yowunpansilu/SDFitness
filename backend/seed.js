@@ -130,30 +130,35 @@ async function seed() {
     // ─── 3. Membership Plans ──────────────────────────────────────
     const plans = await MembershipPlan.create([
         {
-            name: 'Basic',
-            price: 4500,
-            durationDays: 30,
+            name: 'Monthly Basic',
+            price: 3500,
+            duration: 1,
+            durationType: 'months',
+            description: 'One month basic membership with workout and trainer',
             features: ['Gym Floor Access', 'Locker Room', 'Free Parking', '1 Guest Pass/Month'],
             isActive: true
         },
         {
             name: 'Pro',
             price: 8500,
-            durationDays: 30,
+            duration: 1,
+            durationType: 'months',
             features: ['All Basic Features', 'Unlimited Group Classes', 'Sauna & Steam Room', 'Access to All Locations', 'Quarterly PT Session'],
             isActive: true
         },
         {
             name: 'Elite',
             price: 15000,
-            durationDays: 30,
+            duration: 1,
+            durationType: 'months',
             features: ['All Pro Features', 'Unlimited Personal Training', 'Nutritional Consultations', 'Massage Therapy (1/month)', 'Private Locker', 'Laundry Service'],
             isActive: true
         },
         {
             name: 'Student',
-            price: 3500,
-            durationDays: 30,
+            price: 2500,
+            duration: 1,
+            durationType: 'months',
             features: ['Gym Floor Access', 'Locker Room', 'Group Classes (select)', 'Study Area'],
             isActive: true
         }

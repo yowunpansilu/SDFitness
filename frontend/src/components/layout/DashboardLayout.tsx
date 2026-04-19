@@ -2,18 +2,21 @@ import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { Sheet, SheetContent } from '../ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet';
 import { useAuthStore } from '@/lib/stores/authStore';
 
 export function DashboardLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { token, fetchProfile } = useAuthStore();
 
+
+
     useEffect(() => {
-        if (token && fetchProfile) {
+        if (token) {
             fetchProfile();
         }
-    }, [token, fetchProfile]);
+        // Only run on mount or when token changes
+    }, [token]);
 
     return (
         <div className="min-h-screen bg-dark-950">
@@ -25,6 +28,10 @@ export function DashboardLayout() {
             {/* Mobile sidebar */}
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
                 <SheetContent side="left" className="p-0 w-64">
+                    <SheetHeader className="sr-only">
+                        <SheetTitle>Navigation Menu</SheetTitle>
+                        <SheetDescription>Access dashboard sections and settings</SheetDescription>
+                    </SheetHeader>
                     <Sidebar />
                 </SheetContent>
             </Sheet>

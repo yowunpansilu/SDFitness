@@ -12,89 +12,92 @@ const generateToken = (id) => {
 };
 
 router.post('/register', async (req, res) => {
-    console.log('📥 STAGE 1: Register request received');
+    console.log('📥 [REGISTER] Received request');
     try {
-        console.log('Payload:', JSON.stringify(req.body, null, 2));
+        console.log('📥 [REGISTER] Payload:', JSON.stringify(req.body, null, 2));
         const { step1Data, step2Data, step3Data } = req.body;
 
         if (!step1Data || !step1Data.email || !step1Data.password || !step1Data.firstName || !step1Data.lastName) {
+            console.log('❌ [REGISTER] Step 1 data incomplete');
             return res.status(400).json({ success: false, message: 'Basic Information (Step 1) is incomplete!' });
         }
 
         if (step1Data.password !== step1Data.confirmPassword) {
+            console.log('❌ [REGISTER] Passwords do not match');
             return res.status(400).json({ success: false, message: 'Passwords do not match!' });
         }
 
         if (step1Data.password.length < 6) {
+            console.log('❌ [REGISTER] Password too short');
             return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long!' });
         }
 
         if (!step2Data || !step2Data.dateOfBirth || !step2Data.gender) {
+            console.log('❌ [REGISTER] Step 2 data incomplete');
             return res.status(400).json({ success: false, message: 'Health Metrics (Step 2) is missing required fields like Date of Birth or Gender!' });
         }
 
         // 1. Check if user already exists
-        const userExists = await User.findOne({ email: step1Data.email });
+        const userExists = await User.findOne({ email: step1Data.email.toLowerCase() });
         if (userExists) {
+            console.log('❌ [REGISTER] User already exists:', step1Data.email);
             return res.status(400).json({ success: false, message: 'A user with this email already exists!' });
         }
 
         // 2. Create the User (Auth record)
-        console.log('Creating user...');
+        console.log('⏳ [REGISTER] Creating User...');
         const user = await User.create({
             firstName: step1Data.firstName,
             lastName: step1Data.lastName,
-            email: step1Data.email,
+            email: step1Data.email.toLowerCase(),
             password: step1Data.password,
             phone: step1Data.phone
         });
-        console.log('User created:', user._id);
+        console.log('✅ [REGISTER] User created with ID:', user._id);
 
         // 3. Create the Member detailing their physical data & plan
-        console.log('Creating member with data:', JSON.stringify({
-            userId: user._id,
-            dateOfBirth: step2Data.dateOfBirth,
-            gender: step2Data.gender,
-            height: step2Data.height,
-            weight: step2Data.weight
-        }, null, 2));
-
+        console.log('⏳ [REGISTER] Creating Member profile...');
+        
         let member;
         try {
-            member = await Member.create({
+            const memberData = {
                 userId: user._id,
                 memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
                 dateOfBirth: step2Data.dateOfBirth,
                 gender: step2Data.gender.toLowerCase(),
                 height: {
                     value: step2Data.heightUnit === 'ft' ? (parseFloat(step2Data.height) * 30.48) : parseFloat(step2Data.height),
-                    unit: 'cm' // Standardize to cm to pass Mongoose minimum 50 requirement
+                    unit: 'cm' 
                 },
                 currentWeight: {
                     value: parseFloat(step2Data.weight),
                     unit: step2Data.weightUnit
                 },
-                fitnessGoals: step3Data.fitnessGoals.map(g => {
+                fitnessGoals: (step3Data.fitnessGoals || []).map(g => {
                     let formatted = g.toLowerCase().replace(' ', '_');
                     if (formatted === 'sports_performance') return 'athletic_performance';
                     return formatted;
                 }),
                 activityLevel: step3Data.activityLevel ? step3Data.activityLevel.toLowerCase().replace('-', '_') : 'moderate',
-                dietaryPreferences: step3Data.dietaryPreferences.map(p => {
+                dietaryPreferences: (step3Data.dietaryPreferences || []).map(p => {
                     let pref = p.toLowerCase().replace('-', '_');
                     if (pref === 'gluten_free') return 'gluten_free';
                     if (pref === 'dairy_free') return 'dairy_free';
                     return pref;
                 })
-            });
-            console.log('Member created successfully');
+            };
+            
+            console.log('⏳ [REGISTER] Member Data for Mongoose:', JSON.stringify(memberData, null, 2));
+            member = await Member.create(memberData);
+            console.log('✅ [REGISTER] Member profile created successfully');
         } catch (memberErr) {
             // Roll back user creation if member profile fails
+            console.error('❌ [REGISTER] Member creation failed, rolling back User:', memberErr.message);
             await User.findByIdAndDelete(user._id);
-            console.error('Member validation failed, rolling back User:', memberErr.message);
             return res.status(400).json({ success: false, message: 'Invalid profile details.', error: memberErr.message });
         }
 
+        console.log('✅ [REGISTER] Success! Sending response.');
         res.status(201).json({
             success: true,
             user: {
@@ -110,7 +113,7 @@ router.post('/register', async (req, res) => {
             member: member
         });
     } catch (error) {
-        console.error('Registration Error:', error);
+        console.error('💥 [REGISTER] Fatal Error:', error);
         res.status(500).json({ 
             success: false, 
             message: 'Server error during registration',
@@ -122,37 +125,59 @@ router.post('/register', async (req, res) => {
 const Admin = require('../models/Admin');
 
 router.post('/login', async (req, res) => {
+    console.log('📥 [LOGIN] Received request');
     try {
         const { email, password } = req.body;
+        console.log('📥 [LOGIN] Email:', email);
+        
         const trimmedEmail = email ? email.trim().toLowerCase() : '';
 
         // Check Admin collection first
+        console.log('⏳ [LOGIN] Checking Admin collection...');
         let user = await Admin.findOne({ email: trimmedEmail });
         let isAdmin = !!user;
 
         if (!user) {
+            console.log('⏳ [LOGIN] Not an admin, checking User collection...');
             user = await User.findOne({ email: trimmedEmail });
         }
         
-        if (user && (await user.matchPassword(password))) {
+        if (!user) {
+            console.log('❌ [LOGIN] User not found:', trimmedEmail);
+            return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        }
+
+        console.log('⏳ [LOGIN] User found, matching password...');
+        const isMatch = await user.matchPassword(password);
+        
+        if (isMatch) {
+            console.log('✅ [LOGIN] Password matches');
             let member = null;
             if (!isAdmin) {
+                console.log('⏳ [LOGIN] Fetching member profile for user:', user._id);
                 member = await Member.findOne({ userId: user._id });
                 if (!member) {
-                    console.log('Member profile not found for user. Auto-creating a default profile.');
-                    member = await Member.create({
-                        userId: user._id,
-                        memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-                        dateOfBirth: new Date('2000-01-01'),
-                        gender: 'prefer_not_to_say',
-                        height: { value: 170, unit: 'cm' },
-                        currentWeight: { value: 70, unit: 'kg' },
-                        fitnessGoals: ['general_fitness'],
-                        activityLevel: 'moderate',
-                    });
+                    console.log('⚠️ [LOGIN] Member profile not found! Auto-creating default...');
+                    try {
+                        member = await Member.create({
+                            userId: user._id,
+                            memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                            dateOfBirth: new Date('2000-01-01'),
+                            gender: 'prefer_not_to_say',
+                            height: { value: 170, unit: 'cm' },
+                            currentWeight: { value: 70, unit: 'kg' },
+                            fitnessGoals: ['general_fitness'],
+                            activityLevel: 'moderate',
+                        });
+                        console.log('✅ [LOGIN] Default member profile created');
+                    } catch (memberErr) {
+                        console.error('❌ [LOGIN] Failed to auto-create member profile:', memberErr.message);
+                        // We still allow login even if member profile creation fails
+                    }
                 }
             }
             
+            console.log('✅ [LOGIN] Success! Sending response.');
             res.json({
                 success: true,
                 user: {
@@ -168,11 +193,12 @@ router.post('/login', async (req, res) => {
                 token: generateToken(user._id)
             });
         } else {
+            console.log('❌ [LOGIN] Password mismatch for user:', trimmedEmail);
             res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
     } catch (error) {
-        console.error('Login Error:', error);
-        res.status(500).json({ success: false, message: 'Server error during login' });
+        console.error('💥 [LOGIN] Fatal Error:', error);
+        res.status(500).json({ success: false, message: 'Server error during login', error: error.message });
     }
 });
 // @desc    Get user profile & member data

@@ -15,9 +15,11 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Save, X, Search, DollarSign } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, Save, X, Search, DollarSign, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import api from '@/lib/api/axios';
+import { recordAdminPayment } from '@/lib/api/billingService';
 
 // Form validation schema
 const paymentSchema = z.object({
@@ -47,27 +49,53 @@ const paymentSchema = z.object({
 
 type PaymentFormData = z.infer<typeof paymentSchema>;
 
-// Mock data
-const MEMBERS = [
-    { id: '1', name: 'John Doe', email: 'john@example.com', plan: 'Premium Monthly', status: 'Active' },
-    { id: '2', name: 'Jane Smith', email: 'jane@example.com', plan: 'Basic Yearly', status: 'Active' },
-    { id: '3', name: 'Mike Ross', email: 'mike@example.com', plan: 'Standard Monthly', status: 'Expired' },
-];
+// Types
+interface Member {
+    _id: string;
+    userId?: { firstName: string; lastName: string; email: string };
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    currentPlan?: string;
+}
 
-const PLANS = [
-    { id: 'basic', name: 'Basic Monthly', price: 29.99 },
-    { id: 'standard', name: 'Standard Monthly', price: 49.99 },
-    { id: 'premium', name: 'Premium Monthly', price: 79.99 },
-    { id: 'basic-yearly', name: 'Basic Yearly', price: 299.99 },
-];
+interface Plan {
+    _id: string;
+    name: string;
+    price: number;
+}
 
 export function PaymentForm() {
     const navigate = useNavigate();
     const { toast } = useToast();
 
-    const [selectedMember, setSelectedMember] = useState<typeof MEMBERS[0] | null>(null);
+    const [members, setMembers] = useState<Member[]>([]);
+    const [plans, setPlans] = useState<Plan[]>([]);
+    const [selectedMember, setSelectedMember] = useState<Member | null>(null);
     const [memberSearch, setMemberSearch] = useState('');
     const [showMemberList, setShowMemberList] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [membersRes, plansRes] = await Promise.all([
+                    api.get('/members'),
+                    api.get('/membership/plans')
+                ]);
+                setMembers(membersRes.data || []);
+                setPlans(plansRes.data?.data || []);
+            } catch (err) {
+                console.error('Error fetching data:', err);
+                toast({
+                    title: 'Error loading data',
+                    description: 'Failed to load members or plans.',
+                    variant: 'destructive',
+                });
+            }
+        };
+        fetchData();
+    }, [toast]);
 
     const {
         register,
@@ -107,33 +135,51 @@ export function PaymentForm() {
 
     const total = calculateTotal();
 
-    const onSubmit = (data: PaymentFormData) => {
-        console.log('Payment submitted:', data);
-        console.log('Total after discount:', total);
+    const onSubmit = async (data: PaymentFormData) => {
+        setIsSubmitting(true);
+        try {
+            await recordAdminPayment({
+                memberId: data.memberId,
+                amount: total,
+                currency: data.currency || 'USD',
+                method: data.paymentMethod,
+                description: data.description,
+                planId: data.planId,
+                transactionId: data.transactionId
+            });
 
-        toast({
-            title: 'Payment Processed',
-            description: `Payment of $${total.toFixed(2)} has been processed successfully`,
-        });
-
-        navigate('/admin/payments');
+            toast({
+                title: 'Payment Processed',
+                description: `Payment of $${total.toFixed(2)} has been processed successfully.`,
+            });
+            navigate('/admin/payments');
+        } catch (err: any) {
+            toast({
+                title: 'Payment Failed',
+                description: err.response?.data?.error || err.message,
+                variant: 'destructive',
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    const selectMember = (member: typeof MEMBERS[0]) => {
+    const selectMember = (member: Member) => {
         setSelectedMember(member);
-        setValue('memberId', member.id);
+        setValue('memberId', member._id);
         setShowMemberList(false);
         setMemberSearch('');
     };
 
-    const filteredMembers = MEMBERS.filter(
-        (member) =>
-            member.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
-            member.email.toLowerCase().includes(memberSearch.toLowerCase())
-    );
+    const filteredMembers = members.filter((member) => {
+        const name = member.userId ? `${member.userId.firstName} ${member.userId.lastName}` : `${member.firstName} ${member.lastName}`;
+        const email = member.userId?.email || member.email || '';
+        return name.toLowerCase().includes(memberSearch.toLowerCase()) ||
+            email.toLowerCase().includes(memberSearch.toLowerCase());
+    });
 
     const handlePlanSelect = (planId: string) => {
-        const plan = PLANS.find((p) => p.id === planId);
+        const plan = plans.find((p) => p._id === planId);
         if (plan) {
             setValue('planId', planId);
             setValue('amount', plan.price);
@@ -163,6 +209,7 @@ export function PaymentForm() {
                     <Button
                         variant="outline"
                         onClick={() => navigate('/admin/payments')}
+                        disabled={isSubmitting}
                         className="bg-card border-border text-muted-foreground hover:bg-muted"
                     >
                         <X className="h-4 w-4 mr-2" />
@@ -170,10 +217,15 @@ export function PaymentForm() {
                     </Button>
                     <Button
                         onClick={handleSubmit(onSubmit)}
+                        disabled={isSubmitting}
                         className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                     >
-                        <Save className="h-4 w-4 mr-2" />
-                        Process Payment
+                        {isSubmitting ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                            <Save className="h-4 w-4 mr-2" />
+                        )}
+                        {isSubmitting ? 'Processing...' : 'Process Payment'}
                     </Button>
                 </div>
             </div>
@@ -211,15 +263,21 @@ export function PaymentForm() {
                                     <div className="absolute z-10 w-full mt-2 bg-card border border-border rounded-lg shadow-xl max-h-60 overflow-y-auto">
                                         {filteredMembers.map((member) => (
                                             <div
-                                                key={member.id}
+                                                key={member._id}
                                                 onClick={() => selectMember(member)}
                                                 className="p-3 hover:bg-muted cursor-pointer border-b border-border last:border-0"
                                             >
-                                                <p className="text-foreground font-medium">{member.name}</p>
-                                                <p className="text-sm text-muted-foreground">{member.email}</p>
-                                                <p className="text-xs text-muted-foreground mt-1">
-                                                    {member.plan} • {member.status}
+                                                <p className="text-foreground font-medium">
+                                                    {member.userId ? `${member.userId.firstName} ${member.userId.lastName}` : `${member.firstName} ${member.lastName}`}
                                                 </p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {member.userId?.email || member.email}
+                                                </p>
+                                                {member.currentPlan && (
+                                                    <p className="text-xs text-muted-foreground mt-1">
+                                                        {member.currentPlan}
+                                                    </p>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -234,11 +292,17 @@ export function PaymentForm() {
                                 <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/30">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-foreground font-medium">{selectedMember.name}</p>
-                                            <p className="text-sm text-muted-foreground">{selectedMember.email}</p>
-                                            <p className="text-sm text-purple-400 mt-1">
-                                                Current: {selectedMember.plan}
+                                            <p className="text-foreground font-medium">
+                                                {selectedMember.userId ? `${selectedMember.userId.firstName} ${selectedMember.userId.lastName}` : `${selectedMember.firstName} ${selectedMember.lastName}`}
                                             </p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {selectedMember.userId?.email || selectedMember.email}
+                                            </p>
+                                            {selectedMember.currentPlan && (
+                                                <p className="text-sm text-purple-400 mt-1">
+                                                    Current: {selectedMember.currentPlan}
+                                                </p>
+                                            )}
                                         </div>
                                         <Button
                                             type="button"
@@ -294,8 +358,8 @@ export function PaymentForm() {
                                                 <SelectValue placeholder="Select plan" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {PLANS.map((plan) => (
-                                                    <SelectItem key={plan.id} value={plan.id}>
+                                                {plans.map((plan) => (
+                                                    <SelectItem key={plan._id} value={plan._id}>
                                                         {plan.name} - ${plan.price}
                                                     </SelectItem>
                                                 ))}
@@ -535,7 +599,9 @@ export function PaymentForm() {
                             {selectedMember && (
                                 <div className="p-3 rounded-lg bg-card/50 border border-border">
                                     <p className="text-xs text-muted-foreground uppercase mb-1">Member</p>
-                                    <p className="text-sm text-foreground font-medium">{selectedMember.name}</p>
+                                    <p className="text-sm text-foreground font-medium">
+                                        {selectedMember.userId ? `${selectedMember.userId.firstName} ${selectedMember.userId.lastName}` : `${selectedMember.firstName} ${selectedMember.lastName}`}
+                                    </p>
                                 </div>
                             )}
 

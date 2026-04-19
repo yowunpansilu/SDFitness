@@ -142,8 +142,7 @@ export const sendMessageAPI = async (conversationId: string, content: string, ty
 
 import { io, Socket } from 'socket.io-client';
 
-// Service calls
-// ... (omitting getAvailableUsers, createConversationAPI, getConversations etc for space, but keeping them in mind)
+// ... (omitting other parts for brevity, same as frontend)
 
 // Real Socket Service
 type MessageHandler = (message: Message) => void;

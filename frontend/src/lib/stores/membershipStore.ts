@@ -61,8 +61,10 @@ export const useMembershipStore = create<MembershipState>((set, get) => ({
         try {
             const plan = get().plans.find(p => p._id === planId || p.id === planId);
             const amount = plan ? plan.price : 0;
+            // Convert LKR to USD (Assuming 1 USD ~ 300 LKR) since the user's Stripe doesn't support LKR
+            const amountUsd = parseFloat((amount / 300).toFixed(2));
             const description = plan ? `Membership: ${plan.name}` : 'Membership';
-            const data = await createStripeSession({ amount, currency: 'lkr', description, planId });
+            const data = await createStripeSession({ amount: amountUsd, currency: 'usd', description, planId });
             set({ isLoading: false });
             return data;
         } catch (err: any) {

@@ -36,66 +36,70 @@ const categoryColors = {
   other: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
 };
 
-// Mock data
-const mockEquipment = {
-  id: '1',
-  name: 'Treadmill Pro X5',
-  category: 'cardio' as const,
-  brand: 'RunMaster',
-  model: 'X5-2024',
-  serialNumber: 'RM-TM-001234',
-  purchaseDate: '2023-06-15',
-  lastMaintenance: '2024-01-15',
-  nextMaintenance: '2024-04-15',
-  status: 'working' as const,
-  location: 'Cardio Zone A',
-  purchasePrice: 5499.99,
-  warrantyExpiry: '2026-06-15',
-  notes: 'High-performance commercial treadmill with advanced cushioning system.',
-};
-
-const maintenanceHistory = [
-  {
-    id: '1',
-    date: '2024-01-15',
-    type: 'Routine Maintenance',
-    description: 'Belt lubrication, tension adjustment, general inspection',
-    technician: 'John Smith',
-    cost: 150.00,
-    status: 'completed',
-  },
-  {
-    id: '2',
-    date: '2023-10-10',
-    type: 'Repair',
-    description: 'Replaced console display unit',
-    technician: 'Sarah Johnson',
-    cost: 450.00,
-    status: 'completed',
-  },
-  {
-    id: '3',
-    date: '2023-07-20',
-    type: 'Routine Maintenance',
-    description: 'Belt replacement, roller inspection',
-    technician: 'John Smith',
-    cost: 320.00,
-    status: 'completed',
-  },
-];
+import { useState, useEffect } from 'react';
+import { equipmentService } from '@/services/equipmentService';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 export function EquipmentDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { toast } = useToast();
 
-  const daysUntilMaintenance = mockEquipment.nextMaintenance
+  const [equipment, setEquipment] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      try {
+        setLoading(true);
+        if (id) {
+          const data = await equipmentService.getEquipmentById(id);
+          // Map backend 'active' to frontend 'working'
+          if (data.status === 'active') data.status = 'working';
+          setEquipment(data);
+        }
+      } catch (error) {
+        console.error('Error fetching equipment:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch equipment details.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEquipment();
+  }, [id, toast]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="h-10 w-10 text-indigo-600 dark:text-indigo-400 animate-spin" />
+        <p className="text-slate-500 dark:text-navy-400 font-bold uppercase tracking-widest text-xs">Loading Asset Details...</p>
+      </div>
+    );
+  }
+
+  if (!equipment) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-slate-500 font-bold">Equipment not found.</p>
+        <Button onClick={() => navigate('/equipment')} variant="link">Back to Inventory</Button>
+      </div>
+    );
+  }
+
+  const daysUntilMaintenance = equipment.nextMaintenance
     ? Math.ceil(
-      (new Date(mockEquipment.nextMaintenance).getTime() - new Date().getTime()) /
+      (new Date(equipment.nextMaintenance).getTime() - new Date().getTime()) /
       (1000 * 60 * 60 * 24)
     )
     : null;
 
-  const totalMaintenanceCost = maintenanceHistory.reduce((sum, item) => sum + item.cost, 0);
+  const maintenanceHistory = equipment.maintenanceHistory || [];
+  const totalMaintenanceCost = maintenanceHistory.reduce((sum: number, item: any) => sum + (item.cost || 0), 0);
 
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -112,16 +116,16 @@ export function EquipmentDetail() {
           </Button>
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Badge className={cn('font-bold text-xs uppercase tracking-widest rounded-lg border shadow-sm px-2 py-1', statusConfig[mockEquipment.status].color)}>
-                {statusConfig[mockEquipment.status].label}
+              <Badge className={cn('font-bold text-xs uppercase tracking-widest rounded-lg border shadow-sm px-2 py-1', (statusConfig as any)[equipment.status]?.color)}>
+                {(statusConfig as any)[equipment.status]?.label}
               </Badge>
-              <span className="text-xs font-bold text-slate-400 dark:text-navy-600 uppercase tracking-widest">{mockEquipment.category} deployment</span>
+              <span className="text-xs font-bold text-slate-400 dark:text-navy-600 uppercase tracking-widest">{equipment.category} deployment</span>
             </div>
             <h1 className="text-5xl font-bold tracking-normal text-slate-900 dark:text-white uppercase">
-              {mockEquipment.name}
+              {equipment.name}
             </h1>
             <p className="text-slate-500 dark:text-navy-400 font-medium mt-1">
-              Asset ID: <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-md">{mockEquipment.serialNumber}</span> • {mockEquipment.brand} {mockEquipment.model}
+              Asset ID: <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-md">{equipment.serialNumber || equipment._id?.slice(-8).toUpperCase()}</span> • {equipment.brand || 'Generic'} {equipment.model || 'Model X'}
             </p>
           </div>
         </div>
@@ -148,12 +152,12 @@ export function EquipmentDetail() {
         <Card className="bg-white dark:bg-navy-900 border-slate-200/60 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden group transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/5">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">Operation Status</CardTitle>
-            <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", statusConfig[mockEquipment.status].color)}>
+            <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", (statusConfig as any)[equipment.status]?.color)}>
               <Package className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white uppercase">{statusConfig[mockEquipment.status].label}</div>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white uppercase">{(statusConfig as any)[equipment.status]?.label}</div>
             <p className="text-xs font-bold text-slate-400 dark:text-navy-600 mt-1 uppercase tracking-widest">Active deployment</p>
           </CardContent>
         </Card>
@@ -169,7 +173,7 @@ export function EquipmentDetail() {
             <div className="text-2xl font-bold text-slate-900 dark:text-white uppercase">
               {daysUntilMaintenance !== null ? (
                 <span className={cn(daysUntilMaintenance < 7 ? 'text-amber-500 animate-pulse' : '')}>
-                   In {daysUntilMaintenance} Days
+                  In {daysUntilMaintenance} Days
                 </span>
               ) : (
                 'STANDBY'
@@ -201,7 +205,7 @@ export function EquipmentDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-normal">
-              ${mockEquipment.purchasePrice.toLocaleString()}
+              ${(equipment.purchasePrice || 0).toLocaleString()}
             </div>
             <p className="text-xs font-bold text-slate-400 dark:text-navy-600 mt-1 uppercase tracking-widest">Gross value</p>
           </CardContent>
@@ -223,8 +227,8 @@ export function EquipmentDetail() {
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">Faculty Sub-sector</label>
                   <div className="flex">
-                    <Badge className={cn('px-3 py-1 font-bold text-xs uppercase tracking-widest rounded-xl border-none shadow-sm', categoryColors[mockEquipment.category])}>
-                      {mockEquipment.category.replace('_', ' ')}
+                    <Badge className={cn('px-3 py-1 font-bold text-xs uppercase tracking-widest rounded-xl border-none shadow-sm', (categoryColors as any)[equipment.category.toLowerCase()] || categoryColors.other)}>
+                      {equipment.category.replace('_', ' ')}
                     </Badge>
                   </div>
                 </div>
@@ -234,35 +238,35 @@ export function EquipmentDetail() {
                     <MapPin className="h-3 w-3" />
                     Operational Zone
                   </label>
-                  <p className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">{mockEquipment.location}</p>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">{equipment.location || 'Main Floor'}</p>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">Brand Identity & Model</label>
                   <p className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-                    {mockEquipment.brand} / {mockEquipment.model}
+                    {equipment.brand || 'Generic'} / {equipment.model || 'Standard'}
                   </p>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">Acquisition Pulse</label>
                   <p className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-                    {new Date(mockEquipment.purchaseDate).toLocaleDateString(undefined, {year: 'numeric', month: 'long', day: 'numeric'})}
+                    {equipment.purchaseDate ? new Date(equipment.purchaseDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
                   </p>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">Warranty Safeguard</label>
                   <p className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-                    Expires {new Date(mockEquipment.warrantyExpiry).toLocaleDateString(undefined, {year: 'numeric', month: 'long', day: 'numeric'})}
+                    {equipment.warrantyExpiry ? `Expires ${new Date(equipment.warrantyExpiry).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}` : 'N/A'}
                   </p>
                 </div>
               </div>
 
-              {mockEquipment.notes && (
+              {equipment.notes && (
                 <div className="pt-6 border-t border-slate-100 dark:border-navy-800 transition-colors">
                   <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">Operational Intel</label>
-                  <p className="text-slate-600 dark:text-navy-400 mt-3 text-lg leading-relaxed font-medium">{mockEquipment.notes}</p>
+                  <p className="text-slate-600 dark:text-navy-400 mt-3 text-lg leading-relaxed font-medium">{equipment.notes}</p>
                 </div>
               )}
             </CardContent>
@@ -278,7 +282,7 @@ export function EquipmentDetail() {
             </CardHeader>
             <CardContent className="p-10 pt-0">
               <div className="space-y-6">
-                {maintenanceHistory.map((record) => (
+                {maintenanceHistory.map((record: any) => (
                   <div
                     key={record.id}
                     className="group flex flex-col md:flex-row md:items-center gap-6 p-6 rounded-[2rem] bg-slate-50/50 dark:bg-navy-950/50 border border-transparent hover:border-indigo-500/10 hover:bg-white dark:hover:bg-navy-900 transition-all duration-500"
@@ -290,18 +294,21 @@ export function EquipmentDetail() {
                       </div>
                       <p className="text-xs font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-[0.15em] flex items-center gap-2">
                         <Calendar className="h-3 w-3" />
-                        Executed: {new Date(record.date).toLocaleDateString(undefined, {month: 'long', day: 'numeric', year: 'numeric'})}
+                        Executed: {new Date(record.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
                       </p>
                       <p className="text-base text-slate-600 dark:text-navy-400 font-medium leading-relaxed mt-2">{record.description}</p>
                     </div>
                     <div className="flex flex-col items-start md:items-end gap-3 min-w-[140px]">
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-normal">${record.cost.toFixed(2)}</div>
+                      <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-normal">${(record.cost || 0).toFixed(2)}</div>
                       <div className="py-1 px-3 bg-white dark:bg-navy-900 border border-slate-100 dark:border-navy-800 rounded-xl text-[11px] font-bold text-slate-400 dark:text-navy-500 tracking-widest uppercase transition-colors">
-                        FAC: {record.technician.toUpperCase()}
+                        FAC: {(record.technician || 'UNKNOWN').toUpperCase()}
                       </div>
                     </div>
                   </div>
                 ))}
+                {maintenanceHistory.length === 0 && (
+                  <p className="text-slate-500 text-center py-4">No maintenance records found</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -311,7 +318,7 @@ export function EquipmentDetail() {
         <div className="space-y-8">
           <Card className="bg-indigo-600 dark:bg-indigo-600 border-none rounded-[2.5rem] overflow-hidden shadow-2xl shadow-indigo-500/20 group relative">
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-12 transition-transform duration-700">
-               <Wrench className="h-32 w-32 text-white" />
+              <Wrench className="h-32 w-32 text-white" />
             </div>
             <CardHeader className="p-8 pb-4 relative z-10">
               <CardTitle className="text-xs font-bold text-indigo-200 uppercase tracking-widest">Maintenance Pulse</CardTitle>
@@ -319,12 +326,12 @@ export function EquipmentDetail() {
             <CardContent className="p-8 pt-0 relative z-10 space-y-8">
               <div className="space-y-2">
                 <label className="text-[11px] font-bold text-indigo-300 uppercase tracking-widest opacity-80">Last Event</label>
-                <p className="text-xl font-bold text-white">{new Date(mockEquipment.lastMaintenance).toLocaleDateString(undefined, {month: 'long', day: 'numeric'})}</p>
+                <p className="text-xl font-bold text-white">{equipment.lastMaintenance ? new Date(equipment.lastMaintenance).toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) : 'N/A'}</p>
               </div>
               <div className="space-y-2">
                 <label className="text-[11px] font-bold text-indigo-300 uppercase tracking-widest opacity-80">Next Critical Window</label>
                 <p className={cn('text-3xl font-bold text-white tracking-tight', daysUntilMaintenance && daysUntilMaintenance < 7 ? 'text-amber-300' : '')}>
-                  {new Date(mockEquipment.nextMaintenance).toLocaleDateString(undefined, {month: 'long', day: 'numeric'})}
+                  {equipment.nextMaintenance ? new Date(equipment.nextMaintenance).toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) : 'N/A'}
                 </p>
                 {daysUntilMaintenance && daysUntilMaintenance < 7 && (
                   <div className="flex items-center gap-2 mt-3 bg-white/10 backdrop-blur-md rounded-xl p-3 text-amber-300 border border-white/10 animate-pulse">

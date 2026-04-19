@@ -32,7 +32,7 @@ export function PaymentDetail() {
         if (id) {
           const response = await paymentService.getPaymentDetails(id);
           if (response.success) {
-            setPayment(response.data);
+            setPayment(response.payment || response.data);
           }
         }
       } catch (error) {
@@ -189,7 +189,7 @@ export function PaymentDetail() {
               <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 space-y-6 transition-colors font-bold uppercase text-xs tracking-widest text-slate-400 dark:text-navy-600">
                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-navy-800">
                   <span>Payment Date</span>
-                  <span className="text-slate-900 dark:text-white">{new Date(payment.createdAt || payment.date).toLocaleDateString(undefined, {month: 'long', day: 'numeric', year: 'numeric'})}</span>
+                  <span className="text-slate-900 dark:text-white">{new Date(payment.createdAt || payment.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-navy-800">
                   <span>Method</span>
@@ -217,16 +217,20 @@ export function PaymentDetail() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-navy-950">
-                {(payment.items || [{ description: payment.description || payment.type, quantity: 1, unitPrice: payment.amount, total: payment.amount }]).map((item: any, index: number) => (
-                  <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-navy-950/30 transition-all">
-                    <td className="py-6 px-8">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{item.description}</p>
-                    </td>
-                    <td className="py-6 px-8 text-center text-sm font-bold text-slate-600 dark:text-navy-400">LKR {item.unitPrice?.toLocaleString()}</td>
-                    <td className="py-6 px-8 text-center text-sm font-bold text-slate-900 dark:text-white">{item.quantity}</td>
-                    <td className="py-6 px-8 text-right text-sm font-bold text-indigo-600 dark:text-indigo-400">LKR {item.total?.toLocaleString()}</td>
-                  </tr>
-                ))}
+                {(payment.items || [{ description: payment.description || payment.type, quantity: 1, unitPrice: payment.amount, total: payment.amount }]).map((item: any, index: number) => {
+                  const unitPriceLkr = payment.currency === 'USD' ? item.unitPrice * 300 : item.unitPrice;
+                  const totalLkr = payment.currency === 'USD' ? item.total * 300 : item.total;
+                  return (
+                    <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-navy-950/30 transition-all">
+                      <td className="py-6 px-8">
+                        <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">{item.description}</p>
+                      </td>
+                      <td className="py-6 px-8 text-center text-sm font-bold text-slate-600 dark:text-navy-400">LKR {unitPriceLkr?.toLocaleString()}</td>
+                      <td className="py-6 px-8 text-center text-sm font-bold text-slate-900 dark:text-white">{item.quantity}</td>
+                      <td className="py-6 px-8 text-right text-sm font-bold text-indigo-600 dark:text-indigo-400">LKR {totalLkr?.toLocaleString()}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -242,7 +246,7 @@ export function PaymentDetail() {
             <div className="w-full md:w-80 p-8 rounded-[2.5rem] bg-indigo-600 dark:bg-indigo-500 text-white shadow-2xl shadow-indigo-600/20 space-y-4">
               <div className="flex justify-between text-xs font-bold uppercase tracking-widest opacity-70">
                 <span>Subtotal</span>
-                <span>LKR {payment.amount?.toLocaleString()}</span>
+                <span>LKR {((payment.currency === 'USD' ? payment.amount * 300 : payment.amount) || 0).toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-xs font-bold uppercase tracking-widest opacity-70 pb-4 border-b border-white/10">
                 <span>Tax</span>
@@ -250,7 +254,7 @@ export function PaymentDetail() {
               </div>
               <div className="flex justify-between items-baseline">
                 <span className="text-xs font-bold uppercase tracking-widest">Total</span>
-                <span className="text-3xl font-bold tracking-normal">LKR {payment.amount?.toLocaleString()}</span>
+                <span className="text-3xl font-bold tracking-normal">LKR {((payment.currency === 'USD' ? payment.amount * 300 : payment.amount) || 0).toLocaleString()}</span>
               </div>
             </div>
           </div>

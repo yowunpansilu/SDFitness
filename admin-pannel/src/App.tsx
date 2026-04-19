@@ -23,6 +23,7 @@ import { Settings } from './pages/settings/Settings';
 import { FoodPrices } from './pages/prices/FoodPrices';
 import { ScraperReview } from './pages/scraper/ScraperReview';
 import { SubscriptionsDashboard } from './pages/subscriptions/SubscriptionsDashboard';
+import { MessagesPage } from './pages/messages/MessagesPage';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
 
@@ -97,6 +98,7 @@ function App() {
             <Route path="analytics" element={<AnalyticsDashboard />} />
             <Route path="prices" element={<FoodPrices />} />
             <Route path="scraper/review" element={<ScraperReview />} />
+            <Route path="messages" element={<MessagesPage />} />
             <Route path="settings" element={<Settings />} />
           </Route>
 

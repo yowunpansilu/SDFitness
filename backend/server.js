@@ -19,7 +19,7 @@ app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        
+
         if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost') || origin.includes('127.0.0.1')) {
             return callback(null, true);
         } else {
@@ -74,6 +74,39 @@ app.use((err, req, res, next) => {
     });
 });
 
+const http = require('http');
+const { Server } = require('socket.io');
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
+// Make io accessible to our routes/controllers
+app.set('io', io);
+
+io.on('connection', (socket) => {
+    console.log(`🔌 New client connected: ${socket.id}`);
+
+    socket.on('join_room', (room) => {
+        socket.join(room);
+        console.log(`📍 User ${socket.id} joined room ${room}`);
+    });
+
+    socket.on('leave_room', (room) => {
+        socket.leave(room);
+        console.log(`🏠 User ${socket.id} left room ${room}`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`🔌 Client disconnected: ${socket.id}`);
+    });
+});
+
 // Start
 const PORT = process.env.PORT || 5000;
 
@@ -82,10 +115,10 @@ const start = async () => {
         console.log('🏁 Starting SDFitness Backend...');
         await connectDB();
         console.log('✅ Primary DB connection established.');
-        
+
         await connectFoodDB();
-        
-        app.listen(PORT, '0.0.0.0', () => {
+
+        server.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 SDFitness Backend running on port ${PORT}`);
             console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
         });

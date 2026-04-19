@@ -65,7 +65,7 @@ export function ChatWindow() {
                     <div className="relative">
                         <Avatar className="border border-border">
                             <AvatarImage src={participant.avatar} />
-                            <AvatarFallback className="bg-indigo-600 text-white font-bold">{participant.name[0]}</AvatarFallback>
+                            <AvatarFallback className="bg-indigo-600 text-white font-bold">{participant.name?.[0] || 'U'}</AvatarFallback>
                         </Avatar>
                         <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-border bg-green-500" />
                     </div>

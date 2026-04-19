@@ -11,6 +11,7 @@ import {
   LogOut,
   Store,
   MessageSquareQuote,
+  MessageCircle,
   RefreshCw
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
@@ -33,6 +34,7 @@ const navigationGoups = [
       { name: 'Trainers', href: '/trainers', icon: Dumbbell },
       { name: 'Membership Plans', href: '/plans', icon: CreditCard },
       { name: 'Classes', href: '/classes', icon: Calendar },
+      { name: 'Messages', href: '/messages', icon: MessageCircle },
     ]
   },
   {
@@ -142,8 +144,8 @@ export function AdminSidebar() {
               {user?.firstName} {user?.lastName}
             </p>
             <div className="flex items-center gap-1.5">
-               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-               <p className="text-[10px] text-navy-400 font-black uppercase tracking-widest">{user?.role}</p>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <p className="text-[10px] text-navy-400 font-black uppercase tracking-widest">{user?.role}</p>
             </div>
           </div>
           <Button

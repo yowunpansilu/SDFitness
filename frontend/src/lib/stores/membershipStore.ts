@@ -6,10 +6,10 @@ import {
     getPlans,
     getCurrentMembership,
     getUsageStats,
-    initiatePlanPayment,
     cancelMembership,
     freezeMembership,
 } from '../api/membershipService';
+import { createStripeSession, type StripeSessionResponse } from '../api/billingService';
 
 interface MembershipState {
     plans: MembershipPlan[];
@@ -17,11 +17,10 @@ interface MembershipState {
     usageStats: UsageStats | null;
     isLoading: boolean;
     error: string | null;
-    paymentData: { checkoutUrl: string; orderId: string; formData: Record<string, string> } | null;
 
     fetchPlans: () => Promise<void>;
     fetchMembershipData: () => Promise<void>;
-    startPlanPayment: (planId: string) => Promise<void>;
+    startPlanPayment: (planId: string) => Promise<StripeSessionResponse>;
     cancelSubscription: () => Promise<void>;
     freezeSubscription: (resumeDate: Date) => Promise<void>;
     clearPaymentData: () => void;
@@ -33,7 +32,6 @@ export const useMembershipStore = create<MembershipState>((set, get) => ({
     usageStats: null,
     isLoading: false,
     error: null,
-    paymentData: null,
 
     fetchPlans: async () => {
         set({ isLoading: true, error: null });
@@ -61,8 +59,12 @@ export const useMembershipStore = create<MembershipState>((set, get) => ({
     startPlanPayment: async (planId: string) => {
         set({ isLoading: true, error: null });
         try {
-            const data = await initiatePlanPayment(planId);
-            set({ paymentData: data, isLoading: false });
+            const plan = get().plans.find(p => p._id === planId || p.id === planId);
+            const amount = plan ? plan.price : 0;
+            const description = plan ? `Membership: ${plan.name}` : 'Membership';
+            const data = await createStripeSession({ amount, currency: 'lkr', description, planId });
+            set({ isLoading: false });
+            return data;
         } catch (err: any) {
             const message = err.response?.data?.error || err.message || 'Failed to initiate payment';
             set({ error: message, isLoading: false });
@@ -106,5 +108,5 @@ export const useMembershipStore = create<MembershipState>((set, get) => ({
         }
     },
 
-    clearPaymentData: () => set({ paymentData: null }),
+    clearPaymentData: () => set({}),
 }));

@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useBillingStore } from "@/lib/stores/billingStore";
 import { useMembershipStore } from "@/lib/stores/membershipStore";
 import { PaymentHistory } from "@/components/billing/PaymentHistory";
-import PayhereCheckout from "@/components/billing/PayhereCheckout";
-import { Loader2, ShieldCheck, Zap, ArrowUpRight } from "lucide-react";
+import { Loader2, ShieldCheck, Zap, ArrowUpRight, CreditCard, ExternalLink } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -12,8 +11,8 @@ import { format } from 'date-fns';
 export function BillingOverview() {
     const { fetchBillingData, isLoading: billingLoading, error: billingError, startPayment } = useBillingStore();
     const { currentMembership, isLoading: membershipLoading, fetchMembershipData } = useMembershipStore();
-    const [payhereData, setPayhereData] = useState<any>(null);
     const [isInitiating, setIsInitiating] = useState(false);
+    const [initiateError, setInitiateError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchBillingData();
@@ -24,17 +23,21 @@ export function BillingOverview() {
         if (!currentMembership) return;
 
         setIsInitiating(true);
+        setInitiateError(null);
         try {
             const res = await startPayment({
-                amount: currentMembership.plan?.price || 3500,
-                currency: 'LKR',
+                amount: currentMembership.plan?.price || 35,
+                currency: 'lkr',
                 description: `Renewal: ${currentMembership.planName}`,
                 planId: currentMembership.planId
             });
-            setPayhereData(res);
-        } catch (err) {
+            // Redirect to Stripe Checkout
+            if (res?.checkoutUrl) {
+                window.location.href = res.checkoutUrl;
+            }
+        } catch (err: any) {
             console.error('Renewal Error:', err);
-        } finally {
+            setInitiateError(err?.message || 'Failed to initiate payment. Please try again.');
             setIsInitiating(false);
         }
     };
@@ -42,7 +45,7 @@ export function BillingOverview() {
     const isLoading = billingLoading || membershipLoading;
     const error = billingError;
 
-    if (isLoading && !payhereData && !isInitiating) {
+    if (isLoading && !isInitiating) {
         return (
             <div className="flex flex-col items-center justify-center p-12 min-h-[400px]">
                 <Loader2 className="h-10 w-10 animate-spin text-[#DC2626]" />
@@ -99,16 +102,28 @@ export function BillingOverview() {
                             : 'No active subscription'}
                     </p>
 
+                    {initiateError && (
+                        <div className="mb-4 bg-red-900/40 border border-red-500/30 rounded-xl px-4 py-3 text-red-300 text-sm font-medium">
+                            {initiateError}
+                        </div>
+                    )}
+
                     <div className="space-y-4">
-                        <PayhereCheckout
-                            formData={payhereData?.formData}
-                            checkoutUrl={payhereData?.checkoutUrl}
-                            isLoading={isInitiating}
-                            buttonText="Renew Membership Now"
-                            onInitiate={handleRenew}
-                        />
+                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                            <Button
+                                onClick={handleRenew}
+                                disabled={isInitiating}
+                                className="w-full bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold py-6 rounded-xl shadow-lg border-b-4 border-[#991B1B] active:border-b-0 active:mt-1 transition-all flex items-center justify-center gap-3 text-lg uppercase tracking-wider"
+                            >
+                                {isInitiating ? (
+                                    <><Loader2 className="h-6 w-6 animate-spin" /> Redirecting to Stripe...</>
+                                ) : (
+                                    <><CreditCard className="h-6 w-6" /> Renew Membership Now <ExternalLink className="h-4 w-4 ml-1 opacity-70" /></>
+                                )}
+                            </Button>
+                        </motion.div>
                         <p className="text-center text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                            Securely processed by <span className="text-white">PayHere</span>
+                            Securely processed by <span className="text-white">Stripe</span>
                         </p>
                     </div>
                 </div>

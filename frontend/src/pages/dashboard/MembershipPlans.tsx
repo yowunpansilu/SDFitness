@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMembershipStore } from '@/lib/stores/membershipStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -53,24 +53,16 @@ const planAccentColor = (name: string) => {
 
 export function MembershipPlans() {
     const navigate = useNavigate();
-    const { plans, currentMembership, isLoading, error, fetchPlans, fetchMembershipData, startPlanPayment, paymentData, clearPaymentData } = useMembershipStore();
+    const { plans, currentMembership, isLoading, error, fetchPlans, fetchMembershipData, startPlanPayment, clearPaymentData } = useMembershipStore();
     const [showYearly, setShowYearly] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState<MembershipPlan | null>(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [initiating, setInitiating] = useState(false);
-    const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
         fetchPlans();
         fetchMembershipData();
     }, [fetchPlans, fetchMembershipData]);
-
-    // Auto-submit form when paymentData arrives
-    useEffect(() => {
-        if (paymentData?.formData && paymentData?.checkoutUrl && formRef.current) {
-            formRef.current.submit();
-        }
-    }, [paymentData]);
 
     const filteredPlans = plans.filter(p => showYearly ? isYearlyPlan(p) : isMonthlyPlan(p));
     // Fallback: if no yearly plans exist, show all
@@ -85,8 +77,11 @@ export function MembershipPlans() {
         if (!selectedPlan) return;
         setInitiating(true);
         try {
-            await startPlanPayment(selectedPlan._id || selectedPlan.id);
-            // formRef auto-submits via useEffect above
+            const res = await startPlanPayment(selectedPlan._id || selectedPlan.id);
+            // Redirect to Stripe Checkout
+            if (res?.checkoutUrl) {
+                window.location.href = res.checkoutUrl;
+            }
         } catch {
             setInitiating(false);
         }
@@ -101,14 +96,6 @@ export function MembershipPlans() {
 
     return (
         <div className="space-y-10 max-w-5xl mx-auto pb-16">
-            {/* Hidden PayHere form */}
-            {paymentData && (
-                <form ref={formRef} method="post" action={paymentData.checkoutUrl} className="hidden">
-                    {Object.entries(paymentData.formData).map(([k, v]) => (
-                        <input key={k} type="hidden" name={k} value={v} />
-                    ))}
-                </form>
-            )}
 
             {/* Header */}
             <div>
@@ -289,13 +276,12 @@ export function MembershipPlans() {
 
                                         <CardFooter className="pt-0">
                                             <Button
-                                                className={`w-full font-bold py-5 rounded-xl transition-all ${
-                                                    isCurrent
-                                                        ? 'border-2 border-[#DC2626] text-[#DC2626] bg-transparent hover:bg-red-50'
-                                                        : isDark
+                                                className={`w-full font-bold py-5 rounded-xl transition-all ${isCurrent
+                                                    ? 'border-2 border-[#DC2626] text-[#DC2626] bg-transparent hover:bg-red-50'
+                                                    : isDark
                                                         ? 'bg-white text-slate-900 hover:bg-slate-100'
                                                         : 'bg-slate-900 hover:bg-black text-white'
-                                                }`}
+                                                    }`}
                                                 variant={isCurrent ? 'outline' : 'default'}
                                                 onClick={() => !isCurrent && handleSelectPlan(plan)}
                                                 disabled={isLoading}
@@ -337,7 +323,7 @@ export function MembershipPlans() {
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-black">Confirm Plan Change</DialogTitle>
                         <DialogDescription>
-                            You&apos;ll be redirected to PayHere Sandbox to complete payment securely.
+                            You&apos;ll be redirected to Stripe&apos;s secure checkout to complete payment.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -364,7 +350,7 @@ export function MembershipPlans() {
 
                             <div className="flex items-start gap-2 text-xs text-slate-500 bg-blue-50 rounded-xl p-3 border border-blue-100">
                                 <ShieldCheck className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
-                                <span>Secure payment via PayHere. Your subscription activates automatically after payment.</span>
+                                <span>Secure payment via Stripe. Your subscription activates automatically after payment.</span>
                             </div>
 
                             <div className="flex gap-3">

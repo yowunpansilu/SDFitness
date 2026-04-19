@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import {
     type Transaction,
+    type StripeSessionResponse,
     getTransactions,
-    initiatePayherePayment,
-    type PayhereInitResponse
+    createStripeSession,
 } from '@/lib/api/billingService';
 
 interface BillingState {
@@ -12,7 +12,7 @@ interface BillingState {
     error: string | null;
 
     fetchBillingData: () => Promise<void>;
-    startPayment: (data: { amount: number, currency: string, description: string, planId?: string }) => Promise<PayhereInitResponse>;
+    startPayment: (data: { amount: number, currency: string, description: string, planId?: string }) => Promise<StripeSessionResponse>;
     downloadInvoice: (transactionId: string) => Promise<void>;
 }
 
@@ -25,10 +25,7 @@ export const useBillingStore = create<BillingState>((set) => ({
         set({ isLoading: true, error: null });
         try {
             const txs = await getTransactions();
-            set({
-                transactions: txs,
-                isLoading: false
-            });
+            set({ transactions: txs, isLoading: false });
         } catch (err) {
             set({ error: 'Failed to fetch billing information', isLoading: false });
         }
@@ -37,7 +34,7 @@ export const useBillingStore = create<BillingState>((set) => ({
     startPayment: async (data) => {
         set({ isLoading: true, error: null });
         try {
-            const res = await initiatePayherePayment(data);
+            const res = await createStripeSession(data);
             set({ isLoading: false });
             return res;
         } catch (err: any) {
@@ -48,7 +45,6 @@ export const useBillingStore = create<BillingState>((set) => ({
     },
 
     downloadInvoice: async (transactionId: string) => {
-        // Simulating download delay
         await new Promise(resolve => setTimeout(resolve, 1000));
         console.log(`Downloading invoice for transaction ${transactionId}`);
     }

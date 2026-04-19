@@ -42,36 +42,37 @@ async function seed() {
     // ─── 1. Users ─────────────────────────────────────────────────
     const admin = await User.create({
         email: 'admin@sdfitness.com', password: 'admin123',
-        firstName: 'Super', lastName: 'Admin', role: 'admin'
+        firstName: 'Super', lastName: 'Admin', role: 'admin',
+        phone: '+94771234567'
     });
 
     const trainerUsers = await User.create([
-        { email: 'kamal@sdfitness.com', password: 'trainer123', firstName: 'Kamal', lastName: 'Perera', role: 'trainer' },
-        { email: 'nimal@sdfitness.com', password: 'trainer123', firstName: 'Nimal', lastName: 'Fernando', role: 'trainer' },
-        { email: 'sachini@sdfitness.com', password: 'trainer123', firstName: 'Sachini', lastName: 'Silva', role: 'trainer' },
-        { email: 'ruwan@sdfitness.com', password: 'trainer123', firstName: 'Ruwan', lastName: 'Jayawardena', role: 'trainer' },
-        { email: 'dilini@sdfitness.com', password: 'trainer123', firstName: 'Dilini', lastName: 'Wickramasinghe', role: 'trainer' }
+        { email: 'kamal@sdfitness.com', password: 'trainer123', firstName: 'Kamal', lastName: 'Perera', role: 'trainer', phone: '+94712345678' },
+        { email: 'nimal@sdfitness.com', password: 'trainer123', firstName: 'Nimal', lastName: 'Fernando', role: 'trainer', phone: '+94723456789' },
+        { email: 'sachini@sdfitness.com', password: 'trainer123', firstName: 'Sachini', lastName: 'Silva', role: 'trainer', phone: '+94734567890' },
+        { email: 'ruwan@sdfitness.com', password: 'trainer123', firstName: 'Ruwan', lastName: 'Jayawardena', role: 'trainer', phone: '+94745678901' },
+        { email: 'dilini@sdfitness.com', password: 'trainer123', firstName: 'Dilini', lastName: 'Wickramasinghe', role: 'trainer', phone: '+94756789012' }
     ]);
 
     const memberUsers = await User.create([
-        { email: 'saman@gmail.com', password: 'member123', firstName: 'Saman', lastName: 'Kumara', role: 'member' },
-        { email: 'chathura@gmail.com', password: 'member123', firstName: 'Chathura', lastName: 'Bandara', role: 'member' },
-        { email: 'nimasha@gmail.com', password: 'member123', firstName: 'Nimasha', lastName: 'De Silva', role: 'member' },
-        { email: 'tharushi@gmail.com', password: 'member123', firstName: 'Tharushi', lastName: 'Rajapaksa', role: 'member' },
-        { email: 'ashan@gmail.com', password: 'member123', firstName: 'Ashan', lastName: 'Gunawardena', role: 'member' },
-        { email: 'kavindi@gmail.com', password: 'member123', firstName: 'Kavindi', lastName: 'Herath', role: 'member' },
-        { email: 'nuwan@gmail.com', password: 'member123', firstName: 'Nuwan', lastName: 'Dissanayake', role: 'member' },
-        { email: 'hashini@gmail.com', password: 'member123', firstName: 'Hashini', lastName: 'Wijesinghe', role: 'member' },
-        { email: 'dinesh@gmail.com', password: 'member123', firstName: 'Dinesh', lastName: 'Rathnayake', role: 'member' },
-        { email: 'sanduni@gmail.com', password: 'member123', firstName: 'Sanduni', lastName: 'Jayasundara', role: 'member' }
+        { email: 'saman@gmail.com', password: 'member123', firstName: 'Saman', lastName: 'Kumara', role: 'member', phone: '+94701122334' },
+        { email: 'chathura@gmail.com', password: 'member123', firstName: 'Chathura', lastName: 'Bandara', role: 'member', phone: '+94702233445' },
+        { email: 'nimasha@gmail.com', password: 'member123', firstName: 'Nimasha', lastName: 'De Silva', role: 'member', phone: '+94703344556' },
+        { email: 'tharushi@gmail.com', password: 'member123', firstName: 'Tharushi', lastName: 'Rajapaksa', role: 'member', phone: '+94704455667' },
+        { email: 'ashan@gmail.com', password: 'member123', firstName: 'Ashan', lastName: 'Gunawardena', role: 'member', phone: '+94705566778' },
+        { email: 'kavindi@gmail.com', password: 'member123', firstName: 'Kavindi', lastName: 'Herath', role: 'member', phone: '+94706677889' },
+        { email: 'nuwan@gmail.com', password: 'member123', firstName: 'Nuwan', lastName: 'Dissanayake', role: 'member', phone: '+94707788990' },
+        { email: 'hashini@gmail.com', password: 'member123', firstName: 'Hashini', lastName: 'Wijesinghe', role: 'member', phone: '+94708899001' },
+        { email: 'dinesh@gmail.com', password: 'member123', firstName: 'Dinesh', lastName: 'Rathnayake', role: 'member', phone: '+94709900112' },
+        { email: 'sanduni@gmail.com', password: 'member123', firstName: 'Sanduni', lastName: 'Jayasundara', role: 'member', phone: '+94700011223' }
     ]);
     console.log(`✅ Created ${1 + trainerUsers.length + memberUsers.length} users`);
 
     // ─── 2. Trainers ──────────────────────────────────────────────
     const trainers = await Trainer.create([
         {
-            user: trainerUsers[0]._id,
-            specialization: ['Weight Training', 'Bodybuilding'],
+            userId: trainerUsers[0]._id,
+            specializations: ['Weight Training', 'Bodybuilding'],
             experienceYears: 8,
             bio: 'Certified personal trainer with 8 years of experience in weight training and bodybuilding.',
             availability: [
@@ -81,8 +82,8 @@ async function seed() {
             ]
         },
         {
-            user: trainerUsers[1]._id,
-            specialization: ['Yoga', 'Pilates', 'Flexibility'],
+            userId: trainerUsers[1]._id,
+            specializations: ['Yoga', 'Pilates', 'Flexibility'],
             experienceYears: 5,
             bio: 'Experienced yoga and pilates instructor specializing in flexibility and mindfulness.',
             availability: [
@@ -92,8 +93,8 @@ async function seed() {
             ]
         },
         {
-            user: trainerUsers[2]._id,
-            specialization: ['HIIT', 'Cardio', 'CrossFit'],
+            userId: trainerUsers[2]._id,
+            specializations: ['HIIT', 'Cardio', 'CrossFit'],
             experienceYears: 6,
             bio: 'High-intensity interval training specialist and CrossFit certified coach.',
             availability: [
@@ -103,8 +104,8 @@ async function seed() {
             ]
         },
         {
-            user: trainerUsers[3]._id,
-            specialization: ['Swimming', 'Aqua Aerobics'],
+            userId: trainerUsers[3]._id,
+            specializations: ['Swimming', 'Aqua Aerobics'],
             experienceYears: 10,
             bio: 'Former national swimmer turned aqua fitness instructor with 10 years of coaching.',
             availability: [
@@ -114,8 +115,8 @@ async function seed() {
             ]
         },
         {
-            user: trainerUsers[4]._id,
-            specialization: ['Spinning', 'Endurance Training', 'Nutrition'],
+            userId: trainerUsers[4]._id,
+            specializations: ['Spinning', 'Endurance Training', 'Nutrition'],
             experienceYears: 4,
             bio: 'Certified spinning instructor and nutrition advisor for endurance athletes.',
             availability: [
@@ -234,13 +235,20 @@ async function seed() {
     console.log(`✅ Created ${equipment.length} equipment items`);
 
     // ─── 8. Bookings ──────────────────────────────────────────────
+    const nextMonday = new Date(now);
+    nextMonday.setDate(now.getDate() + ((1 - now.getDay() + 7) % 7 || 7));
+    const nextTuesday = new Date(nextMonday); nextTuesday.setDate(nextMonday.getDate() + 1);
+    const nextWednesday = new Date(nextMonday); nextWednesday.setDate(nextMonday.getDate() + 2);
+    const nextThursday = new Date(nextMonday); nextThursday.setDate(nextMonday.getDate() + 3);
+    const nextFriday = new Date(nextMonday); nextFriday.setDate(nextMonday.getDate() + 4);
+
     const bookings = await Booking.create([
-        { user: memberUsers[0]._id, class: classes[1]._id, status: 'confirmed' },
-        { user: memberUsers[1]._id, class: classes[3]._id, status: 'confirmed' },
-        { user: memberUsers[2]._id, class: classes[0]._id, status: 'confirmed' },
-        { user: memberUsers[3]._id, class: classes[2]._id, status: 'attended' },
-        { user: memberUsers[4]._id, class: classes[1]._id, status: 'confirmed' },
-        { user: memberUsers[5]._id, class: classes[4]._id, status: 'confirmed' }
+        { user: memberUsers[0]._id, class: classes[1]._id, status: 'confirmed', classDate: nextMonday },
+        { user: memberUsers[1]._id, class: classes[3]._id, status: 'confirmed', classDate: nextWednesday },
+        { user: memberUsers[2]._id, class: classes[0]._id, status: 'confirmed', classDate: nextTuesday },
+        { user: memberUsers[3]._id, class: classes[2]._id, status: 'attended', classDate: nextTuesday },
+        { user: memberUsers[4]._id, class: classes[1]._id, status: 'confirmed', classDate: nextMonday },
+        { user: memberUsers[5]._id, class: classes[4]._id, status: 'confirmed', classDate: nextFriday }
     ]);
     console.log(`✅ Created ${bookings.length} bookings`);
 
@@ -295,32 +303,6 @@ async function seed() {
     await Conversation.findByIdAndUpdate(conv1._id, { lastMessage: msgs[3]._id });
     await Conversation.findByIdAndUpdate(conv2._id, { lastMessage: msgs[5]._id });
     console.log(`✅ Created ${2} conversations with ${msgs.length} messages`);
-
-    // ─── 12. Food Prices ─────────────────────────────────────────
-    await FoodPrice.deleteMany({});
-    const foodPrices = await FoodPrice.create([
-        { foodId: 'rice', name: 'White Rice', category: 'carbs', nutritionPer100g: { calories: 130, protein: 2.7, carbs: 28, fat: 0.3, fiber: 0.4 }, prices: [{ store: 'Keells', pricePerUnit: 220, unit: 'kg', pricePerGram: 0.22, source: 'scraper_catalog' }, { store: 'Cargills', pricePerUnit: 210, unit: 'kg', pricePerGram: 0.21, source: 'scraper_catalog' }], aliases: ['samba rice', 'white rice', 'basmati rice'], isVerified: true },
-        { foodId: 'brown_rice', name: 'Brown Rice', category: 'carbs', nutritionPer100g: { calories: 112, protein: 2.3, carbs: 24, fat: 0.8, fiber: 1.8 }, prices: [{ store: 'Keells', pricePerUnit: 380, unit: 'kg', pricePerGram: 0.38, source: 'scraper_catalog' }], aliases: ['red rice', 'brown rice'], isVerified: true },
-        { foodId: 'chicken_breast', name: 'Chicken Breast', category: 'protein', nutritionPer100g: { calories: 165, protein: 31, carbs: 0, fat: 3.6, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 1450, unit: 'kg', pricePerGram: 1.45, source: 'scraper_catalog' }, { store: 'Arpico', pricePerUnit: 1380, unit: 'kg', pricePerGram: 1.38, source: 'scraper_catalog' }], aliases: ['chicken breast fillet', 'boneless chicken'], isVerified: true },
-        { foodId: 'eggs', name: 'Eggs (10 pack)', category: 'protein', nutritionPer100g: { calories: 155, protein: 13, carbs: 1.1, fat: 11, fiber: 0 }, prices: [{ store: 'Cargills', pricePerUnit: 520, unit: 'pack', pricePerGram: 0.87, source: 'scraper_catalog' }, { store: 'Keells', pricePerUnit: 540, unit: 'pack', pricePerGram: 0.9, source: 'scraper_catalog' }], aliases: ['farm eggs', 'hen eggs'], isVerified: true },
-        { foodId: 'banana', name: 'Banana (Ambul)', category: 'fruit', nutritionPer100g: { calories: 89, protein: 1.1, carbs: 23, fat: 0.3, fiber: 2.6 }, prices: [{ store: 'Keells', pricePerUnit: 180, unit: 'kg', pricePerGram: 0.18, source: 'scraper_catalog' }, { store: 'Sathosa', pricePerUnit: 150, unit: 'kg', pricePerGram: 0.15, source: 'scraper_catalog' }], aliases: ['ambul banana', 'banana'], isVerified: true },
-        { foodId: 'red_lentils', name: 'Red Lentils (Parippu)', category: 'protein', nutritionPer100g: { calories: 116, protein: 9, carbs: 20, fat: 0.4, fiber: 8 }, prices: [{ store: 'Cargills', pricePerUnit: 550, unit: 'kg', pricePerGram: 0.55, source: 'scraper_catalog' }, { store: 'Sathosa', pricePerUnit: 490, unit: 'kg', pricePerGram: 0.49, source: 'scraper_catalog' }], aliases: ['masoor dhal', 'parippu', 'dhal'], isVerified: true },
-        { foodId: 'spinach', name: 'Spinach', category: 'vegetable', nutritionPer100g: { calories: 23, protein: 2.9, carbs: 3.6, fat: 0.4, fiber: 2.2 }, prices: [{ store: 'Keells', pricePerUnit: 280, unit: 'kg', pricePerGram: 0.28, source: 'scraper_catalog' }], aliases: ['spinach leaves', 'nivithi'], isVerified: true },
-        { foodId: 'coconut_oil', name: 'Coconut Oil', category: 'fats', nutritionPer100g: { calories: 862, protein: 0, carbs: 0, fat: 100, fiber: 0 }, prices: [{ store: 'Arpico', pricePerUnit: 890, unit: 'L', pricePerGram: 0.97, source: 'manual' }], aliases: ['pol thel', 'virgin coconut oil'], isVerified: true },
-        { foodId: 'yogurt', name: 'Plain Yogurt', category: 'dairy', nutritionPer100g: { calories: 59, protein: 10, carbs: 3.6, fat: 0.4, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 440, unit: 'kg', pricePerGram: 0.44, source: 'scraper_catalog' }, { store: 'Cargills', pricePerUnit: 420, unit: 'kg', pricePerGram: 0.42, source: 'scraper_catalog' }], aliases: ['curd', 'meekiri'], isVerified: true },
-        { foodId: 'sweet_potato', name: 'Sweet Potato', category: 'carbs', nutritionPer100g: { calories: 86, protein: 1.6, carbs: 20, fat: 0.1, fiber: 3 }, prices: [{ store: 'Sathosa', pricePerUnit: 320, unit: 'kg', pricePerGram: 0.32, source: 'scraper_catalog' }], aliases: ['bathala', 'sweet potato'], isVerified: true },
-        { foodId: 'oats', name: 'Oats', category: 'carbs', nutritionPer100g: { calories: 389, protein: 17, carbs: 66, fat: 7, fiber: 11 }, prices: [{ store: 'Keells', pricePerUnit: 620, unit: 'kg', pricePerGram: 0.62, source: 'scraper_catalog' }], aliases: ['rolled oats', 'oat meal'], isVerified: true },
-        { foodId: 'tuna', name: 'Canned Tuna', category: 'protein', nutritionPer100g: { calories: 132, protein: 29, carbs: 0, fat: 1, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 450, unit: 'can', pricePerGram: 2.65, source: 'scraper_catalog' }, { store: 'Cargills', pricePerUnit: 430, unit: 'can', pricePerGram: 2.53, source: 'scraper_catalog' }], aliases: ['tin fish', 'canned tuna'], isVerified: true },
-        { foodId: 'milk', name: 'Fresh Milk (1L)', category: 'dairy', nutritionPer100g: { calories: 42, protein: 3.4, carbs: 5, fat: 1, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 310, unit: 'L', pricePerGram: 0.31, source: 'scraper_catalog' }, { store: 'Cargills', pricePerUnit: 295, unit: 'L', pricePerGram: 0.30, source: 'scraper_catalog' }], aliases: ['ambewela milk', 'fresh milk'], isVerified: true },
-        { foodId: 'butter', name: 'Butter', category: 'fats', nutritionPer100g: { calories: 717, protein: 0.9, carbs: 0.1, fat: 81, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 680, unit: '200g', pricePerGram: 3.4, source: 'scraper_catalog' }], aliases: ['anchor butter', 'unsalted butter'], isVerified: true },
-        { foodId: 'soy_meat', name: 'Soy Meat', category: 'protein', nutritionPer100g: { calories: 296, protein: 52, carbs: 30, fat: 1, fiber: 6 }, prices: [{ store: 'Sathosa', pricePerUnit: 95, unit: '90g', pricePerGram: 1.06, source: 'scraper_catalog' }], aliases: ['lanka soy', 'soya meat chunks'], isVerified: true },
-        { foodId: 'bread', name: 'Bread (Sliced)', category: 'carbs', nutritionPer100g: { calories: 265, protein: 9, carbs: 49, fat: 3.2, fiber: 2.7 }, prices: [{ store: 'Keells', pricePerUnit: 190, unit: '450g', pricePerGram: 0.42, source: 'scraper_catalog' }], aliases: ['prima bread', 'sliced bread'], isVerified: true },
-        { foodId: 'coconut_milk', name: 'Coconut Milk', category: 'fats', nutritionPer100g: { calories: 230, protein: 2.3, carbs: 5.5, fat: 24, fiber: 0 }, prices: [{ store: 'Cargills', pricePerUnit: 180, unit: '400ml', pricePerGram: 0.45, source: 'scraper_catalog' }], aliases: ['coconut cream', 'pol kiri'], isVerified: true },
-        { foodId: 'tofu', name: 'Tofu', category: 'protein', nutritionPer100g: { calories: 76, protein: 8, carbs: 1.9, fat: 4.8, fiber: 0.3 }, prices: [{ store: 'Keells', pricePerUnit: 350, unit: '300g', pricePerGram: 1.17, source: 'manual' }], aliases: ['bean curd', 'soy tofu'], isVerified: false },
-        { foodId: 'papaya', name: 'Papaya', category: 'fruit', nutritionPer100g: { calories: 43, protein: 0.5, carbs: 11, fat: 0.3, fiber: 1.7 }, prices: [{ store: 'Sathosa', pricePerUnit: 120, unit: 'kg', pricePerGram: 0.12, source: 'scraper_catalog' }], aliases: ['papol', 'gaslabu'], isVerified: true },
-        { foodId: 'chicken_thigh', name: 'Chicken Thigh', category: 'protein', nutritionPer100g: { calories: 209, protein: 26, carbs: 0, fat: 11, fiber: 0 }, prices: [{ store: 'Keells', pricePerUnit: 1100, unit: 'kg', pricePerGram: 1.1, source: 'scraper_catalog' }, { store: 'Cargills', pricePerUnit: 1050, unit: 'kg', pricePerGram: 1.05, source: 'scraper_catalog' }], aliases: ['chicken leg', 'chicken thigh'], isVerified: true }
-    ]);
-    console.log(`✅ Created ${foodPrices.length} food prices`);
 
     // ─── 13. Scraper Review Queue ────────────────────────────────
     const ScraperReviewItem = mongoose.models.ScraperReviewItem || mongoose.model('ScraperReviewItem', new mongoose.Schema({

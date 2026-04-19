@@ -1,10 +1,11 @@
-const crypto = require('crypto');
+const Stripe = require('stripe');
 const Payment = require('../models/Payment');
 const Member = require('../models/Member');
 const User = require('../models/User');
 const Subscription = require('../models/Subscription');
 const MembershipPlan = require('../models/MembershipPlan');
-const payhereService = require('../services/payhereService');
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 /**
  * Helper to activate subscription for a member
@@ -44,56 +45,11 @@ const activateSubscription = async (memberId, planId) => {
 };
 
 /**
- * Generate PayHere MD5 Hash
- */
-const generatePayhereHash = (merchantId, orderId, amount, currency, merchantSecret) => {
-    // 1. MD5 hash of merchantSecret (uppercase)
-    const secret = String(merchantSecret).trim();
-    const hashedSecret = crypto.createHash('md5').update(secret).digest('hex').toUpperCase();
-
-    // 2. Format amount to 2 decimal places (no commas)
-    const amountFormatted = parseFloat(amount).toFixed(2);
-
-    // 3. Concatenate and hash again: merchant_id + order_id + amount + currency + hashedSecret
-    const hashString = String(merchantId) + String(orderId) + amountFormatted + String(currency) + hashedSecret;
-    const finalHash = crypto.createHash('md5').update(hashString).digest('hex').toUpperCase();
-
-    console.log('[PAYHERE] Hash Components:', {
-        merchantId,
-        orderId,
-        amountFormatted,
-        currency,
-        secretPreview: secret.substring(0, 3) + '...' + secret.substring(secret.length - 3)
-    });
-    console.log('[PAYHERE] Final Hash:', finalHash);
-
-    return finalHash;
-};
-
-/**
- * Verify PayHere Notify MD5 Signature
- */
-const verifyPayhereSig = (body, merchantSecret) => {
-    const { merchant_id, order_id, payhere_amount, payhere_currency, status_code, md5sig } = body;
-
-    // Use the literal secret string as provided
-    const secret = String(merchantSecret).trim();
-    const hashedSecret = crypto.createHash('md5').update(secret).digest('hex').toUpperCase();
-
-    // IMPORTANT: For notification verification, use the raw payhere_amount string as received
-    const hashString = String(merchant_id) + String(order_id) + String(payhere_amount) + String(payhere_currency) + String(status_code) + hashedSecret;
-
-    const expectedSig = crypto.createHash('md5').update(hashString).digest('hex').toUpperCase();
-
-    return expectedSig === md5sig;
-};
-
-/**
- * @desc    Initiate PayHere Payment
+ * @desc    Create Stripe Checkout Session
  * @route   POST /api/payments/initiate
  * @access  Private
  */
-exports.initiatePayherePayment = async (req, res) => {
+exports.createStripeSession = async (req, res) => {
     try {
         const { amount, currency, description, planId } = req.body;
         const userId = req.user._id || req.user.id;
@@ -105,221 +61,167 @@ exports.initiatePayherePayment = async (req, res) => {
 
         const user = member.userId;
 
-        const merchantId = process.env.MERCHANT_ID?.trim();
-        const merchantSecret = process.env.MERCHANT_SECRET?.trim();
-        const isSandbox = process.env.PAYHERE_SANDBOX === 'true';
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-        const checkoutBaseUrl = isSandbox
-            ? 'https://sandbox.payhere.lk'
-            : 'https://www.payhere.lk';
+        // Convert amount to smallest currency unit (cents for USD, paise for INR, etc.)
+        // Stripe requires integer amounts in the smallest unit
+        const unitAmount = Math.round(parseFloat(amount) * 100);
+        const curr = (currency || 'usd').toLowerCase();
 
-        if (!merchantId || !merchantSecret) {
-            return res.status(500).json({ success: false, error: 'PayHere credentials not configured' });
-        }
-
-        // Use a strictly numeric order ID for maximum compatibility
-        const orderId = `${Date.now()}${userId.toString().substring(20)}`;
-        const hash = generatePayhereHash(merchantId, orderId, amount, currency || 'LKR', merchantSecret);
-
-        // Create pending payment record
+        // Create a pending payment record first
         const payment = new Payment({
             memberId: member._id,
-            amount,
-            currency: currency || 'LKR',
-            method: 'payhere',
+            amount: parseFloat(amount),
+            currency: curr.toUpperCase(),
+            method: 'stripe',
             status: 'pending',
-            orderId,
             description: description || `Membership Payment${planId ? ` - ${planId}` : ''}`,
             planId
         });
 
         await payment.save();
 
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        const backendNotifyUrl = process.env.BACKEND_NOTIFY_URL || 'http://localhost:5005';
+        // Create Stripe Checkout Session
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            mode: 'payment',
+            customer_email: user.email,
+            line_items: [
+                {
+                    price_data: {
+                        currency: curr,
+                        product_data: {
+                            name: 'SD Fitness Membership',
+                            description: description || 'Membership Renewal',
+                        },
+                        unit_amount: unitAmount,
+                    },
+                    quantity: 1,
+                },
+            ],
+            metadata: {
+                paymentId: payment._id.toString(),
+                memberId: member._id.toString(),
+                planId: planId ? planId.toString() : '',
+                userId: userId.toString()
+            },
+            success_url: `${frontendUrl}/dashboard/payment/success?session_id={CHECKOUT_SESSION_ID}&payment_id=${payment._id}`,
+            cancel_url: `${frontendUrl}/dashboard/billing`,
+        });
 
-        // Cleaned up items and removed any special characters/spaces if possible
-        const formData = {
-            merchant_id: merchantId,
-            return_url: `${frontendUrl}/dashboard/payment/success?order_id=${orderId}`,
-            cancel_url: `${frontendUrl}/dashboard/payment/cancel`,
-            notify_url: `${backendNotifyUrl}/api/payments/notify`,
-            first_name: user.firstName || 'Member',
-            last_name: user.lastName || 'Customer',
-            email: user.email,
-            phone: user.phone || '0000000000',
-            address: member.address || 'Colombo, Sri Lanka',
-            city: member.city || 'Colombo',
-            country: 'Sri Lanka',
-            order_id: orderId,
-            items: 'Membership',
-            currency: currency || 'LKR',
-            amount: parseFloat(amount).toFixed(2),
-            custom_1: 'PAYMENT',
-            hash
-        };
+        // Save session ID to payment record
+        payment.stripeSessionId = session.id;
+        await payment.save();
+
+        console.log(`[STRIPE] Created session ${session.id} for payment ${payment._id}`);
 
         res.status(200).json({
             success: true,
-            checkoutUrl: `${checkoutBaseUrl}/pay/checkout`,
-            orderId,
-            formData
+            checkoutUrl: session.url,
+            sessionId: session.id,
+            paymentId: payment._id
         });
 
     } catch (err) {
-        console.error('PayHere Initiation Error:', err);
+        console.error('Stripe Session Error:', err.message);
         res.status(500).json({ success: false, error: err.message });
     }
 };
 
 /**
- * @desc    Handle PayHere Webhook (Notify)
- * @route   POST /api/payments/notify
- * @access  Public (called by PayHere servers)
+ * @desc    Handle Stripe Webhook
+ * @route   POST /api/payments/webhook
+ * @access  Public (called by Stripe)
  */
-exports.payhereNotify = async (req, res) => {
+exports.stripeWebhook = async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    let event;
     try {
-        const merchantSecret = process.env.MERCHANT_SECRET;
+        event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } catch (err) {
+        console.error('❌ Stripe Webhook Signature Invalid:', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
 
-        // Verify Signature
-        if (!verifyPayhereSig(req.body, merchantSecret)) {
-            console.error('❌ PayHere Signature Verification Failed');
-            return res.status(400).send('Invalid signature');
-        }
+    console.log(`[STRIPE] Webhook event: ${event.type}`);
 
-        const {
-            order_id,
-            payment_id,
-            status_code,
-            method,
-            md5sig,
-            customer_token,
-            card_holder_name,
-            card_expiry,
-            card_number
-        } = req.body;
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
 
-        const payment = await Payment.findOne({ orderId: order_id });
-        if (!payment) {
-            console.error(`❌ Payment record not found for Order ID: ${order_id}`);
-            return res.status(404).send('Payment not found');
-        }
+        try {
+            const { paymentId, planId } = session.metadata;
 
-        payment.payherePaymentId = payment_id;
-        payment.payhereStatusCode = parseInt(status_code);
-        payment.payhereMd5Sig = md5sig;
-        payment.transactionId = payment_id;
+            const payment = await Payment.findById(paymentId);
+            if (!payment) {
+                console.error(`❌ Payment not found for ID: ${paymentId}`);
+                return res.status(200).send('OK'); // Acknowledge to Stripe
+            }
 
-        if (status_code == '2') {
             payment.status = 'completed';
             payment.paidAt = new Date();
-            console.log(`✅ Payment SUCCESS for Order: ${order_id}`);
+            payment.stripePaymentIntentId = session.payment_intent;
+            payment.transactionId = session.payment_intent;
+            await payment.save();
 
-            // Activate subscription if planId is stored on the payment
-            if (payment.planId) {
+            console.log(`✅ Payment SUCCESS: ${payment._id}`);
+
+            if (planId) {
                 try {
-                    await activateSubscription(payment.memberId, payment.planId);
+                    await activateSubscription(payment.memberId, planId);
                 } catch (subErr) {
                     console.error('❌ Subscription activation failed:', subErr.message);
                 }
             }
-
-            // If a customer token was returned, save it for automated charging
-            if (customer_token) {
-                try {
-                    const member = await Member.findById(payment.memberId);
-                    if (member) {
-                        // Extract card info if available
-                        const last4 = card_number ? card_number.slice(-4) : '****';
-                        const [expMonth, expYear] = card_expiry ? card_expiry.split('/') : [null, null];
-
-                        // Add or update payment method
-                        const existingMethodIndex = member.paymentMethods.findIndex(m => m.payhereCustomerToken === customer_token);
-
-                        if (existingMethodIndex > -1) {
-                            member.paymentMethods[existingMethodIndex].isDefault = true;
-                        } else {
-                            member.paymentMethods.push({
-                                brand: method.toLowerCase().includes('visa') ? 'visa' : (method.toLowerCase().includes('master') ? 'mastercard' : 'visa'),
-                                last4,
-                                expiryMonth: expMonth ? parseInt(expMonth) : null,
-                                expiryYear: expYear ? parseInt(expYear) : null,
-                                payhereCustomerToken: customer_token,
-                                isDefault: true
-                            });
-                        }
-
-                        // Set others to not default
-                        member.paymentMethods.forEach((m, idx) => {
-                            if (m.payhereCustomerToken !== customer_token) m.isDefault = false;
-                        });
-
-                        await member.save();
-                        console.log(`💳 Saved PayHere Customer Token for member ${payment.memberId}`);
-                    }
-                } catch (memberErr) {
-                    console.error('❌ Failed to save customer token:', memberErr.message);
-                }
-            }
-        } else if (status_code == '0') {
-            payment.status = 'pending';
-        } else if (status_code == '-1') {
-            payment.status = 'cancelled';
-        } else {
-            payment.status = 'failed';
+        } catch (err) {
+            console.error('❌ Error handling webhook event:', err.message);
         }
-
-        await payment.save();
-        res.status(200).send('OK');
-
-    } catch (err) {
-        console.error('PayHere Notify Error:', err);
-        res.status(500).send('Error');
     }
+
+    res.status(200).send('OK');
 };
 
 /**
- * @desc    Get Payment Status by Order ID
+ * @desc    Get Payment Status by Payment ID or Session ID
  * @route   GET /api/payments/status/:orderId
  * @access  Private
  */
 exports.getPaymentStatus = async (req, res) => {
     try {
-        const payment = await Payment.findOne({ orderId: req.params.orderId })
-            .populate({
-                path: 'memberId',
-                populate: { path: 'userId', select: 'firstName lastName email' }
-            });
+        // Support both MongoDB _id and stripeSessionId
+        const payment = await Payment.findOne({
+            $or: [
+                { _id: req.params.orderId.match(/^[0-9a-fA-F]{24}$/) ? req.params.orderId : null },
+                { stripeSessionId: req.params.orderId }
+            ]
+        }).populate({ path: 'memberId', populate: { path: 'userId', select: 'firstName lastName email' } });
 
         if (!payment) {
             return res.status(404).json({ success: false, error: 'Payment not found' });
         }
 
-        // Optional: Cross-verify with PayHere Business API for added security
-        let remoteStatus = null;
-        try {
-            remoteStatus = await payhereService.getPaymentDetails(req.params.orderId);
-            if (remoteStatus && remoteStatus.status === 'RECEIVED' && payment.status !== 'completed') {
-                // Self-heal: If PayHere says it's received but our DB says otherwise (missed webhook)
-                payment.status = 'completed';
-                payment.paidAt = new Date();
-                payment.transactionId = remoteStatus.payment_id;
-                await payment.save();
+        // Self-healing: check Stripe if still pending
+        if (payment.status === 'pending' && payment.stripeSessionId) {
+            try {
+                const session = await stripe.checkout.sessions.retrieve(payment.stripeSessionId);
+                if (session.payment_status === 'paid') {
+                    payment.status = 'completed';
+                    payment.paidAt = new Date();
+                    payment.stripePaymentIntentId = session.payment_intent;
+                    payment.transactionId = session.payment_intent;
+                    await payment.save();
 
-                // Trigger subscription activation if needed
-                if (payment.planId) {
-                    await activateSubscription(payment.memberId, payment.planId);
+                    if (payment.planId) {
+                        await activateSubscription(payment.memberId, payment.planId);
+                    }
                 }
+            } catch (stripeErr) {
+                console.warn('⚠️ Could not cross-verify with Stripe:', stripeErr.message);
             }
-        } catch (apiErr) {
-            console.warn('⚠️ Could not cross-verify with PayHere API:', apiErr.message);
         }
 
-        res.status(200).json({
-            success: true,
-            payment,
-            remoteStatus // Include for frontend debugging
-        });
+        res.status(200).json({ success: true, payment });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -340,10 +242,9 @@ exports.recordAdminPayment = async (req, res) => {
             currency: currency || 'LKR',
             method: method || 'cash',
             status: 'completed',
-            orderId: `MAN-${Date.now()}-${memberId.toString().substring(0, 5)}`,
             description,
             planId,
-            transactionId: transactionId || `TXN-${Date.now()}`,
+            transactionId: transactionId || `MAN-${Date.now()}`,
             paidAt: new Date()
         });
 
@@ -362,10 +263,7 @@ exports.recordAdminPayment = async (req, res) => {
             }
         }
 
-        res.status(201).json({
-            success: true,
-            payment
-        });
+        res.status(201).json({ success: true, payment });
 
     } catch (err) {
         console.error('Admin Payment Error:', err);

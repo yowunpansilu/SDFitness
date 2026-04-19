@@ -12,11 +12,11 @@ const paymentSchema = new mongoose.Schema({
     },
     currency: {
         type: String,
-        default: 'LKR'
+        default: 'USD'
     },
     method: {
         type: String,
-        enum: ['cash', 'card', 'bank_transfer', 'online', 'payhere'],
+        enum: ['cash', 'card', 'bank_transfer', 'online', 'stripe'],
         required: true
     },
     status: {
@@ -29,20 +29,17 @@ const paymentSchema = new mongoose.Schema({
         unique: true,
         sparse: true
     },
-    // PayHere Specific Fields
-    orderId: {
+    // Stripe-specific fields
+    stripeSessionId: {
         type: String,
         unique: true,
         sparse: true
     },
-    payherePaymentId: String,
-    payhereStatusCode: Number,
-    payhereMd5Sig: String,
-    isAutomated: {
-        type: Boolean,
-        default: false
+    stripePaymentIntentId: {
+        type: String,
+        sparse: true
     },
-    
+
     // Plan reference for subscription activation after payment
     planId: {
         type: mongoose.Schema.Types.ObjectId,

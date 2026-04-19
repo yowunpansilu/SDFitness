@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, ArrowRight, Home, Loader2, ShieldCheck, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { getPaymentByOrderId } from '@/lib/api/billingService';
+import { getPaymentById } from '@/lib/api/billingService';
 
 const confettiColors = ['#DC2626', '#16A34A', '#2563EB', '#D97706', '#7C3AED'];
 
@@ -39,7 +39,8 @@ const Confetti = () => (
 const PaymentSuccess: React.FC = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const orderId = searchParams.get('order_id');
+    // Support both payment_id (our internal ID) and session_id (from Stripe redirect)
+    const paymentId = searchParams.get('payment_id') || searchParams.get('session_id');
     const [payment, setPayment] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [showConfetti, setShowConfetti] = useState(false);
@@ -47,8 +48,8 @@ const PaymentSuccess: React.FC = () => {
     useEffect(() => {
         const fetchStatus = async () => {
             try {
-                if (orderId) {
-                    const data = await getPaymentByOrderId(orderId);
+                if (paymentId) {
+                    const data = await getPaymentById(paymentId);
                     setPayment(data.payment);
                 }
             } catch (err) {
@@ -60,7 +61,7 @@ const PaymentSuccess: React.FC = () => {
             }
         };
         fetchStatus();
-    }, [orderId]);
+    }, [paymentId]);
 
     if (loading) {
         return (
@@ -102,10 +103,10 @@ const PaymentSuccess: React.FC = () => {
                 <div className="p-6 space-y-5">
                     {/* Order details */}
                     <div className="bg-slate-50 rounded-2xl p-5 space-y-3 border border-slate-100">
-                        {orderId && (
+                        {paymentId && (
                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-slate-500 font-semibold">Order ID</span>
-                                <span className="font-mono font-bold text-slate-800 text-xs">{orderId}</span>
+                                <span className="text-slate-500 font-semibold">Payment ID</span>
+                                <span className="font-mono font-bold text-slate-800 text-xs">{payment?._id || paymentId}</span>
                             </div>
                         )}
                         {payment?.amount && (

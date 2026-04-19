@@ -2,6 +2,7 @@ import {
     Dialog,
     DialogContent,
     DialogTitle,
+    DialogDescription,
 } from '../ui/dialog';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
@@ -24,14 +25,17 @@ export function RecipeModal({ meal, open, onOpenChange }: RecipeModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-[2.5rem] border-none shadow-2xl">
+            <DialogContent className="max-w-2xl p-0 overflow-y-auto max-h-[90vh] rounded-[2.5rem] border-none shadow-2xl">
+                <DialogDescription className="sr-only">
+                    Information and instructions for {meal.name}
+                </DialogDescription>
                 <div className="relative h-48 w-full">
                     <img
                         src={meal.image || 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=800&auto=format&fit=crop'}
                         alt={meal.name}
-                        className="w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
                     <div className="absolute bottom-6 left-8 right-8">
                         <Badge variant="secondary" className="mb-2 bg-primary-500 text-white border-none hover:bg-primary-600 transition-colors uppercase tracking-widest font-black text-[10px] px-3 py-1">
                             {meal.mealType?.replace('_', ' ') || 'Meal'}
@@ -75,6 +79,42 @@ export function RecipeModal({ meal, open, onOpenChange }: RecipeModalProps) {
 
                     <ScrollArea className="h-auto max-h-[500px] w-full">
                         <div className="space-y-8 px-4 md:px-0 pr-0 md:pr-6 pb-6">
+                            {/* Preparation Guide */}
+                            <div className="p-6 rounded-3xl bg-amber-50 border border-amber-100">
+                                <h4 className="text-sm font-black text-amber-900 mb-3 uppercase tracking-widest flex items-center gap-2">
+                                    <Utensils className="w-4 h-4" />
+                                    Preparation Guide
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 flex-shrink-0" />
+                                        <p className="text-sm text-amber-900/80 font-medium">
+                                            Wash all vegetables and fresh herbs thoroughly before starting.
+                                        </p>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 flex-shrink-0" />
+                                        <p className="text-sm text-amber-900/80 font-medium">
+                                            Prepare all ingredients (chopping, measuring) to ensure a smooth cooking flow.
+                                        </p>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 flex-shrink-0" />
+                                        <p className="text-sm text-amber-900/80 font-medium">
+                                            Check if you have all "Pantry & Spices" items listed below.
+                                        </p>
+                                    </div>
+                                    {meal.prepTime && (
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 flex-shrink-0" />
+                                            <p className="text-sm text-amber-900/80 font-medium">
+                                                Estimated active preparation time: {meal.prepTime} minutes.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
                             {/* Ingredients */}
                             <div>
                                 <h4 className="text-lg font-black text-primary-900 mb-4 flex items-center gap-2">
@@ -122,23 +162,30 @@ export function RecipeModal({ meal, open, onOpenChange }: RecipeModalProps) {
                                     <span className="w-2 h-2 rounded-full bg-primary-500" />
                                 </h4>
                                 <div className="space-y-4">
-                                    {meal.instructions && meal.instructions.length > 0 ? (
-                                        meal.instructions.map((step, idx) => (
-                                            <div key={idx} className="flex gap-4 p-4 rounded-2xl bg-white border border-secondary-100 shadow-sm">
-                                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center text-xs font-black shadow-lg shadow-primary-500/20">
-                                                    {idx + 1}
+                                    {(() => {
+                                        const rawInstructions = meal.instructions || [];
+                                        const instructions = rawInstructions.length === 1 && (rawInstructions[0].includes('\n') || /\d+\.\s/.test(rawInstructions[0]))
+                                            ? rawInstructions[0].split(/\n|\d+\.\s+/).filter(s => s.trim().length > 0)
+                                            : rawInstructions;
+
+                                        return instructions.length > 0 ? (
+                                            instructions.map((step, idx) => (
+                                                <div key={idx} className="flex gap-4 p-4 rounded-2xl bg-white border border-secondary-100 shadow-sm">
+                                                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center text-xs font-black shadow-lg shadow-primary-500/20">
+                                                        {idx + 1}
+                                                    </div>
+                                                    <p className="text-sm text-secondary-800 leading-relaxed font-medium pt-1">
+                                                        {step.replace(/^Step\s*\d+[:.]?\s*/i, '').trim()}
+                                                    </p>
                                                 </div>
-                                                <p className="text-sm text-secondary-800 leading-relaxed font-medium pt-1">
-                                                    {step.replace(/^Step\\s*\\d+[:.]?\\s*/i, '')}
-                                                </p>
+                                            ))
+                                        ) : (
+                                            <div className="p-6 rounded-2xl border-2 border-dashed border-secondary-100 flex flex-col items-center justify-center text-center">
+                                                <Utensils className="w-8 h-8 text-secondary-200 mb-2" />
+                                                <p className="text-xs font-bold text-secondary-400 uppercase tracking-widest">No detailed instructions available</p>
                                             </div>
-                                        ))
-                                    ) : (
-                                        <div className="p-6 rounded-2xl border-2 border-dashed border-secondary-100 flex flex-col items-center justify-center text-center">
-                                            <Utensils className="w-8 h-8 text-secondary-200 mb-2" />
-                                            <p className="text-xs font-bold text-secondary-400 uppercase tracking-widest">No detailed instructions available</p>
-                                        </div>
-                                    )}
+                                        );
+                                    })()}
                                 </div>
                             </div>
 

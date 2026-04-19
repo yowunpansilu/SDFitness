@@ -318,7 +318,7 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-4">
                         <div className="bg-card w-full max-w-sm rounded-[2.5rem] shadow-2xl p-8 flex flex-col items-center">
                             <div className="w-20 h-20 rounded-3xl bg-primary-50 border border-primary-100 flex items-center justify-center mb-6 shadow-inner relative overflow-hidden">
-                                <div className="absolute inset-0 bg-primary-100/50 animate-pulse" />
+                                <div className="absolute inset-0 bg-primary-100/50 animate-pulse pointer-events-none" />
                                 <Loader2 className="w-8 h-8 text-primary-600 animate-spin relative z-10" />
                             </div>
                             <h3 className="text-xl font-black text-foreground mb-8 text-center tracking-tight">Crafting Your Plan...</h3>

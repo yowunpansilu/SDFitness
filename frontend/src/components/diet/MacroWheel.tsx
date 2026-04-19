@@ -30,7 +30,7 @@ export function MacroWheel({ protein, carbs, fats }: MacroWheelProps) {
 
     return (
         <div className="relative h-[280px] w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <PieChart>
                     {/* Ring 3: Fats (Outer) */}
                     <Pie

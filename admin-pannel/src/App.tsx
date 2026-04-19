@@ -19,6 +19,7 @@ import { EquipmentInventory } from './pages/equipment/EquipmentInventory';
 import { EquipmentForm } from './pages/equipment/EquipmentForm';
 import { EquipmentDetail } from './pages/equipment/EquipmentDetail';
 import { AnalyticsDashboard } from './pages/analytics/AnalyticsDashboard';
+import { WorkoutsPage } from './pages/workouts/WorkoutsPage';
 import { Settings } from './pages/settings/Settings';
 import { FoodPrices } from './pages/prices/FoodPrices';
 import { ScraperReview } from './pages/scraper/ScraperReview';
@@ -96,6 +97,7 @@ function App() {
             <Route path="equipment/edit/:id" element={<EquipmentForm />} />
             <Route path="equipment/:id" element={<EquipmentDetail />} />
             <Route path="analytics" element={<AnalyticsDashboard />} />
+            <Route path="workouts" element={<WorkoutsPage />} />
             <Route path="prices" element={<FoodPrices />} />
             <Route path="scraper/review" element={<ScraperReview />} />
             <Route path="messages" element={<MessagesPage />} />

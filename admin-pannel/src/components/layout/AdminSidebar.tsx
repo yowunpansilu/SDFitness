@@ -12,14 +12,18 @@ import {
   Store,
   MessageSquareQuote,
   MessageCircle,
-  RefreshCw
+  RefreshCw,
+  Activity
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-const navigationGoups = [
+type NavItem = { name: string; href: string; icon: any; exact?: boolean };
+type NavGroup = { title: string; items: NavItem[] };
+
+const navigationGoups: NavGroup[] = [
   {
     title: 'Main',
     items: [
@@ -32,6 +36,7 @@ const navigationGoups = [
     items: [
       { name: 'Members', href: '/members', icon: Users },
       { name: 'Trainers', href: '/trainers', icon: Dumbbell },
+      { name: 'Workouts', href: '/workouts', icon: Activity },
       { name: 'Membership Plans', href: '/plans', icon: CreditCard },
       { name: 'Classes', href: '/classes', icon: Calendar },
       { name: 'Messages', href: '/messages', icon: MessageCircle },

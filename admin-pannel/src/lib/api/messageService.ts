@@ -58,7 +58,7 @@ export const createConversationAPI = async (targetUserId: string): Promise<Conve
             lastMessage: conv.lastMessage ? {
                 id: conv.lastMessage._id,
                 conversationId: conv._id,
-                senderId: conv.lastMessage.sender,
+                senderId: conv.lastMessage.sender._id || conv.lastMessage.sender,
                 content: conv.lastMessage.text,
                 timestamp: conv.lastMessage.createdAt,
                 read: conv.lastMessage.isRead,
@@ -89,7 +89,7 @@ export const getConversations = async (): Promise<Conversation[]> => {
             lastMessage: conv.lastMessage ? {
                 id: conv.lastMessage._id,
                 conversationId: conv._id,
-                senderId: conv.lastMessage.sender,
+                senderId: conv.lastMessage.sender._id || conv.lastMessage.sender,
                 content: conv.lastMessage.text,
                 timestamp: conv.lastMessage.createdAt,
                 read: conv.lastMessage.isRead,
@@ -109,7 +109,7 @@ export const getMessages = async (conversationId: string): Promise<Message[]> =>
         return (response.data || []).map((msg: any) => ({
             id: msg._id,
             conversationId: msg.conversation,
-            senderId: msg.sender,
+            senderId: msg.sender._id || msg.sender,
             content: msg.text,
             timestamp: msg.createdAt,
             read: msg.isRead,
@@ -128,7 +128,7 @@ export const sendMessageAPI = async (conversationId: string, content: string, ty
         return {
             id: msg._id,
             conversationId: msg.conversation,
-            senderId: msg.sender,
+            senderId: msg.sender._id || msg.sender,
             content: msg.text,
             timestamp: msg.createdAt,
             read: msg.isRead,

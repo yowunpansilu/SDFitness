@@ -7,8 +7,7 @@ import {
     getMessages,
     sendMessageAPI,
     getAvailableUsers,
-    createConversationAPI,
-    socketService
+    createConversationAPI
 } from '@/lib/api/messageService';
 import { produce } from 'immer';
 
@@ -103,11 +102,14 @@ export const useMessageStore = create<MessageState>((set, get) => ({
             const newMessage = await sendMessageAPI(activeConversationId, content, type);
 
             set(produce((state: MessageState) => {
-                // Add to messages list
+                // Add to messages list if not exists
                 if (!state.messages[activeConversationId]) {
                     state.messages[activeConversationId] = [];
                 }
-                state.messages[activeConversationId].push(newMessage);
+                const exists = state.messages[activeConversationId].some(m => m.id === newMessage.id);
+                if (!exists) {
+                    state.messages[activeConversationId].push(newMessage);
+                }
 
                 // Update last message in conversation list
                 const conv = state.conversations.find(c => c.id === activeConversationId);
@@ -116,8 +118,7 @@ export const useMessageStore = create<MessageState>((set, get) => ({
                 }
             }));
 
-            // Simulate a reply for demo purposes
-            socketService.simulateIncomingMessage(activeConversationId);
+            // No simulation
 
         } catch (error) {
             console.error(error);
@@ -130,9 +131,12 @@ export const useMessageStore = create<MessageState>((set, get) => ({
         set(produce((state: MessageState) => {
             const { conversationId } = message;
 
-            // Add to messages if conversation is loaded
+            // Add to messages if conversation is loaded and message doesn't exist
             if (state.messages[conversationId]) {
-                state.messages[conversationId].push(message);
+                const exists = state.messages[conversationId].some(m => m.id === message.id);
+                if (!exists) {
+                    state.messages[conversationId].push(message);
+                }
             }
 
             // Update conversation list

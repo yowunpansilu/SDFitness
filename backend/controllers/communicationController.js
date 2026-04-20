@@ -2,21 +2,37 @@ const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const Admin = require('../models/Admin');
+
+const resolveUser = async (id) => {
+    if (!id) return null;
+    let u = await User.findById(id).select('email firstName lastName avatar role').lean();
+    if (!u) {
+        u = await Admin.findById(id).select('email firstName lastName avatar role').lean();
+    }
+    return u || { _id: id, firstName: 'Unknown', lastName: 'User', role: 'unknown' };
+};
 
 // GET available users for starting a new chat
 exports.getAvailableUsers = async (req, res) => {
     try {
         let query = {};
+        let users = [];
+        let admins = [];
+
         if (req.user.role !== 'admin') {
             // Members and trainers can only message admins
             query.role = 'admin';
+            users = await User.find(query).select('firstName lastName email avatar role').lean();
+            admins = await Admin.find().select('firstName lastName email avatar role').lean();
         } else {
             // Admins can message anyone, but exclude themselves
             query._id = { $ne: req.user._id };
+            users = await User.find(query).select('firstName lastName email avatar role').lean();
+            admins = await Admin.find(query).select('firstName lastName email avatar role').lean();
         }
 
-        const users = await User.find(query).select('firstName lastName email avatar role');
-        res.json(users);
+        res.json([...users, ...admins]);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -51,8 +67,11 @@ exports.createConversation = async (req, res) => {
             });
         }
 
-        const populated = await conversation.populate('participants', 'email firstName lastName avatar role');
-        res.status(201).json(populated);
+        const result = conversation.toObject ? conversation.toObject() : conversation;
+        result.participants = await Promise.all(
+            (result.participants || []).map(async p => await resolveUser(p))
+        );
+        res.status(201).json(result);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
@@ -65,16 +84,20 @@ exports.getMessages = async (req, res) => {
             return res.status(400).json({ error: 'conversationId is required' });
         }
 
-        // Optional: Ensure user is a participant of the conversation
+        // Ensure user is a participant of the conversation
         const conversation = await Conversation.findById(req.query.conversationId);
-        if (!conversation || !conversation.participants.includes(req.user._id)) {
+        if (!conversation || !conversation.participants.some(p => p.equals(req.user._id))) {
             return res.status(403).json({ error: 'Not authorized for this conversation' });
         }
 
         const messages = await Message.find({ conversation: req.query.conversationId })
-            .populate('sender', 'email firstName lastName')
             .sort({ createdAt: 1 })
-            .limit(200);
+            .limit(200)
+            .lean();
+
+        for (let i = 0; i < messages.length; i++) {
+            messages[i].sender = await resolveUser(messages[i].sender);
+        }
         res.json(messages);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -90,7 +113,7 @@ exports.sendMessage = async (req, res) => {
         }
 
         const conversation = await Conversation.findById(conversationId);
-        if (!conversation || !conversation.participants.includes(req.user._id)) {
+        if (!conversation || !conversation.participants.some(p => p.equals(req.user._id))) {
             return res.status(403).json({ error: 'Not authorized for this conversation' });
         }
 
@@ -105,23 +128,24 @@ exports.sendMessage = async (req, res) => {
             lastMessage: message._id
         });
 
-        const populated = await message.populate('sender', 'email firstName lastName avatar role');
+        const msgObj = message.toObject ? message.toObject() : message;
+        msgObj.sender = await resolveUser(msgObj.sender);
 
         // Emit socket event for real-time update
         const io = req.app.get('io');
         if (io) {
             io.to(conversationId.toString()).emit('new_message', {
-                id: populated._id,
-                conversationId: populated.conversation,
-                senderId: populated.sender._id,
-                content: populated.text,
-                timestamp: populated.createdAt,
-                read: populated.isRead,
+                id: msgObj._id,
+                conversationId: msgObj.conversation,
+                senderId: msgObj.sender._id,
+                content: msgObj.text,
+                timestamp: msgObj.createdAt,
+                read: msgObj.isRead,
                 type: 'text'
             });
         }
 
-        res.status(201).json(populated);
+        res.status(201).json(msgObj);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
@@ -132,9 +156,18 @@ exports.getConversations = async (req, res) => {
     try {
         // Enforce fetching only the conversations the current user is part of
         const conversations = await Conversation.find({ participants: req.user._id })
-            .populate('participants', 'email firstName lastName avatar role')
             .populate('lastMessage')
-            .sort({ updatedAt: -1 });
+            .sort({ updatedAt: -1 })
+            .lean();
+
+        for (let conv of conversations) {
+            conv.participants = await Promise.all(
+                (conv.participants || []).map(async p => await resolveUser(p))
+            );
+            if (conv.lastMessage && conv.lastMessage.sender) {
+                conv.lastMessage.sender = await resolveUser(conv.lastMessage.sender);
+            }
+        }
         res.json(conversations);
     } catch (err) {
         res.status(500).json({ error: err.message });

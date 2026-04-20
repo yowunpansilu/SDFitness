@@ -17,6 +17,8 @@ export interface GymClass {
     type: ClassType;
     location: string;
     image?: string;
+    price?: number;
+    priceLKR?: number;
     schedule?: {
         dayOfWeek: string;
         startTime: string; // HH:mm
@@ -48,6 +50,8 @@ const mapBackendClassToFrontend = (cls: any): GymClass => {
         type: (cls.type || 'Strength') as ClassType,
         location: cls.location || 'Main Gym',
         image: cls.image,
+        price: cls.price || 0,
+        priceLKR: cls.price || 0,
         schedule: cls.schedule
     };
 };
@@ -56,18 +60,27 @@ const mapBackendClassToFrontend = (cls: any): GymClass => {
 export const getClasses = async (_startDate?: Date, _endDate?: Date): Promise<GymClass[]> => {
     const response = await api.get('/classes');
     // Ensure we are working with an array
-    const data = Array.isArray(response.data) ? response.data : 
-                 (response.data?.success && Array.isArray(response.data.data) ? response.data.data : []);
+    const data = Array.isArray(response.data) ? response.data :
+        (response.data?.success && Array.isArray(response.data.data) ? response.data.data : []);
     return data.map(mapBackendClassToFrontend);
 };
 
 export const getUserBookings = async (userId: string): Promise<Booking[]> => {
     const response = await api.get(`/members/${userId}/bookings`);
-    return response.data;
+    return response.data.map((b: any) => ({
+        ...b,
+        classId: b.classId || b.class?._id || b.class,
+        gymClass: b.gymClass || (b.class ? mapBackendClassToFrontend(b.class) : undefined)
+    }));
 };
 
 export const bookClass = async (classId: string, userId: string, classDate?: string): Promise<Booking> => {
     const response = await api.post('/classes/book', { classId, userId, classDate });
+    return response.data;
+};
+
+export const initiateClassPayment = async (classId: string, classDate: string, userId: string): Promise<{ checkoutUrl: string }> => {
+    const response = await api.post('/payments/class-booking', { classId, classDate, userId });
     return response.data;
 };
 

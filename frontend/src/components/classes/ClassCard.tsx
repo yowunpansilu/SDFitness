@@ -18,6 +18,7 @@ interface ClassCardProps {
 export function ClassCard({ gymClass, onBook, userBooking, isPast, isLive }: ClassCardProps) {
     const isFull = gymClass.bookedCount >= gymClass.capacity;
     const isBooked = !!userBooking;
+    const isFree = !gymClass.priceLKR || gymClass.priceLKR === 0;
 
     return (
         <Card className={cn(
@@ -87,7 +88,7 @@ export function ClassCard({ gymClass, onBook, userBooking, isPast, isLive }: Cla
                         onClick={() => onBook(gymClass)}
                         disabled={isPast}
                     >
-                        Book Now
+                        {isFree ? 'Book Free' : `Pay LKR ${gymClass.priceLKR}`}
                     </Button>
                 )}
             </CardFooter>

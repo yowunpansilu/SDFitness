@@ -3,6 +3,7 @@ const router = express.Router();
 const { protect, requireRole } = require('../middleware/auth');
 const {
     createStripeSession,
+    createClassPaymentSession,
     stripeWebhook,
     getPaymentStatus,
     recordAdminPayment
@@ -41,6 +42,10 @@ router.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhook
 // @route   GET api/payments/status/:orderId
 // @desc    Get payment status by Payment ID or Stripe Session ID
 router.get('/status/:orderId', protect, getPaymentStatus);
+
+// @route   POST api/payments/class-booking
+// @desc    Create a Stripe Checkout Session for class booking
+router.post('/class-booking', protect, createClassPaymentSession);
 
 // @route   POST api/payments/admin-record
 // @desc    Record manual payment by admin

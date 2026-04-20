@@ -59,6 +59,7 @@ app.use('/api/trainers', require('./routes/trainerRoutes'));
 app.use('/api/trainer', require('./routes/trainerRoutes'));
 app.use('/api/workouts', require('./routes/workoutRoutes'));
 app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 

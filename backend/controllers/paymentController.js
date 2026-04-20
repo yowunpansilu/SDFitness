@@ -4,6 +4,7 @@ const Member = require('../models/Member');
 const User = require('../models/User');
 const Subscription = require('../models/Subscription');
 const MembershipPlan = require('../models/MembershipPlan');
+const Class = require('../models/Class');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -42,6 +43,44 @@ const activateSubscription = async (memberId, planId) => {
         status: 'active'
     });
     console.log(`✅ Subscription activated for user ${userId}`);
+};
+
+/**
+ * Helper to confirm a class booking after payment
+ */
+const confirmClassBooking = async (payment, metadata) => {
+    if (!payment || !metadata) return;
+
+    try {
+        const { classId, classDate, userId } = metadata;
+        const Booking = require('../models/Booking');
+
+        // Check if booking already exists for this payment to avoid duplicates
+        const existingBooking = await Booking.findOne({ paymentId: payment._id });
+        if (existingBooking) {
+            console.log(`ℹ️ Booking already exists for payment ${payment._id}`);
+            return existingBooking;
+        }
+
+        const booking = await Booking.create({
+            user: userId,
+            class: classId,
+            classDate: new Date(classDate),
+            status: 'confirmed',
+            paymentId: payment._id,
+            paymentStatus: 'paid',
+            amountPaid: payment.amount,
+            currency: payment.currency
+        });
+
+        payment.bookingId = booking._id;
+        await payment.save();
+        console.log(`✅ Class booking created: ${booking._id}`);
+        return booking;
+    } catch (err) {
+        console.error('❌ confirmClassBooking failed:', err.message);
+        throw err;
+    }
 };
 
 /**
@@ -129,6 +168,88 @@ exports.createStripeSession = async (req, res) => {
 };
 
 /**
+ * @desc    Create Stripe Checkout Session for Class Booking
+ * @route   POST /api/payments/class-booking
+ * @access  Private
+ */
+exports.createClassPaymentSession = async (req, res) => {
+    try {
+        const { classId, classDate, userId } = req.body;
+
+        const member = await Member.findOne({ userId }).populate('userId');
+        if (!member) {
+            return res.status(404).json({ success: false, error: 'Member profile not found.' });
+        }
+
+        const user = member.userId;
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const gymClass = await Class.findById(classId);
+
+        if (!gymClass) return res.status(404).json({ success: false, error: 'Class not found' });
+        if (gymClass.price <= 0) return res.status(400).json({ success: false, error: 'Class is free. Use direct booking.' });
+
+        // Calculate LKR to USD conversion
+        const rate = process.env.CLASS_LKR_TO_USD_RATE || 300;
+        const usdAmount = Math.max(1, Math.round((gymClass.price / rate) * 100)); // in cents
+
+        const payment = new Payment({
+            memberId: member._id,
+            amount: gymClass.price, // Store actual LKR amount in DB
+            currency: 'LKR',
+            method: 'stripe',
+            status: 'pending',
+            description: `Booking for ${gymClass.name}`,
+            classId,
+            type: 'class_booking'
+        });
+
+        await payment.save();
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            mode: 'payment',
+            customer_email: user.email,
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: `Booking: ${gymClass.name}`,
+                            description: `Class on ${new Date(classDate).toLocaleDateString()}`,
+                        },
+                        unit_amount: usdAmount,
+                    },
+                    quantity: 1,
+                },
+            ],
+            metadata: {
+                paymentId: payment._id.toString(),
+                classId: classId.toString(),
+                classDate: classDate.toString(),
+                userId: userId.toString(),
+                type: 'class_booking'
+            },
+            success_url: `${frontendUrl}/dashboard/classes?session_id={CHECKOUT_SESSION_ID}`, // Redirect back to classes to trigger confirmation
+            cancel_url: `${frontendUrl}/dashboard/classes`,
+        });
+
+        payment.stripeSessionId = session.id;
+        await payment.save();
+
+        res.status(200).json({
+            success: true,
+            checkoutUrl: session.url,
+            sessionId: session.id,
+            paymentId: payment._id
+        });
+
+    } catch (err) {
+        console.error('Class Payment Session Error:', err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+/**
  * @desc    Handle Stripe Webhook
  * @route   POST /api/payments/webhook
  * @access  Public (called by Stripe)
@@ -167,7 +288,9 @@ exports.stripeWebhook = async (req, res) => {
 
             console.log(`✅ Payment SUCCESS: ${payment._id}`);
 
-            if (planId) {
+            if (payment.type === 'class_booking' || session.metadata.type === 'class_booking') {
+                await confirmClassBooking(payment, session.metadata);
+            } else if (planId) {
                 try {
                     await activateSubscription(payment.memberId, planId);
                 } catch (subErr) {
@@ -214,6 +337,8 @@ exports.getPaymentStatus = async (req, res) => {
 
                     if (payment.planId) {
                         await activateSubscription(payment.memberId, payment.planId);
+                    } else if (payment.type === 'class_booking' || session.metadata.type === 'class_booking') {
+                        await confirmClassBooking(payment, session.metadata);
                     }
                 }
             } catch (stripeErr) {

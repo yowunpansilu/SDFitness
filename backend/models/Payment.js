@@ -46,6 +46,22 @@ const paymentSchema = new mongoose.Schema({
         ref: 'MembershipPlan',
         sparse: true
     },
+    // Class booking references
+    classId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Class',
+        sparse: true
+    },
+    bookingId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Booking',
+        sparse: true
+    },
+    type: {
+        type: String,
+        enum: ['membership', 'class_booking'],
+        default: 'membership'
+    },
     description: String,
     paidAt: {
         type: Date

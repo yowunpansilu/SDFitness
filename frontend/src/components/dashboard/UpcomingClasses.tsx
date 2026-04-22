@@ -34,13 +34,19 @@ export function UpcomingClasses() {
         fetchClasses();
     }, []);
 
-    const formatSafeDate = (dateString: string, formatStr: string) => {
+    const formatSafeDate = (dateString: string | undefined, formatStr: string) => {
+        if (!dateString) return 'TBA';
         try {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return 'Invalid Date';
+            if (isNaN(date.getTime())) {
+                // Try parsing without assuming ISO
+                const fallbackDate = new Date(dateString.replace(' ', 'T'));
+                if (isNaN(fallbackDate.getTime())) return 'TBA';
+                return format(fallbackDate, formatStr);
+            }
             return format(date, formatStr);
         } catch (e) {
-            return 'Invalid Date';
+            return 'TBA';
         }
     };
 

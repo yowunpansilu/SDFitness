@@ -10,14 +10,19 @@ interface BillingState {
     transactions: Transaction[];
     isLoading: boolean;
     error: string | null;
+    paymentMethods: any[];
 
     fetchBillingData: () => Promise<void>;
+    addNewPaymentMethod: (data: any) => Promise<void>;
+    removePaymentMethod: (id: string) => Promise<void>;
+    setAsDefault: (id: string) => Promise<void>;
     startPayment: (data: { amount: number, currency: string, description: string, planId?: string }) => Promise<StripeSessionResponse>;
     downloadInvoice: (transactionId: string) => Promise<void>;
 }
 
 export const useBillingStore = create<BillingState>((set) => ({
     transactions: [],
+    paymentMethods: [],
     isLoading: false,
     error: null,
 
@@ -47,5 +52,27 @@ export const useBillingStore = create<BillingState>((set) => ({
     downloadInvoice: async (transactionId: string) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         console.log(`Downloading invoice for transaction ${transactionId}`);
+    },
+
+    addNewPaymentMethod: async (data: any) => {
+        console.log('Adding payment method', data);
+        set(state => ({
+            paymentMethods: [...state.paymentMethods, { ...data, id: Math.random().toString() }]
+        }));
+    },
+
+    removePaymentMethod: async (id: string) => {
+        set(state => ({
+            paymentMethods: state.paymentMethods.filter(m => m.id !== id)
+        }));
+    },
+
+    setAsDefault: async (id: string) => {
+        set(state => ({
+            paymentMethods: state.paymentMethods.map(m => ({
+                ...m,
+                isDefault: m.id === id
+            }))
+        }));
     }
 }));

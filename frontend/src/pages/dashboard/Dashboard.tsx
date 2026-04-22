@@ -1,50 +1,93 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Dumbbell, Calendar, Zap, Plus, Target, Activity } from 'lucide-react';
+import { Dumbbell, Calendar, Zap, Plus, Target, Activity, Loader2 } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { UpcomingClasses } from '@/components/dashboard/UpcomingClasses';
 import { ActivityTimeline } from '@/components/dashboard/ActivityTimeline';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { getWeightHistory, getActiveGoal } from '@/lib/api/weightService';
 
 export function Dashboard() {
     const { user, member, fetchProfile } = useAuthStore();
+    const [weightHistory, setWeightHistory] = useState<any[]>([]);
+    const [activeGoal, setActiveGoal] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
-    // Calculate BMI dynamically if missing from DB but we have height and weight
-    let computedBmi = member?.bmi || 0;
-    if (!computedBmi && member?.height?.value && member?.currentWeight?.value) {
-        let heightM = member.height.value;
-        if (member.height.unit === 'cm') heightM = heightM / 100;
-        else if (member.height.unit === 'in') heightM = heightM * 0.0254;
+    useEffect(() => {
+        const loadDynamicData = async () => {
+            try {
+                const [historyRes, goalRes] = await Promise.all([
+                    getWeightHistory(),
+                    getActiveGoal()
+                ]);
+                setWeightHistory(historyRes.data || []);
+                setActiveGoal(goalRes.data);
+            } catch (err) {
+                console.error('Error fetching dynamic data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        let weightKg = member.currentWeight.value;
-        if (member.currentWeight.unit === 'lbs') weightKg = weightKg * 0.453592;
+        if (fetchProfile) fetchProfile();
+        loadDynamicData();
+    }, [fetchProfile]);
 
-        if (heightM > 0) {
-            computedBmi = weightKg / (heightM * heightM);
-        }
+    // Use latest weight log for BMI calculation
+    const latestWeight = weightHistory[0]?.weightKg || member?.currentWeight?.value || 0;
+    const previousWeight = weightHistory[1]?.weightKg || 0;
+    const currentHeight = member?.height?.value || 0;
+    const heightUnit = member?.height?.unit || 'cm';
+
+    let computedBmi = 0;
+    if (latestWeight > 0 && currentHeight > 0) {
+        let heightM = currentHeight;
+        if (heightUnit === 'cm') heightM = heightM / 100;
+        else if (heightUnit === 'in') heightM = heightM * 0.0254;
+
+        computedBmi = latestWeight / (heightM * heightM);
     }
 
     const displayBmi = computedBmi > 0 ? computedBmi.toFixed(1) : 'Not set';
+    const displayTarget = activeGoal ? `${activeGoal.targetWeight} kg` : (member?.targetWeight?.value ? `${member.targetWeight.value} ${member.targetWeight.unit || 'kg'}` : 'Not set');
+    const displayCurrentWeight = weightHistory[0] ? `${weightHistory[0].weight} ${weightHistory[0].unit}` : (member?.currentWeight?.value ? `${member.currentWeight.value} ${member.currentWeight.unit || 'kg'}` : 'Not set');
+    const displayStatus = activeGoal ? (activeGoal.type === 'lose' ? 'Cutting' : 'Bulking') : (member?.status?.toUpperCase() || 'Not Active');
 
-    useEffect(() => {
-        if (fetchProfile) fetchProfile();
-    }, [fetchProfile]);
+    // Calculate Trend
+    let weightTrend: 'up' | 'down' | undefined;
+    let weightTrendValue: string | undefined;
+    if (previousWeight > 0 && latestWeight > 0) {
+        const diff = latestWeight - previousWeight;
+        weightTrend = diff >= 0 ? 'up' : 'down';
+        weightTrendValue = `${Math.abs(diff).toFixed(1)} kg`;
+    }
+
+    const bmiStatus = computedBmi < 18.5 ? "Underweight" : computedBmi < 25 ? "Healthy" : "Attention";
+    const bmiTrend = weightTrend; // Use same trend as weight
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-[60vh]">
+                <Loader2 className="w-12 h-12 animate-spin text-primary-500" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-fade-in">
             {/* Premium Welcome Section */}
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="relative h-[220px] rounded-[2rem] overflow-hidden group shadow-xl shadow-primary-900/5 bg-white border border-primary-50"
             >
                 {/* Background Image with Light Overlay */}
                 <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105 opacity-20">
-                    <img 
-                        src="/assets/images/welcome-bg.png" 
+                    <img
+                        src="/assets/images/welcome-bg.png"
                         alt="Gym Background"
                         className="w-full h-full object-cover grayscale brightness-150"
                     />
@@ -85,22 +128,26 @@ export function Dashboard() {
                     title="Current BMI"
                     value={displayBmi}
                     icon={Activity}
-                    trend={computedBmi ? (computedBmi < 25 ? "down" : "up") : undefined}
-                    trendValue={computedBmi ? (computedBmi < 18.5 ? "Underweight" : computedBmi < 25 ? "Healthy" : "Attention") : ""}
+                    trend={bmiTrend}
+                    trendValue={bmiStatus}
+                    trendColor={bmiTrend === 'up' ? 'red' : 'green'}
                 />
                 <StatsCard
                     title="Current Weight"
-                    value={member?.currentWeight?.value ? `${member.currentWeight.value} ${member.currentWeight.unit || 'kg'}` : 'Not set'}
+                    value={displayCurrentWeight}
                     icon={ScaleIcon as any}
+                    trend={weightTrend}
+                    trendValue={weightTrendValue}
+                    trendColor={weightTrend === 'up' ? 'red' : 'green'}
                 />
                 <StatsCard
                     title="Target Weight"
-                    value={member?.targetWeight?.value ? `${member.targetWeight.value} ${member.targetWeight.unit || 'kg'}` : 'Not set'}
+                    value={displayTarget}
                     icon={Target}
                 />
                 <StatsCard
                     title="Status"
-                    value={member?.status?.toUpperCase() || 'Not Active'}
+                    value={displayStatus}
                     icon={Zap}
                 />
             </div>

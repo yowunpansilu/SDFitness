@@ -9,6 +9,7 @@ interface StatsCardProps {
     icon: LucideIcon;
     trend?: 'up' | 'down';
     trendValue?: string;
+    trendColor?: 'green' | 'red' | 'neutral';
     className?: string;
 }
 
@@ -18,6 +19,7 @@ export function StatsCard({
     icon: Icon,
     trend,
     trendValue,
+    trendColor = 'green',
     className,
 }: StatsCardProps) {
     return (
@@ -31,14 +33,14 @@ export function StatsCard({
                         {trend && trendValue && (
                             <div className="flex items-center gap-1 mt-2">
                                 {trend === 'up' ? (
-                                    <TrendingUp className="w-4 h-4 text-green-500" />
+                                    <TrendingUp className={cn("w-4 h-4", trendColor === 'red' ? 'text-red-500' : 'text-green-500')} />
                                 ) : (
-                                    <TrendingDown className="w-4 h-4 text-red-500" />
+                                    <TrendingDown className={cn("w-4 h-4", trendColor === 'red' ? 'text-red-500' : 'text-green-500')} />
                                 )}
                                 <span
                                     className={cn(
                                         'text-sm font-medium',
-                                        trend === 'up' ? 'text-green-500' : 'text-red-500'
+                                        trendColor === 'red' ? 'text-red-500' : 'text-green-500'
                                     )}
                                 >
                                     {trendValue}

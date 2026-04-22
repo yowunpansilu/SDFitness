@@ -120,7 +120,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                                 className="gap-2 hover:bg-card transition-all duration-200"
                             >
                                 <Avatar className="h-8 w-8 ring-2 ring-purple-500/20">
-                                    <AvatarImage src={user?.profilePhoto} alt={user?.firstName} />
+                                    <AvatarImage src={user?.avatar} alt={user?.firstName} />
                                     <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-foreground text-xs font-semibold">
                                         {userInitials}
                                     </AvatarFallback>

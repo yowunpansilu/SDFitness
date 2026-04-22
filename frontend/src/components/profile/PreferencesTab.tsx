@@ -4,7 +4,6 @@ import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Card, CardContent } from '../ui/card';
-import { Checkbox } from '../ui/checkbox';
 import {
     Select,
     SelectContent,
@@ -18,7 +17,7 @@ import { useAuthStore } from '@/lib/stores/authStore';
 export function PreferencesTab() {
     const { member, token, login } = useAuthStore();
     const [isEditing, setIsEditing] = useState(false);
-    
+
     // Helper to format dietary preferences from backend (snake_case) to UI (Capitalized-Hyphenated)
     const formatPref = (p: string) => {
         return p.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('-');
@@ -117,8 +116,8 @@ export function PreferencesTab() {
                                     onClick={() => toggleDietaryRestriction(option)}
                                     disabled={!isEditing}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${formData.dietaryRestrictions.includes(option)
-                                            ? 'bg-primary-500 text-white'
-                                            : 'bg-muted text-muted-foreground hover:bg-accent'
+                                        ? 'bg-primary-500 text-white'
+                                        : 'bg-muted text-muted-foreground hover:bg-accent'
                                         } ${!isEditing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                                 >
                                     {option}

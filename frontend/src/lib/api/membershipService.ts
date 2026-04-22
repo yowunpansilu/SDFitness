@@ -1,5 +1,4 @@
 import api from './axios';
-import { useAuthStore } from '../stores/authStore';
 
 // Types
 export type BillingCycle = 'monthly' | 'yearly';
@@ -18,6 +17,10 @@ export interface MembershipPlan {
     isActive: boolean;
     color: string;
     memberCount?: number;
+    monthlyPrice?: number;
+    yearlyPrice?: number;
+    popular?: boolean;
+    trialDays?: number;
 }
 
 export interface UserMembership {
@@ -28,6 +31,10 @@ export interface UserMembership {
     startDate: string;
     endDate: string;
     plan?: MembershipPlan;
+    paymentMethod?: {
+        brand: string;
+        last4: string;
+    };
 }
 
 export interface UsageStats {
@@ -55,7 +62,7 @@ export const getCurrentMembership = async (): Promise<UserMembership | null> => 
     try {
         const response = await api.get('/membership/subscriptions');
         const subs = response.data?.data || response.data || [];
-        
+
         // Find active or the most recent
         const activeSub = subs.find((s: any) => s.status === 'active' || s.status === 'frozen') || subs[0];
         if (!activeSub) return null;

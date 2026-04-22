@@ -62,7 +62,7 @@ export function AdminSidebar() {
             <div className="p-4">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-card/50 backdrop-blur-sm border border-border hover:bg-card transition-all duration-300">
                     <Avatar className="h-10 w-10 ring-2 ring-purple-500/20">
-                        <AvatarImage src={user?.profilePhoto} alt={user?.firstName} />
+                        <AvatarImage src={user?.avatar} alt={user?.firstName} />
                         <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-foreground font-semibold">
                             {userInitials}
                         </AvatarFallback>

@@ -55,6 +55,7 @@ const navigationGoups: NavGroup[] = [
     items: [
       { name: 'Food Prices', href: '/prices', icon: Store },
       { name: 'Scraper Review', href: '/scraper/review', icon: MessageSquareQuote },
+      { name: 'Feedback & Bugs', href: '/feedback', icon: MessageCircle },
     ]
   },
   {

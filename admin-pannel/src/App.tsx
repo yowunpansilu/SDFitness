@@ -25,6 +25,8 @@ import { FoodPrices } from './pages/prices/FoodPrices';
 import { ScraperReview } from './pages/scraper/ScraperReview';
 import { SubscriptionsDashboard } from './pages/subscriptions/SubscriptionsDashboard';
 import { MessagesPage } from './pages/messages/MessagesPage';
+import { FeedbackList } from './pages/feedback/FeedbackList';
+import { ProgressDashboard } from './pages/progress/ProgressDashboard';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
 
@@ -101,6 +103,8 @@ function App() {
             <Route path="prices" element={<FoodPrices />} />
             <Route path="scraper/review" element={<ScraperReview />} />
             <Route path="messages" element={<MessagesPage />} />
+            <Route path="feedback" element={<FeedbackList />} />
+            <Route path="progress" element={<ProgressDashboard />} />
             <Route path="settings" element={<Settings />} />
           </Route>
 

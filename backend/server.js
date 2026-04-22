@@ -62,6 +62,9 @@ app.use('/api/payments', require('./routes/paymentRoutes'));
 app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/progress', require('./routes/progressRoutes'));
+app.use('/api/feedback', require('./routes/feedbackRoutes'));
+app.use('/api/weight', require('./routes/weightRoutes'));
 
 // Background Tasks
 require('./tasks/subscriptionCleanup');

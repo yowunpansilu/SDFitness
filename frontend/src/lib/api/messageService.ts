@@ -22,9 +22,55 @@ export interface Message {
 export interface Conversation {
     id: string;
     participants: User[];
-    lastMessage: Message;
+    lastMessage: Message | null;
     unreadCount: number;
 }
+
+export const getAvailableUsers = async (): Promise<User[]> => {
+    try {
+        const response = await api.get('/communication/available-users');
+        return (response.data || []).map((u: any) => ({
+            id: u._id,
+            name: `${u.firstName} ${u.lastName}`.trim(),
+            avatar: u.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u._id}`,
+            role: u.role,
+            status: 'online'
+        }));
+    } catch (error) {
+        console.error('Failed to fetch available users:', error);
+        return [];
+    }
+};
+
+export const createConversationAPI = async (targetUserId: string): Promise<Conversation> => {
+    try {
+        const response = await api.post('/communication/conversations', { targetUserId });
+        const conv = response.data;
+        return {
+            id: conv._id,
+            participants: conv.participants.map((p: any) => ({
+                id: p._id,
+                name: `${p.firstName} ${p.lastName}`.trim(),
+                avatar: p.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p._id}`,
+                role: p.role,
+                status: 'online'
+            })),
+            lastMessage: conv.lastMessage ? {
+                id: conv.lastMessage._id,
+                conversationId: conv._id,
+                senderId: conv.lastMessage.sender._id || conv.lastMessage.sender,
+                content: conv.lastMessage.text,
+                timestamp: conv.lastMessage.createdAt,
+                read: conv.lastMessage.isRead,
+                type: 'text'
+            } : null,
+            unreadCount: 0
+        };
+    } catch (error) {
+        console.error('Failed to create conversation:', error);
+        throw error;
+    }
+};
 
 // Service calls
 export const getConversations = async (): Promise<Conversation[]> => {
@@ -43,7 +89,7 @@ export const getConversations = async (): Promise<Conversation[]> => {
             lastMessage: conv.lastMessage ? {
                 id: conv.lastMessage._id,
                 conversationId: conv._id,
-                senderId: conv.lastMessage.sender,
+                senderId: conv.lastMessage.sender._id || conv.lastMessage.sender,
                 content: conv.lastMessage.text,
                 timestamp: conv.lastMessage.createdAt,
                 read: conv.lastMessage.isRead,
@@ -63,7 +109,7 @@ export const getMessages = async (conversationId: string): Promise<Message[]> =>
         return (response.data || []).map((msg: any) => ({
             id: msg._id,
             conversationId: msg.conversation,
-            senderId: msg.sender,
+            senderId: msg.sender._id || msg.sender,
             content: msg.text,
             timestamp: msg.createdAt,
             read: msg.isRead,
@@ -82,7 +128,7 @@ export const sendMessageAPI = async (conversationId: string, content: string, ty
         return {
             id: msg._id,
             conversationId: msg.conversation,
-            senderId: msg.sender,
+            senderId: msg.sender._id || msg.sender,
             content: msg.text,
             timestamp: msg.createdAt,
             read: msg.isRead,
@@ -94,18 +140,58 @@ export const sendMessageAPI = async (conversationId: string, content: string, ty
     }
 };
 
-// Placeholder Socket Service (Real implementation would use Socket.io)
+import { io, Socket } from 'socket.io-client';
+
+// Service calls
+// ... (omitting getAvailableUsers, createConversationAPI, getConversations etc for space, but keeping them in mind)
+
+// Real Socket Service
 type MessageHandler = (message: Message) => void;
 
 class SocketService {
+    private socket: Socket | null = null;
     private handlers: MessageHandler[] = [];
 
     connect() {
-        console.log('Real-time Socket Service Placeholder Connected');
+        if (this.socket) return;
+
+        const socketUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005';
+        this.socket = io(socketUrl, {
+            withCredentials: true,
+            transports: ['websocket', 'polling']
+        });
+
+        this.socket.on('connect', () => {
+            console.log('✅ Connected to real-time messaging server');
+        });
+
+        this.socket.on('new_message', (message: Message) => {
+            console.log('📬 New real-time message received:', message);
+            this.handlers.forEach(handler => handler(message));
+        });
+
+        this.socket.on('disconnect', () => {
+            console.log('❌ Disconnected from real-time messaging server');
+        });
+    }
+
+    joinRoom(conversationId: string) {
+        if (this.socket) {
+            this.socket.emit('join_room', conversationId);
+        }
+    }
+
+    leaveRoom(conversationId: string) {
+        if (this.socket) {
+            this.socket.emit('leave_room', conversationId);
+        }
     }
 
     disconnect() {
-        console.log('Real-time Socket Service Placeholder Disconnected');
+        if (this.socket) {
+            this.socket.disconnect();
+            this.socket = null;
+        }
     }
 
     onMessage(handler: MessageHandler) {
@@ -116,7 +202,10 @@ class SocketService {
         this.handlers = this.handlers.filter(h => h !== handler);
     }
 
-    // No simulation in production-ready code
+    simulateIncomingMessage(conversationId: string) {
+        // No simulation in production-ready code
+        console.log(`Simulation skipped for ${conversationId}`);
+    }
 }
 
 export const socketService = new SocketService();

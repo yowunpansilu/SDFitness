@@ -16,6 +16,23 @@ const bookingSchema = new mongoose.Schema({
         enum: ['confirmed', 'cancelled', 'attended'],
         default: 'confirmed'
     },
+    paymentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Payment'
+    },
+    amountPaid: {
+        type: Number,
+        default: 0
+    },
+    currency: {
+        type: String,
+        default: 'LKR'
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'paid', 'free'],
+        default: 'pending'
+    },
     classDate: { type: Date, required: true },
     bookingDate: { type: Date, default: Date.now }
 }, { timestamps: true });

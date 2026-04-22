@@ -257,7 +257,7 @@ export function PaymentForm() {
                     {filteredMembers.length > 0 ? (
                       filteredMembers.map((member) => (
                         <div
-                          key={member.id}
+                          key={member._id || member.id}
                           onClick={() => selectMember(member)}
                           className="p-6 hover:bg-slate-50 dark:hover:bg-navy-950 transition-all cursor-pointer border-b border-slate-50 dark:border-navy-950 last:border-0 group/item"
                         >
@@ -288,14 +288,14 @@ export function PaymentForm() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
                       <div className="h-16 w-16 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-2xl rotate-3">
-                        {selectedMember.name[0]}
+                        {(selectedMember.userId?.firstName || selectedMember.firstName || 'M')[0]}
                       </div>
                       <div>
-                        <p className="text-xl font-bold text-slate-900 dark:text-white uppercase">{selectedMember.userId?.firstName} {selectedMember.userId?.lastName}</p>
-                        <p className="text-xs font-bold text-slate-500 dark:text-navy-400 uppercase tracking-widest">{selectedMember.userId?.email}</p>
+                        <p className="text-xl font-bold text-slate-900 dark:text-white uppercase">{selectedMember.userId?.firstName || selectedMember.firstName} {selectedMember.userId?.lastName || selectedMember.lastName}</p>
+                        <p className="text-xs font-bold text-slate-500 dark:text-navy-400 uppercase tracking-widest">{selectedMember.userId?.email || selectedMember.email}</p>
                         <div className="flex items-center gap-2 mt-2">
                           <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                          <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-normal">Current Deployment: {selectedMember.plan}</span>
+                          <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-normal">Current Deployment: {selectedMember.currentMembership?.planId?.name || 'No Active Plan'}</span>
                         </div>
                       </div>
                     </div>

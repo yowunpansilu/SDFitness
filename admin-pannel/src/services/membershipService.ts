@@ -29,5 +29,15 @@ export const membershipService = {
     createSubscription: async (data: any) => {
         const response = await api.post('/membership/subscriptions', data);
         return response.data;
+    },
+
+    getUpcomingRenewals: async () => {
+        const response = await api.get('/membership/admin/upcoming-renewals');
+        return response.data;
+    },
+
+    cancelAutoRenewal: async (memberId: string) => {
+        const response = await api.post(`/membership/admin/cancel-auto-renewal/${memberId}`);
+        return response.data;
     }
 };

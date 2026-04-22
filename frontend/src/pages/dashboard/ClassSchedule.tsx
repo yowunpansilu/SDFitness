@@ -3,6 +3,8 @@ import { useClassStore } from "@/lib/stores/classStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { ClassScheduleCalendar } from "@/components/classes/ClassScheduleCalendar";
 import { BookingDialog } from "@/components/classes/BookingDialog";
+import { initiateClassPayment } from "@/lib/api/classService";
+import { getPaymentById } from "@/lib/api/billingService";
 import type { GymClass } from "@/lib/api/classService";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -31,10 +33,39 @@ export function ClassSchedule() {
     const [bookingLoading, setBookingLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Initial fetch
+    // Initial fetch and check for success payment
     useEffect(() => {
         fetchClasses(selectedDate, selectedDate);
         if (user?.id) fetchUserBookings(user.id);
+
+        // Handle Stripe success redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+
+        if (sessionId) {
+            const verifyPayment = async () => {
+                try {
+                    // This call triggers backend self-healing if webhook didn't process yet
+                    await getPaymentById(sessionId);
+                    toast({
+                        title: "Payment Successful",
+                        description: "Your class booking has been confirmed.",
+                    });
+                    // Clean up URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    // Re-fetch bookings
+                    if (user?.id) await fetchUserBookings(user.id);
+                } catch (err: any) {
+                    console.error('Payment verification failed:', err);
+                    toast({
+                        title: "Payment Verification",
+                        description: "Payment processed, but we are still confirming your booking. It should appear shortly.",
+                        variant: "destructive"
+                    });
+                }
+            };
+            verifyPayment();
+        }
     }, [selectedDate, user?.id]);
 
     const handleBookClick = (gymClass: GymClass) => {
@@ -51,16 +82,25 @@ export function ClassSchedule() {
 
         setBookingLoading(true);
         try {
-            await joinClass(selectedClass.id, user.id, selectedClass.startTime);
-            toast({
-                title: "Booking Confirmed",
-                description: `You have successfully booked ${selectedClass.name}`,
-            });
-            setIsBookingOpen(false);
+            const isFree = !selectedClass.priceLKR || selectedClass.priceLKR === 0;
+
+            if (isFree) {
+                await joinClass(selectedClass.id, user.id, selectedClass.startTime);
+                toast({
+                    title: "Booking Confirmed",
+                    description: `You have successfully booked ${selectedClass.name}`,
+                });
+                setIsBookingOpen(false);
+            } else {
+                const response = await initiateClassPayment(selectedClass.id, selectedClass.startTime, user.id);
+                if (response.checkoutUrl) {
+                    window.location.href = response.checkoutUrl;
+                }
+            }
         } catch (error: any) {
             toast({
                 title: "Booking Failed",
-                description: error.message || "Could not book class",
+                description: error.response?.data?.error || error.message || "Could not book class",
                 variant: "destructive"
             });
         } finally {

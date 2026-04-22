@@ -88,7 +88,7 @@ router.get('/', async (req, res) => {
             memberGrowth: memberGrowth.length > 0 ? memberGrowth.map(item => ({ month: item._id, members: item.count })) : [],
             revenueTrend: revenueTrend.length > 0 ? revenueTrend.map(item => ({ month: item._id, revenue: item.total })) : [],
             membershipBreakdown: membershipBreakdown.map(item => ({ 
-                plan: (item._id || 'Standard').toUpperCase(), 
+                plan: (item._id || 'Basic').toUpperCase(), 
                 count: item.count,
                 percentage: totalMembers > 0 ? Math.round((item.count / totalMembers) * 100) : 0
             })),

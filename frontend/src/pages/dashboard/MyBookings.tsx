@@ -46,8 +46,8 @@ export function MyBookings() {
 
     // Separate upcoming and past bookings
     const now = new Date();
-    const upcomingBookings = userBookings.filter(b => b.status === 'confirmed' && new Date(b.gymClass.startTime) >= now);
-    const pastBookings = userBookings.filter(b => new Date(b.gymClass.startTime) < now);
+    const upcomingBookings = userBookings.filter(b => b.gymClass && b.status === 'confirmed' && new Date(b.gymClass.startTime) >= now);
+    const pastBookings = userBookings.filter(b => b.gymClass && new Date(b.gymClass.startTime) < now);
 
     return (
         <div className="space-y-8 animate-fade-in pt-6">

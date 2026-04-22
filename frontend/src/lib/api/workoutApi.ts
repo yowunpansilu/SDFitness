@@ -161,3 +161,11 @@ export async function updateWorkout(workoutId: string, updates: Partial<Workout>
 export async function deleteWorkout(workoutId: string): Promise<void> {
     await api.delete(`/workouts/${workoutId}`);
 }
+
+/**
+ * Get approved AI Workouts for member
+ */
+export async function getMemberApprovedWorkouts(memberId: string): Promise<WorkoutTemplate[]> {
+    const response = await api.get(`/workouts/member/${memberId}/approved`);
+    return response.data.data;
+}

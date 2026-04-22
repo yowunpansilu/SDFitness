@@ -133,6 +133,7 @@ export function RegisterForm() {
             return;
         }
 
+        console.log('⏳ [REGISTER] Sending data to backend...', { step1Data, step2Data, step3Data });
         setIsLoading(true);
         try {
             const response = await api.post('/auth/register', {
@@ -140,6 +141,7 @@ export function RegisterForm() {
                 step2Data,
                 step3Data
             });
+            console.log('✅ [REGISTER] Success response:', response.data);
             const { user, token, member } = response.data;
             
             // Show success message
@@ -148,7 +150,7 @@ export function RegisterForm() {
             login(user, token, member);
             navigate('/dashboard');
         } catch (error: any) {
-            console.error('Registration failed', error.response?.data?.error || error.response?.data?.message || error.message);
+            console.error('❌ [REGISTER] Registration failed', error.response?.data || error.message);
             const errorMsg = error.response?.data?.error ? `${error.response.data.message}: ${error.response.data.error}` : 
                             (error.response?.data?.message || 'Registration failed! Please check your details.');
             alert(errorMsg);

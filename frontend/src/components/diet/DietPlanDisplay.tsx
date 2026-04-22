@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Save, Brain, Loader2, Sparkles } from 'lucide-react';
+import { Save, Brain, Loader2, Sparkles, ShoppingBag } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '../ui/sheet';
 import { MealCard } from './MealCard';
 import { ShoppingList } from './ShoppingList';
 import { MacroWheel } from './MacroWheel';
@@ -28,10 +29,10 @@ export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDi
     const shoppingData = isNewFormat ? rawShoppingList as ShoppingListData : null;
     const shoppingItems: ShoppingItem[] = useMemo(() => {
         if (isNewFormat) {
-            return (rawShoppingList as ShoppingListData).items.map((item, i) => ({ 
-                ...item, 
-                id: item.id || String(i), 
-                checked: item.checked ?? false 
+            return (rawShoppingList as ShoppingListData).items.map((item, i) => ({
+                ...item,
+                id: item.id || String(i),
+                checked: item.checked ?? false
             }));
         }
         return (rawShoppingList as ShoppingItem[]) || [];
@@ -110,8 +111,8 @@ export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDi
                 </div>
                 <div className="flex flex-wrap gap-3">
                     {onSave && (
-                        <Button 
-                            onClick={onSave} 
+                        <Button
+                            onClick={onSave}
                             disabled={isSaving}
                             className={cn(
                                 "h-12 px-6 rounded-2xl font-bold gap-2 shadow-lg transition-all",
@@ -127,20 +128,20 @@ export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDi
 
             {/* Dashboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8 items-start">
-                
+
                 {/* Left Column: Plan Content */}
                 <div className="space-y-8 min-w-0">
-                    
+
                     {/* Weekly Timeline */}
                     <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-primary-900/5 bg-white/80 overflow-hidden">
                         <CardHeader className="pb-2 pt-8 px-8">
                             <CardTitle className="text-xl font-bold text-primary-900">Weekly Timeline</CardTitle>
                         </CardHeader>
                         <CardContent className="px-8 pb-8">
-                            <WeeklyTimeline 
-                                days={timelineDays} 
-                                activeDay={activeDayIdx} 
-                                onDaySelect={setActiveDayIdx} 
+                            <WeeklyTimeline
+                                days={timelineDays}
+                                activeDay={activeDayIdx}
+                                onDaySelect={setActiveDayIdx}
                             />
                         </CardContent>
                     </Card>
@@ -169,7 +170,7 @@ export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDi
 
                         {/* Macro Wheel Chart */}
                         <Card className="rounded-[2.5rem] bg-white border-none shadow-xl shadow-primary-900/5 flex items-center justify-center overflow-hidden h-[300px]">
-                            <MacroWheel 
+                            <MacroWheel
                                 calories={dailyCalories}
                                 protein={dailyProtein}
                                 carbs={dailyCarbs}
@@ -188,9 +189,9 @@ export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDi
                         </div>
                         <div className="grid gap-4">
                             {activeDay?.meals?.map((meal, j) => (
-                                <MealCard 
-                                    key={`${activeDayIdx}-${j}`} 
-                                    meal={meal} 
+                                <MealCard
+                                    key={`${activeDayIdx}-${j}`}
+                                    meal={meal}
                                     onMakeNow={(m) => {
                                         setSelectedMeal(m);
                                         setIsRecipeModalOpen(true);
@@ -220,21 +221,47 @@ export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDi
                     </Card>
                 </div>
 
-                {/* Right Column: Shopping List */}
-                <div className="sticky top-8 h-[calc(100vh-120px)] lg:h-[800px]">
-                    <ShoppingList 
-                        items={items} 
-                        onToggleItem={toggleShoppingItem} 
-                        priceData={shoppingData} 
+                {/* Right Column: Shopping List (Desktop) */}
+                <div className="hidden lg:block sticky top-8 h-[calc(100vh-120px)] lg:h-[800px]">
+                    <ShoppingList
+                        items={items}
+                        onToggleItem={toggleShoppingItem}
+                        priceData={shoppingData}
                     />
                 </div>
 
             </div>
+
+            {/* Mobile Shopping List Floating Button & Drawer */}
+            <div className="lg:hidden fixed bottom-6 right-6 z-40">
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="gym" className="h-16 w-16 rounded-full shadow-2xl shadow-primary-900/30 bg-primary-600 hover:bg-primary-700 p-0 text-white flex items-center justify-center relative transition-transform hover:scale-110 active:scale-95">
+                            <ShoppingBag className="w-7 h-7" />
+                            {items.filter(i => !i.checked).length > 0 && (
+                                <span className="absolute top-0 right-0 max-w-[24px] min-w-[20px] h-5 px-1 bg-red-500 rounded-full border-2 border-white text-[10px] font-bold flex items-center justify-center translate-x-1 -translate-y-1 text-white shadow-sm">
+                                    {items.filter(i => !i.checked).length}
+                                </span>
+                            )}
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="h-[85vh] p-0 rounded-t-[2.5rem] bg-slate-50 border-none shadow-2xl">
+                        <SheetTitle className="sr-only">Shopping List</SheetTitle>
+                        <div className="h-full overflow-y-auto p-4 pb-12 pt-6">
+                            <ShoppingList
+                                items={items}
+                                onToggleItem={toggleShoppingItem}
+                                priceData={shoppingData}
+                            />
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
             {/* Recipe Modal */}
-            <RecipeModal 
-                meal={selectedMeal} 
-                open={isRecipeModalOpen} 
-                onOpenChange={setIsRecipeModalOpen} 
+            <RecipeModal
+                meal={selectedMeal}
+                open={isRecipeModalOpen}
+                onOpenChange={setIsRecipeModalOpen}
             />
         </div>
     );

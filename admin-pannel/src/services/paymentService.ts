@@ -7,12 +7,12 @@ export const paymentService = {
     },
 
     getPaymentDetails: async (id: string) => {
-        const response = await api.get(`/payments/${id}`);
+        const response = await api.get(`/payments/status/${id}`);
         return response.data;
     },
 
     createPayment: async (data: any) => {
-        const response = await api.post('/payments', data);
+        const response = await api.post('/payments/admin-record', data);
         return response.data;
     },
 

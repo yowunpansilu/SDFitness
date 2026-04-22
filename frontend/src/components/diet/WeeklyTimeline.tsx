@@ -17,15 +17,15 @@ interface WeeklyTimelineProps {
 export function WeeklyTimeline({ days, onDaySelect, activeDay }: WeeklyTimelineProps) {
     return (
         <div className="relative group">
-            <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-1 scrollbar-hide no-scrollbar">
+            <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-1 scrollbar-hide no-scrollbar snap-x snap-mandatory">
                 {days.map((day, i) => (
                     <button
                         key={i}
                         onClick={() => onDaySelect(i)}
                         className={cn(
-                            "flex flex-col items-center justify-between min-w-[100px] h-[140px] rounded-[1.5rem] border transition-all duration-300 transform hover:-translate-y-1",
-                            activeDay === i 
-                                ? "bg-white border-primary-500 shadow-xl shadow-primary-900/10 text-primary-900 ring-4 ring-primary-50 ring-offset-0" 
+                            "snap-center flex flex-col items-center justify-between min-w-[100px] h-[140px] rounded-[1.5rem] border transition-all duration-300 transform hover:-translate-y-1",
+                            activeDay === i
+                                ? "bg-white border-primary-500 shadow-xl shadow-primary-900/10 text-primary-900 ring-4 ring-primary-50 ring-offset-0"
                                 : "bg-white border-primary-50 text-muted-foreground hover:border-primary-200"
                         )}
                     >
@@ -36,7 +36,7 @@ export function WeeklyTimeline({ days, onDaySelect, activeDay }: WeeklyTimelineP
                             )}>{day.dayName}</span>
                             <span className="text-2xl font-black">{day.date}</span>
                         </div>
-                        
+
                         {/* Circular Progress Arc */}
                         <div className="pb-4 relative">
                             <svg className="w-12 h-12 transform -rotate-90">
@@ -74,7 +74,7 @@ export function WeeklyTimeline({ days, onDaySelect, activeDay }: WeeklyTimelineP
                     </button>
                 ))}
             </div>
-            
+
             {/* Scroll indicator overlay */}
             <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="bg-white rounded-full shadow-lg p-2 border border-primary-50 cursor-pointer">

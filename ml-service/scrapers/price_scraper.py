@@ -183,85 +183,29 @@ def scrape_store(store_config: dict, query: str) -> List[ScrapedPrice]:
     # ── Special handling for Cargills (Fetch from Atlas) ────────────────────
     if store_name == "Cargills":
         log.info(f"[Cargills] Fetching live prices from Atlas for '{query}'...")
-        from data.foods_db import get_live_prices_from_db
-        prices = get_live_prices_from_db()
-        # Return as ScrapedPrice objects
-        results = []
-        for food_id, p in prices.items():
-            if p["store"] == "Cargills" or p["store"] == "Atlas":
-                 results.append(ScrapedPrice(
-                     store="Cargills",
-                     raw_name=food_id,
-                     price=p["pricePerGram"] * 1000, # Assuming Atlas has per gram, we need per unit (kg if possible)
-                     url=""
-                 ))
-        return results
-
-    results = []
-    url = store_config["search_url"].format(query=query.replace(" ", "+"))
-    
-    try:
-        # Choose fetcher based on store config
-        if store_config["use_stealth"]:
-            from scrapling.fetchers import StealthyFetcher
-            try:
-                # Wait for product elements instead of network_idle — SPAs never reach
-                # Keells uses a skeleton/loading screen (sk-cube-grid) initially.
-                # For Cargills, we wait for the price container.
-                if store_name == "Keells":
-                    wait_sel = ".product-card-button-addV2, .product-colV2"
-                else:
-                    wait_sel = store_config["item_selector"].split(",")[0].strip()
-
-                page = StealthyFetcher.fetch(
-                    url,
-                    headless=True,
-                    wait_selector=wait_sel,
-                    timeout=60000,
-                )
-            except Exception as e:
-                # Don't fall back to plain Fetcher for stealth stores — they're React SPAs
-                # and plain HTTP only returns the empty JS shell (0 items).
-                log.warning(f"[{store_name}] StealthyFetcher failed for '{query}': {e}")
-                return results
-        else:
-            from scrapling.fetchers import Fetcher
-            page = Fetcher.get(url, stealthy_headers=True)
-
-        # Find product items
-        items = page.css(store_config["item_selector"])
-        if not items:
-            log.debug(f"[{store_name}] No items found for '{query}' — selector may need updating")
+        try:
+            from data.foods_db import get_live_prices_from_db
+            prices = get_live_prices_from_db()
+            results = []
+            for food_id, p in prices.items():
+                if p.get("store") == "Cargills" or p.get("store") == "Atlas":
+                     # Filter by query if possible
+                     if query.lower() in food_id.lower().replace("_", " "):
+                         results.append(ScrapedPrice(
+                             store="Cargills",
+                             raw_name=food_id.replace("_", " ").title(),
+                             price=p["pricePerGram"] * 1000, 
+                             url=""
+                         ))
             return results
+        except Exception as e:
+            log.error(f"[Cargills] Atlas fetch failed: {e}")
+            return []
 
-        for item in items[:10]:  # Limit to top 10 results per search
-            try:
-                name_el = item.css(store_config["name_selector"])
-                price_el = item.css(store_config["price_selector"])
-
-                if not name_el or not price_el:
-                    continue
-
-                raw_name = name_el[0].text.strip()
-                price_text = price_el[0].text.strip()
-                price = _parse_price(price_text)
-
-                if raw_name and price and price > 0:
-                    results.append(ScrapedPrice(
-                        store=store_name,
-                        raw_name=raw_name,
-                        price=price,
-                        currency=store_config["currency"],
-                        url=url,
-                    ))
-            except Exception as e:
-                log.debug(f"[{store_name}] Item parse error: {e}")
-
-    except Exception as e:
-        log.error(f"[{store_name}] Failed to scrape '{query}': {e}")
-
-    log.info(f"[{store_name}] '{query}' → {len(results)} items")
-    return results
+    # Other stores are currently disabled or would require a browser.
+    # Since Playwright is removed, we return empty list for them.
+    log.warning(f"[{store_name}] Browser-based scraping is disabled. Please use API-based methods.")
+    return []
 
 
 # ─────────────────────────────────────────────────────────────────────────────

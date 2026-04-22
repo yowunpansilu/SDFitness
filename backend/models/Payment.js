@@ -12,27 +12,59 @@ const paymentSchema = new mongoose.Schema({
     },
     currency: {
         type: String,
-        default: 'LKR'
+        default: 'USD'
     },
     method: {
         type: String,
-        enum: ['cash', 'card', 'bank_transfer', 'online'],
+        enum: ['cash', 'card', 'bank_transfer', 'online', 'stripe'],
         required: true
     },
     status: {
         type: String,
-        enum: ['pending', 'completed', 'failed', 'refunded'],
-        default: 'completed'
+        enum: ['pending', 'completed', 'failed', 'refunded', 'cancelled'],
+        default: 'pending'
     },
     transactionId: {
         type: String,
         unique: true,
         sparse: true
     },
+    // Stripe-specific fields
+    stripeSessionId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    stripePaymentIntentId: {
+        type: String,
+        sparse: true
+    },
+
+    // Plan reference for subscription activation after payment
+    planId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'MembershipPlan',
+        sparse: true
+    },
+    // Class booking references
+    classId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Class',
+        sparse: true
+    },
+    bookingId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Booking',
+        sparse: true
+    },
+    type: {
+        type: String,
+        enum: ['membership', 'class_booking'],
+        default: 'membership'
+    },
     description: String,
     paidAt: {
-        type: Date,
-        default: Date.now
+        type: Date
     }
 }, {
     timestamps: true

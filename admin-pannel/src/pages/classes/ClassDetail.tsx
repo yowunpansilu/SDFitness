@@ -113,10 +113,10 @@ export function ClassDetail() {
       {/* Stats Cards */}
       <div className="grid gap-6 md:grid-cols-4">
         {[
-          { label: 'Enrollment', value: `${gymClass.enrolled}/${gymClass.capacity}`, sub: `${enrollmentPercentage.toFixed(0)}% Capacity`, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+          { label: 'Enrollment', value: `${gymClass.enrolledMembers ? gymClass.enrolledMembers.length : gymClass.enrolled}/${gymClass.capacity}`, sub: `${enrollmentPercentage.toFixed(0)}% Capacity`, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
           { label: 'Spots Available', value: spotsRemaining, sub: 'Field Capacity', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
           { label: 'Duration', value: gymClass.duration || gymClass.schedule?.duration || 60, sub: 'Minutes / Session', color: 'text-amber-500', bg: 'bg-amber-500/10' },
-          { label: 'Price Metric', value: `LKR${gymClass.price || 0}`, sub: 'Per Activation', color: 'text-rose-500', bg: 'bg-rose-500/10' }
+          { label: 'Class Price', value: `LKR ${gymClass.price || 0}`, sub: 'Per Activation', color: 'text-rose-500', bg: 'bg-rose-500/10' }
         ].map((stat, i) => (
           <Card key={i} className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-3xl shadow-sm transition-colors overflow-hidden group">
             <CardHeader className="pb-2">

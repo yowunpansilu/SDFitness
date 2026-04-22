@@ -19,14 +19,15 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
 
     const generationStages = [
         { icon: Brain, label: 'Analyzing your profile...', detail: 'Calculating TDEE & macro targets' },
-        { icon: Salad, label: 'ML model scoring foods...', detail: 'Ranking 20 foods for your goals' },
+        { icon: Salad, label: 'ML model scoring foods...', detail: 'Ranking foods for your goals' },
         { icon: ShoppingCart, label: 'Building 7-day plan...', detail: 'Optimizing portions & budget' },
-        { icon: ChefHat, label: 'Gemini adding recipes...', detail: 'Generating cooking instructions' },
+        { icon: ChefHat, label: 'Crafting Sri Lankan Recipes...', detail: 'Adding authentic spices & steps' },
+        { icon: ShoppingCart, label: 'Building shopping list...', detail: 'Including pantry essentials' }
     ];
 
     useEffect(() => {
         if (isGenerating && generationStage < generationStages.length - 1) {
-            const timer = setTimeout(() => setGenerationStage(s => s + 1), 2000);
+            const timer = setTimeout(() => setGenerationStage(s => s + 1), 3500);
             return () => clearTimeout(timer);
         }
     }, [isGenerating, generationStage]);
@@ -314,35 +315,40 @@ export function DietPlanWizard({ onComplete, onCancel }: DietPlanWizardProps) {
                         Next Step
                     </Button>
                 ) : isGenerating ? (
-                    <div className="flex-1 ml-4">
-                        <Card className="border-border bg-card">
-                            <CardContent className="p-6">
-                                <div className="space-y-4">
-                                    {generationStages.map((stage, i) => {
-                                        const StageIcon = stage.icon;
-                                        const isActive = i === generationStage;
-                                        const isDone = i < generationStage;
-                                        return (
-                                            <div key={i} className={`flex items-center gap-3 transition-opacity ${isDone ? 'opacity-50' : isActive ? 'opacity-100' : 'opacity-30'}`}>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-4">
+                        <div className="bg-card w-full max-w-sm rounded-[2.5rem] shadow-2xl p-8 flex flex-col items-center">
+                            <div className="w-20 h-20 rounded-3xl bg-primary-50 border border-primary-100 flex items-center justify-center mb-6 shadow-inner relative overflow-hidden">
+                                <div className="absolute inset-0 bg-primary-100/50 animate-pulse pointer-events-none" />
+                                <Loader2 className="w-8 h-8 text-primary-600 animate-spin relative z-10" />
+                            </div>
+                            <h3 className="text-xl font-black text-foreground mb-8 text-center tracking-tight">Crafting Your Plan...</h3>
+                            <div className="w-full space-y-5">
+                                {generationStages.map((stage, i) => {
+                                    const StageIcon = stage.icon;
+                                    const isActive = i === generationStage;
+                                    const isDone = i < generationStage;
+                                    return (
+                                        <div key={i} className={`flex items-center gap-4 transition-all duration-500 ${isDone ? 'opacity-50' : isActive ? 'opacity-100 transform scale-105' : 'opacity-20'}`}>
+                                            <div className={`p-2 rounded-xl flex-shrink-0 ${isDone ? 'bg-green-50 text-green-500' : isActive ? 'bg-primary-50 text-primary-600 shadow-sm' : 'bg-muted text-muted-foreground'}`}>
                                                 {isDone ? (
-                                                    <CheckCircle className="w-5 h-5 text-green-500" />
+                                                    <CheckCircle className="w-5 h-5" />
                                                 ) : isActive ? (
-                                                    <Loader2 className="w-5 h-5 text-primary-500 animate-spin" />
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
                                                 ) : (
-                                                    <StageIcon className="w-5 h-5 text-muted-foreground" />
+                                                    <StageIcon className="w-5 h-5" />
                                                 )}
-                                                <div>
-                                                    <div className={`text-sm font-medium ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
-                                                        {stage.label}
-                                                    </div>
-                                                    <div className="text-xs text-muted-foreground">{stage.detail}</div>
-                                                </div>
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            </CardContent>
-                        </Card>
+                                            <div>
+                                                <div className={`text-sm font-bold tracking-tight ${isActive ? 'text-primary-900' : 'text-muted-foreground'}`}>
+                                                    {stage.label}
+                                                </div>
+                                                <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground/70">{stage.detail}</div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     </div>
                 ) : (
                     <Button

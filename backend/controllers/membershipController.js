@@ -1,5 +1,6 @@
 const MembershipPlan = require('../models/MembershipPlan');
 const Subscription = require('../models/Subscription');
+const Member = require('../models/Member');
 
 // GET all plans
 exports.getPlans = async (req, res) => {
@@ -61,12 +62,16 @@ exports.deletePlan = async (req, res) => {
     }
 };
 
-// GET all subscriptions
+// GET subscriptions for the logged-in user
 exports.getSubscriptions = async (req, res) => {
     try {
-        const filter = {};
-        if (req.query.userId) filter.userId = req.query.userId;
-        const subs = await Subscription.find(filter)
+        // Find the member record for this user
+        const member = await Member.findOne({ userId: req.user._id || req.user.id });
+        if (!member) {
+            return res.json({ success: true, data: [] });
+        }
+
+        const subs = await Subscription.find({ user: member.userId })
             .populate('plan')
             .sort({ createdAt: -1 });
         res.json({ success: true, data: subs });
@@ -75,23 +80,31 @@ exports.getSubscriptions = async (req, res) => {
     }
 };
 
-// POST create subscription (or change plan)
+// POST create subscription (or change plan) - triggers PayHere payment
 exports.createSubscription = async (req, res) => {
     try {
-        const { user, plan } = req.body;
-        
-        if (user) {
-            await Subscription.updateMany(
-                { user, status: 'active' },
-                { status: 'expired' }
-            );
+        const userId = req.user._id || req.user.id;
+        const { plan } = req.body;
+
+        // Expire any existing active subscriptions for this user
+        await Subscription.updateMany(
+            { user: userId, status: 'active' },
+            { status: 'expired' }
+        );
+
+        // Determine end date from the plan duration
+        const planDoc = await MembershipPlan.findById(plan);
+        const endDate = new Date();
+        if (planDoc) {
+            const months = planDoc.durationType === 'months' ? planDoc.duration : 1;
+            endDate.setMonth(endDate.getMonth() + months);
+        } else {
+            endDate.setMonth(endDate.getMonth() + 1);
         }
 
-        const endDate = new Date();
-        endDate.setDate(endDate.getDate() + 30);
-
         const sub = await Subscription.create({
-            ...req.body,
+            user: userId,
+            plan,
             endDate,
             status: 'active'
         });
@@ -124,7 +137,6 @@ exports.updateSubscriptionStatus = async (req, res) => {
 // ==========================================
 // Payment Method Management
 // ==========================================
-const Member = require('../models/Member');
 
 // GET all payment methods for a member
 exports.getPaymentMethods = async (req, res) => {
@@ -203,6 +215,75 @@ exports.setDefaultPaymentMethod = async (req, res) => {
 
         await member.save();
         res.json({ success: true, data: member.paymentMethods });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// ==========================================
+// Admin Subscription Management
+// ==========================================
+
+// GET upcoming renewals (Admin only)
+exports.getUpcomingRenewals = async (req, res) => {
+    try {
+        // Find members who have a saved PayHere token
+        const members = await Member.find({ 
+            'paymentMethods.payhereCustomerToken': { $exists: true, $ne: null } 
+        }).populate('userId', 'firstName lastName email');
+
+        // For each member, find their active subscription
+        const renewals = await Promise.all(members.map(async (member) => {
+            const subscription = await Subscription.findOne({ 
+                user: member.userId._id, 
+                status: 'active' 
+            }).populate('plan');
+
+            if (!subscription) return null;
+
+            const defaultMethod = member.paymentMethods.find(m => m.isDefault && m.payhereCustomerToken);
+
+            return {
+                memberId: member._id,
+                memberName: `${member.userId.firstName} ${member.userId.lastName}`,
+                email: member.userId.email,
+                plan: subscription.plan,
+                endDate: subscription.endDate,
+                nextChargeAmount: subscription.plan?.price,
+                paymentMethod: defaultMethod ? {
+                    brand: defaultMethod.brand,
+                    last4: defaultMethod.last4
+                } : null,
+                hasToken: !!defaultMethod
+            };
+        }));
+
+        // Filter out nulls and sort by date
+        const filteredRenewals = renewals.filter(r => r !== null)
+            .sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+
+        res.json({ success: true, data: filteredRenewals });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+// POST cancel auto-renewal (Admin only)
+exports.cancelAutoRenewal = async (req, res) => {
+    try {
+        const { memberId } = req.params;
+        const member = await Member.findById(memberId);
+        if (!member) return res.status(404).json({ success: false, error: 'Member not found' });
+
+        // Remove tokens or set isDefault to false for all methods to stop auto-charging
+        member.paymentMethods.forEach(m => {
+            m.isDefault = false;
+            // Optionally wipe the token to be safe
+            m.payhereCustomerToken = null;
+        });
+
+        await member.save();
+        res.json({ success: true, message: 'Auto-renewal cancelled successfully' });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

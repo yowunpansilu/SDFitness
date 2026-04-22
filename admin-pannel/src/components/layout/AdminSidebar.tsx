@@ -11,13 +11,19 @@ import {
   LogOut,
   Store,
   MessageSquareQuote,
+  MessageCircle,
+  RefreshCw,
+  Activity
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-const navigationGoups = [
+type NavItem = { name: string; href: string; icon: any; exact?: boolean };
+type NavGroup = { title: string; items: NavItem[] };
+
+const navigationGoups: NavGroup[] = [
   {
     title: 'Main',
     items: [
@@ -30,8 +36,10 @@ const navigationGoups = [
     items: [
       { name: 'Members', href: '/members', icon: Users },
       { name: 'Trainers', href: '/trainers', icon: Dumbbell },
+      { name: 'Workouts', href: '/workouts', icon: Activity },
       { name: 'Membership Plans', href: '/plans', icon: CreditCard },
       { name: 'Classes', href: '/classes', icon: Calendar },
+      { name: 'Messages', href: '/messages', icon: MessageCircle },
     ]
   },
   {
@@ -39,6 +47,7 @@ const navigationGoups = [
     items: [
       { name: 'Equipment', href: '/equipment', icon: Package },
       { name: 'Payments', href: '/payments', icon: CreditCard },
+      { name: 'Subscriptions', href: '/subscriptions', icon: RefreshCw },
     ]
   },
   {
@@ -46,6 +55,7 @@ const navigationGoups = [
     items: [
       { name: 'Food Prices', href: '/prices', icon: Store },
       { name: 'Scraper Review', href: '/scraper/review', icon: MessageSquareQuote },
+      { name: 'Feedback & Bugs', href: '/feedback', icon: MessageCircle },
     ]
   },
   {
@@ -140,8 +150,8 @@ export function AdminSidebar() {
               {user?.firstName} {user?.lastName}
             </p>
             <div className="flex items-center gap-1.5">
-               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-               <p className="text-[10px] text-navy-400 font-black uppercase tracking-widest">{user?.role}</p>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <p className="text-[10px] text-navy-400 font-black uppercase tracking-widest">{user?.role}</p>
             </div>
           </div>
           <Button

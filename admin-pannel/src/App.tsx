@@ -19,9 +19,14 @@ import { EquipmentInventory } from './pages/equipment/EquipmentInventory';
 import { EquipmentForm } from './pages/equipment/EquipmentForm';
 import { EquipmentDetail } from './pages/equipment/EquipmentDetail';
 import { AnalyticsDashboard } from './pages/analytics/AnalyticsDashboard';
+import { WorkoutsPage } from './pages/workouts/WorkoutsPage';
 import { Settings } from './pages/settings/Settings';
 import { FoodPrices } from './pages/prices/FoodPrices';
 import { ScraperReview } from './pages/scraper/ScraperReview';
+import { SubscriptionsDashboard } from './pages/subscriptions/SubscriptionsDashboard';
+import { MessagesPage } from './pages/messages/MessagesPage';
+import { FeedbackList } from './pages/feedback/FeedbackList';
+import { ProgressDashboard } from './pages/progress/ProgressDashboard';
 import { useAuthStore } from './lib/stores/authStore';
 import { Toaster } from './components/ui/toaster';
 
@@ -88,13 +93,18 @@ function App() {
             <Route path="payments" element={<PaymentsList />} />
             <Route path="payments/add" element={<PaymentForm />} />
             <Route path="payments/:id" element={<PaymentDetail />} />
+            <Route path="subscriptions" element={<SubscriptionsDashboard />} />
             <Route path="equipment" element={<EquipmentInventory />} />
             <Route path="equipment/add" element={<EquipmentForm />} />
             <Route path="equipment/edit/:id" element={<EquipmentForm />} />
             <Route path="equipment/:id" element={<EquipmentDetail />} />
             <Route path="analytics" element={<AnalyticsDashboard />} />
+            <Route path="workouts" element={<WorkoutsPage />} />
             <Route path="prices" element={<FoodPrices />} />
             <Route path="scraper/review" element={<ScraperReview />} />
+            <Route path="messages" element={<MessagesPage />} />
+            <Route path="feedback" element={<FeedbackList />} />
+            <Route path="progress" element={<ProgressDashboard />} />
             <Route path="settings" element={<Settings />} />
           </Route>
 

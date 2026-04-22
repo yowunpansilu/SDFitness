@@ -23,6 +23,8 @@ interface BookingDialogProps {
 export function BookingDialog({ gymClass, open, onOpenChange, onConfirm, loading }: BookingDialogProps) {
     if (!gymClass) return null;
 
+    const isFree = !gymClass.priceLKR || gymClass.priceLKR === 0;
+
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
             <AlertDialogContent className="bg-background border-border text-foreground">
@@ -58,6 +60,13 @@ export function BookingDialog({ gymClass, open, onOpenChange, onConfirm, loading
                         <MapPin className="w-4 h-4" />
                         {gymClass.location}
                     </div>
+
+                    {!isFree && (
+                        <div className="p-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-800 rounded-lg text-amber-800 dark:text-amber-300 text-sm flex items-center justify-between">
+                            <span className="font-bold uppercase tracking-wider text-xs">Total Amount</span>
+                            <span className="font-bold text-lg">LKR {gymClass.priceLKR}</span>
+                        </div>
+                    )}
                 </div>
 
                 <AlertDialogFooter>
@@ -70,7 +79,7 @@ export function BookingDialog({ gymClass, open, onOpenChange, onConfirm, loading
                         className="bg-primary-600 hover:bg-primary-700 text-white"
                         disabled={loading}
                     >
-                        {loading ? 'Booking...' : 'Confirm Booking'}
+                        {loading ? 'Processing...' : (isFree ? 'Confirm Free Booking' : `Pay LKR ${gymClass.priceLKR}`)}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

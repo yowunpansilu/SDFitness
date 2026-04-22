@@ -26,106 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 
-interface Payment {
-  id: string;
-  transactionId: string;
-  memberName: string;
-  memberId: string;
-  amount: number;
-  type: 'membership' | 'personal_training' | 'class_package' | 'merchandise' | 'other';
-  status: 'completed' | 'pending' | 'failed' | 'refunded';
-  paymentMethod: 'credit_card' | 'debit_card' | 'cash' | 'bank_transfer' | 'upi';
-  date: string;
-  description: string;
-}
 
-// Mock data
-const mockPayments: Payment[] = [
-  {
-    id: '1',
-    transactionId: 'TXN-2024-001234',
-    memberName: 'Michael Brown',
-    memberId: '1',
-    amount: 99.00,
-    type: 'membership',
-    status: 'completed',
-    paymentMethod: 'credit_card',
-    date: '2024-02-03',
-    description: 'Monthly Premium Membership',
-  },
-  {
-    id: '2',
-    transactionId: 'TXN-2024-001235',
-    memberName: 'Emily Davis',
-    memberId: '2',
-    amount: 149.00,
-    type: 'membership',
-    status: 'completed',
-    paymentMethod: 'debit_card',
-    date: '2024-02-03',
-    description: 'Monthly VIP Membership',
-  },
-  {
-    id: '3',
-    transactionId: 'TXN-2024-001236',
-    memberName: 'James Wilson',
-    memberId: '3',
-    amount: 200.00,
-    type: 'personal_training',
-    status: 'completed',
-    paymentMethod: 'upi',
-    date: '2024-02-02',
-    description: 'Personal Training Package (8 sessions)',
-  },
-  {
-    id: '4',
-    transactionId: 'TXN-2024-001237',
-    memberName: 'Sarah Parker',
-    memberId: '4',
-    amount: 49.00,
-    type: 'membership',
-    status: 'pending',
-    paymentMethod: 'bank_transfer',
-    date: '2024-02-02',
-    description: 'Monthly Basic Membership',
-  },
-  {
-    id: '5',
-    transactionId: 'TXN-2024-001238',
-    memberName: 'David Kim',
-    memberId: '5',
-    amount: 99.00,
-    type: 'membership',
-    status: 'failed',
-    paymentMethod: 'credit_card',
-    date: '2024-02-01',
-    description: 'Monthly Premium Membership',
-  },
-  {
-    id: '6',
-    transactionId: 'TXN-2024-001239',
-    memberName: 'Lisa Anderson',
-    memberId: '6',
-    amount: 150.00,
-    type: 'class_package',
-    status: 'completed',
-    paymentMethod: 'cash',
-    date: '2024-02-01',
-    description: 'Yoga Class Package (10 sessions)',
-  },
-  {
-    id: '7',
-    transactionId: 'TXN-2024-001240',
-    memberName: 'Tom Martinez',
-    memberId: '7',
-    amount: 99.00,
-    type: 'membership',
-    status: 'refunded',
-    paymentMethod: 'credit_card',
-    date: '2024-01-31',
-    description: 'Monthly Premium Membership (Refunded)',
-  },
-];
 
 const statusColors = {
   completed: 'bg-emerald-50 text-emerald-600 border-emerald-100  ',
@@ -148,7 +49,9 @@ export function PaymentsList() {
       try {
         setLoading(true);
         const response = await paymentService.getPayments(statusFilter);
-        if (response.success) {
+        if (Array.isArray(response)) {
+          setPayments(response);
+        } else if (response && response.success) {
           setPayments(response.data);
         }
       } catch (error) {
@@ -179,11 +82,11 @@ export function PaymentsList() {
 
   const totalRevenue = payments
     .filter(p => p.status === 'completed')
-    .reduce((sum, p) => sum + (p.amount || 0), 0);
+    .reduce((sum, p) => sum + ((p.currency === 'USD' ? p.amount * 300 : p.amount) || 0), 0);
 
   const pendingAmount = payments
     .filter(p => p.status === 'pending')
-    .reduce((sum, p) => sum + (p.amount || 0), 0);
+    .reduce((sum, p) => sum + ((p.currency === 'USD' ? p.amount * 300 : p.amount) || 0), 0);
 
   const failedCount = payments.filter(p => p.status === 'failed').length;
 
@@ -224,7 +127,7 @@ export function PaymentsList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">LKR {totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">LKR {totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Total revenue</p>
           </CardContent>
         </Card>
@@ -236,7 +139,7 @@ export function PaymentsList() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">LKR {pendingAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</div>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">LKR {pendingAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Awaiting processing</p>
           </CardContent>
         </Card>
@@ -249,7 +152,7 @@ export function PaymentsList() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-slate-900 dark:text-white">
-              {mockPayments.filter(p => p.status === 'completed').length}
+              {payments.filter(p => p.status === 'completed').length}
             </div>
             <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Completed orders</p>
           </CardContent>
@@ -357,7 +260,7 @@ export function PaymentsList() {
                     </TableCell>
                     <TableCell className="p-4">
                       <span className="text-sm font-bold text-slate-900 dark:text-white">
-                        LKR {payment.amount?.toLocaleString()}
+                        LKR {((payment.currency === 'USD' ? payment.amount * 300 : payment.amount) || 0).toLocaleString()}
                       </span>
                     </TableCell>
                     <TableCell className="p-4">
@@ -366,7 +269,7 @@ export function PaymentsList() {
                       </Badge>
                     </TableCell>
                     <TableCell className="p-4 text-xs font-bold text-slate-500 dark:text-navy-500">
-                      {new Date(payment.createdAt || payment.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})}
+                      {new Date(payment.createdAt || payment.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </TableCell>
                     <TableCell className="p-4 pr-6 text-right">
                       <div className="flex justify-end gap-1">

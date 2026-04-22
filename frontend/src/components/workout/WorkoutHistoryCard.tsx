@@ -63,7 +63,7 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                             <div className="flex items-center gap-2 mb-2">
                                 <Calendar className="w-4 h-4 text-primary-800" />
                                 <CardTitle className="text-lg font-bold text-foreground">
-                                    {formatDate(workout.workoutDate)}
+                                    {formatDate(new Date(workout.workoutDate))}
                                 </CardTitle>
                                 {workout.personalRecords && workout.personalRecords.length > 0 && (
                                     <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">

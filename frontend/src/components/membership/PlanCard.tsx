@@ -13,7 +13,7 @@ interface PlanCardProps {
 }
 
 export function PlanCard({ plan, billingCycle, isCurrent, onSelect, isLoading }: PlanCardProps) {
-    const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
+    const price = billingCycle === 'monthly' ? (plan.monthlyPrice ?? plan.price) : (plan.yearlyPrice ?? (plan.price * 10));
     const period = billingCycle === 'monthly' ? '/mo' : '/yr';
 
     return (

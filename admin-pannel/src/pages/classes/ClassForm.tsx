@@ -57,7 +57,7 @@ export function ClassForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isEditMode = Boolean(id);
-  const [trainers, setTrainers] = useState<{id: string, name: string}[]>([]);
+  const [trainers, setTrainers] = useState<{ id: string, name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(isEditMode);
 
   const {
@@ -148,12 +148,12 @@ export function ClassForm() {
 
       navigate('/classes');
     } catch (error) {
-       console.error('Error submitting class:', error);
-       toast({
-         title: 'Sequence Failure',
-         description: 'An error occurred during protocol synchronization.',
-         variant: 'destructive',
-       });
+      console.error('Error submitting class:', error);
+      toast({
+        title: 'Sequence Failure',
+        description: 'An error occurred during protocol synchronization.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -398,7 +398,7 @@ export function ClassForm() {
 
               <div className="space-y-3">
                 <Label htmlFor="price" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
-                  Price Metric (USD) <span className="text-rose-500">*</span>
+                  Class Price (LKR) <span className="text-rose-500">*</span>
                 </Label>
                 <Input
                   id="price"
@@ -408,7 +408,7 @@ export function ClassForm() {
                     "h-14 bg-slate-50 dark:bg-navy-950/50 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-bold",
                     errors.price && "border-rose-500 ring-rose-500/10"
                   )}
-                  placeholder="0.00"
+                  placeholder="e.g. 2500"
                 />
                 {errors.price && (
                   <p className="text-xs font-bold text-rose-500 uppercase tracking-widest mt-2 ml-1">{errors.price.message}</p>

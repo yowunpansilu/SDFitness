@@ -69,7 +69,7 @@ exports.getMemberBookings = async (req, res) => {
                 path: 'class',
                 populate: {
                     path: 'trainer',
-                    populate: { path: 'user', select: 'firstName lastName email' }
+                    populate: { path: 'userId', select: 'firstName lastName email' }
                 }
             })
             .sort({ createdAt: -1 });
@@ -85,7 +85,7 @@ exports.getMemberBookings = async (req, res) => {
                 id: b.class?._id,
                 name: b.class?.name || 'Unknown Class',
                 description: b.class?.description || '',
-                trainerName: b.class?.trainer?.user ? `${b.class.trainer.user.firstName} ${b.class.trainer.user.lastName}` : 'Unknown Trainer',
+                trainerName: b.class?.trainer?.userId ? `${b.class.trainer.userId.firstName} ${b.class.trainer.userId.lastName}` : 'Unknown Trainer',
                 startTime: b.classDate || b.class?.startTime || new Date().toISOString(), // Use booking specific date
                 duration: b.class?.duration || 60,
                 capacity: b.class?.capacity || 20,

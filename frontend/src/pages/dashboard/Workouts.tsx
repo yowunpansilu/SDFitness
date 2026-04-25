@@ -6,19 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { WorkoutTemplateCard } from '@/components/workout/WorkoutTemplateCard';
-import { WorkoutSessionPlayer } from '@/components/workout/WorkoutSessionPlayer';
+import { WorkoutLogForm } from '@/components/workout/WorkoutLogForm';
 import { WorkoutHistoryCard } from '@/components/workout/WorkoutHistoryCard';
 import { WorkoutStatsChart } from '@/components/workout/WorkoutStatsChart';
 import { PersonalRecordsBadge } from '@/components/workout/PersonalRecordsBadge';
 import { useWorkoutStore } from '@/lib/stores/workoutStore';
 import { useAuthStore } from '@/lib/stores/authStore';
-import { getWorkoutHistory, getMemberApprovedWorkouts, getWorkoutTemplates } from '@/lib/api/workoutApi';
+import { getWorkoutTemplates, logWorkout, getWorkoutHistory } from '@/lib/api/workoutApi';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function Workouts() {
     const { toast } = useToast();
-    const { user, member } = useAuthStore();
+    const { user } = useAuthStore();
     const {
         templates,
         setTemplates,
@@ -34,9 +34,12 @@ export function Workouts() {
         setStats,
         personalRecords,
         setPersonalRecords,
+        startWorkout,
+        completeWorkout,
+        addWorkoutToHistory,
     } = useWorkoutStore();
 
-    const [showSessionPlayer, setShowSessionPlayer] = useState(false);
+    const [showLogForm, setShowLogForm] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
     const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -50,38 +53,12 @@ export function Workouts() {
     const fetchTemplates = async () => {
         setTemplatesLoading(true);
         try {
-            // Apply category and difficulty filters to general templates
             const filters: any = {};
             if (difficultyFilter !== 'all') filters.difficulty = difficultyFilter;
             if (categoryFilter !== 'all') filters.category = categoryFilter;
 
-            let generalTemplates: any[] = [];
-            try {
-                generalTemplates = await getWorkoutTemplates(filters);
-            } catch (err) {
-                console.error("Error fetching general templates", err);
-            }
-
-            let aiWorkouts: any[] = [];
-
-            // Use member._id for AI generated workouts as WorkoutTemplate is linked to Member
-            const memberIdParam = member?._id || user?.id;
-            if (memberIdParam) {
-                try {
-                    const approved = await getMemberApprovedWorkouts(memberIdParam);
-                    // apply filters to aiWorkouts locally
-                    aiWorkouts = approved.filter((w: any) => {
-                        if (difficultyFilter !== 'all' && w.difficulty !== difficultyFilter) return false;
-                        if (categoryFilter !== 'all' && w.category !== categoryFilter) return false;
-                        return true;
-                    });
-                } catch (err) {
-                    console.error("Error fetching member approved workouts", err);
-                }
-            }
-
-            // Combine templates
-            setTemplates([...generalTemplates, ...aiWorkouts]);
+            const data = await getWorkoutTemplates(filters);
+            setTemplates(data);
         } catch (error) {
             toast({
                 title: 'Error',
@@ -119,9 +96,31 @@ export function Workouts() {
     };
 
     const handleStartWorkout = (template: any) => {
-        if (!template) return;
         setSelectedTemplate(template);
-        setShowSessionPlayer(true);
+        startWorkout(template);
+        setShowLogForm(true);
+    };
+
+    const handleSaveWorkout = async (workoutData: any) => {
+        if (!user?.id) return;
+
+        try {
+            const savedWorkout = await logWorkout({
+                memberId: user.id,
+                templateId: selectedTemplate?.templateId,
+                workoutDate: new Date(),
+                ...workoutData,
+            });
+
+            addWorkoutToHistory(savedWorkout);
+            completeWorkout();
+            setShowLogForm(false);
+
+            // Refresh stats
+            fetchHistory();
+        } catch (error) {
+            throw error;
+        }
     };
 
     const filteredTemplates = templates.filter(template => {
@@ -137,15 +136,15 @@ export function Workouts() {
     return (
         <div className="space-y-6 animate-fade-in">
             {/* Premium Workout Header */}
-            <motion.div
+            <motion.div 
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="relative h-[200px] rounded-[2.5rem] overflow-hidden group shadow-xl shadow-primary-900/5 bg-white border border-primary-50"
             >
                 {/* Background Image with Light Overlay */}
                 <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105 opacity-30">
-                    <img
-                        src="/assets/images/workout-bg.png"
+                    <img 
+                        src="/assets/images/workout-bg.png" 
                         alt="Workout Background"
                         className="w-full h-full object-cover"
                     />
@@ -175,11 +174,9 @@ export function Workouts() {
                         size="lg"
                         className="h-14 px-8 rounded-2xl bg-secondary-500 hover:bg-secondary-600 text-white font-bold gap-3 shadow-xl shadow-secondary-500/20 group-hover:scale-105 transition-transform"
                         onClick={() => {
-                            if (templates.length > 0) {
-                                handleStartWorkout(templates[0]);
-                            } else {
-                                toast({ title: 'No Workout', description: 'You have no approved workouts.' });
-                            }
+                            setSelectedTemplate(null);
+                            startWorkout();
+                            setShowLogForm(true);
                         }}
                     >
                         <Plus className="w-6 h-6" />
@@ -190,7 +187,7 @@ export function Workouts() {
 
             {/* Personal Records Banner */}
             {personalRecords.length > 0 && (
-                <motion.div
+                <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.3 }}
@@ -323,9 +320,9 @@ export function Workouts() {
                                 variant="gym"
                                 className="mt-4"
                                 onClick={() => {
-                                    if (templates.length > 0) {
-                                        handleStartWorkout(templates[0]);
-                                    }
+                                    setSelectedTemplate(null);
+                                    startWorkout();
+                                    setShowLogForm(true);
                                 }}
                             >
                                 <Plus className="w-4 h-4 mr-2" />
@@ -349,17 +346,16 @@ export function Workouts() {
                 </TabsContent>
             </Tabs>
 
-            {/* Workout Session Player Fullscreen Modal */}
-            {showSessionPlayer && selectedTemplate && (
-                <WorkoutSessionPlayer
-                    template={selectedTemplate}
-                    onClose={() => {
-                        setShowSessionPlayer(false);
-                        setSelectedTemplate(null);
-                        fetchHistory();
-                    }}
-                />
-            )}
+            {/* Workout Log Form Dialog */}
+            <WorkoutLogForm
+                open={showLogForm}
+                onClose={() => {
+                    setShowLogForm(false);
+                    setSelectedTemplate(null);
+                }}
+                template={selectedTemplate || undefined}
+                onSave={handleSaveWorkout}
+            />
         </div>
     );
 }

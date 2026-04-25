@@ -1,209 +1,142 @@
+const Workout = require('../models/Workout');
 const WorkoutTemplate = require('../models/WorkoutTemplate');
-const WorkoutLog = require('../models/WorkoutLog');
-const mongoose = require('mongoose');
-const { generateWorkoutPlan } = require('../services/workoutAIService');
-const Member = require('../models/Member');
 
-// GET all workout templates
-exports.getTemplates = async (req, res) => {
+exports.getWorkoutTemplates = async (req, res) => {
     try {
         const { difficulty, category } = req.query;
         let query = {};
-        if (difficulty && difficulty !== 'all') query.difficulty = difficulty;
-        if (category && category !== 'all') query.category = category;
+        
+        if (difficulty && difficulty !== 'all') {
+            query.difficulty = difficulty;
+        }
+        if (category && category !== 'all') {
+            query.category = category;
+        }
 
         const templates = await WorkoutTemplate.find(query);
-        res.json({
-            success: true,
-            data: templates
-        });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        console.log("Workout Templates Query:", query, "Found:", templates.length);
+        res.json({ success: true, data: templates });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
-// POST log a workout
 exports.logWorkout = async (req, res) => {
     try {
-        const { memberId, templateId, exercises, notes, difficulty, energyLevel, duration } = req.body;
+        const { memberId, templateId, workoutDate, exercises, notes, difficulty, energyLevel } = req.body;
 
-        // Validation (basic)
-        if (!memberId || !exercises) {
-            return res.status(400).json({ success: false, message: 'Member ID and exercises are required' });
+        let totalDuration = 0;
+        let totalCalories = 0;
+
+        if (templateId) {
+            const template = await WorkoutTemplate.findOne({ templateId });
+            if (template) {
+                totalCalories = template.estimatedCaloriesBurned;
+                totalDuration = template.duration;
+            }
         }
 
-        const workoutLog = await WorkoutLog.create({
-            workoutId: 'W-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(-4).toUpperCase(),
+        const newWorkout = await Workout.create({
             memberId,
-            templateId: (templateId && templateId.length === 24) ? new mongoose.Types.ObjectId(templateId) : undefined,
+            templateId,
+            workoutDate,
             exercises,
             notes,
             difficulty,
             energyLevel,
-            duration: duration || 0,
+            duration: totalDuration || 45,
+            totalCaloriesBurned: totalCalories || 300,
             status: 'completed'
         });
 
-        res.status(201).json({
-            success: true,
-            data: workoutLog
-        });
-    } catch (err) {
-        console.error('❌ LogWorkout Error:', err);
-        res.status(400).json({ success: false, message: err.message });
+        res.status(201).json({ success: true, data: newWorkout });
+    } catch (error) {
+        console.error('Save workout error:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
-// GET member workout history
-exports.getMemberHistory = async (req, res) => {
+exports.getWorkoutHistory = async (req, res) => {
     try {
         const { id } = req.params;
-        const { limit = 10 } = req.query;
+        const { limit = 20 } = req.query;
 
-        const history = await WorkoutLog.find({ memberId: id })
+        const history = await Workout.find({ memberId: id })
             .sort({ workoutDate: -1 })
-            .limit(parseInt(limit))
-            .populate('templateId', 'name category');
-
-        // Calculate basic stats for the response
-        const totalWorkouts = await WorkoutLog.countDocuments({ memberId: id });
-        const recentWorkouts = await WorkoutLog.find({
-            memberId: id,
-            workoutDate: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
-        });
-
-        const totalCalories = history.reduce((acc, curr) => acc + (curr.totalCaloriesBurned || 0), 0);
-        const averageDuration = history.length > 0 ? history.reduce((acc, curr) => acc + (curr.duration || 0), 0) / history.length : 0;
-
-        res.json({
-            success: true,
-            data: history,
-            stats: {
-                totalWorkouts,
-                totalCaloriesBurned: Math.round(totalCalories),
-                averageDuration: Math.round(averageDuration),
-                thisWeek: recentWorkouts.length
-            }
-        });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-};
-
-// GET specific workout stats
-exports.getMemberStats = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const history = await WorkoutLog.find({ memberId: id });
+            .limit(Number(limit));
 
         const stats = {
             totalWorkouts: history.length,
-            totalCaloriesBurned: history.reduce((acc, curr) => acc + (curr.totalCaloriesBurned || 0), 0),
-            averageDuration: history.length > 0 ? history.reduce((acc, curr) => acc + (curr.duration || 0), 0) / history.length : 0,
-            weeklyCount: history.filter(w => w.workoutDate >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length
+            totalCaloriesBurned: history.reduce((acc, w) => acc + (w.totalCaloriesBurned || 0), 0),
+            averageDuration: history.length > 0 ? Math.round(history.reduce((acc, w) => acc + (w.duration || 0), 0) / history.length) : 0
         };
 
-        res.json({
-            success: true,
-            data: stats
-        });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.json({ success: true, data: history, stats });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
-// AI WORKOUT GENERATION
-
-exports.generateWorkout = async (req, res) => {
+exports.getWorkoutStats = async (req, res) => {
     try {
-        const { memberId, targetDuration, difficulty, category, notes } = req.body;
+        const { id } = req.params;
+        const history = await Workout.find({ memberId: id });
 
-        const member = await Member.findById(memberId);
-        if (!member) {
-            return res.status(404).json({ success: false, message: 'Member not found' });
+        if (!history || history.length === 0) {
+            return res.json({ 
+                success: true, 
+                data: { totalWorkouts: 0, totalCaloriesBurned: 0, averageDuration: 0, thisWeek: 0, thisMonth: 0 }
+            });
         }
 
-        const profile = {
-            age: member.dateOfBirth ? Math.floor((Date.now() - new Date(member.dateOfBirth).getTime()) / 31557600000) : 25,
-            weight_kg: member.currentWeight?.value || 70,
+        const stats = {
+            totalWorkouts: history.length,
+            totalCaloriesBurned: history.reduce((acc, w) => acc + (w.totalCaloriesBurned || 0), 0),
+            averageDuration: Math.round(history.reduce((acc, w) => acc + (w.duration || 0), 0) / history.length),
+            thisWeek: history.filter(w => new Date(w.workoutDate) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length,
+            thisMonth: history.filter(w => new Date(w.workoutDate) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length
         };
 
-        const aiResponse = await generateWorkoutPlan(profile, { targetDuration, difficulty, category, notes });
-
-        // Save to DB as pending_review
-        const newTemplate = await WorkoutTemplate.create({
-            templateId: 'AIT-' + Date.now().toString(36),
-            memberId,
-            name: aiResponse.planName || `AI ${category} Workout`,
-            description: aiResponse.description || '',
-            difficulty: aiResponse.difficulty || difficulty || 'beginner',
-            category: aiResponse.category || category || 'cardio',
-            duration: aiResponse.duration || targetDuration || 30,
-            estimatedCaloriesBurned: aiResponse.estimatedCaloriesBurned || 250,
-            exercises: aiResponse.exercises.map(ex => ({
-                exerciseId: 'E-' + Date.now().toString(36) + Math.random().toString(36).substring(2, 7),
-                name: ex.name,
-                sets: ex.sets || 1,
-                reps: ex.reps || 0,
-                duration: ex.duration || 0,
-                restPeriod: ex.restPeriod || 60,
-                notes: ex.notes || '',
-                muscleGroups: ex.muscleGroups || []
-            })),
-            status: 'pending_review',
-            aiGenerated: true,
-            aiPrompt: { targetDuration, difficulty, category, notes }
-        });
-
-        res.status(201).json({ success: true, data: newTemplate });
-    } catch (err) {
-        console.error('generateWorkout Error:', err);
-        res.status(500).json({ success: false, message: err.message });
+        res.json({ success: true, data: stats });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
-exports.getAdminWorkouts = async (req, res) => {
+// Get 30-day workout history aggregated per day (for chart + recent list)
+exports.getWorkoutHistory30Days = async (req, res) => {
     try {
-        const { status } = req.query;
-        let query = { aiGenerated: true };
-        if (status) query.status = status;
+        const { id } = req.params;
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+        startDate.setHours(0, 0, 0, 0);
 
-        const templates = await WorkoutTemplate.find(query).populate('memberId', 'userId currentWeight height').sort({ createdAt: -1 });
-        res.json({ success: true, data: templates });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-};
+        const workouts = await Workout.find({
+            memberId: id,
+            workoutDate: { $gte: startDate },
+            status: 'completed'
+        }).sort({ workoutDate: 1 });
 
-exports.approveWorkout = async (req, res) => {
-    try {
-        const template = await WorkoutTemplate.findByIdAndUpdate(req.params.id, {
-            status: 'approved',
-            adminNotes: req.body.adminNotes || ''
-        }, { new: true });
-        res.json({ success: true, data: template });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-};
+        // Build a per-day aggregated map for the chart
+        const dayMap = {};
+        for (let i = 30; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const key = d.toISOString().split('T')[0];
+            dayMap[key] = { date: key, calories: 0, duration: 0, count: 0 };
+        }
 
-exports.rejectWorkout = async (req, res) => {
-    try {
-        const template = await WorkoutTemplate.findByIdAndUpdate(req.params.id, {
-            status: 'rejected',
-            adminNotes: req.body.adminNotes || ''
-        }, { new: true });
-        res.json({ success: true, data: template });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-};
+        for (const w of workouts) {
+            const key = new Date(w.workoutDate).toISOString().split('T')[0];
+            if (dayMap[key]) {
+                dayMap[key].calories += w.totalCaloriesBurned || 0;
+                dayMap[key].duration += w.duration || 0;
+                dayMap[key].count += 1;
+            }
+        }
 
-exports.getMemberApprovedWorkouts = async (req, res) => {
-    try {
-        const templates = await WorkoutTemplate.find({ memberId: req.params.memberId, status: 'approved' });
-        res.json({ success: true, data: templates });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
+        res.json({ success: true, data: Object.values(dayMap), workouts });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 };

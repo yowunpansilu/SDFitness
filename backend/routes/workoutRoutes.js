@@ -1,29 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const { getTemplates, logWorkout, getMemberHistory, getMemberStats } = require('../controllers/workoutController');
+const {
+    getWorkoutTemplates,
+    logWorkout,
+    getWorkoutHistory,
+    getWorkoutStats,
+    getWorkoutHistory30Days
+} = require('../controllers/workoutController');
 
-// GET all workout templates
-router.get('/templates', getTemplates);
+// Get all workout templates (with optional query filters)
+router.get('/templates', getWorkoutTemplates);
 
-// POST log a workout
+// Log a new workout
 router.post('/', logWorkout);
 
-// GET member workout history
-router.get('/member/:id', getMemberHistory);
+// Get 30-day workout history (for progress chart) — must be before /:id
+router.get('/member/:id/history30', getWorkoutHistory30Days);
 
-// GET member workout stats
-router.get('/member/:id/stats', getMemberStats);
+// Get workout history for a member
+router.get('/member/:id', getWorkoutHistory);
 
-// AI Generation Routes (Admin)
-// Ideally these would be protected by admin middleware in a real scenario
-const { generateWorkout, getAdminWorkouts, approveWorkout, rejectWorkout, getMemberApprovedWorkouts } = require('../controllers/workoutController');
-
-router.post('/admin/generate', generateWorkout);
-router.get('/admin/list', getAdminWorkouts);
-router.patch('/admin/:id/approve', approveWorkout);
-router.patch('/admin/:id/reject', rejectWorkout);
-
-// Member approved workouts
-router.get('/member/:memberId/approved', getMemberApprovedWorkouts);
+// Get workout stats for a member
+router.get('/member/:id/stats', getWorkoutStats);
 
 module.exports = router;

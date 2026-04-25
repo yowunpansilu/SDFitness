@@ -7,28 +7,20 @@ const dailyProgressSchema = new mongoose.Schema({
         required: true
     },
     date: {
-        type: Date,
+        type: String, // Storing as 'YYYY-MM-DD' for easy querying
         required: true
     },
-    workoutCompleted: {
+    workout: {
         type: Boolean,
-        required: true,
         default: false
     },
-    dietFollowed: {
+    diet: {
         type: Boolean,
-        required: true,
         default: false
-    },
-    notes: {
-        type: String,
-        trim: true
     }
-}, {
-    timestamps: true
-});
+}, { timestamps: true });
 
-// Compound unique index to prevent duplicate entries for the same user on the same date
+// Ensure one entry per user per day
 dailyProgressSchema.index({ userId: 1, date: 1 }, { unique: true });
 
 module.exports = mongoose.model('DailyProgress', dailyProgressSchema);

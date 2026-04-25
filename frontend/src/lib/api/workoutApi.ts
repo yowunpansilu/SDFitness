@@ -1,4 +1,6 @@
-import api from './axios';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
 
 // Types for workout data structures
 export interface Exercise {
@@ -17,7 +19,6 @@ export interface ExerciseSet {
 }
 
 export interface WorkoutTemplate {
-    _id?: string;
     templateId: string;
     name: string;
     description?: string;
@@ -45,13 +46,12 @@ export interface TemplateExercise {
 }
 
 export interface Workout {
-    _id?: string;
     workoutId: string;
     memberId: string;
     templateId?: string;
-    workoutDate: Date | string;
-    startTime?: Date | string;
-    endTime?: Date | string;
+    workoutDate: Date;
+    startTime?: Date;
+    endTime?: Date;
     duration: number; // minutes
     exercises: Exercise[];
     totalCaloriesBurned: number;
@@ -67,7 +67,7 @@ export interface PersonalRecord {
     exerciseName?: string;
     recordType: 'max_weight' | 'max_reps' | 'longest_duration';
     value: number;
-    achievedAt: Date | string;
+    achievedAt: Date;
 }
 
 export interface WorkoutStats {
@@ -97,8 +97,18 @@ export interface WorkoutHistoryParams {
  * Get workout templates with optional filters
  */
 export async function getWorkoutTemplates(filters?: WorkoutFilters): Promise<WorkoutTemplate[]> {
-    const response = await api.get('/workouts/templates', { params: filters });
-    return response.data.data;
+    try {
+        const params = new URLSearchParams();
+        if (filters?.difficulty) params.append('difficulty', filters.difficulty);
+        if (filters?.category) params.append('category', filters.category);
+        if (filters?.muscleGroup) params.append('muscleGroup', filters.muscleGroup);
+
+        const response = await axios.get(`${API_URL}/workouts/templates?${params.toString()}`);
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching workout templates:', error);
+        throw error;
+    }
 }
 
 /**
@@ -113,8 +123,13 @@ export async function logWorkout(workoutData: {
     difficulty?: 'too_easy' | 'just_right' | 'too_hard';
     energyLevel?: 'low' | 'medium' | 'high';
 }): Promise<Workout> {
-    const response = await api.post('/workouts', workoutData);
-    return response.data.data;
+    try {
+        const response = await axios.post(`${API_URL}/workouts`, workoutData);
+        return response.data.data;
+    } catch (error) {
+        console.error('Error logging workout:', error);
+        throw error;
+    }
 }
 
 /**
@@ -124,48 +139,71 @@ export async function getWorkoutHistory(
     memberId: string,
     params?: WorkoutHistoryParams
 ): Promise<{ data: Workout[]; stats: WorkoutStats }> {
-    const response = await api.get(`/workouts/member/${memberId}`, { params });
-    return {
-        data: response.data.data,
-        stats: response.data.stats,
-    };
+    try {
+        const queryParams = new URLSearchParams();
+        if (params?.startDate) queryParams.append('startDate', params.startDate.toISOString());
+        if (params?.endDate) queryParams.append('endDate', params.endDate.toISOString());
+        if (params?.page) queryParams.append('page', params.page.toString());
+        if (params?.limit) queryParams.append('limit', params.limit.toString());
+
+        const response = await axios.get(`${API_URL}/workouts/member/${memberId}?${queryParams.toString()}`);
+        return {
+            data: response.data.data,
+            stats: response.data.stats,
+        };
+    } catch (error) {
+        console.error('Error fetching workout history:', error);
+        throw error;
+    }
 }
 
 /**
  * Get workout statistics for a member
  */
 export async function getWorkoutStats(memberId: string): Promise<WorkoutStats> {
-    const response = await api.get(`/workouts/member/${memberId}/stats`);
-    return response.data.data;
+    try {
+        const response = await axios.get(`${API_URL}/workouts/member/${memberId}/stats`);
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching workout stats:', error);
+        throw error;
+    }
 }
 
 /**
  * Get a specific workout by ID
  */
 export async function getWorkoutById(workoutId: string): Promise<Workout> {
-    const response = await api.get(`/workouts/${workoutId}`);
-    return response.data.data;
+    try {
+        const response = await axios.get(`${API_URL}/workouts/${workoutId}`);
+        return response.data.data;
+    } catch (error) {
+        console.error('Error fetching workout:', error);
+        throw error;
+    }
 }
 
 /**
  * Update a workout
  */
 export async function updateWorkout(workoutId: string, updates: Partial<Workout>): Promise<Workout> {
-    const response = await api.put(`/workouts/${workoutId}`, updates);
-    return response.data.data;
+    try {
+        const response = await axios.put(`${API_URL}/workouts/${workoutId}`, updates);
+        return response.data.data;
+    } catch (error) {
+        console.error('Error updating workout:', error);
+        throw error;
+    }
 }
 
 /**
  * Delete a workout
  */
 export async function deleteWorkout(workoutId: string): Promise<void> {
-    await api.delete(`/workouts/${workoutId}`);
-}
-
-/**
- * Get approved AI Workouts for member
- */
-export async function getMemberApprovedWorkouts(memberId: string): Promise<WorkoutTemplate[]> {
-    const response = await api.get(`/workouts/member/${memberId}/approved`);
-    return response.data.data;
+    try {
+        await axios.delete(`${API_URL}/workouts/${workoutId}`);
+    } catch (error) {
+        console.error('Error deleting workout:', error);
+        throw error;
+    }
 }

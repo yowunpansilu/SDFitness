@@ -6,15 +6,15 @@ const feedbackSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    category: {
+        type: String,
+        enum: ['bug', 'feature_request', 'general', 'complaint'],
+        default: 'general'
+    },
     message: {
         type: String,
         required: true,
         trim: true
-    },
-    category: {
-        type: String,
-        enum: ['bug', 'suggestion', 'complaint', 'feature_request', 'other'],
-        required: true
     },
     status: {
         type: String,
@@ -24,14 +24,7 @@ const feedbackSchema = new mongoose.Schema({
     adminNotes: {
         type: String,
         trim: true
-    },
-    // Bug report metadata
-    stackTrace: String,
-    userAgent: String,
-    errorUrl: String,
-    appVersion: String
-}, {
-    timestamps: true
-});
+    }
+}, { timestamps: true });
 
 module.exports = mongoose.model('Feedback', feedbackSchema);

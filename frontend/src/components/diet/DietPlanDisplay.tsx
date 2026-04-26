@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Save, Brain, Loader2, Sparkles, ShoppingBag } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '../ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from '../ui/sheet';
 import { MealCard } from './MealCard';
 import { ShoppingList } from './ShoppingList';
 import { MacroWheel } from './MacroWheel';
@@ -247,6 +247,9 @@ export function DietPlanDisplay({ plan, onSave, onChange, isSaving }: DietPlanDi
                     </SheetTrigger>
                     <SheetContent side="bottom" className="h-[85vh] p-0 rounded-t-[2.5rem] bg-slate-50 border-none shadow-2xl">
                         <SheetTitle className="sr-only">Shopping List</SheetTitle>
+                        <SheetDescription className="sr-only">
+                            Your grocery items based on the generated diet plan
+                        </SheetDescription>
                         <div className="h-full overflow-y-auto p-4 pb-12 pt-6">
                             <ShoppingList
                                 items={items}

@@ -62,10 +62,10 @@ export function MLDashboard() {
                         Predictive model performance, generation metrics, and feature importance.
                     </p>
                 </div>
-                <Button 
-                    variant="outline" 
-                    onClick={handleRefresh} 
-                    className="h-11 px-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-xl font-bold text-slate-600 dark:text-white focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all hover:border-indigo-500/50 gap-2" 
+                <Button
+                    variant="outline"
+                    onClick={handleRefresh}
+                    className="h-11 px-6 bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 rounded-xl font-bold text-slate-600 dark:text-white focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all hover:border-indigo-500/50 gap-2"
                     disabled={isRefreshing}
                 >
                     <RefreshCw className={`w-4 h-4 text-indigo-500 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -101,26 +101,26 @@ export function MLDashboard() {
                         <p className="text-xs font-bold text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-1">Impact of individual parameters on plan generation</p>
                     </CardHeader>
                     <CardContent className="p-8 pt-4">
-                        <ResponsiveContainer width="100%" height={320}>
+                        <ResponsiveContainer width="100%" height={320} minWidth={0}>
                             <BarChart data={featureImportance} layout="vertical" margin={{ left: 0, right: 30 }}>
                                 <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-navy-800 transition-colors" />
                                 <XAxis type="number" hide />
-                                <YAxis 
-                                    type="category" 
-                                    dataKey="feature" 
+                                <YAxis
+                                    type="category"
+                                    dataKey="feature"
                                     tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                                     className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                                     width={120}
-                                    tickFormatter={v => v.replace(/_/g, ' ').toUpperCase()} 
+                                    tickFormatter={v => v.replace(/_/g, ' ').toUpperCase()}
                                 />
                                 <Tooltip
                                     cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }}
-                                    contentStyle={{ 
-                                        backgroundColor: '#fff', 
-                                        border: 'none', 
-                                        borderRadius: '16px', 
+                                    contentStyle={{
+                                        backgroundColor: '#fff',
+                                        border: 'none',
+                                        borderRadius: '16px',
                                         boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-                                        color: '#1e293b' 
+                                        color: '#1e293b'
                                     }}
                                     itemStyle={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}
                                     formatter={(v: any) => [`${Math.round(v * 100)}%`, 'Weight']}
@@ -142,19 +142,19 @@ export function MLDashboard() {
                         <p className="text-xs font-bold text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-1">Accuracy improvement with hybrid architecture</p>
                     </CardHeader>
                     <CardContent className="p-8 pt-4">
-                        <ResponsiveContainer width="100%" height={240}>
+                        <ResponsiveContainer width="100%" height={240} minWidth={0}>
                             <BarChart data={comparison}>
                                 <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-navy-800 transition-colors" />
                                 <XAxis dataKey="metric" tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }} className="text-slate-400 dark:text-navy-500 transition-colors font-bold uppercase" />
                                 <YAxis stroke="currentColor" className="text-slate-400 dark:text-navy-500 transition-colors font-bold" tickFormatter={v => `${v}%`} domain={[0, 100]} />
                                 <Tooltip
                                     cursor={{ fill: 'rgba(99, 102, 241, 0.05)' }}
-                                    contentStyle={{ 
-                                        backgroundColor: '#fff', 
-                                        border: 'none', 
-                                        borderRadius: '16px', 
+                                    contentStyle={{
+                                        backgroundColor: '#fff',
+                                        border: 'none',
+                                        borderRadius: '16px',
                                         boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-                                        color: '#1e293b' 
+                                        color: '#1e293b'
                                     }}
                                     itemStyle={{ fontSize: '11px', fontWeight: 900, textTransform: 'uppercase' }}
                                     formatter={(v: any) => [`${v}%`]}

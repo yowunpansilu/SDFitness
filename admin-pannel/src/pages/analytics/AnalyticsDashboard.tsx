@@ -188,7 +188,7 @@ export function AnalyticsDashboard() {
             </div>
           </CardHeader>
           <CardContent className="p-8 pt-4">
-            <ResponsiveContainer width="100%" height={320}>
+            <ResponsiveContainer width="100%" height={320} minWidth={0}>
               <AreaChart data={memberGrowth}>
                 <defs>
                   <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
@@ -197,18 +197,18 @@ export function AnalyticsDashboard() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-navy-800 transition-colors" />
-                <XAxis 
-                  dataKey="month" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }} 
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                   dy={10}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                 />
                 <Tooltip
@@ -246,17 +246,17 @@ export function AnalyticsDashboard() {
             <ResponsiveContainer width="100%" height={320}>
               <LineChart data={revenueTrend}>
                 <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-navy-800 transition-colors" />
-                <XAxis 
-                  dataKey="month" 
-                  axisLine={false} 
-                  tickLine={false} 
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                   dy={10}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                 />
@@ -292,17 +292,17 @@ export function AnalyticsDashboard() {
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={classAttendanceData}>
                 <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-navy-800 transition-colors" />
-                <XAxis 
-                  dataKey="class" 
-                  axisLine={false} 
-                  tickLine={false} 
+                <XAxis
+                  dataKey="class"
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                   dy={10}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                 />
@@ -361,14 +361,14 @@ export function AnalyticsDashboard() {
                 />
               </PieChart>
             </ResponsiveContainer>
-             <div className="flex flex-wrap justify-center gap-4 mt-2">
-                {membershipBreakdown.map((item: any, index: number) => (
-                  <div key={item.plan} className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[index] }} />
-                    <span className="text-xs font-bold uppercase text-slate-500 dark:text-navy-400 transition-colors font-bold">{item.plan} ({item.percentage}%)</span>
-                  </div>
-                ))}
-             </div>
+            <div className="flex flex-wrap justify-center gap-4 mt-2">
+              {membershipBreakdown.map((item: any, index: number) => (
+                <div key={item.plan} className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[index] }} />
+                  <span className="text-xs font-bold uppercase text-slate-500 dark:text-navy-400 transition-colors font-bold">{item.plan} ({item.percentage}%)</span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>

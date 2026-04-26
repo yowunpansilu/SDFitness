@@ -97,7 +97,7 @@ export function AdminDashboard() {
     { month: 'Jan', revenue: 0 },
     { month: 'Feb', revenue: 0 },
   ];
-  
+
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-navy-950 dark:text-white">
       {/* Page Header */}
@@ -186,7 +186,7 @@ export function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent className="pt-8">
-            <ResponsiveContainer width="100%" height={320}>
+            <ResponsiveContainer width="100%" height={320} minWidth={0}>
               <AreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -195,8 +195,8 @@ export function AdminDashboard() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#1e293b' : '#e2e8f0'} vertical={false} />
-                <XAxis dataKey="month" stroke={theme === 'dark' ? '#475569' : '#94a3b8'} axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 600}} dy={10} />
-                <YAxis stroke={theme === 'dark' ? '#475569' : '#94a3b8'} axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 600}} dx={-10} />
+                <XAxis dataKey="month" stroke={theme === 'dark' ? '#475569' : '#94a3b8'} axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600 }} dy={10} />
+                <YAxis stroke={theme === 'dark' ? '#475569' : '#94a3b8'} axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600 }} dx={-10} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: theme === 'dark' ? '#0f172a' : '#fff',
@@ -269,7 +269,7 @@ export function AdminDashboard() {
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden transition-colors">
           <CardHeader className="border-b border-navy-50 dark:border-navy-800/50 pb-6">
             <CardTitle className="text-navy-950 dark:text-white font-bold text-xl flex items-center gap-2">
-               Equipment Health
+              Equipment Health
             </CardTitle>
             <p className="text-sm font-medium text-navy-400 dark:text-navy-500">Upcoming maintenance schedule</p>
           </CardHeader>
@@ -379,8 +379,8 @@ export function AdminDashboard() {
                     <span className="text-navy-900 dark:text-white font-bold">{classItem.spots}</span>
                   </div>
                   <div className="h-2 w-full bg-navy-100/50 dark:bg-navy-800 rounded-full overflow-hidden transition-colors">
-                    <div 
-                      className="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full transition-all duration-1000" 
+                    <div
+                      className="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full transition-all duration-1000"
                       style={{ width: `${(parseInt(classItem.spots.split('/')[0]) / parseInt(classItem.spots.split('/')[1])) * 100}%` }}
                     />
                   </div>

@@ -112,7 +112,7 @@ export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProp
                     <TabsContent value="trends" className="mt-4 animate-fade-in">
                         <div className="bg-card/50 rounded-lg p-4 border border-border h-[300px]">
                             <h3 className="text-sm font-semibold text-muted-foreground mb-4">Activity (Last 7 Days)</h3>
-                            <ResponsiveContainer width="100%" height="90%">
+                            <ResponsiveContainer width="100%" height="90%" minWidth={0}>
                                 <BarChart data={chartData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
                                     <XAxis

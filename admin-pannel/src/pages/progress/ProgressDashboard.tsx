@@ -151,7 +151,7 @@ export function ProgressDashboard() {
                                         {fetchingProgress ? (
                                             <div className="h-full flex items-center justify-center animate-pulse bg-navy-800/10 rounded-xl" />
                                         ) : weeklyProgress.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height="100%">
+                                            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                                 <BarChart data={weeklyProgress}>
                                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
                                                     <XAxis dataKey="date" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />

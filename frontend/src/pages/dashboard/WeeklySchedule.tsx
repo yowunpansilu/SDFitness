@@ -10,7 +10,6 @@ export default function WeeklySchedule() {
     const { user } = useAuthStore();
     const { toast } = useToast();
     const [weeklyData, setWeeklyData] = useState<DailyProgress[]>([]);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (user?.id) {
@@ -20,7 +19,6 @@ export default function WeeklySchedule() {
 
     const fetchWeeklyData = async () => {
         try {
-            setLoading(true);
             const data = await getWeeklyProgress(user!.id);
             setWeeklyData(data);
         } catch (error) {
@@ -29,8 +27,6 @@ export default function WeeklySchedule() {
                 description: 'Failed to load weekly progress data.',
                 variant: 'destructive',
             });
-        } finally {
-            setLoading(false);
         }
     };
 

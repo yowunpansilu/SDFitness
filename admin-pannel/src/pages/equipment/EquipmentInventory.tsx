@@ -251,8 +251,8 @@ export function EquipmentInventory() {
               </TableHeader>
               <TableBody>
                 {filteredEquipment.map((equipment) => {
-                  const statusCfg = statusConfig[equipment.status];
-                  const StatusIcon = statusCfg.icon;
+                  const statusCfg = statusConfig[equipment.status] || statusConfig.working;
+                  const StatusIcon = statusCfg.icon || CheckCircle;
                   const isMaintenanceDue = equipment.nextMaintenance &&
                     new Date(equipment.nextMaintenance) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 

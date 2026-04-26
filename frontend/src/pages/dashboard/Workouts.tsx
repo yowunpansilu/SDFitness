@@ -80,8 +80,12 @@ export function Workouts() {
                 }
             }
 
-            // Combine templates
-            setTemplates([...generalTemplates, ...aiWorkouts]);
+            // Combine templates and ensure uniqueness
+            const allTemplates = [...generalTemplates, ...aiWorkouts];
+            const uniqueTemplates = Array.from(
+                new Map(allTemplates.map(t => [t.templateId || t._id, t])).values()
+            );
+            setTemplates(uniqueTemplates);
         } catch (error) {
             toast({
                 title: 'Error',

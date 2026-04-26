@@ -19,7 +19,7 @@ export interface DailyProgress {
 
 export const getWeightLogs = async (userId: string, days: number = 30): Promise<WeightLog[]> => {
     try {
-        const response = await api.get(`/weight/member/${userId}?days=${days}`);
+        const response = await api.get(`/weight/history?userId=${userId}&days=${days}`);
         return response.data.data;
     } catch (error) {
         console.error('Error fetching weight logs:', error);
@@ -78,7 +78,7 @@ export const toggleDailyProgress = async (userId: string, date: Date, type: 'wor
 
 export const getWeeklyProgress = async (userId: string): Promise<DailyProgress[]> => {
     try {
-        const response = await api.get(`/progress/weekly/${userId}`);
+        const response = await api.get(`/progress/weekly?userId=${userId}`);
         return response.data.data;
     } catch (error) {
         console.error('Error fetching weekly progress:', error);

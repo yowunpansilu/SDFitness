@@ -85,7 +85,13 @@ exports.toggleDailyProgress = async (req, res) => {
 // GET weekly progress (last 7 days)
 exports.getWeeklyProgress = async (req, res) => {
     try {
-        const userId = req.user.id;
+        let userId = req.user.id;
+
+        // If admin and userId provided in query, look up that user
+        if ((req.user.role === 'admin' || req.user.role === 'trainer') && req.query.userId) {
+            userId = req.query.userId;
+        }
+
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         sevenDaysAgo.setHours(0, 0, 0, 0);

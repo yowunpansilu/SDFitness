@@ -82,7 +82,7 @@ export function EquipmentInventory() {
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
-        const response = await api.get('/api/equipment');
+        const response = await api.get('/equipment');
         setEquipment(response.data);
       } catch (error) {
         console.error('Error fetching equipment:', error);
@@ -294,7 +294,7 @@ export function EquipmentInventory() {
                                 "text-xs font-bold transition-colors",
                                 isMaintenanceDue ? "text-amber-600" : "text-slate-400 dark:text-navy-500"
                               )}>
-                                {new Date(equipment.nextMaintenance).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}
+                                {new Date(equipment.nextMaintenance).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                               </span>
                               {isMaintenanceDue && (
                                 <span className="text-xs font-bold text-amber-500 uppercase tracking-normal">Due soon</span>

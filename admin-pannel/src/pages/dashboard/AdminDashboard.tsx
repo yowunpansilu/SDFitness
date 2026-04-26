@@ -79,8 +79,8 @@ export function AdminDashboard() {
     const fetchDashboardData = async () => {
       try {
         const [statsRes, membersRes] = await Promise.all([
-          api.get('/api/analytics/dashboard'),
-          api.get('/api/members?limit=5')
+          api.get('/analytics/dashboard'),
+          api.get('/members?limit=5')
         ]);
         setStats(statsRes.data);
         setRecentMembers(membersRes.data.members || membersRes.data || []);

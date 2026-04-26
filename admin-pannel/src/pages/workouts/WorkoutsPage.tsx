@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { getAdminWorkouts } from '@/services/workoutService';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Dumbbell, Activity, RefreshCw, Plus } from 'lucide-react';
+import { Dumbbell, Activity, Plus } from 'lucide-react';
 import { GenerateWorkoutModal } from './GenerateWorkoutModal';
 import { WorkoutReviewModal } from './WorkoutReviewModal';
 
@@ -52,7 +52,7 @@ export function WorkoutsPage() {
                 </Button>
             </div>
 
-            <Tabs defaultValue="pending" className="w-full">
+            <Tabs defaultValue="pending" className="w-full pb-10">
                 <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
                     <TabsTrigger value="pending">Pending Review ({pendingWorkouts.length})</TabsTrigger>
                     <TabsTrigger value="completed">Completed History</TabsTrigger>
@@ -67,20 +67,20 @@ export function WorkoutsPage() {
                     ) : pendingWorkouts.length > 0 ? (
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {pendingWorkouts.map(workout => (
-                                <div key={workout._id} className="bg-white p-6 rounded-xl border shadow-sm flex flex-col justify-between">
+                                <div key={workout._id} className="bg-white p-6 rounded-xl border shadow-sm flex flex-col justify-between hover:border-indigo-200 transition-colors">
                                     <div>
                                         <div className="flex justify-between items-start mb-2">
                                             <h3 className="font-semibold text-lg">{workout.name}</h3>
                                             <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-medium">Pending</span>
                                         </div>
-                                        <p className="text-sm text-gray-500 mb-4">{workout.description}</p>
+                                        <p className="text-sm text-gray-500 mb-4 line-clamp-2">{workout.description}</p>
                                         <div className="text-sm space-y-1 mb-4">
-                                            <p><span className="font-medium">Member:</span> {workout.memberId?.userId || 'N/A'}</p>
-                                            <p><span className="font-medium">Duration:</span> {workout.duration} mins</p>
-                                            <p><span className="font-medium">Exercises:</span> {workout.exercises?.length || 0}</p>
+                                            <p><span className="font-medium text-gray-700">Member:</span> {workout.memberId?.userId || 'N/A'}</p>
+                                            <p><span className="font-medium text-gray-700">Duration:</span> {workout.duration} mins</p>
+                                            <p><span className="font-medium text-gray-700">Exercises:</span> {workout.exercises?.length || 0}</p>
                                         </div>
                                     </div>
-                                    <Button onClick={() => setSelectedWorkout(workout)} variant="outline" className="w-full gap-2">
+                                    <Button onClick={() => setSelectedWorkout(workout)} variant="outline" className="w-full gap-2 border-indigo-100 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
                                         <Dumbbell className="w-4 h-4" />
                                         Review Details
                                     </Button>
@@ -100,8 +100,8 @@ export function WorkoutsPage() {
                     {loading ? (
                         <Skeleton className="h-[400px] w-full rounded-xl" />
                     ) : (
-                        <div className="bg-white rounded-xl border overflow-hidden">
-                            <table className="w-full text-sm text-left relative">
+                        <div className="bg-white rounded-xl border overflow-x-auto scrollbar-thin">
+                            <table className="w-full text-sm text-left relative min-w-[800px]">
                                 <thead className="bg-gray-50 border-b">
                                     <tr>
                                         <th className="px-6 py-4 font-medium text-gray-900">Name</th>

@@ -90,7 +90,7 @@ export function EquipmentForm() {
     if (isEditMode) {
       const fetchEquipment = async () => {
         try {
-          const response = await api.get(`/api/equipment/${id}`);
+          const response = await api.get(`/equipment/${id}`);
           const data = response.data;
           reset(data);
           if (data.specifications) setSpecifications(data.specifications);
@@ -112,9 +112,9 @@ export function EquipmentForm() {
     try {
       const payload = { ...data, specifications };
       if (isEditMode) {
-        await api.put(`/api/equipment/${id}`, payload);
+        await api.put(`/equipment/${id}`, payload);
       } else {
-        await api.post('/api/equipment', payload);
+        await api.post('/equipment', payload);
       }
 
       toast({

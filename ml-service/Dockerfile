@@ -1,5 +1,5 @@
 # ML Service Docker Image (Dev)
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 

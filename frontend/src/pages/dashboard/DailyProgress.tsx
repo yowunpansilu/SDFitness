@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { getDailyProgress, toggleDailyProgress, type DailyProgress as DailyProgressType } from '@/lib/api/progressApi';
 import { Card, CardContent } from '@/components/ui/card';
@@ -105,11 +105,10 @@ export default function DailyProgress() {
 
             {/* Daily goal status banner */}
             {!loading && (
-                <div className={`rounded-2xl border-2 px-6 py-4 flex items-center gap-4 transition-all duration-500 ${
-                    bothCompleted
+                <div className={`rounded-2xl border-2 px-6 py-4 flex items-center gap-4 transition-all duration-500 ${bothCompleted
                         ? 'border-emerald-400 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20'
                         : 'border-border bg-secondary/10'
-                }`}>
+                    }`}>
                     <div className={`p-2 rounded-full ${bothCompleted ? 'bg-emerald-100 text-emerald-700' : 'bg-muted text-muted-foreground'}`}>
                         <Target className="w-5 h-5" />
                     </div>

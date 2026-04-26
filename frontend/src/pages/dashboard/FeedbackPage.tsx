@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '@/lib/api/axios';
 import { MessageSquare, Lightbulb, Bug, HelpCircle, Loader2, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,20 +18,18 @@ interface FeedbackLog {
 export function FeedbackPage() {
     const { token } = useAuthStore();
     const { toast } = useToast();
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [history, setHistory] = useState<FeedbackLog[]>([]);
-    
+
     // Form fields
     const [category, setCategory] = useState<'bug' | 'feature_request' | 'general' | 'complaint'>('general');
     const [message, setMessage] = useState('');
 
     const fetchHistory = async () => {
         try {
-            const res = await axios.get(`${API_URL}/api/feedback/my?t=${Date.now()}`, {
-                headers: { 
-                    Authorization: `Bearer ${token}`,
+            const res = await api.get(`/feedback/my?t=${Date.now()}`, {
+                headers: {
                     'Cache-Control': 'no-cache'
                 }
             });
@@ -46,11 +44,11 @@ export function FeedbackPage() {
     useEffect(() => {
         if (token) fetchHistory();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [token, API_URL]);
+    }, [token]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!message.trim()) {
             alert('Please provide a message before submitting.');
             return;
@@ -63,16 +61,14 @@ export function FeedbackPage() {
 
         setIsSubmitting(true);
         try {
-            await axios.post(`${API_URL}/api/feedback`, {
+            await api.post(`/feedback`, {
                 category,
                 message
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
 
             setMessage('');
             await fetchHistory();
-            
+
             toast({
                 title: 'Feedback Sent!',
                 description: 'Thank you! Your feedback has been securely submitted.',
@@ -117,7 +113,7 @@ export function FeedbackPage() {
             </div>
 
             <div className="grid lg:grid-cols-12 gap-6 items-start">
-                
+
                 {/* Submission Form Component - Left Side */}
                 <Card className="lg:col-span-5 border-border shadow-sm top-6 sticky">
                     <CardHeader>
@@ -128,9 +124,9 @@ export function FeedbackPage() {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="space-y-1">
                                 <label className="text-sm font-medium">Category</label>
-                                <select 
-                                    className="w-full p-2.5 border rounded-md bg-transparent focus:ring-2 focus:ring-primary outline-none transition-shadow" 
-                                    value={category} 
+                                <select
+                                    className="w-full p-2.5 border rounded-md bg-transparent focus:ring-2 focus:ring-primary outline-none transition-shadow"
+                                    value={category}
                                     onChange={(e: any) => setCategory(e.target.value)}
                                 >
                                     <option value="general">General Feedback</option>
@@ -147,7 +143,7 @@ export function FeedbackPage() {
                                         {message.length} / 500
                                     </span>
                                 </div>
-                                <textarea 
+                                <textarea
                                     className="w-full p-3 border rounded-md bg-transparent min-h-[150px] resize-y focus:ring-2 focus:ring-primary outline-none transition-shadow"
                                     placeholder="Explain your thoughts in detail here..."
                                     required
@@ -156,7 +152,7 @@ export function FeedbackPage() {
                                     onChange={(e) => setMessage(e.target.value)}
                                 />
                             </div>
-                            
+
                             <Button type="submit" className="w-full mt-2 group" disabled={isSubmitting || message.length > 500}>
                                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : 'Send to Developers'}
                                 {!isSubmitting && <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />}
@@ -196,11 +192,11 @@ export function FeedbackPage() {
                                                     {ticket.status}
                                                 </div>
                                             </div>
-                                            
+
                                             <p className="text-sm text-muted-foreground/90 leading-relaxed mb-2 whitespace-pre-wrap">
                                                 {ticket.message}
                                             </p>
-                                            
+
                                             <div className="text-xs text-muted-foreground/50 font-medium">
                                                 Submitted on {new Date(ticket.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
                                             </div>

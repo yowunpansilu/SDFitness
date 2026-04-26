@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import axios from 'axios';
+import api from '@/lib/api/axios';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,10 +14,9 @@ interface WeightLog {
 }
 
 export function ProgressChart({ logs, onRefresh }: { logs: WeightLog[], onRefresh: () => void }) {
-    const { token, member } = useAuthStore();
+    const { member } = useAuthStore();
     const [newWeight, setNewWeight] = useState('');
     const [timeFilter, setTimeFilter] = useState<'1M' | '3M' | '6M' | 'ALL'>('ALL');
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     const handleLogWeight = async () => {
         if (!newWeight) {
@@ -26,11 +25,9 @@ export function ProgressChart({ logs, onRefresh }: { logs: WeightLog[], onRefres
             return;
         }
         try {
-            await axios.post(`${API_URL}/api/progress/weight`, {
+            await api.post(`/progress/weight`, {
                 weightValue: parseFloat(newWeight),
                 weightUnit: member?.currentWeight?.unit || 'kg'
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             setNewWeight('');
             onRefresh(); // refresh data via parent

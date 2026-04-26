@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '@/lib/api/axios';
 import { Target, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,17 +27,13 @@ export function MemberProgress() {
     const fetchLatestData = useCallback(async () => {
         try {
             // Fetch latest profile to ensure store is synced
-            const profileRes = await axios.get(`${API_URL}/api/auth/me`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const profileRes = await api.get(`/auth/me`);
             if (profileRes.data.success) {
                 login(profileRes.data.user, token!, profileRes.data.memberProfile);
             }
 
             // Fetch Logs
-            const logsRes = await axios.get(`${API_URL}/api/progress/weight`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const logsRes = await api.get(`/progress/weight`);
             if (logsRes.data.success) {
                 setLogs(logsRes.data.data);
             }

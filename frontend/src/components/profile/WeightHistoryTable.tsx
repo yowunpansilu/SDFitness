@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
-import { useAuthStore } from '@/lib/stores/authStore';
+import api from '@/lib/api/axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,17 +13,13 @@ interface WeightLog {
 }
 
 export function WeightHistoryTable({ logs, onRefresh }: { logs: WeightLog[], onRefresh: () => void }) {
-    const { token } = useAuthStore();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editValue, setEditValue] = useState<string>('');
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     const handleDelete = async (id: string) => {
         if (!confirm('Are you sure you want to delete this log?')) return;
         try {
-            await axios.delete(`${API_URL}/api/progress/weight/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.delete(`/progress/weight/${id}`);
             onRefresh();
         } catch (error) {
             console.error('Error deleting log:', error);
@@ -34,10 +29,8 @@ export function WeightHistoryTable({ logs, onRefresh }: { logs: WeightLog[], onR
     const handleEditSave = async (id: string) => {
         if (!editValue) return;
         try {
-            await axios.put(`${API_URL}/api/progress/weight/${id}`, {
+            await api.put(`/progress/weight/${id}`, {
                 weightValue: parseFloat(editValue),
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             setEditingId(null);
             onRefresh();

@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api';
+import api from './axios';
 
 export interface WeightLog {
     _id: string;
@@ -21,7 +19,7 @@ export interface DailyProgress {
 
 export const getWeightLogs = async (userId: string, days: number = 30): Promise<WeightLog[]> => {
     try {
-        const response = await axios.get(`${API_URL}/weight/member/${userId}?days=${days}`);
+        const response = await api.get(`/weight/member/${userId}?days=${days}`);
         return response.data.data;
     } catch (error) {
         console.error('Error fetching weight logs:', error);
@@ -31,7 +29,7 @@ export const getWeightLogs = async (userId: string, days: number = 30): Promise<
 
 export const logWeight = async (userId: string, weight: number): Promise<WeightLog> => {
     try {
-        const response = await axios.post(`${API_URL}/weight`, {
+        const response = await api.post(`/weight`, {
             userId,
             weight
         });
@@ -45,7 +43,7 @@ export const logWeight = async (userId: string, weight: number): Promise<WeightL
 export const getDailyProgress = async (_userId: string, date: Date): Promise<DailyProgress> => {
     try {
         const dateStr = date.toISOString().split('T')[0];
-        const response = await axios.get(`${API_URL}/progress/daily/${dateStr}`);
+        const response = await api.get(`/progress/daily/${dateStr}`);
         const data = response.data.data;
         // Map backend dietFollowed to frontend dietLogged
         return {
@@ -61,7 +59,7 @@ export const getDailyProgress = async (_userId: string, date: Date): Promise<Dai
 export const toggleDailyProgress = async (userId: string, date: Date, type: 'workout' | 'diet', value: boolean): Promise<DailyProgress> => {
     try {
         const dateStr = date.toISOString().split('T')[0];
-        const response = await axios.post(`${API_URL}/progress/daily/toggle`, {
+        const response = await api.post(`/progress/daily/toggle`, {
             userId,
             date: dateStr,
             type,
@@ -80,7 +78,7 @@ export const toggleDailyProgress = async (userId: string, date: Date, type: 'wor
 
 export const getWeeklyProgress = async (userId: string): Promise<DailyProgress[]> => {
     try {
-        const response = await axios.get(`${API_URL}/progress/weekly/${userId}`);
+        const response = await api.get(`/progress/weekly/${userId}`);
         return response.data.data;
     } catch (error) {
         console.error('Error fetching weekly progress:', error);

@@ -35,6 +35,7 @@ const TIMEZONES = [
   { value: 'Europe/London', label: 'London (GMT)' },
   { value: 'Europe/Paris', label: 'Paris (CET)' },
   { value: 'Asia/Dubai', label: 'Dubai (GST)' },
+  { value: 'Asia/Colombo', label: 'Sri Lanka (IST)' },
   { value: 'Asia/Kolkata', label: 'India (IST)' },
   { value: 'Asia/Singapore', label: 'Singapore (SGT)' },
   { value: 'Australia/Sydney', label: 'Sydney (AEST)' },

@@ -1,9 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const { getTemplates, logWorkout, getMemberHistory, getMemberStats, getMemberHistory30Days } = require('../controllers/workoutController');
+const {
+    getTemplates,
+    logWorkout,
+    getMemberHistory,
+    getMemberStats,
+    getMemberHistory30Days,
+    updateTemplate,
+    deleteTemplate
+} = require('../controllers/workoutController');
 
 // GET all workout templates
 router.get('/templates', getTemplates);
+
+// PATCH template (Rename)
+router.patch('/templates/:id', updateTemplate);
+
+// DELETE template
+router.delete('/templates/:id', deleteTemplate);
 
 // POST log a workout
 router.post('/', logWorkout);

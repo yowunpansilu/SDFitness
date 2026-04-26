@@ -131,21 +131,21 @@ export function FeedbackList() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-black text-white uppercase italic tracking-tight">
-                        Feedback & <span className="text-indigo-400">Bug Reports</span>
+                    <h1 className="text-4xl font-black text-slate-900 dark:text-white uppercase italic tracking-tight leading-none">
+                        Feedback & <span className="text-primary-500">Insights</span>
                     </h1>
-                    <p className="text-navy-400 text-sm font-bold uppercase tracking-widest">Review submissions</p>
+                    <p className="text-slate-500 dark:text-navy-400 text-xs font-bold uppercase tracking-[0.2em] mt-2">Member Submissions Analysis</p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-3">
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-[140px] bg-navy-900/50 border-navy-800 text-white hover:border-indigo-500/50 transition-all">
+                        <SelectTrigger className="w-[150px] bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 text-slate-900 dark:text-white hover:border-primary-500/50 transition-all rounded-xl h-11 shadow-sm">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
-                        <SelectContent className="bg-navy-900 border-navy-800 text-white">
-                            <SelectItem value="all">All Status</SelectItem>
+                        <SelectContent className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 text-slate-900 dark:text-white rounded-xl">
+                            <SelectItem value="all" className="font-bold">All Status</SelectItem>
                             {STATUS_OPTIONS.map(opt => (
                                 <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                             ))}
@@ -153,10 +153,10 @@ export function FeedbackList() {
                     </Select>
 
                     <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                        <SelectTrigger className="w-[160px] bg-navy-900/50 border-navy-800 text-white hover:border-indigo-500/50 transition-all">
+                        <SelectTrigger className="w-[170px] bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 text-slate-900 dark:text-white hover:border-primary-500/50 transition-all rounded-xl h-11 shadow-sm">
                             <SelectValue placeholder="Category" />
                         </SelectTrigger>
-                        <SelectContent className="bg-navy-900 border-navy-800 text-white">
+                        <SelectContent className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 text-slate-900 dark:text-white rounded-xl">
                             <SelectItem value="all" className="font-bold">All Categories</SelectItem>
                             {CATEGORY_OPTIONS.map(opt => (
                                 <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
@@ -164,58 +164,60 @@ export function FeedbackList() {
                         </SelectContent>
                     </Select>
 
-                    <Button onClick={fetchFeedback} variant="outline" size="icon" className="border-navy-800 hover:bg-navy-800 text-indigo-400">
+                    <Button onClick={fetchFeedback} variant="outline" size="icon" className="border-slate-200 dark:border-navy-800 hover:bg-slate-50 dark:hover:bg-navy-800 text-primary-500 h-11 w-11 rounded-xl shadow-sm">
                         <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
                     </Button>
                 </div>
             </div>
 
-            <Card className="bg-navy-900/50 border-navy-800 overflow-hidden shadow-2xl shadow-black/20">
+            <Card className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-black/20 rounded-2xl">
                 <div className="overflow-x-auto">
                     <Table>
-                        <TableHeader className="bg-navy-950/50">
-                            <TableRow className="border-navy-800 hover:bg-transparent">
-                                <TableHead className="text-navy-500 font-black uppercase tracking-widest text-[10px]">Member</TableHead>
-                                <TableHead className="text-navy-500 font-black uppercase tracking-widest text-[10px]">Category</TableHead>
-                                <TableHead className="text-navy-500 font-black uppercase tracking-widest text-[10px]">Message</TableHead>
-                                <TableHead className="text-navy-500 font-black uppercase tracking-widest text-[10px]">Status</TableHead>
-                                <TableHead className="text-navy-500 font-black uppercase tracking-widest text-[10px]">Date</TableHead>
-                                <TableHead className="text-right text-navy-500 font-black uppercase tracking-widest text-[10px]">Actions</TableHead>
+                        <TableHeader className="bg-slate-50/50 dark:bg-navy-950/50 border-b border-slate-200 dark:border-navy-800">
+                            <TableRow className="border-none hover:bg-transparent">
+                                <TableHead className="text-slate-400 dark:text-navy-500 font-black uppercase tracking-[0.2em] text-[9px] py-5 px-6">Member</TableHead>
+                                <TableHead className="text-slate-400 dark:text-navy-500 font-black uppercase tracking-[0.2em] text-[9px] py-5">Category</TableHead>
+                                <TableHead className="text-slate-400 dark:text-navy-500 font-black uppercase tracking-[0.2em] text-[9px] py-5">Message</TableHead>
+                                <TableHead className="text-slate-400 dark:text-navy-500 font-black uppercase tracking-[0.2em] text-[9px] py-5">Status</TableHead>
+                                <TableHead className="text-slate-400 dark:text-navy-500 font-black uppercase tracking-[0.2em] text-[9px] py-5">Date</TableHead>
+                                <TableHead className="text-right text-slate-400 dark:text-navy-500 font-black uppercase tracking-[0.2em] text-[9px] py-5 px-6">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {loading ? (
                                 Array.from({ length: 5 }).map((_, i) => (
-                                    <TableRow key={i} className="border-navy-800">
-                                        <TableCell colSpan={6}><div className="h-12 bg-navy-800/20 animate-pulse rounded-lg" /></TableCell>
+                                    <TableRow key={i} className="border-slate-100 dark:border-navy-800">
+                                        <TableCell colSpan={6}><div className="h-16 bg-slate-100 dark:bg-navy-800/20 animate-pulse rounded-xl mx-4 my-2" /></TableCell>
                                     </TableRow>
                                 ))
                             ) : feedback.length > 0 ? (
                                 feedback.map((item) => (
                                     <TableRow
                                         key={item._id}
-                                        className="border-navy-800 hover:bg-indigo-500/5 transition-colors group cursor-pointer"
+                                        className="border-slate-100 dark:border-navy-800/50 hover:bg-primary-500/[0.02] dark:hover:bg-primary-500/[0.03] transition-colors group cursor-pointer"
                                         onClick={() => handleViewDetail(item._id)}
                                     >
-                                        <TableCell className="font-bold text-white">
+                                        <TableCell className="font-bold text-slate-900 dark:text-white px-6 py-4">
                                             {item.userId?.firstName} {item.userId?.lastName}
-                                            <p className="text-[10px] text-navy-500 font-medium">{item.userId?.email}</p>
+                                            <p className="text-[10px] text-slate-400 dark:text-navy-500 font-medium tracking-tight uppercase">{item.userId?.email}</p>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-2 text-white text-sm font-bold capitalize">
-                                                {getCategoryIcon(item.category)}
+                                            <div className="flex items-center gap-2 text-slate-700 dark:text-white text-xs font-bold capitalize">
+                                                <div className="p-1.5 rounded-lg bg-slate-100 dark:bg-navy-800">
+                                                    {getCategoryIcon(item.category)}
+                                                </div>
                                                 {item.category.replace('_', ' ')}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-navy-300 max-w-[200px] md:max-w-[400px] truncate font-medium">
+                                        <TableCell className="text-slate-600 dark:text-navy-300 max-w-[200px] md:max-w-[400px] truncate font-medium text-xs">
                                             {item.message}
                                         </TableCell>
                                         <TableCell>{getStatusBadge(item.status)}</TableCell>
-                                        <TableCell className="text-navy-500 text-[10px] font-black uppercase tracking-tighter">
+                                        <TableCell className="text-slate-400 dark:text-navy-500 text-[10px] font-black uppercase tracking-tight">
                                             {format(new Date(item.createdAt), 'MMM dd, HH:mm')}
                                         </TableCell>
-                                        <TableCell className="text-right">
-                                            <Button variant="ghost" size="sm" className="text-indigo-400 group-hover:bg-indigo-500/10 transition-all">
+                                        <TableCell className="text-right px-6">
+                                            <Button variant="ghost" size="sm" className="text-primary-500 group-hover:bg-primary-500/10 transition-all rounded-lg h-8 w-8 p-0">
                                                 <ChevronRight className="w-4 h-4" />
                                             </Button>
                                         </TableCell>
@@ -223,9 +225,9 @@ export function FeedbackList() {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-center py-16">
-                                        <MessageSquare className="w-12 h-12 text-navy-800 mx-auto mb-4 opacity-50" />
-                                        <p className="text-navy-500 font-black uppercase tracking-[0.2em] text-xs">No feedback entries found</p>
+                                    <TableCell colSpan={6} className="text-center py-20">
+                                        <MessageSquare className="w-12 h-12 text-slate-200 dark:text-navy-800 mx-auto mb-4 opacity-50" />
+                                        <p className="text-slate-400 dark:text-navy-500 font-black uppercase tracking-[0.2em] text-[10px]">No feedback entries discovered</p>
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -236,120 +238,136 @@ export function FeedbackList() {
 
             {/* Detail Sheet */}
             <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
-                <SheetContent className="bg-navy-950 border-l border-navy-800 text-white sm:max-w-[600px] overflow-y-auto scrollbar-thin">
-                    <SheetHeader className="border-b border-navy-800 pb-6 mb-8">
-                        <div className="flex items-center gap-3 mb-4">
-                            {selectedItem && getCategoryIcon(selectedItem.category)}
-                            <Badge variant="outline" className="border-navy-700 text-navy-400 font-black uppercase tracking-widest text-[9px]">
+                <SheetContent className="bg-white dark:bg-navy-950 border-l border-slate-200 dark:border-navy-800 text-slate-900 dark:text-white sm:max-w-[600px] p-0 overflow-hidden flex flex-col">
+                    <SheetHeader className="p-8 border-b border-slate-100 dark:border-navy-800 bg-slate-50/50 dark:bg-navy-950/50">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 rounded-xl bg-primary-500 text-white shadow-lg shadow-primary-500/20">
+                                {selectedItem && getCategoryIcon(selectedItem.category)}
+                            </div>
+                            <Badge variant="outline" className="border-slate-200 dark:border-navy-700 text-slate-500 dark:text-navy-400 font-black uppercase tracking-[0.2em] text-[8px] h-6">
                                 {selectedItem?.category}
                             </Badge>
                         </div>
-                        <SheetTitle className="text-3xl font-black italic uppercase tracking-tighter leading-none mb-1">
-                            Feedback <span className="text-indigo-400">Analysis</span>
+                        <SheetTitle className="text-4xl font-black italic uppercase tracking-tighter leading-none mb-2 text-slate-900 dark:text-white">
+                            Feedback <span className="text-primary-500">Analysis</span>
                         </SheetTitle>
-                        <SheetDescription className="text-navy-500 font-bold uppercase tracking-widest text-[10px]">
-                            ID: {selectedItem?._id?.slice(-8)} • {selectedItem && format(new Date(selectedItem.createdAt), 'PPPP p')}
+                        <SheetDescription className="text-slate-400 dark:text-navy-500 font-bold uppercase tracking-[0.15em] text-[10px] flex items-center gap-2">
+                            REF: {selectedItem?._id?.slice(-8)} <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-navy-800" /> {selectedItem && format(new Date(selectedItem.createdAt), 'PPPP p')}
                         </SheetDescription>
                     </SheetHeader>
 
-                    {selectedItem && (
-                        <div className="space-y-10">
-                            <section className="space-y-4">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-navy-600">Member Info</h4>
-                                <div className="flex items-center gap-4 p-4 rounded-2xl bg-navy-900/30 border border-navy-800">
-                                    <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-black text-lg">
-                                        {selectedItem.userId?.firstName[0]}{selectedItem.userId?.lastName[0]}
-                                    </div>
-                                    <div>
-                                        <p className="font-black text-white uppercase tracking-tight">{selectedItem.userId?.firstName} {selectedItem.userId?.lastName}</p>
-                                        <p className="text-xs text-navy-500 font-bold">{selectedItem.userId?.email}</p>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section className="space-y-4">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-navy-600">Submission</h4>
-                                <div className="p-6 rounded-2xl bg-navy-900 border border-navy-800 text-navy-100 font-medium whitespace-pre-wrap leading-relaxed shadow-inner">
-                                    {selectedItem.message}
-                                </div>
-                            </section>
-
-                            {selectedItem.category === 'bug' && (
-                                <section className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-navy-600">Debug Metadata</h4>
-                                        <Badge variant="destructive" className="bg-rose-500/10 text-rose-500 border-none">Bug Report</Badge>
-                                    </div>
-                                    <div className="grid gap-4">
-                                        <div className="p-4 rounded-2xl bg-navy-900/50 border border-navy-800/50 group">
-                                            <p className="text-[9px] uppercase font-black text-navy-700 mb-2">URL Origin</p>
-                                            <p className="text-xs font-bold text-indigo-400 break-all flex items-center gap-2 group-hover:text-indigo-300 transition-colors">
-                                                {selectedItem.errorUrl}
-                                                <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                                            </p>
+                    <div className="flex-1 overflow-y-auto p-8 scrollbar-thin">
+                        {selectedItem && (
+                            <div className="space-y-12">
+                                <section className="space-y-6">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600 flex items-center gap-2">
+                                        <div className="w-8 h-px bg-slate-100 dark:bg-navy-800" /> Member Authentication
+                                    </h4>
+                                    <div className="flex items-center gap-5 p-5 rounded-2xl bg-slate-50 dark:bg-navy-900/30 border border-slate-100 dark:border-navy-800 shadow-sm">
+                                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-primary-500/20">
+                                            {selectedItem.userId?.firstName[0]}{selectedItem.userId?.lastName[0]}
                                         </div>
-                                        <div className="p-4 rounded-2xl bg-navy-900/50 border border-navy-800/50">
-                                            <p className="text-[9px] uppercase font-black text-navy-700 mb-2">User Environment</p>
-                                            <p className="text-xs font-medium text-navy-400 italic leading-relaxed">{selectedItem.userAgent}</p>
+                                        <div>
+                                            <p className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight leading-tight">{selectedItem.userId?.firstName} {selectedItem.userId?.lastName}</p>
+                                            <p className="text-xs text-slate-400 dark:text-navy-500 font-bold tracking-widest mt-1 uppercase">{selectedItem.userId?.email}</p>
                                         </div>
-                                        {selectedItem.stackTrace && (
-                                            <div className="p-4 rounded-2xl bg-navy-950 border border-navy-800 shadow-xl overflow-hidden">
-                                                <p className="text-[9px] uppercase font-black text-rose-500/70 mb-3 flex items-center gap-2">
-                                                    <Bug className="w-3 h-3" /> Stack Trace
-                                                </p>
-                                                <pre className="text-[10px] text-rose-400/80 font-mono overflow-auto max-h-[300px] p-4 bg-black/40 rounded-xl scrollbar-thin">
-                                                    {selectedItem.stackTrace}
-                                                </pre>
-                                            </div>
-                                        )}
                                     </div>
                                 </section>
-                            )}
 
-                            <section className="space-y-4 pt-6 border-t border-navy-800">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-navy-600">Lifecycle Management</h4>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {STATUS_OPTIONS.map((s) => (
-                                        <Button
-                                            key={s.value}
-                                            variant="outline"
-                                            size="sm"
-                                            className={cn(
-                                                "rounded-xl font-black uppercase tracking-widest text-[9px] h-10 border-navy-800 hover:bg-navy-800",
-                                                selectedItem.status === s.value && cn("bg-indigo-600 text-white border-transparent hover:bg-indigo-700 shadow-lg shadow-indigo-900/40")
+                                <section className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600 flex items-center gap-2">
+                                        <div className="w-8 h-px bg-slate-100 dark:bg-navy-800" /> Submitted Insight
+                                    </h4>
+                                    <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-navy-900 text-slate-700 dark:text-navy-100 font-medium whitespace-pre-wrap leading-relaxed shadow-inner border border-slate-100 dark:border-navy-800 relative">
+                                        <MessageSquare className="absolute top-4 right-4 w-12 h-12 text-slate-200 dark:text-navy-800/20 -z-0" />
+                                        <span className="relative z-10">{selectedItem.message}</span>
+                                    </div>
+                                </section>
+
+                                {selectedItem.category === 'bug' && (
+                                    <section className="space-y-6">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-rose-500 flex items-center gap-2">
+                                                <div className="w-8 h-px bg-rose-100 dark:bg-rose-900/30" /> Incident Metadata
+                                            </h4>
+                                            <Badge variant="destructive" className="bg-rose-500/10 text-rose-500 border-none px-3 font-black text-[9px] uppercase italic">Priority: Critical</Badge>
+                                        </div>
+                                        <div className="grid gap-4">
+                                            <div className="p-5 rounded-2xl bg-white dark:bg-navy-900/50 border border-slate-100 dark:border-navy-800/50 group transition-all hover:border-rose-500/30">
+                                                <p className="text-[9px] uppercase font-black text-slate-400 dark:text-navy-700 mb-3 tracking-[0.2em]">Source Endpoint</p>
+                                                <p className="text-xs font-bold text-primary-500 break-all flex items-center gap-2 group-hover:text-primary-400 transition-colors italic underline decoration-primary-500/30">
+                                                    {selectedItem.errorUrl}
+                                                    <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                                                </p>
+                                            </div>
+                                            <div className="p-5 rounded-2xl bg-white dark:bg-navy-900/50 border border-slate-100 dark:border-navy-800/50">
+                                                <p className="text-[9px] uppercase font-black text-slate-400 dark:text-navy-700 mb-3 tracking-[0.2em]">Environment Context</p>
+                                                <p className="text-xs font-medium text-slate-600 dark:text-navy-400 italic leading-relaxed">{selectedItem.userAgent}</p>
+                                            </div>
+                                            {selectedItem.stackTrace && (
+                                                <div className="p-6 rounded-2xl dark:bg-black/40 border border-slate-100 dark:border-navy-800 shadow-xl overflow-hidden relative group">
+                                                    <div className="absolute inset-0 bg-gradient-to-br from-rose-500/[0.02] to-transparent pointer-events-none" />
+                                                    <p className="text-[9px] uppercase font-black text-rose-500/70 mb-4 flex items-center gap-2 tracking-[0.2em]">
+                                                        <Bug className="w-3 h-3" /> Execution Stack Trace
+                                                    </p>
+                                                    <pre className="text-[10px] text-rose-600 dark:text-rose-400/80 font-mono overflow-auto max-h-[400px] pr-4 custom-scrollbar leading-relaxed">
+                                                        {selectedItem.stackTrace}
+                                                    </pre>
+                                                </div>
                                             )}
-                                            onClick={() => handleUpdateStatus(s.value)}
-                                            disabled={updating}
-                                        >
-                                            {s.label}
-                                        </Button>
-                                    ))}
-                                </div>
-                            </section>
+                                        </div>
+                                    </section>
+                                )}
 
-                            <section className="space-y-4">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-navy-600">Internal Audit Notes</h4>
-                                <Textarea
-                                    className="bg-navy-900 border-navy-800 text-white min-h-[140px] rounded-2xl focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all resize-none p-4"
-                                    placeholder="Log investigation findings or follow-up actions..."
-                                    value={adminNotes}
-                                    onChange={(e) => setAdminNotes(e.target.value)}
-                                />
-                                <Button
-                                    className="w-full bg-white text-navy-950 hover:bg-indigo-50 hover:text-indigo-600 font-black uppercase tracking-widest text-xs h-14 rounded-2xl transition-all shadow-xl shadow-black/20 group"
-                                    onClick={handleSaveNotes}
-                                    disabled={updating}
-                                >
-                                    {updating ? (
-                                        <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                                    ) : (
-                                        <CheckCircle2 className="w-4 h-4 mr-2 opacity-0 group-hover:opacity-100 transition-all" />
-                                    )}
-                                    {updating ? 'Processing...' : 'Commit Internal Notes'}
-                                </Button>
-                            </section>
-                        </div>
-                    )}
+                                <section className="space-y-6 pt-8 border-t border-slate-100 dark:border-navy-800">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600 flex items-center gap-2">
+                                        <div className="w-8 h-px bg-slate-100 dark:bg-navy-800" /> Resolution Workflow
+                                    </h4>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {STATUS_OPTIONS.map((s) => (
+                                            <Button
+                                                key={s.value}
+                                                variant="outline"
+                                                size="sm"
+                                                className={cn(
+                                                    "rounded-xl font-black uppercase tracking-widest text-[9px] h-12 border-slate-200 dark:border-navy-800 text-slate-400 dark:text-navy-500 hover:text-primary-500 dark:hover:text-white transition-all",
+                                                    selectedItem.status === s.value && cn("bg-primary-500 text-white border-transparent hover:bg-primary-600 shadow-xl shadow-primary-500/30 hover:text-white")
+                                                )}
+                                                onClick={() => handleUpdateStatus(s.value)}
+                                                disabled={updating}
+                                            >
+                                                {s.label}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </section>
+
+                                <section className="space-y-6 pb-12">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-navy-600 flex items-center gap-2">
+                                        <div className="w-8 h-px bg-slate-100 dark:bg-navy-800" /> Internal Investigation Ledger
+                                    </h4>
+                                    <Textarea
+                                        className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800 text-slate-900 dark:text-white min-h-[160px] rounded-[1.5rem] focus:ring-primary-500/20 focus:border-primary-500/50 transition-all resize-none p-6 shadow-sm font-medium"
+                                        placeholder="Record forensic findings or strategic follow-up plans..."
+                                        value={adminNotes}
+                                        onChange={(e) => setAdminNotes(e.target.value)}
+                                    />
+                                    <Button
+                                        className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-primary-500 dark:hover:text-white font-black uppercase tracking-[0.2em] text-xs h-16 rounded-2xl transition-all shadow-2xl group"
+                                        onClick={handleSaveNotes}
+                                        disabled={updating}
+                                    >
+                                        {updating ? (
+                                            <RefreshCw className="w-5 h-5 animate-spin mr-3" />
+                                        ) : (
+                                            <CheckCircle2 className="w-5 h-5 mr-3 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0" />
+                                        )}
+                                        {updating ? 'Synchronizing...' : 'Finalize Investigation Notes'}
+                                    </Button>
+                                </section>
+                            </div>
+                        )}
+                    </div>
                 </SheetContent>
             </Sheet>
         </div>

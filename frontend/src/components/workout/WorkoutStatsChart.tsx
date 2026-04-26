@@ -37,16 +37,16 @@ export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProp
     const chartData = getLast7DaysData();
 
     return (
-        <Card className="glass-card border-border">
+        <Card>
             <CardHeader>
-                <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5 text-primary-800" />
+                <CardTitle className="text-xl font-bold flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-primary" />
                     Workout Statistics
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 <Tabs defaultValue="overview" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 bg-card">
+                    <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="trends">Trends</TabsTrigger>
                     </TabsList>
@@ -54,12 +54,12 @@ export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProp
                     <TabsContent value="overview" className="space-y-4 mt-4 animate-fade-in">
                         <div className="grid grid-cols-2 gap-4">
                             {/* Total Workouts */}
-                            <div className="bg-card/50 rounded-lg p-4 border border-border">
+                            <div className="bg-muted/30 rounded-lg p-4 border border-border">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <Dumbbell className="w-4 h-4 text-primary-800" />
+                                    <Dumbbell className="w-4 h-4 text-primary" />
                                     <p className="text-xs text-muted-foreground">Total Workouts</p>
                                 </div>
-                                <p className="text-2xl font-bold text-foreground">{stats.totalWorkouts}</p>
+                                <p className="text-2xl font-bold">{stats.totalWorkouts}</p>
                                 {stats.thisMonth !== undefined && (
                                     <p className="text-xs text-muted-foreground mt-1">
                                         {stats.thisMonth} this month
@@ -68,12 +68,12 @@ export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProp
                             </div>
 
                             {/* Total Calories */}
-                            <div className="bg-card/50 rounded-lg p-4 border border-border">
+                            <div className="bg-muted/30 rounded-lg p-4 border border-border">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <Flame className="w-4 h-4 text-orange-400" />
+                                    <Flame className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                                     <p className="text-xs text-muted-foreground">Calories Burned</p>
                                 </div>
-                                <p className="text-2xl font-bold text-foreground">
+                                <p className="text-2xl font-bold">
                                     {stats.totalCaloriesBurned.toLocaleString()}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-1">
@@ -82,12 +82,12 @@ export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProp
                             </div>
 
                             {/* Average Duration */}
-                            <div className="bg-card/50 rounded-lg p-4 border border-border">
+                            <div className="bg-muted/30 rounded-lg p-4 border border-border">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <TrendingUp className="w-4 h-4 text-green-400" />
+                                    <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
                                     <p className="text-xs text-muted-foreground">Avg Duration</p>
                                 </div>
-                                <p className="text-2xl font-bold text-foreground">{stats.averageDuration} min</p>
+                                <p className="text-2xl font-bold">{stats.averageDuration} min</p>
                                 <p className="text-xs text-muted-foreground mt-1">
                                     Per workout session
                                 </p>
@@ -95,12 +95,12 @@ export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProp
 
                             {/* This Week */}
                             {stats.thisWeek !== undefined && (
-                                <div className="bg-card/50 rounded-lg p-4 border border-border">
+                                <div className="bg-muted/30 rounded-lg p-4 border border-border">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <BarChart3 className="w-4 h-4 text-blue-400" />
+                                        <BarChart3 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                                         <p className="text-xs text-muted-foreground">This Week</p>
                                     </div>
-                                    <p className="text-2xl font-bold text-foreground">{stats.thisWeek}</p>
+                                    <p className="text-2xl font-bold">{stats.thisWeek}</p>
                                     <p className="text-xs text-muted-foreground mt-1">
                                         Workouts completed
                                     </p>
@@ -110,31 +110,33 @@ export function WorkoutStatsChart({ stats, history = [] }: WorkoutStatsChartProp
                     </TabsContent>
 
                     <TabsContent value="trends" className="mt-4 animate-fade-in">
-                        <div className="bg-card/50 rounded-lg p-4 border border-border h-[300px]">
+                        <div className="bg-muted/30 rounded-lg p-4 border border-border h-[300px]">
                             <h3 className="text-sm font-semibold text-muted-foreground mb-4">Activity (Last 7 Days)</h3>
                             <ResponsiveContainer width="100%" height="90%" minWidth={0}>
                                 <BarChart data={chartData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.1} vertical={false} />
                                     <XAxis
                                         dataKey="date"
-                                        stroke="#9CA3AF"
+                                        stroke="currentColor"
+                                        opacity={0.5}
                                         fontSize={12}
                                         tickLine={false}
                                         axisLine={false}
                                     />
                                     <YAxis
-                                        stroke="#9CA3AF"
+                                        stroke="currentColor"
+                                        opacity={0.5}
                                         fontSize={12}
                                         tickLine={false}
                                         axisLine={false}
                                     />
                                     <Tooltip
-                                        contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', borderRadius: '0.5rem', color: '#F3F4F6' }}
-                                        itemStyle={{ color: '#F3F4F6' }}
-                                        cursor={{ fill: '#374151', opacity: 0.4 }}
+                                        contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '0.5rem' }}
+                                        itemStyle={{ color: 'hsl(var(--foreground))' }}
+                                        cursor={{ fill: 'currentColor', opacity: 0.1 }}
                                     />
-                                    <Bar dataKey="duration" name="Duration (min)" fill="#F97316" radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="calories" name="Calories" fill="#EA580C" radius={[4, 4, 0, 0]} hide />
+                                    <Bar dataKey="duration" name="Duration (min)" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="calories" name="Calories" fill="hsl(var(--secondary))" radius={[4, 4, 0, 0]} hide />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>

@@ -133,8 +133,8 @@ const initialGeneralSettings: GeneralSettings = {
         saturday: { isOpen: true, openTime: '08:00', closeTime: '20:00' },
         sunday: { isOpen: true, openTime: '08:00', closeTime: '18:00' },
     },
-    currency: 'USD',
-    timezone: 'America/Los_Angeles',
+    currency: 'LKR',
+    timezone: 'Asia/Colombo',
 };
 
 const initialEmailTemplates: EmailTemplate[] = [
@@ -349,7 +349,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
         try {
             const settings = await settingsService.getAllSettings();
             const updates: any = {};
-            
+
             settings.forEach(s => {
                 if (s.key === 'generalSettings') updates.generalSettings = s.value;
                 if (s.key === 'emailTemplates') updates.emailTemplates = s.value;
@@ -372,7 +372,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
 
         try {
             const { generalSettings, emailTemplates, notificationSettings, roles } = get();
-            
+
             await Promise.all([
                 settingsService.updateSetting('generalSettings', generalSettings, 'general'),
                 settingsService.updateSetting('emailTemplates', emailTemplates, 'email'),

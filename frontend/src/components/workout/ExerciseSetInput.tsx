@@ -17,8 +17,8 @@ export function ExerciseSetInput({ set, onChange, showWeight = true, showDuratio
 
     return (
         <div className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${set.completed
-            ? 'bg-primary-500/10 border-primary-500/30'
-            : 'bg-card/50 border-border'
+            ? 'bg-primary/10 border-primary/30'
+            : 'bg-muted/30 border-border'
             }`}>
             {/* Set Number */}
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-foreground font-semibold text-sm">
@@ -34,7 +34,7 @@ export function ExerciseSetInput({ set, onChange, showWeight = true, showDuratio
                         min="0"
                         value={set.reps || ''}
                         onChange={(e) => handleChange('reps', parseInt(e.target.value) || 0)}
-                        className="h-9 bg-background border-border text-foreground"
+                        className="h-9"
                         placeholder="12"
                     />
                 </div>
@@ -50,7 +50,7 @@ export function ExerciseSetInput({ set, onChange, showWeight = true, showDuratio
                         step="0.5"
                         value={set.weight || ''}
                         onChange={(e) => handleChange('weight', parseFloat(e.target.value) || 0)}
-                        className="h-9 bg-background border-border text-foreground"
+                        className="h-9"
                         placeholder="60"
                     />
                 </div>
@@ -65,7 +65,7 @@ export function ExerciseSetInput({ set, onChange, showWeight = true, showDuratio
                         min="0"
                         value={set.duration || ''}
                         onChange={(e) => handleChange('duration', parseInt(e.target.value) || 0)}
-                        className="h-9 bg-background border-border text-foreground"
+                        className="h-9"
                         placeholder="60"
                     />
                 </div>
@@ -77,14 +77,14 @@ export function ExerciseSetInput({ set, onChange, showWeight = true, showDuratio
                 <Checkbox
                     checked={set.completed}
                     onCheckedChange={(checked) => handleChange('completed', checked as boolean)}
-                    className="w-6 h-6 border-2 data-[state=checked]:bg-primary-500 data-[state=checked]:border-primary-500"
+                    className="w-6 h-6 border-2"
                 />
             </div>
 
             {/* Completion Indicator */}
             {set.completed && (
-                <div className="absolute -right-2 -top-2 w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center shadow-lg">
-                    <Check className="w-4 h-4 text-foreground" />
+                <div className="absolute -right-2 -top-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                    <Check className="w-4 h-4 text-primary-foreground" />
                 </div>
             )}
         </div>

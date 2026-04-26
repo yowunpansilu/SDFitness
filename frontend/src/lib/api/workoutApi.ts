@@ -181,3 +181,17 @@ export async function getWorkoutHistory30Days(memberId: string): Promise<{
     return response.data;
 }
 
+/**
+ * Update member approved AI workout template (Rename)
+ */
+export async function updateWorkoutTemplate(templateId: string, updates: { name: string }): Promise<WorkoutTemplate> {
+    const response = await api.patch(`/workouts/templates/${templateId}`, updates);
+    return response.data.data;
+}
+
+/**
+ * Delete a workout template
+ */
+export async function deleteWorkoutTemplate(templateId: string): Promise<void> {
+    await api.delete(`/workouts/templates/${templateId}`);
+}

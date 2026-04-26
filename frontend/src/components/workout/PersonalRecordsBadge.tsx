@@ -38,7 +38,7 @@ export function PersonalRecordsBadge({ record, showDate = false, animated = true
 
     return (
         <div className={`relative ${animated ? 'animate-pulse-slow' : ''}`}>
-            <Badge className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-400 border-yellow-500/30 px-3 py-1.5">
+            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20 dark:text-yellow-400 px-3 py-1.5">
                 <Trophy className="w-3.5 h-3.5 mr-1.5 fill-current" />
                 <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-semibold">
@@ -49,7 +49,7 @@ export function PersonalRecordsBadge({ record, showDate = false, animated = true
                         <TrendingUp className="w-3 h-3" />
                     </div>
                     {showDate && (
-                        <span className="text-xs text-yellow-500/70">
+                        <span className="text-xs text-yellow-600/70 dark:text-yellow-500/70">
                             {format(new Date(record.achievedAt), 'MMM dd, yyyy')}
                         </span>
                     )}
@@ -57,7 +57,7 @@ export function PersonalRecordsBadge({ record, showDate = false, animated = true
             </Badge>
 
             {animated && (
-                <div className="absolute inset-0 bg-yellow-400/20 rounded-full blur-xl -z-10 animate-pulse" />
+                <div className="absolute inset-0 bg-yellow-500/10 rounded-full blur-xl -z-10 animate-pulse" />
             )}
         </div>
     );

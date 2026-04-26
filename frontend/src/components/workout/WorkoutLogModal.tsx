@@ -37,7 +37,7 @@ export function WorkoutLogModal({ template, durationMinutes, loggedExercises, on
             addWorkoutToHistory(result);
             toast({ title: 'Workout Saved!', description: `Great job! You exercised for ${durationMinutes} minutes.` });
             onClose();
-        } catch (error: any) {
+        } catch {
             toast({ title: 'Error', description: 'Failed to save workout log', variant: 'destructive' });
         } finally {
             setSaving(false);
@@ -46,22 +46,22 @@ export function WorkoutLogModal({ template, durationMinutes, loggedExercises, on
 
     return (
         <Dialog open={true} onOpenChange={() => { }}>
-            <DialogContent className="sm:max-w-[425px] bg-slate-900 border-white/10 text-white shadow-2xl">
+            <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-black">Workout Complete! 🎉</DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogDescription>
                         Awesome job! You've crushed {durationMinutes} minutes of cardio. How did it feel?
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="py-4 space-y-6">
                     <div className="space-y-3">
-                        <Label className="text-slate-300">Difficulty</Label>
+                        <Label>Difficulty</Label>
                         <Select value={difficulty} onValueChange={setDifficulty}>
-                            <SelectTrigger className="bg-slate-800 border-white/10 text-white">
+                            <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-800 border-white/10 text-white">
+                            <SelectContent>
                                 <SelectItem value="too_easy">Too Easy 🥱</SelectItem>
                                 <SelectItem value="just_right">Just Right 👍</SelectItem>
                                 <SelectItem value="too_hard">Too Hard 🥵</SelectItem>
@@ -70,12 +70,12 @@ export function WorkoutLogModal({ template, durationMinutes, loggedExercises, on
                     </div>
 
                     <div className="space-y-3">
-                        <Label className="text-slate-300">Energy Level</Label>
+                        <Label>Energy Level</Label>
                         <Select value={energyLevel} onValueChange={setEnergyLevel}>
-                            <SelectTrigger className="bg-slate-800 border-white/10 text-white">
+                            <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-slate-800 border-white/10 text-white">
+                            <SelectContent>
                                 <SelectItem value="low">Low Battery 🔋</SelectItem>
                                 <SelectItem value="medium">Feeling Good ⚡</SelectItem>
                                 <SelectItem value="high">Unstoppable 🔥</SelectItem>
@@ -84,21 +84,21 @@ export function WorkoutLogModal({ template, durationMinutes, loggedExercises, on
                     </div>
 
                     <div className="space-y-3">
-                        <Label className="text-slate-300">Notes & Reflections</Label>
+                        <Label>Notes & Reflections</Label>
                         <Textarea
                             placeholder="e.g. Heart rate was steady, felt a bit winded near the end."
                             value={notes}
                             onChange={e => setNotes(e.target.value)}
-                            className="bg-slate-800 border-white/10 text-white min-h-[100px]"
+                            className="min-h-[100px]"
                         />
                     </div>
                 </div>
 
                 <DialogFooter className="sm:justify-between">
-                    <Button variant="ghost" onClick={onClose} disabled={saving} className="text-slate-400 hover:text-white hover:bg-white/5">
+                    <Button variant="ghost" onClick={onClose} disabled={saving}>
                         Discard
                     </Button>
-                    <Button onClick={handleSave} disabled={saving} className="bg-indigo-600 hover:bg-indigo-500 text-white px-8">
+                    <Button onClick={handleSave} disabled={saving} className="px-8">
                         {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Result'}
                     </Button>
                 </DialogFooter>

@@ -126,7 +126,7 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
             });
 
             handleClose();
-        } catch (error) {
+        } catch {
             toast({
                 title: 'Error',
                 description: 'Failed to save workout. Please try again.',
@@ -155,19 +155,19 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="max-w-4xl max-h-[90vh] bg-background border-border">
+            <DialogContent className="max-w-4xl max-h-[90vh]">
                 <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-foreground flex items-center justify-between">
+                    <DialogTitle className="text-2xl font-bold flex items-center justify-between">
                         <span>Log Workout</span>
-                        <div className="flex items-center gap-2 text-primary-800">
+                        <div className="flex items-center gap-2 text-primary">
                             <Timer className="w-5 h-5" />
                             <span className="text-xl font-mono">{formatTime(elapsedTime)}</span>
                         </div>
                     </DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
+                    <DialogDescription>
                         {template ? `Logging: ${template.name}` : 'Custom workout'}
                         {' • '}
-                        <span className="text-primary-800">
+                        <span className="text-primary font-medium">
                             {completedSets}/{totalSets} sets completed
                         </span>
                     </DialogDescription>
@@ -186,7 +186,7 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => handleAddSet(exerciseIndex)}
-                                        className="text-primary-800 hover:text-secondary-500"
+                                        className="text-primary hover:text-primary/80"
                                     >
                                         <Plus className="w-4 h-4 mr-1" />
                                         Add Set
@@ -207,7 +207,7 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => handleRemoveSet(exerciseIndex, setIndex)}
-                                                    className="absolute -right-2 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                                    className="absolute -right-2 top-1/2 -translate-y-1/2 text-destructive hover:text-destructive/80 hover:bg-destructive/10"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </Button>
@@ -225,10 +225,10 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
                                     How was the difficulty?
                                 </Label>
                                 <Select value={difficulty} onValueChange={(value: any) => setDifficulty(value)}>
-                                    <SelectTrigger id="difficulty" className="bg-card border-border text-foreground">
+                                    <SelectTrigger id="difficulty">
                                         <SelectValue placeholder="Select difficulty" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-card border-border">
+                                    <SelectContent>
                                         <SelectItem value="too_easy">Too Easy</SelectItem>
                                         <SelectItem value="just_right">Just Right</SelectItem>
                                         <SelectItem value="too_hard">Too Hard</SelectItem>
@@ -241,10 +241,10 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
                                     Energy Level
                                 </Label>
                                 <Select value={energyLevel} onValueChange={(value: any) => setEnergyLevel(value)}>
-                                    <SelectTrigger id="energy" className="bg-card border-border text-foreground">
+                                    <SelectTrigger id="energy">
                                         <SelectValue placeholder="Select energy level" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-card border-border">
+                                    <SelectContent>
                                         <SelectItem value="low">Low</SelectItem>
                                         <SelectItem value="medium">Medium</SelectItem>
                                         <SelectItem value="high">High</SelectItem>
@@ -263,7 +263,7 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
                                 placeholder="How did you feel? Any observations?"
-                                className="bg-card border-border text-foreground min-h-[100px]"
+                                className="min-h-[100px]"
                             />
                         </div>
                     </div>
@@ -274,7 +274,7 @@ export function WorkoutLogForm({ open, onClose, template, onSave }: WorkoutLogFo
                         <X className="w-4 h-4 mr-2" />
                         Cancel
                     </Button>
-                    <Button variant="gym" onClick={handleSave} disabled={isSaving}>
+                    <Button onClick={handleSave} disabled={isSaving}>
                         <Save className="w-4 h-4 mr-2" />
                         {isSaving ? 'Saving...' : 'Save Workout'}
                     </Button>

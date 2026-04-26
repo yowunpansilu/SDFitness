@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Dumbbell, Plus, History, BarChart3, Search, Filter } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,9 +12,25 @@ import { WorkoutStatsChart } from '@/components/workout/WorkoutStatsChart';
 import { PersonalRecordsBadge } from '@/components/workout/PersonalRecordsBadge';
 import { useWorkoutStore } from '@/lib/stores/workoutStore';
 import { useAuthStore } from '@/lib/stores/authStore';
-import { getWorkoutHistory, getMemberApprovedWorkouts, getWorkoutTemplates } from '@/lib/api/workoutApi';
+import {
+    getWorkoutHistory,
+    getMemberApprovedWorkouts,
+    getWorkoutTemplates,
+    updateWorkoutTemplate,
+    deleteWorkoutTemplate
+} from '@/lib/api/workoutApi';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Loader2 } from 'lucide-react';
 
 export function Workouts() {
     const { toast } = useToast();
@@ -41,13 +57,12 @@ export function Workouts() {
     const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
     const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
-    // Fetch templates on mount
-    useEffect(() => {
-        fetchTemplates();
-    }, []);
+    const [renamingTemplate, setRenamingTemplate] = useState<any>(null);
+    const [newName, setNewName] = useState('');
+    const [isUpdating, setIsUpdating] = useState(false);
 
-    // Fetch history when switching to history tab
-    const fetchTemplates = async () => {
+    // Fetch templates on mount
+    const fetchTemplates = useCallback(async () => {
         setTemplatesLoading(true);
         try {
             // Apply category and difficulty filters to general templates
@@ -86,7 +101,7 @@ export function Workouts() {
                 new Map(allTemplates.map(t => [t.templateId || t._id, t])).values()
             );
             setTemplates(uniqueTemplates);
-        } catch (error) {
+        } catch {
             toast({
                 title: 'Error',
                 description: 'Failed to load workout templates',
@@ -95,9 +110,35 @@ export function Workouts() {
         } finally {
             setTemplatesLoading(false);
         }
+    }, [difficultyFilter, categoryFilter, member?._id, user?.id, setTemplates, setTemplatesLoading, toast]);
+
+    const handleRename = async () => {
+        if (!renamingTemplate || !newName.trim()) return;
+        setIsUpdating(true);
+        try {
+            await updateWorkoutTemplate(renamingTemplate._id || renamingTemplate.templateId, { name: newName });
+            toast({ title: 'Success', description: 'Workout plan renamed' });
+            setRenamingTemplate(null);
+            fetchTemplates();
+        } catch {
+            toast({ title: 'Error', description: 'Failed to rename workout plan', variant: 'destructive' });
+        } finally {
+            setIsUpdating(false);
+        }
     };
 
-    const fetchHistory = async () => {
+    const handleDelete = async (template: any) => {
+        if (!confirm('Are you sure you want to delete this workout plan?')) return;
+        try {
+            await deleteWorkoutTemplate(template._id || template.templateId);
+            toast({ title: 'Success', description: 'Workout plan deleted' });
+            fetchTemplates();
+        } catch {
+            toast({ title: 'Error', description: 'Failed to delete workout plan', variant: 'destructive' });
+        }
+    };
+
+    const fetchHistory = useCallback(async () => {
         if (!user?.id) return;
 
         setHistoryLoading(true);
@@ -111,7 +152,7 @@ export function Workouts() {
             // Extract personal records
             const allPRs = data.flatMap(w => w.personalRecords || []);
             setPersonalRecords(allPRs);
-        } catch (error) {
+        } catch {
             toast({
                 title: 'Error',
                 description: 'Failed to load workout history',
@@ -120,7 +161,7 @@ export function Workouts() {
         } finally {
             setHistoryLoading(false);
         }
-    };
+    }, [user?.id, setHistoryLoading, setWorkoutHistory, setStats, setPersonalRecords, toast]);
 
     const handleStartWorkout = (template: any) => {
         if (!template) return;
@@ -136,7 +177,7 @@ export function Workouts() {
 
     useEffect(() => {
         fetchTemplates();
-    }, [difficultyFilter, categoryFilter]);
+    }, [fetchTemplates]);
 
     return (
         <div className="space-y-6 animate-fade-in">
@@ -144,7 +185,7 @@ export function Workouts() {
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative h-[200px] rounded-[2.5rem] overflow-hidden group shadow-xl shadow-primary-900/5 bg-white border border-primary-50"
+                className="relative min-h-[220px] md:h-[200px] rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden group shadow-xl shadow-primary-900/5 bg-white border border-primary-50"
             >
                 {/* Background Image with Light Overlay */}
                 <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105 opacity-30">
@@ -157,27 +198,27 @@ export function Workouts() {
                 <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-white/20" />
 
                 {/* Content Overlay */}
-                <div className="relative h-full flex items-center justify-between px-12 z-10">
+                <div className="relative h-full flex flex-col md:flex-row items-center justify-between p-6 md:px-12 z-10 gap-6">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
+                        className="text-center md:text-left"
                     >
-                        <h1 className="text-4xl font-headline font-black text-primary-900 leading-tight tracking-tight flex items-center gap-4">
-                            <div className="p-3 bg-secondary-50 border border-secondary-100 rounded-2xl shadow-sm">
-                                <Dumbbell className="w-8 h-8 text-secondary-500" />
+                        <h1 className="text-3xl md:text-4xl font-headline font-black text-primary-900 leading-tight tracking-tight flex flex-col md:flex-row items-center gap-3 md:gap-4">
+                            <div className="p-2 md:p-3 bg-secondary-50 border border-secondary-100 rounded-xl md:rounded-2xl shadow-sm">
+                                <Dumbbell className="w-6 h-6 md:w-8 md:h-8 text-secondary-500" />
                             </div>
                             Workout Tracking
                         </h1>
-                        <p className="text-primary-600 text-lg font-medium mt-2 max-w-md">
+                        <p className="text-primary-600 text-base md:text-lg font-medium mt-2 max-w-md">
                             Track your sessions, monitor PRs, and accelerate your performance.
                         </p>
                     </motion.div>
 
                     <Button
-                        variant="gym"
                         size="lg"
-                        className="h-14 px-8 rounded-2xl bg-secondary-500 hover:bg-secondary-600 text-white font-bold gap-3 shadow-xl shadow-secondary-500/20 group-hover:scale-105 transition-transform"
+                        className="w-full md:w-auto h-12 md:h-14 px-6 md:px-8 rounded-xl md:rounded-2xl bg-secondary-500 hover:bg-secondary-600 text-white font-bold gap-3 shadow-xl shadow-secondary-500/20 group-hover:scale-105 transition-transform"
                         onClick={() => {
                             if (templates.length > 0) {
                                 handleStartWorkout(templates[0]);
@@ -186,7 +227,7 @@ export function Workouts() {
                             }
                         }}
                     >
-                        <Plus className="w-6 h-6" />
+                        <Plus className="w-5 h-5 md:w-6 md:h-6" />
                         Quick Log Session
                     </Button>
                 </div>
@@ -289,9 +330,14 @@ export function Workouts() {
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {filteredTemplates.map((template) => (
                                 <WorkoutTemplateCard
-                                    key={template.templateId}
+                                    key={template.templateId || template._id}
                                     template={template}
                                     onStartWorkout={handleStartWorkout}
+                                    onRename={(t) => {
+                                        setRenamingTemplate(t);
+                                        setNewName(t.name);
+                                    }}
+                                    onDelete={handleDelete}
                                 />
                             ))}
                         </div>
@@ -352,6 +398,39 @@ export function Workouts() {
                     )}
                 </TabsContent>
             </Tabs>
+
+            {/* Rename Dialog */}
+            <Dialog open={!!renamingTemplate} onOpenChange={(open) => !open && setRenamingTemplate(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Rename Workout Plan</DialogTitle>
+                        <DialogDescription>
+                            Enter a new name for your workout plan.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Plan Name</Label>
+                            <Input
+                                id="name"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                placeholder="Enter name..."
+                                autoFocus
+                                onKeyDown={(e) => e.key === 'Enter' && handleRename()}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setRenamingTemplate(null)} disabled={isUpdating}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleRename} disabled={isUpdating}>
+                            {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Rename Plan'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {/* Workout Session Player Fullscreen Modal */}
             {showSessionPlayer && selectedTemplate && (

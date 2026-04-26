@@ -21,26 +21,26 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
     const getDifficultyColor = (difficulty?: string) => {
         switch (difficulty) {
             case 'too_easy':
-                return 'bg-green-500/20 text-green-400 border-green-500/30';
+                return 'bg-green-500/10 text-green-600 border-green-500/20 dark:text-green-400';
             case 'just_right':
-                return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+                return 'bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400';
             case 'too_hard':
-                return 'bg-red-500/20 text-red-400 border-red-500/30';
+                return 'bg-red-500/10 text-red-600 border-red-500/20 dark:text-red-400';
             default:
-                return 'bg-gray-500/20 text-muted-foreground border-gray-500/30';
+                return 'bg-muted text-muted-foreground border-border';
         }
     };
 
     const getEnergyColor = (energy?: string) => {
         switch (energy) {
             case 'high':
-                return 'bg-green-500/20 text-green-400 border-green-500/30';
+                return 'bg-green-500/10 text-green-600 border-green-500/20 dark:text-green-400';
             case 'medium':
-                return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+                return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20 dark:text-yellow-400';
             case 'low':
-                return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+                return 'bg-orange-500/10 text-orange-600 border-orange-500/20 dark:text-orange-400';
             default:
-                return 'bg-gray-500/20 text-muted-foreground border-gray-500/30';
+                return 'bg-muted text-muted-foreground border-border';
         }
     };
 
@@ -55,7 +55,7 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
     );
 
     return (
-        <Card className="glass-card border-border hover:border-primary-500/30 transition-all">
+        <Card className="transition-all hover:shadow-md border-border">
             <Collapsible open={isOpen} onOpenChange={setIsOpen}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
@@ -66,7 +66,7 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                                     {formatDate(new Date(workout.workoutDate))}
                                 </CardTitle>
                                 {workout.personalRecords && workout.personalRecords.length > 0 && (
-                                    <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                                    <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20 dark:text-yellow-400">
                                         <Trophy className="w-3 h-3 mr-1" />
                                         {workout.personalRecords.length} PR{workout.personalRecords.length > 1 ? 's' : ''}
                                     </Badge>
@@ -79,7 +79,7 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                                     <span>{workout.duration} min</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <Flame className="w-4 h-4 text-orange-400" />
+                                    <Flame className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                                     <span>{workout.totalCaloriesBurned} cal</span>
                                 </div>
                                 <div className="text-muted-foreground">
@@ -119,14 +119,14 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                                 <h4 className="text-sm font-semibold text-muted-foreground mb-3">Exercises</h4>
                                 <div className="space-y-3">
                                     {workout.exercises.map((exercise, idx) => (
-                                        <div key={idx} className="bg-card/50 rounded-lg p-3 border border-border">
+                                        <div key={idx} className="bg-muted/30 rounded-lg p-3 border border-border">
                                             <p className="font-semibold text-foreground mb-2">{exercise.name || `Exercise ${idx + 1}`}</p>
                                             <div className="grid grid-cols-4 gap-2 text-xs">
                                                 {exercise.sets.map((set, setIdx) => (
                                                     <div
                                                         key={setIdx}
                                                         className={`p-2 rounded text-center ${set.completed
-                                                            ? 'bg-primary-500/20 text-primary-800'
+                                                            ? 'bg-primary/20 text-primary-800 dark:text-primary-300'
                                                             : 'bg-background text-muted-foreground'
                                                             }`}
                                                     >
@@ -149,17 +149,17 @@ export function WorkoutHistoryCard({ workout }: WorkoutHistoryCardProps) {
                             {workout.personalRecords && workout.personalRecords.length > 0 && (
                                 <div>
                                     <h4 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
-                                        <Trophy className="w-4 h-4 text-yellow-400" />
+                                        <Trophy className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                                         Personal Records
                                     </h4>
                                     <div className="space-y-2">
                                         {workout.personalRecords.map((pr, idx) => (
-                                            <div key={idx} className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
+                                            <div key={idx} className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-yellow-400 font-semibold">
+                                                    <span className="text-yellow-600 dark:text-yellow-400 font-semibold">
                                                         {pr.exerciseName || 'Exercise'}
                                                     </span>
-                                                    <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                                                    <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20 dark:text-yellow-400">
                                                         {pr.recordType.replace('_', ' ')}
                                                     </Badge>
                                                 </div>

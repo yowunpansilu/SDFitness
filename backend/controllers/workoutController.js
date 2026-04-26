@@ -208,6 +208,37 @@ exports.getMemberApprovedWorkouts = async (req, res) => {
     }
 };
 
+// UPDATE workout template (Rename)
+exports.updateTemplate = async (req, res) => {
+    try {
+        const { name } = req.body;
+        const template = await WorkoutTemplate.findByIdAndUpdate(req.params.id, {
+            name
+        }, { new: true });
+
+        if (!template) {
+            return res.status(404).json({ success: false, message: 'Template not found' });
+        }
+
+        res.json({ success: true, data: template });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// DELETE workout template
+exports.deleteTemplate = async (req, res) => {
+    try {
+        const template = await WorkoutTemplate.findByIdAndDelete(req.params.id);
+        if (!template) {
+            return res.status(404).json({ success: false, message: 'Template not found' });
+        }
+        res.json({ success: true, message: 'Template deleted' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 // GET 30-day workout history aggregated per day (for progress chart)
 exports.getMemberHistory30Days = async (req, res) => {
     try {

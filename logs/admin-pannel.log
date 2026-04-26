@@ -1,0 +1,9 @@
+
+> admin-pannel@1.0.0 dev
+> vite --port 3001
+
+
+  ROLLDOWN-VITE v7.2.5  ready in 117593 ms
+
+  ➜  Local:   http://localhost:3001/
+  ➜  Network: use --host to expose

@@ -1,0 +1,9 @@
+TypeError: next is not a function
+    at model.<anonymous> (D:\Projects\Gym\SDFitness\backend\models\User.js:43:5)
+    at async Kareem.execPre (D:\Projects\Gym\SDFitness\backend\node_modules\kareem\index.js:70:24)
+    at async model.$__save (D:\Projects\Gym\SDFitness\backend\node_modules\mongoose\lib\model.js:371:5)
+    at async model.save (D:\Projects\Gym\SDFitness\backend\node_modules\mongoose\lib\model.js:614:5)
+    at async D:\Projects\Gym\SDFitness\backend\node_modules\mongoose\lib\model.js:2750:9
+    at async Promise.all (index 0)
+    at async model.create (D:\Projects\Gym\SDFitness\backend\node_modules\mongoose\lib\model.js:2735:11)
+    at async run (D:\Projects\Gym\SDFitness\backend\debug_mongoose.js:9:19)

@@ -28,12 +28,12 @@
 - [x] Implement `fuzzy_match_to_food_id` with 0.75 threshold.
 - [x] Basic unit normalization in `foods_db.py`.
 
-### 2.2 Bridge v2 (Advanced NLP) — PLANNED
-- [ ] Move aliases to Atlas `food_aliases` collection for easier updates.
-- [ ] Implement `WeightExtractor` (Regex) for NO-UOM items (e.g., "Mushroom 200g").
-- [ ] Build `Sanitizer` to strip Unicode artifacts (â) and brand prefixes.
-- [ ] Implement multi-stage "Waterfall Scoring" (Exact → Fuzzy → Category).
-- [ ] Build the "Bridge Feedback Loop" in the Admin Panel for unmatched logs.
+### 2.2 Bridge v2 (Advanced NLP) — DONE
+- [x] Move aliases to Atlas `foodaliases` collection — `seed_food_aliases.js` seeds via upsert.
+- [x] Implement `WeightExtractor` (Regex) — UOM map driven by Atlas `scraper_config.uom_to_grams`.
+- [x] Build `Sanitizer` — brand list driven by Atlas `scraper_config.brand_prefixes`, no hardcoding.
+- [x] Implement multi-stage "Waterfall Scoring" (Exact → Fuzzy → Category) — `WaterfallMatcher`.
+- [x] Build the "Bridge Feedback Loop" in the Admin Panel — `ScraperReview.tsx` (pre-existing).
 
 ---
 

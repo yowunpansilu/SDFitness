@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Activity,
     TrendingUp,
@@ -18,7 +18,6 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGri
 export function ProgressDashboard() {
     const [members, setMembers] = useState<any[]>([]);
     const [search, setSearch] = useState('');
-    const [loading, setLoading] = useState(true);
     const [selectedMember, setSelectedMember] = useState<any>(null);
     const [weeklyProgress, setWeeklyProgress] = useState<any[]>([]);
     const [fetchingProgress, setFetchingProgress] = useState(false);
@@ -33,8 +32,6 @@ export function ProgressDashboard() {
             setMembers(res.data.members || res.data);
         } catch (err) {
             console.error('Error fetching members:', err);
-        } finally {
-            setLoading(false);
         }
     };
 

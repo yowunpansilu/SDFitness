@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { getTemplates, logWorkout, getMemberHistory, getMemberStats } = require('../controllers/workoutController');
+const { getTemplates, logWorkout, getMemberHistory, getMemberStats, getMemberHistory30Days } = require('../controllers/workoutController');
 
 // GET all workout templates
 router.get('/templates', getTemplates);
 
 // POST log a workout
 router.post('/', logWorkout);
+
+// GET 30-day aggregated workout history (must be before /:id)
+router.get('/member/:id/history30', getMemberHistory30Days);
 
 // GET member workout history
 router.get('/member/:id', getMemberHistory);

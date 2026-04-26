@@ -169,3 +169,15 @@ export async function getMemberApprovedWorkouts(memberId: string): Promise<Worko
     const response = await api.get(`/workouts/member/${memberId}/approved`);
     return response.data.data;
 }
+
+/**
+ * Get 30-day aggregated workout history (for progress chart)
+ */
+export async function getWorkoutHistory30Days(memberId: string): Promise<{
+    data: Array<{ date: string; calories: number; duration: number; count: number }>;
+    workouts: Workout[];
+}> {
+    const response = await api.get(`/workouts/member/${memberId}/history30`);
+    return response.data;
+}
+

@@ -32,4 +32,7 @@ const weightLogSchema = new mongoose.Schema({
     timestamps: true
 });
 
+// Index for getting weight history chronologically per user
+weightLogSchema.index({ userId: 1, date: -1 });
+
 module.exports = mongoose.model('WeightLog', weightLogSchema);

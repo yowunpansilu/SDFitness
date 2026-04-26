@@ -21,6 +21,10 @@ import PaymentCancel from '@/pages/dashboard/PaymentCancel';
 import { MembershipDetails } from '@/pages/dashboard/MembershipDetails';
 import { MembershipPlans } from '@/pages/dashboard/MembershipPlans';
 import { BillingOverview } from '@/pages/dashboard/BillingOverview';
+import DailyProgress from '@/pages/dashboard/DailyProgress';
+import WeeklySchedule from '@/pages/dashboard/WeeklySchedule';
+import { FeedbackPage } from '@/pages/dashboard/FeedbackPage';
+import { MemberProgress } from '@/pages/dashboard/MemberProgress';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { Toaster } from '@/components/ui/toaster';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
@@ -84,6 +88,10 @@ function App() {
             <Route path="attendance" element={<AttendancePage />} />
             <Route path="progress" element={<ProgressPage />} />
             <Route path="weight" element={<WeightTrackerPage />} />
+            <Route path="daily-progress" element={<DailyProgress />} />
+            <Route path="weekly-schedule" element={<WeeklySchedule />} />
+            <Route path="feedback" element={<FeedbackPage />} />
+            <Route path="member-progress" element={<MemberProgress />} />
 
             <Route path="messages" element={<MessagesPage />} />
             <Route path="settings/notifications" element={<NotificationSettings />} />

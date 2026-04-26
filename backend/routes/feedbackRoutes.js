@@ -16,6 +16,7 @@ router.use(protect); // All feedback routes require auth
 router.post('/', submitFeedback);
 router.post('/bug', submitFeedback); // Reusing the same for now, or separate if needed
 router.get('/mine', getMyFeedback);
+router.get('/my', getMyFeedback);
 
 // Admin routes
 router.get('/', requireRole('admin'), getAllFeedback);

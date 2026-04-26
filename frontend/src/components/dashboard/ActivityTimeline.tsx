@@ -49,13 +49,13 @@ export function ActivityTimeline() {
                     fetchDietPlans(user.id).catch(() => []),
                     getUserBookings(user.id).catch(() => [])
                 ]);
-                
+
                 const mappedActivities: Activity[] = [];
 
                 // 1. Attendance
-                attendance.forEach((rec: any) => {
+                attendance.forEach((rec: any, idx: number) => {
                     mappedActivities.push({
-                        id: `checkin-${rec._id}`,
+                        id: `checkin-${rec._id || rec.id || idx}`,
                         type: 'checkin',
                         title: 'Gym Check-in',
                         description: `At ${rec.facility}`,
@@ -64,9 +64,9 @@ export function ActivityTimeline() {
                 });
 
                 // 2. Workouts
-                workoutsResp.data?.forEach((rec: any) => {
+                workoutsResp.data?.forEach((rec: any, idx: number) => {
                     mappedActivities.push({
-                        id: `workout-${rec._id}`,
+                        id: `workout-${rec._id || rec.id || idx}`,
                         type: 'workout',
                         title: 'Completed Workout',
                         description: `Burned ${rec.totalCaloriesBurned || 0} kcal`,
@@ -75,9 +75,9 @@ export function ActivityTimeline() {
                 });
 
                 // 3. Diet Plans
-                dietPlans.forEach((rec: any) => {
+                dietPlans.forEach((rec: any, idx: number) => {
                     mappedActivities.push({
-                        id: `diet-${rec._id}`,
+                        id: `diet-${rec._id || rec.id || idx}`,
                         type: 'diet',
                         title: 'Generated Diet Plan',
                         description: rec.name || 'AI Personalized Plan',
@@ -86,9 +86,9 @@ export function ActivityTimeline() {
                 });
 
                 // 4. Bookings
-                bookings.forEach((rec: any) => {
+                bookings.forEach((rec: any, idx: number) => {
                     mappedActivities.push({
-                        id: `booking-${rec._id}`,
+                        id: `booking-${rec._id || rec.id || idx}-${idx}`,
                         type: 'class',
                         title: `Class Booking: ${rec.gymClass?.name || 'Session'}`,
                         description: `Status: ${rec.status}`,

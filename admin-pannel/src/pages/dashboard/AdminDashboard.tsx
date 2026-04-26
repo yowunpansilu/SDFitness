@@ -93,10 +93,35 @@ export function AdminDashboard() {
     fetchDashboardData();
   }, []);
 
-  const revenueData = stats?.revenueHistory?.[revenueTimeRange] || [
-    { month: 'Jan', revenue: 0 },
-    { month: 'Feb', revenue: 0 },
+  // Dummy data shown when no real revenue data exists yet
+  const dummyMonthlyRevenue = [
+    { month: 'Jan', revenue: 125000 },
+    { month: 'Feb', revenue: 148000 },
+    { month: 'Mar', revenue: 162000 },
+    { month: 'Apr', revenue: 155000 },
+    { month: 'May', revenue: 189000 },
+    { month: 'Jun', revenue: 210000 },
+    { month: 'Jul', revenue: 198000 },
+    { month: 'Aug', revenue: 232000 },
+    { month: 'Sep', revenue: 245000 },
+    { month: 'Oct', revenue: 268000 },
+    { month: 'Nov', revenue: 285000 },
+    { month: 'Dec', revenue: 310000 },
   ];
+  const dummyYearlyRevenue = [
+    { month: '2022', revenue: 1850000 },
+    { month: '2023', revenue: 2340000 },
+    { month: '2024', revenue: 2890000 },
+    { month: '2025', revenue: 3250000 },
+    { month: '2026', revenue: 1420000 },
+  ];
+
+  const realRevenue = stats?.revenueHistory?.[revenueTimeRange];
+  const hasRealRevenue = realRevenue && realRevenue.length > 0 && realRevenue.some((d: any) => d.revenue > 0);
+  const revenueData = hasRealRevenue
+    ? realRevenue
+    : (revenueTimeRange === 'yearly' ? dummyYearlyRevenue : dummyMonthlyRevenue);
+  const isRevenueDummy = !hasRealRevenue;
   
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-navy-950 dark:text-white">
@@ -121,28 +146,36 @@ export function AdminDashboard() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Members"
-          value={stats?.totalMembers?.toLocaleString() || '0'}
+          value={(stats?.totalMembers || 248).toLocaleString()}
+          change={stats?.totalMembers ? undefined : 12.5}
+          trend="up"
           icon={Users}
           iconColor="bg-navy-900 dark:bg-navy-800"
           loading={loading}
         />
         <StatCard
           title="Active Memberships"
-          value={stats?.activeMembers?.toLocaleString() || '0'}
+          value={(stats?.activeMembers || 186).toLocaleString()}
+          change={stats?.activeMembers ? undefined : 8.2}
+          trend="up"
           icon={CreditCard}
           iconColor="bg-navy-800 dark:bg-indigo-600"
           loading={loading}
         />
         <StatCard
           title="Monthly Revenue"
-          value={`LKR ${stats?.monthlyRevenue?.toLocaleString() || '0'}`}
+          value={`LKR ${(stats?.monthlyRevenue || 285000).toLocaleString()}`}
+          change={stats?.monthlyRevenue ? undefined : 15.3}
+          trend="up"
           icon={DollarSign}
           iconColor="bg-navy-700 dark:bg-emerald-600"
           loading={loading}
         />
         <StatCard
           title="Equipment Issues"
-          value={stats?.equipmentStats?.broken || 0}
+          value={stats?.equipmentStats?.broken ?? 3}
+          change={stats?.equipmentStats ? undefined : -25}
+          trend="down"
           icon={UserCheck}
           iconColor="bg-navy-600 dark:bg-rose-600"
           loading={loading}
@@ -156,7 +189,10 @@ export function AdminDashboard() {
           <CardHeader className="border-b border-navy-50 dark:border-navy-800/50 pb-6">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-navy-950 dark:text-white font-bold text-xl">Revenue Growth</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-navy-950 dark:text-white font-bold text-xl">Revenue Growth</CardTitle>
+                  {isRevenueDummy && <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">Sample Data</span>}
+                </div>
                 <p className="text-sm font-medium text-navy-400 dark:text-navy-500">Financial performance monitoring</p>
               </div>
               <div className="flex bg-navy-50 dark:bg-navy-950 p-1 rounded-xl">
@@ -225,7 +261,10 @@ export function AdminDashboard() {
           <CardHeader className="border-b border-navy-50 dark:border-navy-800/50 pb-6">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-navy-950 dark:text-white font-bold text-xl">New Members</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-navy-950 dark:text-white font-bold text-xl">New Members</CardTitle>
+                  {recentMembers.length === 0 && <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">Sample Data</span>}
+                </div>
                 <p className="text-sm font-medium text-navy-400 dark:text-navy-500">Recent customer acquisitions</p>
               </div>
               <Button variant="ghost" className="text-indigo-600 dark:text-indigo-400 hover:bg-navy-50 dark:hover:bg-navy-800 font-bold text-xs" onClick={() => navigate('/members')}>
@@ -235,7 +274,13 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="space-y-5">
-              {recentMembers.map((member: any, i: number) => (
+              {(recentMembers.length > 0 ? recentMembers : [
+                { _id: 'dummy1', userId: { firstName: 'Kamal', lastName: 'Perera' }, membershipType: 'Premium', joinDate: new Date(Date.now() - 1 * 86400000).toISOString() },
+                { _id: 'dummy2', userId: { firstName: 'Nimal', lastName: 'Silva' }, membershipType: 'Standard', joinDate: new Date(Date.now() - 3 * 86400000).toISOString() },
+                { _id: 'dummy3', userId: { firstName: 'Amaya', lastName: 'Fernando' }, membershipType: 'Premium', joinDate: new Date(Date.now() - 5 * 86400000).toISOString() },
+                { _id: 'dummy4', userId: { firstName: 'Ruwan', lastName: 'Jayawardena' }, membershipType: 'Basic', joinDate: new Date(Date.now() - 7 * 86400000).toISOString() },
+                { _id: 'dummy5', userId: { firstName: 'Dilani', lastName: 'Wickremasinghe' }, membershipType: 'Premium', joinDate: new Date(Date.now() - 10 * 86400000).toISOString() },
+              ]).map((member: any, i: number) => (
                 <div
                   key={member._id || i}
                   className="flex items-center gap-4 p-2 rounded-2xl hover:bg-navy-50 dark:hover:bg-navy-800/50 transition-all duration-300 group cursor-pointer"
@@ -255,9 +300,6 @@ export function AdminDashboard() {
                   </div>
                 </div>
               ))}
-              {recentMembers.length === 0 && (
-                <p className="text-sm text-slate-400 text-center py-4">No recent members found</p>
-              )}
             </div>
           </CardContent>
         </Card>

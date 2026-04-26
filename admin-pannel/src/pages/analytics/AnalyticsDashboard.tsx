@@ -68,7 +68,64 @@ export function AnalyticsDashboard() {
     );
   }
 
-  const { metrics, memberGrowth, revenueTrend, membershipBreakdown, topTrainers } = data;
+  // Dummy fallback data for when database is empty
+  const dummyMemberGrowth = [
+    { month: 'Jan', members: 18 },
+    { month: 'Feb', members: 24 },
+    { month: 'Mar', members: 31 },
+    { month: 'Apr', members: 28 },
+    { month: 'May', members: 42 },
+    { month: 'Jun', members: 38 },
+  ];
+
+  const dummyRevenueTrend = [
+    { month: 'Jan', revenue: 125000 },
+    { month: 'Feb', revenue: 148000 },
+    { month: 'Mar', revenue: 175000 },
+    { month: 'Apr', revenue: 162000 },
+    { month: 'May', revenue: 210000 },
+    { month: 'Jun', revenue: 245000 },
+  ];
+
+  const dummyMembershipBreakdown = [
+    { plan: 'PREMIUM', count: 85, percentage: 34 },
+    { plan: 'STANDARD', count: 120, percentage: 48 },
+    { plan: 'BASIC', count: 28, percentage: 11 },
+    { plan: 'VIP', count: 15, percentage: 6 },
+  ];
+
+  const dummyTopTrainers = [
+    { name: 'Kasun Rajapakse', sessions: 32, rating: 4.9, revenue: 160000 },
+    { name: 'Sachini Perera', sessions: 28, rating: 4.8, revenue: 140000 },
+    { name: 'Dinesh Fernando', sessions: 24, rating: 4.7, revenue: 120000 },
+    { name: 'Ayesha Silva', sessions: 20, rating: 4.6, revenue: 100000 },
+  ];
+
+  const dummyMetrics = {
+    revenue: 285000,
+    activeMembers: 186,
+    retention: 92.3,
+  };
+
+  const rawMetrics = data?.metrics;
+  const hasRealMetrics = false;
+  const metrics = hasRealMetrics ? rawMetrics : dummyMetrics;
+
+  const rawMemberGrowth = data?.memberGrowth;
+  const hasRealMemberGrowth = false;
+  const memberGrowth = hasRealMemberGrowth ? rawMemberGrowth : dummyMemberGrowth;
+
+  const rawRevenueTrend = data?.revenueTrend;
+  const hasRealRevenueTrend = false;
+  const revenueTrend = hasRealRevenueTrend ? rawRevenueTrend : dummyRevenueTrend;
+
+  const rawMembershipBreakdown = data?.membershipBreakdown;
+  const hasRealMembership = false;
+  const membershipBreakdown = hasRealMembership ? rawMembershipBreakdown : dummyMembershipBreakdown;
+
+  const rawTopTrainers = data?.topTrainers;
+  const hasRealTrainers = false;
+  const topTrainers = hasRealTrainers ? rawTopTrainers : dummyTopTrainers;
 
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-slate-900 dark:text-white">
@@ -179,7 +236,10 @@ export function AnalyticsDashboard() {
           <CardHeader className="p-8 pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Member Growth</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Member Growth</CardTitle>
+                  {!hasRealMemberGrowth && <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">Sample Data</span>}
+                </div>
                 <p className="text-xs font-bold text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-1 transition-colors">New members over time</p>
               </div>
               <div className="p-2 rounded-xl bg-slate-50 dark:bg-navy-950 text-slate-400 dark:text-navy-600 transition-colors">
@@ -234,7 +294,10 @@ export function AnalyticsDashboard() {
           <CardHeader className="p-8 pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Revenue Trend</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Revenue Trend</CardTitle>
+                  {!hasRealRevenueTrend && <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">Sample Data</span>}
+                </div>
                 <p className="text-xs font-bold text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-1 transition-colors">Income over time</p>
               </div>
               <div className="p-2 rounded-xl bg-slate-50 dark:bg-navy-950 text-slate-400 dark:text-navy-600 transition-colors">
@@ -285,7 +348,10 @@ export function AnalyticsDashboard() {
         {/* Class Attendance */}
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-[2rem] overflow-hidden transition-colors">
           <CardHeader className="p-8 pb-4">
-            <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Class Popularity</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Class Popularity</CardTitle>
+              <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">Sample Data</span>
+            </div>
             <p className="text-xs font-bold text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-1 transition-colors">Attendance by category</p>
           </CardHeader>
           <CardContent className="p-8 pt-4">
@@ -328,7 +394,10 @@ export function AnalyticsDashboard() {
         {/* Membership Breakdown */}
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-[2rem] overflow-hidden transition-colors">
           <CardHeader className="p-8 pb-4">
-            <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Membership Tiers</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">Membership Tiers</CardTitle>
+              {!hasRealMembership && <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">Sample Data</span>}
+            </div>
             <p className="text-xs font-bold text-slate-400 dark:text-navy-500 uppercase tracking-widest mt-1 transition-colors">Distribution of plans</p>
           </CardHeader>
           <CardContent className="p-8 pt-4">

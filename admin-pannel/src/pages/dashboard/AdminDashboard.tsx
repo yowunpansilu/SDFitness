@@ -83,7 +83,7 @@ export function AdminDashboard() {
           api.get('/members?limit=5')
         ]);
         setStats(statsRes.data);
-        setRecentMembers(membersRes.data.members || membersRes.data || []);
+        setRecentMembers(membersRes.data.data || []);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {

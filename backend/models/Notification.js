@@ -6,17 +6,33 @@ const notificationSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    title: String,
-    message: String,
+    title: {
+        type: String,
+        required: true
+    },
+    message: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: String,
+        enum: ['info', 'success', 'warning', 'error'],
+        default: 'info'
+    },
     isRead: {
         type: Boolean,
         default: false
     },
-    type: {
+    relatedId: {
         type: String,
-        enum: ['alert', 'reminder', 'system'],
-        default: 'system'
+        default: null
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
-}, { timestamps: true });
+});
+
+notificationSchema.index({ user: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Notification', notificationSchema);

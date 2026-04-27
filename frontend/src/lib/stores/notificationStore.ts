@@ -3,7 +3,6 @@ import {
     type Notification,
     getNotifications,
     markNotificationRead,
-    deleteNotification,
     clearAllNotifications
 } from '@/lib/api/notificationService';
 import { produce } from 'immer';
@@ -16,7 +15,6 @@ interface NotificationState {
     fetchNotifications: () => Promise<void>;
     markAsRead: (id: string) => Promise<void>;
     markAllAsRead: () => Promise<void>;
-    deleteNotification: (id: string) => Promise<void>;
     clearAll: () => Promise<void>;
 }
 
@@ -42,7 +40,7 @@ export const useNotificationStore = create<NotificationState>((set) => ({
     markAsRead: async (id: string) => {
         // Optimistic update
         set(produce((state: NotificationState) => {
-            const notification = state.notifications.find(n => n.id === id);
+            const notification = state.notifications.find(n => n._id === id);
             if (notification && !notification.isRead) {
                 notification.isRead = true;
                 state.unreadCount -= 1;
@@ -62,26 +60,6 @@ export const useNotificationStore = create<NotificationState>((set) => ({
             state.unreadCount = 0;
         }));
         // In real app, call API
-    },
-
-    deleteNotification: async (id: string) => {
-        // Optimistic update
-        set(produce((state: NotificationState) => {
-            const index = state.notifications.findIndex(n => n.id === id);
-            if (index !== -1) {
-                const [removed] = state.notifications.splice(index, 1);
-                if (!removed.isRead) {
-                    state.unreadCount -= 1;
-                }
-            }
-        }));
-
-        try {
-            await deleteNotification(id);
-        } catch (error) {
-            console.error('Failed to delete notification from server:', error);
-            // In a better app, you would fetchNotifications() here to restore state
-        }
     },
 
     clearAll: async () => {

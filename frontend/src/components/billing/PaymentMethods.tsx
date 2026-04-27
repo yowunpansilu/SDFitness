@@ -1,245 +1,288 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useBillingStore } from "@/lib/stores/billingStore";
+import { useMembershipStore } from "@/lib/stores/membershipStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CreditCard, Trash2, Plus, Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Upload, X, FileText, Loader2, DollarSign, Calendar } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 export function PaymentMethods() {
-    const { paymentMethods, addNewPaymentMethod, removePaymentMethod, setAsDefault, isLoading } = useBillingStore();
-    const [isAddOpen, setIsAddOpen] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { submitPayment, isLoading } = useBillingStore();
+    const { currentMembership, plans, fetchMembershipData, fetchPlans } = useMembershipStore();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    
+    useEffect(() => {
+        fetchMembershipData();
+        fetchPlans();
+    }, []);
+
+    const currentPlan = plans.find(p => p.id === currentMembership?.planId);
+    const today = new Date().toISOString().split('T')[0];
+    
     const [formData, setFormData] = useState({
-        cardNumber: '',
-        expiryDate: '',
-        cvc: '',
-        name: ''
+        amount: '',
+        paymentDate: new Date().toISOString().split('T')[0],
+        referenceId: '',
+        notes: ''
     });
+    
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-    // Input Refs for native validation
-    const cardRef = useRef<HTMLInputElement>(null);
-    const expiryRef = useRef<HTMLInputElement>(null);
-    const cvcRef = useRef<HTMLInputElement>(null);
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                toast({
+                    title: "File too large",
+                    description: "Maximum file size is 5MB",
+                    variant: "destructive"
+                });
+                return;
+            }
+            
+            const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+            if (!allowedTypes.includes(file.type)) {
+                toast({
+                    title: "Invalid file type",
+                    description: "Only JPG, PNG and PDF are allowed",
+                    variant: "destructive"
+                });
+                return;
+            }
 
-    // Formatting helpers
-    const formatCardNumber = (value: string) => {
-        const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-        const parts = [];
-
-        for (let i = 0, len = v.length; i < len; i += 4) {
-            parts.push(v.substring(i, i + 4));
+            setSelectedFile(file);
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPreviewUrl(reader.result as string);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                setPreviewUrl(null); // No preview for PDF
+            }
         }
-
-        if (parts.length > 0) {
-            return parts.join(' ').trim();
-        } else {
-            return v;
-        }
     };
 
-    const formatName = (value: string) => {
-        return value.replace(/[^a-zA-Z\s]/g, '');
+    const clearFile = () => {
+        setSelectedFile(null);
+        setPreviewUrl(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    const formatExpiryDate = (value: string) => {
-        const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-        if (v.length >= 2) {
-            return v.substring(0, 2) + (v.length > 2 ? '/' + v.substring(2, 4) : '');
-        }
-        return v;
-    };
-
-    const formatCVC = (value: string) => {
-        return value.replace(/[^0-9]/gi, '').substring(0, 4);
-    };
-
-    const handleAddMethod = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Reset validities
-        cardRef.current?.setCustomValidity('');
-        expiryRef.current?.setCustomValidity('');
-        cvcRef.current?.setCustomValidity('');
-
-        // Card validation
-        const cleanCard = formData.cardNumber.replace(/\s/g, '');
-        if (cleanCard.length < 16) {
-            cardRef.current?.setCustomValidity('Please enter a valid 16-digit card number');
-            cardRef.current?.reportValidity();
-            return;
-        }
-
-        // MM/YY Validation
-        const parts = formData.expiryDate.split('/');
-        const monthStr = parts[0] || '';
-        const yearStr = parts[1] || '';
-        
-        const month = monthStr ? parseInt(monthStr, 10) : 0;
-        const year = yearStr ? parseInt(yearStr, 10) : 0;
-
-        if (month < 1 || month > 12) {
-            expiryRef.current?.setCustomValidity('Please enter a valid month (01-12)');
-            expiryRef.current?.reportValidity();
-            return;
-        }
-        if (yearStr.length < 2 || year < 0) {
-            expiryRef.current?.setCustomValidity('Please enter a valid year (YY)');
-            expiryRef.current?.reportValidity();
-            return;
-        }
-
-        if (formData.cvc.length < 3) {
-            cvcRef.current?.setCustomValidity('Please enter a valid CVC');
-            cvcRef.current?.reportValidity();
-            return;
-        }
-
-        setIsSubmitting(true);
-
-        // Simulate card processing
-        try {
-            const brand: 'visa' | 'mastercard' | 'amex' | 'paypal' = 
-                cleanCard.startsWith('4') ? 'visa' : 
-                cleanCard.startsWith('5') ? 'mastercard' : 
-                cleanCard.startsWith('3') ? 'amex' : 'visa';
-
-            await addNewPaymentMethod({
-                brand,
-                last4: cleanCard.slice(-4),
-                expiryMonth: parseInt(formData.expiryDate.split('/')[0]),
-                expiryYear: 2000 + parseInt(formData.expiryDate.split('/')[1]),
-                isDefault: paymentMethods.length === 0
+        if (!selectedFile) {
+            toast({
+                title: "Bank slip required",
+                description: "Please upload your bank slip image or PDF",
+                variant: "destructive"
             });
-            setIsAddOpen(false);
-            setFormData({ cardNumber: '', expiryDate: '', cvc: '', name: '' });
-        } finally {
-            setIsSubmitting(false);
+            return;
+        }
+
+        const data = new FormData();
+        data.append('amount', formData.amount);
+        data.append('paymentDate', formData.paymentDate);
+        data.append('referenceId', formData.referenceId);
+        data.append('notes', formData.notes);
+        data.append('bankSlip', selectedFile);
+
+        try {
+            await submitPayment(data);
+            toast({
+                title: "Payment submitted",
+                description: "Your bank slip has been uploaded and is pending review.",
+            });
+            // Reset form
+            setFormData({
+                amount: '',
+                paymentDate: new Date().toISOString().split('T')[0],
+                referenceId: '',
+                notes: ''
+            });
+            clearFile();
+        } catch (error: any) {
+            toast({
+                title: "Error",
+                description: error.message || "Failed to submit payment",
+                variant: "destructive"
+            });
         }
     };
 
     return (
-        <Card>
-            <CardHeader>
-                <div className="flex justify-between items-center">
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <CardTitle>Payment Methods</CardTitle>
-                        <CardDescription>Manage your payment cards and billing details.</CardDescription>
+                        <CardTitle className="text-xl">Submit Bank Slip Payment</CardTitle>
+                        <CardDescription>
+                            Upload your bank slip to confirm your membership payment.
+                        </CardDescription>
                     </div>
-                    <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-                        <DialogTrigger asChild>
-                            <Button size="sm">
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add Method
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Add Payment Method</DialogTitle>
-                                <DialogDescription>
-                                    Enter your card details securely. We do not store your full card number.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <form onSubmit={handleAddMethod} className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="name">Cardholder Name</Label>
-                                    <Input
-                                        id="name"
-                                        placeholder="Sara Jasmine"
-                                        value={formData.name}
-                                        onChange={e => setFormData({ ...formData, name: formatName(e.target.value) })}
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="number">Card Number</Label>
-                                    <div className="relative">
-                                        <CreditCard className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            id="number"
-                                            ref={cardRef}
-                                            className="pl-9"
-                                            placeholder="0000 0000 0000 0000"
-                                            value={formData.cardNumber}
-                                            onChange={e => setFormData({ ...formData, cardNumber: formatCardNumber(e.target.value) })}
-                                            maxLength={19}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="expiry">Expiry Date</Label>
-                                        <Input
-                                            id="expiry"
-                                            ref={expiryRef}
-                                            placeholder="MM/YY"
-                                            value={formData.expiryDate}
-                                            onChange={e => setFormData({ ...formData, expiryDate: formatExpiryDate(e.target.value) })}
-                                            maxLength={5}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="cvc">CVC</Label>
-                                        <Input
-                                            id="cvc"
-                                            ref={cvcRef}
-                                            placeholder="123"
-                                            value={formData.cvc}
-                                            onChange={e => setFormData({ ...formData, cvc: formatCVC(e.target.value) })}
-                                            maxLength={4}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-                                    <Button type="submit" disabled={isSubmitting}>
-                                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                        Add Card
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {paymentMethods.map((method) => (
-                    <div key={method.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-                        <div className="flex items-center gap-4">
-                            <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                                <CreditCard className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                    {currentPlan && (
+                        <div className="bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 flex items-center gap-3">
+                            <div className="p-2 bg-primary/20 rounded-full text-primary">
+                                <FileText className="h-4 w-4" />
                             </div>
                             <div>
-                                <div className="flex items-center gap-2">
-                                    <span className="font-medium capitalize">{method.brand} ending in {method.last4}</span>
-                                    {method.isDefault && <Badge variant="secondary" className="text-xs">Default</Badge>}
-                                </div>
-                                <p className="text-sm text-muted-foreground">Expires {method.expiryMonth}/{method.expiryYear}</p>
+                                <p className="text-[10px] uppercase font-bold text-primary/70 tracking-wider">Current Plan</p>
+                                <p className="text-sm font-bold text-slate-900 dark:text-white">{currentPlan.name}</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            {!method.isDefault && (
-                                <Button variant="ghost" size="sm" onClick={() => setAsDefault(method.id)} disabled={isLoading}>
-                                    Make Default
-                                </Button>
-                            )}
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50"
-                                onClick={() => removePaymentMethod(method.id)}
-                                disabled={isLoading}
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
+                    )}
+                </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="amount" className="flex items-center gap-2">
+                                <DollarSign className="h-4 w-4 text-slate-500" />
+                                Amount (LKR) <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                                id="amount"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                value={formData.amount}
+                                onChange={e => {
+                                    const val = e.target.value;
+                                    if (parseFloat(val) < 0) return;
+                                    setFormData({ ...formData, amount: val });
+                                }}
+                                required
+                                className="focus-visible:ring-primary"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="date" className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-slate-500" />
+                                Payment Date
+                            </Label>
+                            <Input
+                                id="date"
+                                type="date"
+                                max={today}
+                                value={formData.paymentDate}
+                                onChange={e => setFormData({ ...formData, paymentDate: e.target.value })}
+                                className="focus-visible:ring-primary"
+                            />
                         </div>
                     </div>
-                ))}
+
+                    <div className="space-y-2">
+                        <Label className="flex items-center gap-2">
+                            <Upload className="h-4 w-4 text-slate-500" />
+                            Upload Bank Slip <span className="text-red-500">*</span>
+                        </Label>
+                        
+                        <div 
+                            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all
+                                ${selectedFile ? 'border-primary/50 bg-primary/5' : 'border-slate-200 dark:border-slate-800 hover:border-primary/30 hover:bg-slate-50 dark:hover:bg-slate-900'}`}
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            {!selectedFile ? (
+                                <div className="space-y-3">
+                                    <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto">
+                                        <Upload className="h-6 w-6 text-slate-400" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="font-medium">Drag & drop or click to upload</p>
+                                        <p className="text-sm text-slate-500">JPG, PNG or PDF (max. 5MB)</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {previewUrl ? (
+                                        <div className="relative w-full max-w-[200px] mx-auto rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
+                                            <img src={previewUrl} alt="Preview" className="w-full h-auto" />
+                                            <Button 
+                                                type="button"
+                                                variant="destructive" 
+                                                size="icon" 
+                                                className="absolute top-1 right-1 h-6 w-6 rounded-full"
+                                                onClick={(e) => { e.stopPropagation(); clearFile(); }}
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center justify-center gap-3 p-4 bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800">
+                                            <FileText className="h-8 w-8 text-primary" />
+                                            <div className="text-left">
+                                                <p className="font-medium truncate max-w-[200px]">{selectedFile.name}</p>
+                                                <p className="text-xs text-slate-500">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                                            </div>
+                                            <Button 
+                                                type="button"
+                                                variant="ghost" 
+                                                size="icon" 
+                                                className="h-8 w-8 text-slate-400 hover:text-red-500"
+                                                onClick={(e) => { e.stopPropagation(); clearFile(); }}
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            <input 
+                                type="file" 
+                                className="hidden" 
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                accept=".jpg,.jpeg,.png,.pdf"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="referenceId">Reference / Transaction ID (optional)</Label>
+                            <Input
+                                id="referenceId"
+                                placeholder="Enter bank reference number"
+                                value={formData.referenceId}
+                                onChange={e => setFormData({ ...formData, referenceId: e.target.value })}
+                                className="focus-visible:ring-primary"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="notes">Notes (optional)</Label>
+                            <Textarea
+                                id="notes"
+                                placeholder="Any extra information..."
+                                value={formData.notes}
+                                onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                rows={2}
+                                className="focus-visible:ring-primary resize-none"
+                            />
+                        </div>
+                    </div>
+
+                    <Button 
+                        type="submit" 
+                        className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 transition-all shadow-md"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                Processing...
+                            </>
+                        ) : (
+                            "Submit Payment for Review"
+                        )}
+                    </Button>
+                </form>
             </CardContent>
         </Card>
     );

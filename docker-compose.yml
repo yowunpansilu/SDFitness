@@ -11,7 +11,7 @@ services:
     environment:
       MONGO_INITDB_DATABASE: sdfitness
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -45,8 +45,8 @@ services:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
       - PORT=5001
-      - MONGO_URI=mongodb+srv://yowun:WYpansilu%404457@keelspricedb.ueu3ykw.mongodb.net/?appName=keelsPriceDB
-      - DB_NAME=keelsPriceDB
+      - MONGO_URI=${FOOD_DB_URI}
+      - DB_NAME=${FOOD_DB_NAME}
       # Used by the scraper to POST results back to the Node backend.
       - BACKEND_URL=http://backend:5000
     volumes:
@@ -55,7 +55,7 @@ services:
       - ml_pip_cache:/usr/local/lib/python3.11/site-packages
       - ml_playwright_cache:/root/.cache/ms-playwright
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')" ]
       interval: 30s
       timeout: 10s
       start_period: 120s
@@ -84,7 +84,7 @@ services:
       mongo:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/health', r => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:5000/api/health', r => process.exit(r.statusCode === 200 ? 0 : 1))" ]
       interval: 30s
       timeout: 10s
       retries: 3

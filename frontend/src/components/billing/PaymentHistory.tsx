@@ -3,7 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Eye, Loader2 } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 import { format } from "date-fns";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -74,19 +82,56 @@ export function PaymentHistory() {
                                         <TableCell>Rs. {tx.amount.toLocaleString()}</TableCell>
                                         <TableCell>{getStatusLabel(tx.status)}</TableCell>
                                         <TableCell className="text-right">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleDownload(tx.id)}
-                                                disabled={downloadingId === tx.id}
-                                            >
-                                                {downloadingId === tx.id ? (
-                                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                                ) : (
-                                                    <Download className="h-4 w-4 text-muted-foreground" />
-                                                )}
-                                                <span className="sr-only">Download Invoice</span>
-                                            </Button>
+                                            <div className="flex justify-end gap-1">
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className={cn(
+                                                                "h-8 w-8 p-0 rounded-lg transition-all",
+                                                                (tx as any).bankSlipUrl
+                                                                    ? "text-slate-400 hover:text-indigo-600 hover:bg-slate-100"
+                                                                    : "text-slate-200 cursor-not-allowed opacity-50"
+                                                            )}
+                                                            disabled={!(tx as any).bankSlipUrl}
+                                                            title={(tx as any).bankSlipUrl ? "View Bank Slip" : "No Slip Available"}
+                                                        >
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    {(tx as any).bankSlipUrl && (
+                                                        <DialogContent className="sm:max-w-[600px] border-none rounded-xl">
+                                                            <DialogHeader>
+                                                                <DialogTitle className="text-xl">
+                                                                    Bank Slip File
+                                                                </DialogTitle>
+                                                            </DialogHeader>
+                                                            <div className="flex justify-center mt-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                                                <img
+                                                                    src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005'}${(tx as any).bankSlipUrl}`}
+                                                                    alt="Bank Slip"
+                                                                    className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-md"
+                                                                />
+                                                            </div>
+                                                        </DialogContent>
+                                                    )}
+                                                </Dialog>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-8 w-8 p-0"
+                                                    onClick={() => handleDownload(tx.id)}
+                                                    disabled={downloadingId === tx.id}
+                                                >
+                                                    {downloadingId === tx.id ? (
+                                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                                    ) : (
+                                                        <Download className="h-4 w-4 text-muted-foreground hover:text-slate-900" />
+                                                    )}
+                                                    <span className="sr-only">Download Invoice</span>
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

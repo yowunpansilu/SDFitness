@@ -20,6 +20,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { paymentService } from '@/services/paymentService';
 import { useToast } from '@/hooks/use-toast';
@@ -273,13 +280,40 @@ export function PaymentsList() {
                     </TableCell>
                     <TableCell className="p-4 pr-6 text-right">
                       <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-navy-800 rounded-lg transition-all"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={cn(
+                                "h-8 w-8 rounded-lg transition-all",
+                                payment.bankSlipUrl
+                                  ? "text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-navy-800"
+                                  : "text-slate-200 dark:text-navy-700 cursor-not-allowed opacity-50"
+                              )}
+                              disabled={!payment.bankSlipUrl}
+                              title={payment.bankSlipUrl ? "View Bank Slip" : "No Slip Available"}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          {payment.bankSlipUrl && (
+                            <DialogContent className="sm:max-w-[600px] bg-white dark:bg-navy-900 border-none rounded-xl">
+                              <DialogHeader>
+                                <DialogTitle className="text-slate-900 dark:text-white text-xl">
+                                  Bank Slip <span className="text-indigo-600 dark:text-indigo-400">#{payment.referenceId || payment.transactionId || 'N/A'}</span>
+                                </DialogTitle>
+                              </DialogHeader>
+                              <div className="flex justify-center mt-4 bg-slate-50 dark:bg-navy-950 p-4 rounded-xl border border-slate-100 dark:border-navy-800">
+                                <img
+                                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005'}${payment.bankSlipUrl}`}
+                                  alt="Bank Slip"
+                                  className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-md"
+                                />
+                              </div>
+                            </DialogContent>
+                          )}
+                        </Dialog>
                         <Button
                           variant="ghost"
                           size="icon"

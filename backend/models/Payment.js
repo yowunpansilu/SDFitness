@@ -65,6 +65,36 @@ const paymentSchema = new mongoose.Schema({
     description: String,
     paidAt: {
         type: Date
+    },
+    // Manual Bank/Slip Payment Fields
+    bankSlipUrl: {
+        type: String,
+        sparse: true
+    },
+    referenceId: {
+        type: String,
+        sparse: true
+    },
+    notes: {
+        type: String,
+        sparse: true
+    },
+    paymentDate: {
+        type: Date,
+        sparse: true
+    },
+    reviewedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        sparse: true
+    },
+    reviewedAt: {
+        type: Date,
+        sparse: true
+    },
+    adminRemarks: {
+        type: String,
+        sparse: true
     }
 }, {
     timestamps: true

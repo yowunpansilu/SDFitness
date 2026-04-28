@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useBillingStore } from "@/lib/stores/billingStore";
 import { useMembershipStore } from "@/lib/stores/membershipStore";
 import { PaymentHistory } from "@/components/billing/PaymentHistory";
+import { PaymentMethods } from "@/components/billing/PaymentMethods";
 import { Loader2, ShieldCheck, Zap, ArrowUpRight, CreditCard, ExternalLink } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from 'framer-motion';
@@ -10,14 +11,15 @@ import { format } from 'date-fns';
 
 export function BillingOverview() {
     const { fetchBillingData, isLoading: billingLoading, error: billingError, startPayment } = useBillingStore();
-    const { currentMembership, isLoading: membershipLoading, fetchMembershipData } = useMembershipStore();
+    const { currentMembership, isLoading: membershipLoading, fetchMembershipData, fetchPlans } = useMembershipStore();
     const [isInitiating, setIsInitiating] = useState(false);
     const [initiateError, setInitiateError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchBillingData();
         fetchMembershipData();
-    }, [fetchBillingData, fetchMembershipData]);
+        fetchPlans();
+    }, [fetchBillingData, fetchMembershipData, fetchPlans]);
 
     const handleRenew = async () => {
         if (!currentMembership) return;
@@ -129,14 +131,18 @@ export function BillingOverview() {
                 </div>
             </motion.div>
 
-            <div className="grid gap-6">
-                <div className="flex items-center justify-between px-2">
-                    <h3 className="font-black uppercase tracking-tight text-xl text-slate-900">Transaction History</h3>
-                    <Button variant="ghost" className="text-[#DC2626] font-bold text-xs uppercase tracking-widest hover:bg-red-50">
-                        View All <ArrowUpRight className="h-4 w-4 ml-1" />
-                    </Button>
+            <div className="grid gap-8">
+                <PaymentMethods />
+
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between px-2">
+                        <h3 className="font-black uppercase tracking-tight text-xl text-slate-900">Transaction History</h3>
+                        <Button variant="ghost" className="text-[#DC2626] font-bold text-xs uppercase tracking-widest hover:bg-red-50">
+                            View All <ArrowUpRight className="h-4 w-4 ml-1" />
+                        </Button>
+                    </div>
+                    <PaymentHistory />
                 </div>
-                <PaymentHistory />
             </div>
         </div>
     );

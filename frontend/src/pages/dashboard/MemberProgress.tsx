@@ -22,7 +22,7 @@ export function MemberProgress() {
 
     const [logs, setLogs] = useState<WeightLog[]>([]);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5005';
 
     const fetchLatestData = useCallback(async () => {
         try {

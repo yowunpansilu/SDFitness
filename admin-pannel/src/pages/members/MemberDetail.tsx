@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Trash2, Mail, Phone, Calendar, CreditCard, Activity, Loader2 } from 'lucide-react';
+import { ArrowLeft, Trash2, Mail, Phone, Calendar, CreditCard, Activity, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -136,13 +136,6 @@ export function MemberDetail() {
           </div>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
-          <Button
-            variant="outline"
-            className="flex-1 md:flex-none h-11 px-6 rounded-xl border-slate-200 dark:border-navy-800 font-bold text-slate-600 dark:text-navy-300 hover:bg-slate-50 dark:hover:bg-navy-800 transition-colors"
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Profile
-          </Button>
           <Button
             variant="outline"
             onClick={handleDelete}

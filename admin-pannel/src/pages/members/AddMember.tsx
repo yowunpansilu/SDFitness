@@ -94,7 +94,8 @@ export function AddMember() {
         });
         navigate('/members');
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
       toast({
         title: 'Enrollment Failed',
         description: error.response?.data?.message || 'Failed to create new member.',
@@ -116,7 +117,7 @@ export function AddMember() {
     }
   };
 
-  const nextStep = (e: any) => {
+  const nextStep = (e: React.MouseEvent) => {
     e.preventDefault();
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
@@ -156,8 +157,8 @@ export function AddMember() {
         <div className="flex justify-between items-center max-w-3xl mx-auto px-4 relative">
           {/* Background line */}
           <div className="absolute top-[21px] left-0 right-0 h-0.5 bg-slate-100 dark:bg-navy-800 -z-0 mx-10 transition-colors" />
-          
-          {steps.map((step, _index) => {
+
+          {steps.map((step) => {
             const Icon = step.icon;
             const isActive = currentStep === step.id;
             const isCompleted = currentStep > step.id;
@@ -197,7 +198,7 @@ export function AddMember() {
             <CardHeader className="bg-slate-50/50 dark:bg-navy-950/50 p-10 pb-6 border-b border-slate-100 dark:border-navy-800 transition-colors">
               <div className="flex items-center gap-4 mb-2">
                 <div className="h-10 w-10 rounded-xl bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 transition-all">
-                  {steps[currentStep-1].id}
+                  {steps[currentStep - 1].id}
                 </div>
                 <div>
                   <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-tight transition-colors">
@@ -393,13 +394,13 @@ export function AddMember() {
                             { id: 'premium', name: 'Premium', price: '99', features: ['Pool Access', 'Classes', 'Sauna'] },
                             { id: 'vip', name: 'VIP System', price: '149', features: ['Personal Trainer', 'Diet Plan', 'All-Access'] }
                           ].map((plan) => (
-                            <div 
+                            <div
                               key={plan.id}
                               onClick={() => field.onChange(plan.id)}
                               className={cn(
                                 "p-6 rounded-3xl border-2 transition-all cursor-pointer group",
-                                field.value === plan.id 
-                                  ? "border-indigo-600 dark:border-indigo-500 bg-indigo-50/20 dark:bg-indigo-500/10 shadow-lg shadow-indigo-50 dark:shadow-navy-950/40" 
+                                field.value === plan.id
+                                  ? "border-indigo-600 dark:border-indigo-500 bg-indigo-50/20 dark:bg-indigo-500/10 shadow-lg shadow-indigo-50 dark:shadow-navy-950/40"
                                   : "border-slate-100 dark:border-navy-800 bg-slate-50/50 dark:bg-navy-950 focus:border-slate-200 dark:hover:border-navy-700 transition-colors"
                               )}
                             >
@@ -509,7 +510,7 @@ export function AddMember() {
               >
                 Previous Step
               </Button>
-              
+
               {currentStep < steps.length ? (
                 <Button
                   type="button"

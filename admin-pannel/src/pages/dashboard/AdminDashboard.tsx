@@ -71,8 +71,15 @@ export function AdminDashboard() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const [revenueTimeRange, setRevenueTimeRange] = useState<'monthly' | 'yearly'>('monthly');
-  const [stats, setStats] = useState<any>(null);
-  const [recentMembers, setRecentMembers] = useState<any[]>([]);
+  const [stats, setStats] = useState<{
+    revenueHistory?: Record<string, { month: string, revenue: number }[]>;
+    totalMembers?: number;
+    activeMembers?: number;
+    monthlyRevenue?: number;
+    equipmentStats?: { broken: number };
+    maintenanceNeeded?: { _id: string, name: string, location: string, daysUntil: number }[];
+  } | null>(null);
+  const [recentMembers, setRecentMembers] = useState<{ _id?: string, userId?: { firstName?: string, lastName?: string }, membershipType?: string, joinDate: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -205,7 +212,7 @@ export function AdminDashboard() {
                     boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
                   }}
                   itemStyle={{ color: '#4f46e5', fontWeight: 700 }}
-                  formatter={(value: any) => value !== undefined ? [`LKR${value.toLocaleString()}`, 'Revenue'] : ['LKR0', 'Revenue']}
+                  formatter={(value: number | undefined) => value !== undefined ? [`LKR${value.toLocaleString()}`, 'Revenue'] : ['LKR0', 'Revenue']}
                 />
                 <Area
                   type="monotone"
@@ -235,7 +242,7 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="space-y-5">
-              {recentMembers.map((member: any, i: number) => (
+              {recentMembers.map((member: { _id?: string, userId?: { firstName?: string, lastName?: string }, membershipType?: string, joinDate: string }, i: number) => (
                 <div
                   key={member._id || i}
                   className="flex items-center gap-4 p-2 rounded-2xl hover:bg-navy-50 dark:hover:bg-navy-800/50 transition-all duration-300 group cursor-pointer"
@@ -275,7 +282,7 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="space-y-4">
-              {stats?.maintenanceNeeded?.map((item: any) => {
+              {stats?.maintenanceNeeded?.map((item: { _id: string, name: string, location: string, daysUntil: number }) => {
                 const isOverdue = item.daysUntil < 0;
                 return (
                   <div

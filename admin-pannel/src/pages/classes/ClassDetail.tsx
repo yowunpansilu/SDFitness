@@ -19,10 +19,25 @@ const classTypeColors = {
 
 // Mock data removed - fetching from API
 
+interface GymClass {
+  name: string;
+  enrolled: number;
+  enrolledMembers?: { _id: string; photoUrl?: string; firstName?: string; lastName?: string; createdAt: string }[];
+  capacity: number;
+  duration?: number;
+  price?: number;
+  description?: string;
+  type?: string;
+  location?: string;
+  schedule?: { duration?: number; dayOfWeek?: string; startTime?: string };
+  createdAt: string;
+  trainer?: { _id: string; photoUrl?: string; userId?: { firstName?: string; lastName?: string; email?: string }; specialization?: string[] };
+}
+
 export function ClassDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [gymClass, setGymClass] = useState<any>(null);
+  const [gymClass, setGymClass] = useState<GymClass | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -210,7 +225,7 @@ export function ClassDetail() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="divide-y divide-slate-50 dark:divide-navy-950">
-                {(gymClass.enrolledMembers || []).map((member: any) => (
+                {(gymClass.enrolledMembers || []).map((member: { _id: string; photoUrl?: string; firstName?: string; lastName?: string; createdAt: string }) => (
                   <div
                     key={member._id}
                     className="flex items-center justify-between p-8 hover:bg-slate-50 dark:hover:bg-navy-950/50 transition-all cursor-pointer group"

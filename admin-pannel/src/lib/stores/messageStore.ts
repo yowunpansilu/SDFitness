@@ -41,7 +41,7 @@ export const useMessageStore = create<MessageState>((set, get) => ({
         try {
             const conversations = await getConversations();
             set({ conversations, isLoading: false });
-        } catch (error) {
+        } catch {
             set({ isLoading: false });
         }
     },

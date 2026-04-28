@@ -2,7 +2,7 @@ import api from '../lib/api/axios';
 
 export interface Setting {
     key: string;
-    value: any;
+    value: unknown;
     category?: string;
     description?: string;
 }
@@ -13,7 +13,7 @@ export const settingsService = {
         return response.data;
     },
 
-    updateSetting: async (key: string, value: any, category?: string, description?: string) => {
+    updateSetting: async (key: string, value: unknown, category?: string, description?: string) => {
         const response = await api.put<Setting>('/settings', {
             key,
             value,

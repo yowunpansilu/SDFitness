@@ -26,6 +26,7 @@ export function Settings() {
 
   useEffect(() => {
     fetchSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Warn before leaving if unsaved changes
@@ -72,7 +73,7 @@ export function Settings() {
         description: 'Your settings have been saved successfully.',
         variant: 'default',
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save settings. Please try again.',

@@ -44,12 +44,12 @@ const TIMEZONES = [
 export function GeneralSettings() {
   const { generalSettings, updateGeneralSettings } = useSettingsStore();
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: unknown) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
       updateGeneralSettings({
         [parent]: {
-          ...(generalSettings as any)[parent],
+          ...(generalSettings as unknown as Record<string, Record<string, unknown>>)[parent],
           [child]: value,
         },
       });
@@ -58,7 +58,7 @@ export function GeneralSettings() {
     }
   };
 
-  const handleBusinessHoursChange = (day: string, field: 'isOpen' | 'openTime' | 'closeTime', value: any) => {
+  const handleBusinessHoursChange = (day: string, field: 'isOpen' | 'openTime' | 'closeTime', value: unknown) => {
     updateGeneralSettings({
       businessHours: {
         ...generalSettings.businessHours,
@@ -248,7 +248,7 @@ export function GeneralSettings() {
         <CardContent className="p-8 pt-4">
           <div className="grid gap-4">
             {DAYS_OF_WEEK.map(({ key, label }) => {
-              const hours = (generalSettings.businessHours as any)[key];
+              const hours = (generalSettings.businessHours as Record<string, { isOpen: boolean; openTime: string; closeTime: string }>)[key];
               return (
                 <div
                   key={key}

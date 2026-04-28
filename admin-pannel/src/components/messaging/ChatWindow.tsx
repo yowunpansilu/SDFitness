@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageBubble } from "./MessageBubble";
 import { MessageInput } from "./MessageInput";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { Phone, Video, MoreVertical, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { socketService } from "@/lib/api/messageService";
@@ -16,7 +16,7 @@ export function ChatWindow() {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const activeConversation = conversations.find(c => c.id === activeConversationId);
-    const activeMessages = activeConversationId ? messages[activeConversationId] || [] : [];
+    const activeMessages = useMemo(() => activeConversationId ? messages[activeConversationId] || [] : [], [activeConversationId, messages]);
     const participant = activeConversation?.participants.find(p => p.id !== (user?.id || user?._id)) || activeConversation?.participants[0];
 
     // Auto-scroll to bottom
@@ -34,7 +34,7 @@ export function ChatWindow() {
             socketService.connect();
             socketService.joinRoom(activeConversationId);
 
-            const handleMessage = (msg: any) => {
+            const handleMessage = (msg: import("@/lib/api/messageService").Message) => {
                 receiveMessage(msg);
             };
 

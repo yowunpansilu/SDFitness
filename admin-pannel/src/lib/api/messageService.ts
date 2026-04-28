@@ -1,5 +1,28 @@
 import api from './axios';
 
+interface ApiUser {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    avatar?: string;
+    role: 'member' | 'trainer';
+}
+
+interface ApiMessage {
+    _id: string;
+    conversation: string;
+    sender: string | { _id: string };
+    text: string;
+    createdAt: string;
+    isRead: boolean;
+}
+
+interface ApiConversation {
+    _id: string;
+    participants: ApiUser[];
+    lastMessage?: ApiMessage;
+}
+
 export interface User {
     id: string;
     name: string;
@@ -29,7 +52,7 @@ export interface Conversation {
 export const getAvailableUsers = async (): Promise<User[]> => {
     try {
         const response = await api.get('/communication/available-users');
-        return (response.data || []).map((u: any) => ({
+        return (response.data || []).map((u: ApiUser) => ({
             id: u._id,
             name: `${u.firstName} ${u.lastName}`.trim(),
             avatar: u.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u._id}`,
@@ -48,7 +71,7 @@ export const createConversationAPI = async (targetUserId: string): Promise<Conve
         const conv = response.data;
         return {
             id: conv._id,
-            participants: conv.participants.map((p: any) => ({
+            participants: conv.participants.map((p: ApiUser) => ({
                 id: p._id,
                 name: `${p.firstName} ${p.lastName}`.trim(),
                 avatar: p.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p._id}`,
@@ -58,7 +81,7 @@ export const createConversationAPI = async (targetUserId: string): Promise<Conve
             lastMessage: conv.lastMessage ? {
                 id: conv.lastMessage._id,
                 conversationId: conv._id,
-                senderId: conv.lastMessage.sender._id || conv.lastMessage.sender,
+                senderId: typeof conv.lastMessage.sender === 'string' ? conv.lastMessage.sender : (conv.lastMessage.sender as { _id: string })._id,
                 content: conv.lastMessage.text,
                 timestamp: conv.lastMessage.createdAt,
                 read: conv.lastMessage.isRead,
@@ -77,9 +100,9 @@ export const getConversations = async (): Promise<Conversation[]> => {
     try {
         const response = await api.get('/communication/conversations');
         // Map backend conversations to frontend interface
-        return (response.data || []).map((conv: any) => ({
+        return (response.data || []).map((conv: ApiConversation) => ({
             id: conv._id,
-            participants: conv.participants.map((p: any) => ({
+            participants: conv.participants.map((p: ApiUser) => ({
                 id: p._id,
                 name: `${p.firstName} ${p.lastName}`.trim(),
                 avatar: p.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p._id}`,
@@ -89,7 +112,7 @@ export const getConversations = async (): Promise<Conversation[]> => {
             lastMessage: conv.lastMessage ? {
                 id: conv.lastMessage._id,
                 conversationId: conv._id,
-                senderId: conv.lastMessage.sender._id || conv.lastMessage.sender,
+                senderId: typeof conv.lastMessage.sender === 'string' ? conv.lastMessage.sender : (conv.lastMessage.sender as { _id: string })._id,
                 content: conv.lastMessage.text,
                 timestamp: conv.lastMessage.createdAt,
                 read: conv.lastMessage.isRead,
@@ -106,10 +129,10 @@ export const getConversations = async (): Promise<Conversation[]> => {
 export const getMessages = async (conversationId: string): Promise<Message[]> => {
     try {
         const response = await api.get('/communication/messages', { params: { conversationId } });
-        return (response.data || []).map((msg: any) => ({
+        return (response.data || []).map((msg: ApiMessage) => ({
             id: msg._id,
             conversationId: msg.conversation,
-            senderId: msg.sender._id || msg.sender,
+            senderId: typeof msg.sender === 'string' ? msg.sender : (msg.sender as { _id: string })._id,
             content: msg.text,
             timestamp: msg.createdAt,
             read: msg.isRead,
@@ -128,7 +151,7 @@ export const sendMessageAPI = async (conversationId: string, content: string, ty
         return {
             id: msg._id,
             conversationId: msg.conversation,
-            senderId: msg.sender._id || msg.sender,
+            senderId: typeof msg.sender === 'string' ? msg.sender : (msg.sender as { _id: string })._id,
             content: msg.text,
             timestamp: msg.createdAt,
             read: msg.isRead,

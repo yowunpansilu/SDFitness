@@ -15,7 +15,12 @@ const COLORS = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4'
 export function MLDashboard() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<{
+        modelInfo: { metrics: { r2: number; rmse: number }; avgInferenceMs: number; version: string; algorithm: string; samples: number; trainedAt: string };
+        generationStats: { successRate: number; mlPlans: number; fallbackPlans: number };
+        featureImportance: { feature: string; importance: number }[];
+        comparison: { metric: string; ml: number; gemini: number }[];
+    } | null>(null);
 
     const fetchData = async () => {
         setLoading(true);
@@ -123,10 +128,10 @@ export function MLDashboard() {
                                         color: '#1e293b'
                                     }}
                                     itemStyle={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}
-                                    formatter={(v: any) => [`${Math.round(v * 100)}%`, 'Weight']}
+                                    formatter={(v: unknown) => [`${Math.round(Number(v) * 100)}%`, 'Weight']}
                                 />
                                 <Bar dataKey="importance" radius={[0, 12, 12, 0]} barSize={24}>
-                                    {featureImportance.map((_: any, i: number) => (
+                                    {featureImportance.map((_: unknown, i: number) => (
                                         <Cell key={i} fill={COLORS[i % COLORS.length]} />
                                     ))}
                                 </Bar>
@@ -157,7 +162,7 @@ export function MLDashboard() {
                                         color: '#1e293b'
                                     }}
                                     itemStyle={{ fontSize: '11px', fontWeight: 900, textTransform: 'uppercase' }}
-                                    formatter={(v: any) => [`${v}%`]}
+                                    formatter={(v: unknown) => [`${v}%`]}
                                 />
                                 <Bar dataKey="ml" fill="#6366f1" radius={[8, 8, 0, 0]} name="Hybrid Architecture" barSize={30} />
                                 <Bar dataKey="gemini" fill="#cbd5e1" radius={[8, 8, 0, 0]} name="Baseline Model" barSize={30} />

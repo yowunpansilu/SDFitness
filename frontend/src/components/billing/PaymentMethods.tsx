@@ -265,7 +265,7 @@ export function PaymentMethods() {
 
                     <Button
                         type="submit"
-                        className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 transition-all shadow-md"
+                        className="w-full h-14 text-lg font-bold uppercase tracking-wider bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded-xl shadow-lg border-b-4 border-[#991B1B] active:border-b-0 active:mt-1 transition-all"
                         disabled={isLoading}
                     >
                         {isLoading ? (

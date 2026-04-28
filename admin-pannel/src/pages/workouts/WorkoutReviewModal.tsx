@@ -7,12 +7,23 @@ import { useToast } from '@/hooks/use-toast';
 import { approveWorkout, rejectWorkout } from '@/services/workoutService';
 import { Loader2, Check, X, Dumbbell, Activity, RefreshCw } from 'lucide-react';
 
-export function WorkoutReviewModal({ workout, isOpen, onClose, onSuccess }: { workout: any, isOpen: boolean, onClose: () => void, onSuccess: () => void }) {
+interface WorkoutData {
+    _id: string;
+    name?: string;
+    duration?: number;
+    estimatedCaloriesBurned?: number;
+    description?: string;
+    exercises?: { name: string; duration: number; restPeriod: number; sets: number; notes?: string }[];
+    memberId?: { userId?: string };
+}
+
+export function WorkoutReviewModal({ workout, isOpen, onClose, onSuccess }: { workout: WorkoutData | null, isOpen: boolean, onClose: () => void, onSuccess: () => void }) {
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [adminNotes, setAdminNotes] = useState('');
 
     const handleAction = async (action: 'approve' | 'reject') => {
+        if (!workout) return;
         setLoading(true);
         try {
             if (action === 'approve') {
@@ -23,7 +34,8 @@ export function WorkoutReviewModal({ workout, isOpen, onClose, onSuccess }: { wo
                 toast({ title: 'Workout Rejected', description: 'Template has been flagged as rejected.' });
             }
             onSuccess();
-        } catch (error: any) {
+        } catch (err: unknown) {
+            const error = err as { message?: string };
             toast({ title: 'Error', description: error.message || `Failed to ${action}`, variant: 'destructive' });
         } finally {
             setLoading(false);
@@ -65,7 +77,7 @@ export function WorkoutReviewModal({ workout, isOpen, onClose, onSuccess }: { wo
                                 Exercises
                             </h3>
                             <div className="space-y-4">
-                                {workout.exercises?.map((ex: any, idx: number) => (
+                                {workout.exercises?.map((ex: { name: string; duration: number; restPeriod: number; sets: number; notes?: string }, idx: number) => (
                                     <div key={idx} className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                                         <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/20 group-hover:bg-indigo-500 transition-colors" />
                                         <div className="flex gap-4 items-start">

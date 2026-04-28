@@ -36,13 +36,14 @@ export function ScraperReview() {
                 api.get('/prices')
             ]);
             setItems(queueRes.data.data || []);
-            const foods = (pricesRes.data.data || []).map((f: any) => ({
+            const foods = (pricesRes.data.data || []).map((f: { foodId: string; category?: string }) => ({
                 foodId: f.foodId,
                 category: f.category || 'other',
             }));
             setFoodList(foods);
-        } catch (err: any) {
-            setError(err.message || 'Failed to load data');
+        } catch (err) {
+            const e = err as Error;
+            setError(e.message || 'Failed to load data');
         } finally {
             setLoading(false);
         }
@@ -107,8 +108,8 @@ export function ScraperReview() {
                     </div>
                     <div className="max-h-64 overflow-y-auto scrollbar-thin">
                         {foodList.map((f: { foodId: string }) => (
-                            <button 
-                                key={f.foodId} 
+                            <button
+                                key={f.foodId}
                                 onClick={() => handleMatch(item._id, f.foodId)}
                                 className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted text-foreground transition-colors border-b border-border/50 last:border-0"
                             >
@@ -223,7 +224,7 @@ export function ScraperReview() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                                                 <DropdownMenu item={item} />
                                                 <Button size="sm" onClick={() => handleMatch(item._id, item.suggestedMatch!)}

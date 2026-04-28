@@ -88,7 +88,7 @@ export function ClassForm() {
     const loadInitialData = async () => {
       try {
         const trainersRes = await api.get('/trainers');
-        setTrainers(trainersRes.data.map((t: any) => ({
+        setTrainers(trainersRes.data.map((t: { _id: string, userId?: { firstName: string, lastName: string } }) => ({
           id: t._id,
           name: t.userId ? `${t.userId.firstName} ${t.userId.lastName}` : 'Unnamed Trainer'
         })));
@@ -122,7 +122,7 @@ export function ClassForm() {
       }
     };
     loadInitialData();
-  }, [id, isEditMode, reset]);
+  }, [id, isEditMode, reset, toast]);
 
   const onSubmit = async (data: ClassFormData) => {
     try {

@@ -87,11 +87,12 @@ export function MembersList() {
 
   useEffect(() => {
     fetchMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDeleteMember = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) return;
-    
+
     try {
       const response = await memberService.deleteMember(id);
       if (response.success) {
@@ -101,7 +102,7 @@ export function MembersList() {
         });
         setMembers(prev => prev.filter(m => m.id !== id));
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to delete member.',
@@ -120,7 +121,7 @@ export function MembersList() {
         });
         setMembers(prev => prev.map(m => m.id === id ? { ...m, status: newStatus } : m));
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to update status.',
@@ -244,9 +245,9 @@ export function MembersList() {
                     <SelectItem value="memberNumber">ID Number</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className="h-11 w-11 rounded-xl bg-navy-50/50 dark:bg-navy-950 border-transparent text-navy-400 hover:text-indigo-600 dark:hover:text-white hover:bg-navy-50 dark:hover:bg-navy-800 transition-all font-bold"
                   onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
                 >

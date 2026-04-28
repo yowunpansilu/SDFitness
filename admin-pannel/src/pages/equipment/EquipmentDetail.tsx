@@ -46,7 +46,23 @@ export function EquipmentDetail() {
   const { id } = useParams();
   const { toast } = useToast();
 
-  const [equipment, setEquipment] = useState<any>(null);
+  const [equipment, setEquipment] = useState<{
+    _id?: string;
+    status: string;
+    category: string;
+    name: string;
+    serialNumber?: string;
+    brand?: string;
+    model?: string;
+    nextMaintenance?: string;
+    maintenanceHistory?: { id: string; cost: number; type: string; date: string; description: string; technician?: string }[];
+    purchasePrice?: number;
+    location?: string;
+    purchaseDate?: string;
+    warrantyExpiry?: string;
+    notes?: string;
+    lastMaintenance?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -99,7 +115,7 @@ export function EquipmentDetail() {
     : null;
 
   const maintenanceHistory = equipment.maintenanceHistory || [];
-  const totalMaintenanceCost = maintenanceHistory.reduce((sum: number, item: any) => sum + (item.cost || 0), 0);
+  const totalMaintenanceCost = maintenanceHistory.reduce((sum: number, item: { cost?: number }) => sum + (item.cost || 0), 0);
 
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -116,8 +132,8 @@ export function EquipmentDetail() {
           </Button>
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Badge className={cn('font-bold text-xs uppercase tracking-widest rounded-lg border shadow-sm px-2 py-1', (statusConfig as any)[equipment.status]?.color)}>
-                {(statusConfig as any)[equipment.status]?.label}
+              <Badge className={cn('font-bold text-xs uppercase tracking-widest rounded-lg border shadow-sm px-2 py-1', (statusConfig as Record<string, { color: string; label: string }>)[equipment.status]?.color)}>
+                {(statusConfig as Record<string, { color: string; label: string }>)[equipment.status]?.label}
               </Badge>
               <span className="text-xs font-bold text-slate-400 dark:text-navy-600 uppercase tracking-widest">{equipment.category} deployment</span>
             </div>
@@ -152,12 +168,12 @@ export function EquipmentDetail() {
         <Card className="bg-white dark:bg-navy-900 border-slate-200/60 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden group transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/5">
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">Operation Status</CardTitle>
-            <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", (statusConfig as any)[equipment.status]?.color)}>
+            <div className={cn("p-2 rounded-xl transition-transform group-hover:scale-110", (statusConfig as Record<string, { color: string }>)[equipment.status]?.color)}>
               <Package className="h-4 w-4" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900 dark:text-white uppercase">{(statusConfig as any)[equipment.status]?.label}</div>
+            <div className="text-2xl font-bold text-slate-900 dark:text-white uppercase">{(statusConfig as Record<string, { label: string }>)[equipment.status]?.label}</div>
             <p className="text-xs font-bold text-slate-400 dark:text-navy-600 mt-1 uppercase tracking-widest">Active deployment</p>
           </CardContent>
         </Card>
@@ -227,7 +243,7 @@ export function EquipmentDetail() {
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">Faculty Sub-sector</label>
                   <div className="flex">
-                    <Badge className={cn('px-3 py-1 font-bold text-xs uppercase tracking-widest rounded-xl border-none shadow-sm', (categoryColors as any)[equipment.category.toLowerCase()] || categoryColors.other)}>
+                    <Badge className={cn('px-3 py-1 font-bold text-xs uppercase tracking-widest rounded-xl border-none shadow-sm', (categoryColors as Record<string, string>)[equipment.category.toLowerCase()] || categoryColors.other)}>
                       {equipment.category.replace('_', ' ')}
                     </Badge>
                   </div>
@@ -282,7 +298,7 @@ export function EquipmentDetail() {
             </CardHeader>
             <CardContent className="p-10 pt-0">
               <div className="space-y-6">
-                {maintenanceHistory.map((record: any) => (
+                {maintenanceHistory.map((record: { id: string; cost: number; type: string; date: string; description: string; technician?: string }) => (
                   <div
                     key={record.id}
                     className="group flex flex-col md:flex-row md:items-center gap-6 p-6 rounded-[2rem] bg-slate-50/50 dark:bg-navy-950/50 border border-transparent hover:border-indigo-500/10 hover:bg-white dark:hover:bg-navy-900 transition-all duration-500"

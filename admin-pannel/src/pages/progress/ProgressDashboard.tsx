@@ -16,10 +16,10 @@ import { format } from 'date-fns';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 export function ProgressDashboard() {
-    const [members, setMembers] = useState<any[]>([]);
+    const [members, setMembers] = useState<{ _id: string; firstName?: string; lastName?: string; memberId?: string; currentWeight?: number; goal?: string }[]>([]);
     const [search, setSearch] = useState('');
-    const [selectedMember, setSelectedMember] = useState<any>(null);
-    const [weeklyProgress, setWeeklyProgress] = useState<any[]>([]);
+    const [selectedMember, setSelectedMember] = useState<{ _id: string; firstName?: string; lastName?: string; memberId?: string; currentWeight?: number; goal?: string } | null>(null);
+    const [weeklyProgress, setWeeklyProgress] = useState<{ date: string; workout: number; diet: number }[]>([]);
     const [fetchingProgress, setFetchingProgress] = useState(false);
 
     useEffect(() => {
@@ -35,12 +35,12 @@ export function ProgressDashboard() {
         }
     };
 
-    const handleSelectMember = async (member: any) => {
+    const handleSelectMember = async (member: { _id: string; firstName?: string; lastName?: string; memberId?: string; currentWeight?: number; goal?: string }) => {
         setSelectedMember(member);
         setFetchingProgress(true);
         try {
             const res = await api.get(`/progress/weekly?userId=${member._id}`);
-            const chartData = res.data.map((item: any) => ({
+            const chartData = res.data.map((item: { date: string; workoutCompleted?: boolean; dietFollowed?: boolean }) => ({
                 date: format(new Date(item.date), 'EEE'),
                 workout: item.workoutCompleted ? 1 : 0,
                 diet: item.dietFollowed ? 1 : 0,

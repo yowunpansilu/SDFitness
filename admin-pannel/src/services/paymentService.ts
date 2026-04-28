@@ -11,7 +11,7 @@ export const paymentService = {
         return response.data;
     },
 
-    createPayment: async (data: any) => {
+    createPayment: async (data: Record<string, unknown>) => {
         const response = await api.post('/payments/admin-record', data);
         return response.data;
     },

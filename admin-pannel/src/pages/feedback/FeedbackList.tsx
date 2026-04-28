@@ -36,11 +36,11 @@ const CATEGORY_OPTIONS = [
 ];
 
 export function FeedbackList() {
-    const [feedback, setFeedback] = useState<any[]>([]);
+    const [feedback, setFeedback] = useState<{ _id: string; status: string; category: string; message: string; createdAt: string; adminNotes?: string; errorUrl?: string; userAgent?: string; stackTrace?: string; userId?: { firstName: string; lastName: string; email: string } }[]>([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('all');
     const [categoryFilter, setCategoryFilter] = useState('all');
-    const [selectedItem, setSelectedItem] = useState<any>(null);
+    const [selectedItem, setSelectedItem] = useState<{ _id: string; status: string; category: string; message: string; createdAt: string; adminNotes?: string; errorUrl?: string; userAgent?: string; stackTrace?: string; userId?: { firstName: string; lastName: string; email: string } } | null>(null);
     const [detailOpen, setDetailOpen] = useState(false);
     const [adminNotes, setAdminNotes] = useState('');
     const [updating, setUpdating] = useState(false);
@@ -48,12 +48,13 @@ export function FeedbackList() {
 
     useEffect(() => {
         fetchFeedback();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [statusFilter, categoryFilter]);
 
     const fetchFeedback = async () => {
         setLoading(true);
         try {
-            const filters: any = {};
+            const filters: Record<string, string> = {};
             if (statusFilter !== 'all') filters.status = statusFilter;
             if (categoryFilter !== 'all') filters.category = categoryFilter;
 
@@ -73,7 +74,7 @@ export function FeedbackList() {
             setSelectedItem(res.data);
             setAdminNotes(res.data.adminNotes || '');
             setDetailOpen(true);
-        } catch (err) {
+        } catch {
             toast({
                 title: "Error",
                 description: "Failed to load feedback details",
@@ -90,7 +91,7 @@ export function FeedbackList() {
             toast({ title: "Status Updated", description: `Feedback marked as ${status}` });
             setSelectedItem({ ...selectedItem, status });
             fetchFeedback();
-        } catch (err) {
+        } catch {
             toast({ title: "Update Failed", variant: "destructive" });
         } finally {
             setUpdating(false);
@@ -104,7 +105,7 @@ export function FeedbackList() {
             await addAdminNotes(selectedItem._id, adminNotes);
             toast({ title: "Notes Saved" });
             fetchFeedback();
-        } catch (err) {
+        } catch {
             toast({ title: "Failed to save notes", variant: "destructive" });
         } finally {
             setUpdating(false);

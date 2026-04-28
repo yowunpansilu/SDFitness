@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Wrench, AlertTriangle, CheckCircle, XCircle, Calendar, Loader2 } from 'lucide-react';
+import { Plus, Search, Wrench, AlertTriangle, CheckCircle, XCircle, Calendar, Loader2, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,7 +40,7 @@ interface Equipment {
 
 // Mock data
 
-const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
+const statusConfig: Record<string, { label: string; color: string; icon: LucideIcon }> = {
   working: {
     label: 'Working',
     color: 'bg-emerald-50 text-emerald-600 border-emerald-100  ',

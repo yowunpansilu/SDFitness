@@ -11,7 +11,7 @@ export const trainerService = {
         return response.data;
     },
 
-    updateTrainer: async (id: string, data: any) => {
+    updateTrainer: async (id: string, data: Record<string, unknown>) => {
         const response = await api.put(`/trainers/${id}`, data);
         return response.data;
     },
@@ -21,7 +21,7 @@ export const trainerService = {
         return response.data;
     },
 
-    createTrainer: async (data: any) => {
+    createTrainer: async (data: Record<string, unknown>) => {
         const response = await api.post('/trainers', data);
         return response.data;
     }

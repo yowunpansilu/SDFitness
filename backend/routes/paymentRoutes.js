@@ -42,6 +42,11 @@ router.get('/', protect, async (req, res) => {
             if (!member) return res.json([]);
             query = { memberId: member._id };
         }
+
+        if (req.query.status && req.query.status !== 'all') {
+            query.status = req.query.status;
+        }
+
         const payments = await Payment.find(query).populate({
             path: 'memberId',
             populate: { path: 'userId', select: 'firstName lastName email' }

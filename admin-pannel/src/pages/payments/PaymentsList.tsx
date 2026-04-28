@@ -45,7 +45,20 @@ const statusColors = {
 export function PaymentsList() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<{
+    _id?: string;
+    id?: string;
+    status: string;
+    transactionId?: string;
+    memberId?: { userId?: { firstName: string; lastName: string } };
+    type?: string;
+    amount: number;
+    currency?: string;
+    createdAt?: string;
+    date?: string;
+    bankSlipUrl?: string;
+    referenceId?: string;
+  }[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -80,7 +93,8 @@ export function PaymentsList() {
     const memberName = payment.memberId?.userId?.firstName + ' ' + payment.memberId?.userId?.lastName;
     const matchesSearch =
       memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      payment.transactionId?.toLowerCase().includes(searchQuery.toLowerCase());
+      payment.transactionId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      payment.referenceId?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesType = typeFilter === 'all' || payment.type === typeFilter;
 
@@ -252,7 +266,7 @@ export function PaymentsList() {
                   >
                     <TableCell className="p-4 pl-6">
                       <span className="text-xs font-bold font-mono text-slate-500 dark:text-navy-400 bg-slate-100 dark:bg-navy-800 px-2 py-0.5 rounded transition-colors">
-                        {payment.transactionId || 'N/A'}
+                        {payment.transactionId || payment.referenceId || 'N/A'}
                       </span>
                     </TableCell>
                     <TableCell className="p-4">
@@ -276,7 +290,7 @@ export function PaymentsList() {
                       </Badge>
                     </TableCell>
                     <TableCell className="p-4 text-xs font-bold text-slate-500 dark:text-navy-500">
-                      {new Date(payment.createdAt || payment.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(payment.createdAt || payment.date || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </TableCell>
                     <TableCell className="p-4 pr-6 text-right">
                       <div className="flex justify-end gap-1">

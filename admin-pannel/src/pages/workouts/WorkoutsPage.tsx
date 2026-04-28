@@ -8,12 +8,24 @@ import { Dumbbell, Activity, Plus } from 'lucide-react';
 import { GenerateWorkoutModal } from './GenerateWorkoutModal';
 import { WorkoutReviewModal } from './WorkoutReviewModal';
 
+interface Workout {
+    _id: string;
+    status: string;
+    name?: string;
+    description?: string;
+    memberId?: { userId?: string };
+    duration?: number;
+    estimatedCaloriesBurned?: number;
+    exercises?: { name: string; duration: number; restPeriod: number; sets: number; notes?: string }[];
+    adminNotes?: string;
+}
+
 export function WorkoutsPage() {
     const { toast } = useToast();
-    const [workouts, setWorkouts] = useState<any[]>([]);
+    const [workouts, setWorkouts] = useState<Workout[]>([]);
     const [loading, setLoading] = useState(true);
     const [isGenerateOpen, setIsGenerateOpen] = useState(false);
-    const [selectedWorkout, setSelectedWorkout] = useState<any>(null);
+    const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
 
     const fetchWorkouts = async () => {
         setLoading(true);
@@ -22,7 +34,7 @@ export function WorkoutsPage() {
             if (res.success) {
                 setWorkouts(res.data);
             }
-        } catch (error) {
+        } catch {
             toast({ title: 'Error', description: 'Failed to load workouts', variant: 'destructive' });
         } finally {
             setLoading(false);
@@ -31,6 +43,7 @@ export function WorkoutsPage() {
 
     useEffect(() => {
         fetchWorkouts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const pendingWorkouts = workouts.filter(w => w.status === 'pending_review');

@@ -11,12 +11,12 @@ export const equipmentService = {
         return response.data;
     },
 
-    createEquipment: async (data: any) => {
+    createEquipment: async (data: Record<string, unknown>) => {
         const response = await api.post('/equipment', data);
         return response.data;
     },
 
-    updateEquipment: async (id: string, data: any) => {
+    updateEquipment: async (id: string, data: Record<string, unknown>) => {
         const response = await api.put(`/equipment/${id}`, data);
         return response.data;
     },

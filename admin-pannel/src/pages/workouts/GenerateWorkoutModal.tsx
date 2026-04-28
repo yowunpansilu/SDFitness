@@ -14,7 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 export function GenerateWorkoutModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose: () => void, onSuccess: () => void }) {
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
-    const [members, setMembers] = useState<any[]>([]);
+    const [members, setMembers] = useState<{ id: string; firstName: string; lastName: string; membershipType: string }[]>([]);
     const [selectedMember, setSelectedMember] = useState('');
     const [difficulty, setDifficulty] = useState('beginner');
     const [category, setCategory] = useState('cardio');
@@ -23,7 +23,7 @@ export function GenerateWorkoutModal({ isOpen, onClose, onSuccess }: { isOpen: b
 
     useEffect(() => {
         if (isOpen) {
-            memberService.getMembers().then((res: any) => {
+            memberService.getMembers().then((res: { data?: { id: string; firstName: string; lastName: string; membershipType: string }[] }) => {
                 if (res.data) setMembers(res.data);
             }).catch(console.error);
         }
@@ -41,7 +41,8 @@ export function GenerateWorkoutModal({ isOpen, onClose, onSuccess }: { isOpen: b
             toast({ title: 'Success', description: 'AI successfully generated the workout plan!' });
             onSuccess();
             onClose();
-        } catch (error: any) {
+        } catch (err: unknown) {
+            const error = err as { message?: string };
             toast({ title: 'Error', description: error.message || 'Failed to generate workout', variant: 'destructive' });
         } finally {
             setLoading(false);

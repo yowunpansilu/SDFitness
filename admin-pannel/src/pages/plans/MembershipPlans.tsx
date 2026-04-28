@@ -102,6 +102,7 @@ export function MembershipPlans() {
 
   useEffect(() => {
     fetchPlans();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const togglePlanStatus = async (planId: string, currentStatus: boolean) => {
@@ -116,7 +117,7 @@ export function MembershipPlans() {
           description: `Plan status updated to ${!currentStatus ? 'active' : 'inactive'}.`,
         });
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to update plan status.',
@@ -147,7 +148,7 @@ export function MembershipPlans() {
             description: 'Plan deleted successfully.',
           });
         }
-      } catch (error) {
+      } catch {
         toast({
           title: 'Error',
           description: 'Failed to delete plan.',
@@ -180,7 +181,7 @@ export function MembershipPlans() {
         fetchPlans();
         resetForm();
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: `Failed to ${editingPlan ? 'update' : 'create'} plan.`,
@@ -339,7 +340,7 @@ export function MembershipPlans() {
                 >
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   type="submit"
                   disabled={isSubmitting}
                   className="h-11 px-8 rounded-xl bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white font-bold uppercase text-xs tracking-widest shadow-lg shadow-indigo-200 dark:shadow-indigo-950/20 transition-all"

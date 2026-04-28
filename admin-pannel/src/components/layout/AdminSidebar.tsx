@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import {
+  type LucideIcon,
   LayoutDashboard,
   Users,
   Dumbbell,
@@ -20,7 +21,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-type NavItem = { name: string; href: string; icon: any; exact?: boolean };
+type NavItem = { name: string; href: string; icon: LucideIcon; exact?: boolean };
 type NavGroup = { title: string; items: NavItem[] };
 
 const navigationGoups: NavGroup[] = [

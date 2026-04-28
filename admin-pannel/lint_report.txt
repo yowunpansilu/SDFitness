@@ -1,0 +1,240 @@
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/components/layout/AdminSidebar.tsx
+  23:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/components/messaging/ChatWindow.tsx
+  19:11  warning  The 'activeMessages' conditional could make the dependencies of useEffect Hook (at line 27) change on every render. To fix this, wrap the initialization of 'activeMessages' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  37:41  error    Unexpected any. Specify a different type                                                                                                                                                                @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/components/ui/badge.tsx
+  40:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/components/ui/button.tsx
+  57:18  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/components/ui/form.tsx
+  173:3  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/components/ui/input.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/components/ui/textarea.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/hooks/use-toast.ts
+  21:7  error  'actionTypes' is assigned a value but only used as a type  @typescript-eslint/no-unused-vars
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/lib/api/messageService.ts
+   32:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   51:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   80:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   82:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/lib/contexts/ThemeContext.tsx
+  51:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/lib/stores/messageStore.ts
+  44:18  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/lib/stores/settingsStore.ts
+  351:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/analytics/AnalyticsDashboard.tsx
+   45:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  274:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  320:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  347:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  365:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  389:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/auth/Login.tsx
+  34:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/classes/ClassDetail.tsx
+   25:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  213:64  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/classes/ClassForm.tsx
+   91:46  error    Unexpected any. Specify a different type                                                                  @typescript-eslint/no-explicit-any
+  125:6   warning  React Hook useEffect has a missing dependency: 'toast'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/classes/ClassSchedule.tsx
+  59:69  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/dashboard/AdminDashboard.tsx
+   74:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   75:54  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  208:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  238:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  278:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/equipment/EquipmentDetail.tsx
+   49:46   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  102:78   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  119:138  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  120:35   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  155:110  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  160:108  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  230:151  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  285:50   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/equipment/EquipmentForm.tsx
+  267:103  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  504:93   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/equipment/EquipmentInventory.tsx
+  43:74  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/feedback/FeedbackList.tsx
+   39:46  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+   43:54  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+   51:8   warning  React Hook useEffect has a missing dependency: 'fetchFeedback'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   56:28  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+   76:18  error    'err' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
+   93:18  error    'err' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
+  107:18  error    'err' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/members/AddMember.tsx
+   97:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  119:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  160:29  error  '_index' is defined but never used        @typescript-eslint/no-unused-vars
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/members/MemberDetail.tsx
+  32:40  error    Unexpected any. Specify a different type                                                                  @typescript-eslint/no-explicit-any
+  57:6   warning  React Hook useEffect has a missing dependency: 'toast'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  71:14  error    'error' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/members/MembersList.tsx
+   90:6   warning  React Hook useEffect has a missing dependency: 'fetchMembers'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  104:14  error    'error' is defined but never used                                                                                @typescript-eslint/no-unused-vars
+  123:14  error    'error' is defined but never used                                                                                @typescript-eslint/no-unused-vars
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/ml/MLDashboard.tsx
+   18:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  126:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  129:64  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  160:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/payments/PaymentDetail.tsx
+   25:42   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   62:14   error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+   72:14   error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  241:166  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/payments/PaymentForm.tsx
+   60:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   61:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   62:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  141:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  150:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  334:86  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  424:80  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/payments/PaymentsList.tsx
+  48:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/plans/MembershipPlans.tsx
+  105:6   warning  React Hook useEffect has a missing dependency: 'fetchPlans'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  119:14  error    'error' is defined but never used                                                                              @typescript-eslint/no-unused-vars
+  150:16  error    'error' is defined but never used                                                                              @typescript-eslint/no-unused-vars
+  183:14  error    'error' is defined but never used                                                                              @typescript-eslint/no-unused-vars
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/prices/FoodPrices.tsx
+   68:8   warning  React Hook useEffect has a missing dependency: 'fetchProducts'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   75:8   warning  React Hook useEffect has a missing dependency: 'fetchProducts'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+   80:27  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+   98:23  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  147:23  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  165:23  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/progress/ProgressDashboard.tsx
+  19:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  21:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  22:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  43:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/scraper/ScraperReview.tsx
+  39:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/settings/GeneralSettings.tsx
+   47:47   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   52:34   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   61:102  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  251:63   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/settings/Settings.tsx
+  29:6   warning  React Hook useEffect has a missing dependency: 'fetchSettings'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  75:14  error    'error' is defined but never used                                                                                 @typescript-eslint/no-unused-vars
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/subscriptions/SubscriptionsDashboard.tsx
+  42:46  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  50:8   warning  React Hook useEffect has a missing dependency: 'fetchRenewals'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  88:18  error    'error' is defined but never used                                                                                 @typescript-eslint/no-unused-vars
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/trainers/TrainerDetail.tsx
+  128:14  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/trainers/TrainerForm.tsx
+   32:28  error  Unnecessary escape character: \-          no-useless-escape
+   54:28  error  Unnecessary escape character: \-          no-useless-escape
+  125:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  135:18  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  173:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  408:81  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  573:61  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/trainers/TrainersList.tsx
+   26:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   52:54  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  145:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  159:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  174:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/workouts/GenerateWorkoutModal.tsx
+  17:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/workouts/WorkoutReviewModal.tsx
+  10:88  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:62  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/pages/workouts/WorkoutsPage.tsx
+  13:46  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  16:60  error    Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  25:18  error    'error' is defined but never used                                                                                 @typescript-eslint/no-unused-vars
+  34:8   warning  React Hook useEffect has a missing dependency: 'fetchWorkouts'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/services/equipmentService.ts
+  14:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/services/memberService.ts
+  26:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/services/membershipService.ts
+   9:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  14:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/services/paymentService.ts
+  14:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/services/settingsService.ts
+   5:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/services/trainerService.ts
+  14:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  24:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/yowunpansilu/Documents/GitHub/SDFitness/admin-pannel/src/services/workoutService.ts
+  15:16  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:16  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 139 problems (128 errors, 11 warnings)
+

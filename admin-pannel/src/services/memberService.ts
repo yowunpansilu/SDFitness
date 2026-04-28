@@ -23,7 +23,7 @@ export const memberService = {
         return response.data;
     },
 
-    createMember: async (data: any) => {
+    createMember: async (data: Record<string, unknown>) => {
         const response = await api.post(API_URL, data);
         return response.data;
     }

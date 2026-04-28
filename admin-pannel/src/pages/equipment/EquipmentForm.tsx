@@ -264,7 +264,7 @@ export function EquipmentForm() {
                 <Label htmlFor="status" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Status <span className="text-rose-500">*</span>
                 </Label>
-                <Select value={watch('status')} onValueChange={(value) => setValue('status', value as any)}>
+                <Select value={watch('status')} onValueChange={(value) => setValue('status', value as 'available' | 'in-use' | 'maintenance' | 'broken')}>
                   <SelectTrigger className="h-14 bg-slate-50 dark:bg-navy-950/50 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-bold uppercase">
                     <SelectValue placeholder="Current Status" />
                   </SelectTrigger>
@@ -501,7 +501,7 @@ export function EquipmentForm() {
                 <Label htmlFor="maintenanceFrequency" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Execution Frequency
                 </Label>
-                <Select onValueChange={(value) => setValue('maintenanceFrequency', value as any)}>
+                <Select onValueChange={(value) => setValue('maintenanceFrequency', value as 'weekly' | 'monthly' | 'quarterly' | 'yearly')}>
                   <SelectTrigger className="h-14 bg-white dark:bg-navy-900 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-bold uppercase">
                     <SelectValue placeholder="Select Cadence" />
                   </SelectTrigger>

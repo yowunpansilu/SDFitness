@@ -21,5 +21,5 @@ EXPOSE 5001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"
 
-# Start the application directly
-CMD ["python", "app.py"]
+# Start the application, training the model first if it doesn't exist
+CMD ["sh", "-c", "if [ ! -f model/diet_model.pkl ]; then python model/train.py; fi && python app.py"]

@@ -24,7 +24,8 @@ import { cn } from '@/lib/utils';
 import api from '@/lib/api/axios';
 
 interface Equipment {
-  id: string;
+  _id?: string;
+  id?: string;
   name: string;
   category: 'cardio' | 'strength' | 'free_weights' | 'functional' | 'other';
   brand: string;
@@ -258,8 +259,8 @@ export function EquipmentInventory() {
 
                   return (
                     <TableRow
-                      key={equipment.id}
-                      onClick={() => navigate(`/equipment/${equipment.id}`)}
+                      key={equipment._id || equipment.id}
+                      onClick={() => navigate(`/equipment/${equipment._id || equipment.id}`)}
                       className="border-b border-slate-50 dark:border-navy-800/50 hover:bg-slate-50/50 dark:hover:bg-navy-950/50 transition-all cursor-pointer group"
                     >
                       <TableCell className="p-4 pl-6">

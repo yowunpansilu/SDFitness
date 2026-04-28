@@ -11,7 +11,7 @@ const path = require('path');
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-const connectDB = require('../config/db');
+const { connectDB } = require('../config/db');
 const FoodPrice = require('../models/FoodPrice');
 
 const coreFoods = [

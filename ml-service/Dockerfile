@@ -16,10 +16,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the app
 COPY . .
 
-EXPOSE 5001
+
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"
+    CMD python -c "import os, urllib.request; urllib.request.urlopen(f'http://localhost:{os.environ.get(\"PORT\", 5001)}/health')"
 
 # Start the application, training the model first if it doesn't exist
 CMD ["sh", "-c", "if [ ! -f model/diet_model.pkl ]; then python model/train.py; fi && python app.py"]

@@ -1,0 +1,3 @@
+# Problem Statement
+
+Currently, individuals struggle to maintain a balanced lifestyle due to the disconnect between their fitness routines, dietary intake, and access to healthy groceries. Existing applications often focus on only one aspect—either workout tracking or calorie counting—without integrating real-world grocery availability or providing personalized, machine-learning-driven recommendations. Furthermore, gym administrators lack efficient tools to manage equipment inventory and member profiles. SDFitness aims to solve this by providing a unified platform that integrates workout tracking, an AI-powered dietary recommendation engine, real-time grocery data scraping, and a comprehensive administrative dashboard.

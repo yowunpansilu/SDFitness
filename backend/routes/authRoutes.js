@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const Member = require('../models/Member');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generic function to generate JWT
 const generateToken = (id) => {
@@ -345,6 +348,103 @@ router.delete('/profile', async (req, res) => {
     } catch (error) {
         console.error('Account deletion error:', error);
         res.status(500).json({ success: false, message: 'Server error during account deletion' });
+    }
+});
+
+// @desc    Google OAuth login / register
+// @route   POST /api/auth/google
+// @access  Public
+// Body: { idToken } for mobile (Capacitor/RN Google Sign-In)
+//   OR  { idToken: accessToken, userInfo } for web (@react-oauth/google access_token flow)
+router.post('/google', async (req, res) => {
+    console.log('📥 [GOOGLE AUTH] Received request');
+    try {
+        const { idToken, userInfo } = req.body;
+        if (!idToken) {
+            return res.status(400).json({ success: false, message: 'idToken is required' });
+        }
+
+        let googleId, email, firstName, lastName, avatar;
+
+        if (userInfo && userInfo.sub) {
+            // Web flow: frontend already fetched userInfo using the access_token
+            ({ sub: googleId, email, given_name: firstName, family_name: lastName, picture: avatar } = userInfo);
+            console.log('✅ [GOOGLE AUTH] Using userInfo payload for:', email);
+        } else {
+            // Mobile flow: verify the Google ID token directly
+            const ticket = await googleClient.verifyIdToken({
+                idToken,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+            const payload = ticket.getPayload();
+            ({ sub: googleId, email, given_name: firstName, family_name: lastName, picture: avatar } = payload);
+            console.log('✅ [GOOGLE AUTH] ID token verified for:', email);
+        }
+
+        // Find or create user
+        let user = await User.findOne({ $or: [{ googleId }, { email: email.toLowerCase() }] });
+        let isNewUser = false;
+
+        if (!user) {
+            console.log('⏳ [GOOGLE AUTH] Creating new user...');
+            user = await User.create({
+                firstName: firstName || 'User',
+                lastName: lastName || '',
+                email: email.toLowerCase(),
+                googleId,
+                authProvider: 'google',
+                avatar,
+            });
+            isNewUser = true;
+            console.log('✅ [GOOGLE AUTH] User created:', user._id);
+        } else if (!user.googleId) {
+            // Link Google to existing email-based account
+            user.googleId = googleId;
+            user.authProvider = 'google';
+            if (avatar && !user.avatar) user.avatar = avatar;
+            await user.save();
+            console.log('✅ [GOOGLE AUTH] Linked Google to existing user:', user._id);
+        }
+
+        // Ensure Member profile exists
+        let member = await Member.findOne({ userId: user._id });
+        if (!member) {
+            console.log('⏳ [GOOGLE AUTH] Auto-creating default member profile...');
+            try {
+                member = await Member.create({
+                    userId: user._id,
+                    memberNumber: 'MBR-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+                    dateOfBirth: new Date('2000-01-01'),
+                    gender: 'prefer_not_to_say',
+                    height: { value: 170, unit: 'cm' },
+                    currentWeight: { value: 70, unit: 'kg' },
+                    fitnessGoals: ['general_fitness'],
+                    activityLevel: 'moderate',
+                });
+                console.log('✅ [GOOGLE AUTH] Default member profile created');
+            } catch (memberErr) {
+                console.error('⚠️ [GOOGLE AUTH] Member profile creation failed (non-fatal):', memberErr.message);
+            }
+        }
+
+        res.json({
+            success: true,
+            isNewUser,
+            user: {
+                id: user._id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phone: user.phone || '',
+                role: user.role,
+                avatar: user.avatar,
+            },
+            member,
+            token: generateToken(user._id),
+        });
+    } catch (error) {
+        console.error('💥 [GOOGLE AUTH] Fatal Error:', error.message);
+        res.status(401).json({ success: false, message: 'Google authentication failed', error: error.message });
     }
 });
 

@@ -79,6 +79,7 @@ app.use('/api/weight', require('./routes/weightRoutes'));
 
 // Background Tasks
 require('./tasks/subscriptionCleanup');
+const { startKeepAlive } = require('./tasks/keepAlive');
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -136,6 +137,7 @@ const start = async () => {
         server.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 SDFitness Backend running on port ${PORT}`);
             console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
+            startKeepAlive();
         });
     } catch (error) {
         console.error('❌ Failed to start server:', error);

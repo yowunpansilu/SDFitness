@@ -1,0 +1,24 @@
+graph TD
+    %% Clients
+    MobileApp[Mobile App - Android/Capacitor]
+    AdminPanel[Admin Panel - React/Vite]
+
+    %% Backend API
+    BackendAPI[Backend API - Node.js/Express]
+
+    %% External Services
+    MLService[ML Service - Python/XGBoost]
+    Scraper[Scraper Service - Node.js/Python]
+    
+    %% Databases
+    MongoDB[(MongoDB Atlas)]
+
+    %% Connections
+    MobileApp -->|REST API| BackendAPI
+    AdminPanel -->|REST API| BackendAPI
+    
+    BackendAPI -->|Reads/Writes| MongoDB
+    BackendAPI -->|Requests Recommendations| MLService
+    
+    MLService -->|Reads Training Data| MongoDB
+    Scraper -->|Saves Scraped Data| MongoDB

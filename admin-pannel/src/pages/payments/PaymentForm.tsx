@@ -57,9 +57,9 @@ export function PaymentForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [members, setMembers] = useState<any[]>([]);
-  const [plans, setPlans] = useState<any[]>([]);
-  const [selectedMember, setSelectedMember] = useState<any | null>(null);
+  const [members, setMembers] = useState<{ _id?: string; id?: string; userId?: { firstName: string; lastName: string; email: string }; currentMembership?: { planId?: { name: string } }; firstName?: string; lastName?: string; email?: string }[]>([]);
+  const [plans, setPlans] = useState<{ _id?: string; id?: string; name: string; price: number }[]>([]);
+  const [selectedMember, setSelectedMember] = useState<{ _id?: string; id?: string; userId?: { firstName: string; lastName: string; email: string }; currentMembership?: { planId?: { name: string } }; firstName?: string; lastName?: string; email?: string } | null>(null);
   const [memberSearch, setMemberSearch] = useState('');
   const [showMemberList, setShowMemberList] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -72,7 +72,7 @@ export function PaymentForm() {
           memberService.getMembers(),
           membershipService.getPlans()
         ]);
-        
+
         if (membersRes.success) setMembers(membersRes.data);
         if (plansRes.success) setPlans(plansRes.data);
       } catch (error) {
@@ -138,7 +138,8 @@ export function PaymentForm() {
         });
         navigate('/payments');
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
       toast({
         title: 'Payment Failed',
         description: error.response?.data?.message || 'Failed to process payment.',
@@ -147,9 +148,9 @@ export function PaymentForm() {
     }
   };
 
-  const selectMember = (member: any) => {
+  const selectMember = (member: { _id?: string; id?: string; userId?: { firstName: string; lastName: string; email: string }; currentMembership?: { planId?: { name: string } }; firstName?: string; lastName?: string; email?: string }) => {
     setSelectedMember(member);
-    setValue('memberId', member._id);
+    setValue('memberId', member._id || member.id || '');
     setShowMemberList(false);
     setMemberSearch('');
   };
@@ -158,7 +159,7 @@ export function PaymentForm() {
     (member) => {
       const name = `${member.userId?.firstName} ${member.userId?.lastName}`;
       return name.toLowerCase().includes(memberSearch.toLowerCase()) ||
-             member.userId?.email.toLowerCase().includes(memberSearch.toLowerCase());
+        member.userId?.email.toLowerCase().includes(memberSearch.toLowerCase());
     }
   );
 
@@ -236,21 +237,21 @@ export function PaymentForm() {
             <CardContent className="p-10 pt-0 space-y-8">
               <div className="relative">
                 <Label className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500 mb-3 block">
-                    Search Member <span className="text-rose-500">*</span>
-                  </Label>
-                  <div className="relative group/search">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 dark:text-navy-800 transition-colors group-focus-within/search:text-indigo-500" />
-                    <Input
-                      value={memberSearch}
-                      onChange={(e) => {
-                        setMemberSearch(e.target.value);
-                        setShowMemberList(true);
-                      }}
-                      onFocus={() => setShowMemberList(true)}
-                      className="h-14 bg-slate-50 dark:bg-navy-950/50 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold placeholder:text-slate-300 dark:placeholder:text-navy-800 pl-12"
-                      placeholder="Search by name or email..."
-                    />
-                  </div>
+                  Search Member <span className="text-rose-500">*</span>
+                </Label>
+                <div className="relative group/search">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 dark:text-navy-800 transition-colors group-focus-within/search:text-indigo-500" />
+                  <Input
+                    value={memberSearch}
+                    onChange={(e) => {
+                      setMemberSearch(e.target.value);
+                      setShowMemberList(true);
+                    }}
+                    onFocus={() => setShowMemberList(true)}
+                    className="h-14 bg-slate-50 dark:bg-navy-950/50 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold placeholder:text-slate-300 dark:placeholder:text-navy-800 pl-12"
+                    placeholder="Search by name or email..."
+                  />
+                </div>
 
                 {showMemberList && memberSearch && (
                   <div className="absolute z-50 w-full mt-4 bg-white dark:bg-navy-900 border border-slate-200 dark:border-navy-800 rounded-3xl shadow-2xl shadow-indigo-500/10 max-h-80 overflow-y-auto animate-in fade-in slide-in-from-top-4 duration-300">
@@ -331,7 +332,7 @@ export function PaymentForm() {
                   <Label htmlFor="paymentType" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                     Payment Type <span className="text-rose-500">*</span>
                   </Label>
-                  <Select onValueChange={(value) => setValue('paymentType', value as any)}>
+                  <Select onValueChange={(value) => setValue('paymentType', value as "membership" | "personal-training" | "day-pass" | "merchandise" | "other")}>
                     <SelectTrigger className="h-14 bg-slate-50 dark:bg-navy-950/50 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white rounded-2xl focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
@@ -354,7 +355,7 @@ export function PaymentForm() {
                       </SelectTrigger>
                       <SelectContent className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
                         {plans.map((plan) => (
-                          <SelectItem key={plan._id || plan.id} value={plan._id || plan.id} className="py-3 font-bold">
+                          <SelectItem key={plan._id || plan.id || ''} value={plan._id || plan.id || ''} className="py-3 font-bold">
                             {plan.name} — LKR {plan.price}
                           </SelectItem>
                         ))}
@@ -421,7 +422,7 @@ export function PaymentForm() {
                   ].map((method) => (
                     <div
                       key={method.value}
-                      onClick={() => setValue('paymentMethod', method.value as any)}
+                      onClick={() => setValue('paymentMethod', method.value as "cash" | "card" | "bank-transfer" | "online")}
                       className={cn(
                         "h-16 flex items-center justify-center rounded-2xl border-2 transition-all cursor-pointer font-bold text-xs uppercase tracking-widest text-center px-4",
                         paymentMethod === method.value
@@ -508,15 +509,15 @@ export function PaymentForm() {
                 {discountType && discountType !== 'none' && (
                   <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-tight p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20">
                     <div className="flex items-center gap-2">
-                       <Percent className="h-3 w-3" />
-                       <span>Discount Adjustment</span>
+                      <Percent className="h-3 w-3" />
+                      <span>Discount Adjustment</span>
                     </div>
                     <span>-LKR {(amount - total).toLocaleString()}</span>
                   </div>
                 )}
 
                 <Separator className="bg-slate-50 dark:bg-navy-850" />
-                
+
                 <div className="pt-2">
                   <div className="flex justify-between items-baseline mb-2">
                     <span className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Total Net Amount</span>
@@ -535,8 +536,8 @@ export function PaymentForm() {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4 group cursor-pointer" onClick={() => setValue('sendReceipt', !sendReceipt)}>
                     <div className={cn(
-                        "h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all",
-                        sendReceipt ? "bg-indigo-600 border-indigo-600 text-white" : "border-slate-200 dark:border-navy-800"
+                      "h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all",
+                      sendReceipt ? "bg-indigo-600 border-indigo-600 text-white" : "border-slate-200 dark:border-navy-800"
                     )}>
                       {sendReceipt && <Bell className="h-3 w-3" />}
                     </div>
@@ -544,8 +545,8 @@ export function PaymentForm() {
                   </div>
                   <div className="flex items-center space-x-4 group cursor-pointer" onClick={() => setValue('sendSMS', !sendSMS)}>
                     <div className={cn(
-                        "h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all",
-                        sendSMS ? "bg-indigo-600 border-indigo-600 text-white" : "border-slate-200 dark:border-navy-800"
+                      "h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all",
+                      sendSMS ? "bg-indigo-600 border-indigo-600 text-white" : "border-slate-200 dark:border-navy-800"
                     )}>
                       {sendSMS && <Bell className="h-3 w-3" />}
                     </div>
@@ -570,7 +571,7 @@ export function PaymentForm() {
             </CardContent>
           </Card>
           <div className="text-center">
-             <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-slate-300 dark:text-navy-800">Authorized Personnel Only</p>
+            <p className="text-[8px] font-bold uppercase tracking-[0.4em] text-slate-300 dark:text-navy-800">Authorized Personnel Only</p>
           </div>
         </div>
       </form>

@@ -1,9 +1,0 @@
-Set up your AI tool to integrate Stripe.
-Run this command to install Stripe's official AI skills
-$ npx skills add -y https://docs.stripe.com
-
-Publishable key
-pk_test_51TNeuPGD7kamS67FRZHniazsEPmCMWTJJqmm1dbWQdoA9CAFGq4wkCI2evkNgX1eHcFHfpbvGCfnjHa6V13O0GOJ00q5heuKgO
-
-Secret key
-sk_test_51TNeuPGD7kamS67F5HBssmsqSqHADlZ0hulgiudiwy5270ztxtMHP2iqcIDPqavfatTL7ck33R82K7SErJSwGoVY00VCZUQAHC

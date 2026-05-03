@@ -42,7 +42,13 @@ const classAttendanceData = [
 export function AnalyticsDashboard() {
   const [timeRange, setTimeRange] = useState('6months');
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<{
+    metrics: { revenue: number, activeMembers: number, retention: number };
+    memberGrowth: unknown[];
+    revenueTrend: unknown[];
+    membershipBreakdown: { plan: string, percentage: number }[];
+    topTrainers: { name: string, rating: number, sessions: number, revenue: number }[];
+  } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -188,7 +194,7 @@ export function AnalyticsDashboard() {
             </div>
           </CardHeader>
           <CardContent className="p-8 pt-4">
-            <ResponsiveContainer width="100%" height={320}>
+            <ResponsiveContainer width="100%" height={320} minWidth={0}>
               <AreaChart data={memberGrowth}>
                 <defs>
                   <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
@@ -197,18 +203,18 @@ export function AnalyticsDashboard() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-navy-800 transition-colors" />
-                <XAxis 
-                  dataKey="month" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }} 
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                   dy={10}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                 />
                 <Tooltip
@@ -246,17 +252,17 @@ export function AnalyticsDashboard() {
             <ResponsiveContainer width="100%" height={320}>
               <LineChart data={revenueTrend}>
                 <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-navy-800 transition-colors" />
-                <XAxis 
-                  dataKey="month" 
-                  axisLine={false} 
-                  tickLine={false} 
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                   dy={10}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                 />
@@ -271,7 +277,7 @@ export function AnalyticsDashboard() {
                   }}
                   itemStyle={{ color: '#10b981', fontWeight: 900, fontSize: '12px', textTransform: 'uppercase' }}
                   labelStyle={{ color: '#64748b', fontWeight: 700, fontSize: '10px', textTransform: 'uppercase', marginBottom: '4px' }}
-                  formatter={(value: any) => [`LKR ${Number(value || 0).toLocaleString()}`, 'Revenue']}
+                  formatter={(value: number | string | undefined) => [`LKR ${Number(value || 0).toLocaleString()}`, 'Revenue']}
                 />
                 <Line type="stepAfter" dataKey="revenue" stroke="#10b981" strokeWidth={4} dot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: 'currentColor' }} className="dark:text-navy-900" activeDot={{ r: 8, strokeWidth: 0 }} animationDuration={2000} />
               </LineChart>
@@ -292,17 +298,17 @@ export function AnalyticsDashboard() {
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={classAttendanceData}>
                 <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="currentColor" className="text-slate-100 dark:text-navy-800 transition-colors" />
-                <XAxis 
-                  dataKey="class" 
-                  axisLine={false} 
-                  tickLine={false} 
+                <XAxis
+                  dataKey="class"
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                   dy={10}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
                   tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
                   className="text-slate-400 dark:text-navy-500 transition-colors font-bold"
                 />
@@ -317,7 +323,7 @@ export function AnalyticsDashboard() {
                   }}
                   itemStyle={{ color: '#8b5cf6', fontWeight: 900, fontSize: '12px', textTransform: 'uppercase' }}
                   labelStyle={{ color: '#64748b', fontWeight: 700, fontSize: '10px', textTransform: 'uppercase', marginBottom: '4px' }}
-                  formatter={(value: any) => [`${value}%`, 'Yield']}
+                  formatter={(value: number | string | undefined) => [`${value}%`, 'Yield']}
                 />
                 <Bar dataKey="attendance" fill="#8b5cf6" radius={[12, 12, 4, 4]} barSize={40} animationDuration={2000} />
               </BarChart>
@@ -344,7 +350,7 @@ export function AnalyticsDashboard() {
                   dataKey="count"
                   animationDuration={2000}
                 >
-                  {membershipBreakdown.map((_: any, index: number) => (
+                  {membershipBreakdown.map((_: unknown, index: number) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="transparent" />
                   ))}
                 </Pie>
@@ -361,14 +367,14 @@ export function AnalyticsDashboard() {
                 />
               </PieChart>
             </ResponsiveContainer>
-             <div className="flex flex-wrap justify-center gap-4 mt-2">
-                {membershipBreakdown.map((item: any, index: number) => (
-                  <div key={item.plan} className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[index] }} />
-                    <span className="text-xs font-bold uppercase text-slate-500 dark:text-navy-400 transition-colors font-bold">{item.plan} ({item.percentage}%)</span>
-                  </div>
-                ))}
-             </div>
+            <div className="flex flex-wrap justify-center gap-4 mt-2">
+              {membershipBreakdown.map((item: { plan: string, percentage: number }, index: number) => (
+                <div key={item.plan} className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[index] }} />
+                  <span className="text-xs font-bold uppercase text-slate-500 dark:text-navy-400 transition-colors font-bold">{item.plan} ({item.percentage}%)</span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -386,7 +392,7 @@ export function AnalyticsDashboard() {
         </CardHeader>
         <CardContent className="p-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {topTrainers.map((trainer: any, index: number) => (
+            {topTrainers.map((trainer: { name: string, rating: number, sessions: number, revenue: number }, index: number) => (
               <div
                 key={trainer.name}
                 className="group relative p-6 rounded-[2rem] bg-slate-50/50 dark:bg-navy-950/50 border border-transparent hover:border-indigo-500/10 hover:bg-white dark:hover:bg-navy-950 transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/5"

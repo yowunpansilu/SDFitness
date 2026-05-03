@@ -29,7 +29,7 @@ const trainerSchema = z.object({
   phone: z.string()
     .trim()
     .min(10, 'Secure line must be at least 10 digits')
-    .refine(val => /^[0-9+ \-]{10,}$/.test(val), 'Invalid phone format'),
+    .refine(val => /^[0-9+ -]{10,}$/.test(val), 'Invalid phone format'),
   dateOfBirth: z.string().optional(),
   gender: z.enum(['male', 'female', 'other']).optional(),
   photo: z.string().optional(),
@@ -51,7 +51,7 @@ const trainerSchema = z.object({
   emergencyContactPhone: z.string()
     .trim()
     .min(10, 'Phone must be at least 10 digits')
-    .refine(val => /^[0-9+ \-]{10,}$/.test(val), 'Invalid phone format'),
+    .refine(val => /^[0-9+ -]{10,}$/.test(val), 'Invalid phone format'),
 });
 
 type TrainerFormData = z.infer<typeof trainerSchema>;
@@ -122,7 +122,7 @@ export function TrainerForm() {
             emergencyContactPhone: t.emergencyContact?.phone || '',
           });
           if (t.certifications) {
-            setCertifications(t.certifications.map((c: any, index: number) => ({
+            setCertifications(t.certifications.map((c: { name: string, issuer: string, issueDate?: string }, index: number) => ({
               id: index.toString(),
               name: c.name,
               issuer: c.issuer,
@@ -132,7 +132,7 @@ export function TrainerForm() {
           if (t.userId?.avatar) {
             setPhotoPreview(t.userId.avatar);
           }
-        } catch (error) {
+        } catch {
           toast({
             title: 'Error',
             description: 'Could not retrieve trainer profile.',
@@ -170,10 +170,11 @@ export function TrainerForm() {
         description: `${data.firstName} ${data.lastName} successfully saved.`,
       });
       navigate('/trainers');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: string } } };
       toast({
         title: 'Error',
-        description: error.response?.data?.error || 'Failed to save trainer data.',
+        description: err.response?.data?.error || 'Failed to save trainer data.',
         variant: 'destructive',
       });
     } finally {
@@ -405,7 +406,7 @@ export function TrainerForm() {
                   <Label htmlFor="gender" className="text-sm font-medium text-slate-500 dark:text-navy-500 ml-1">
                     Gender
                   </Label>
-                  <Select onValueChange={(value) => setValue('gender', value as any)}>
+                  <Select onValueChange={(value) => setValue('gender', value as "male" | "female" | "other")}>
                     <SelectTrigger className="h-12 bg-slate-50 dark:bg-navy-950 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white rounded-2xl transition-all px-4 text-sm font-medium">
                       <SelectValue placeholder="Select Gender" />
                     </SelectTrigger>
@@ -570,7 +571,7 @@ export function TrainerForm() {
                   <Select
                     value={watch('employmentStatus')}
                     onValueChange={(value) =>
-                      setValue('employmentStatus', value as any)
+                      setValue('employmentStatus', value as "full-time" | "part-time" | "contract")
                     }
                   >
                     <SelectTrigger className={cn(

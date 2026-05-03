@@ -20,6 +20,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { paymentService } from '@/services/paymentService';
 import { useToast } from '@/hooks/use-toast';
@@ -38,7 +45,20 @@ const statusColors = {
 export function PaymentsList() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<{
+    _id?: string;
+    id?: string;
+    status: string;
+    transactionId?: string;
+    memberId?: { userId?: { firstName: string; lastName: string } };
+    type?: string;
+    amount: number;
+    currency?: string;
+    createdAt?: string;
+    date?: string;
+    bankSlipUrl?: string;
+    referenceId?: string;
+  }[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -73,7 +93,8 @@ export function PaymentsList() {
     const memberName = payment.memberId?.userId?.firstName + ' ' + payment.memberId?.userId?.lastName;
     const matchesSearch =
       memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      payment.transactionId?.toLowerCase().includes(searchQuery.toLowerCase());
+      payment.transactionId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      payment.referenceId?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesType = typeFilter === 'all' || payment.type === typeFilter;
 
@@ -245,7 +266,7 @@ export function PaymentsList() {
                   >
                     <TableCell className="p-4 pl-6">
                       <span className="text-xs font-bold font-mono text-slate-500 dark:text-navy-400 bg-slate-100 dark:bg-navy-800 px-2 py-0.5 rounded transition-colors">
-                        {payment.transactionId || 'N/A'}
+                        {payment.transactionId || payment.referenceId || 'N/A'}
                       </span>
                     </TableCell>
                     <TableCell className="p-4">
@@ -269,17 +290,44 @@ export function PaymentsList() {
                       </Badge>
                     </TableCell>
                     <TableCell className="p-4 text-xs font-bold text-slate-500 dark:text-navy-500">
-                      {new Date(payment.createdAt || payment.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(payment.createdAt || payment.date || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </TableCell>
                     <TableCell className="p-4 pr-6 text-right">
                       <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-navy-800 rounded-lg transition-all"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={cn(
+                                "h-8 w-8 rounded-lg transition-all",
+                                payment.bankSlipUrl
+                                  ? "text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-navy-800"
+                                  : "text-slate-200 dark:text-navy-700 cursor-not-allowed opacity-50"
+                              )}
+                              disabled={!payment.bankSlipUrl}
+                              title={payment.bankSlipUrl ? "View Bank Slip" : "No Slip Available"}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          {payment.bankSlipUrl && (
+                            <DialogContent className="sm:max-w-[600px] bg-white dark:bg-navy-900 border-none rounded-xl">
+                              <DialogHeader>
+                                <DialogTitle className="text-slate-900 dark:text-white text-xl">
+                                  Bank Slip <span className="text-indigo-600 dark:text-indigo-400">#{payment.referenceId || payment.transactionId || 'N/A'}</span>
+                                </DialogTitle>
+                              </DialogHeader>
+                              <div className="flex justify-center mt-4 bg-slate-50 dark:bg-navy-950 p-4 rounded-xl border border-slate-100 dark:border-navy-800">
+                                <img
+                                  src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005'}${payment.bankSlipUrl}`}
+                                  alt="Bank Slip"
+                                  className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-md"
+                                />
+                              </div>
+                            </DialogContent>
+                          )}
+                        </Dialog>
                         <Button
                           variant="ghost"
                           size="icon"

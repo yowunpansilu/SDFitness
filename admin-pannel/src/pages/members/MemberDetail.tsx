@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, Trash2, Mail, Phone, Calendar, CreditCard, Activity, Loader2 } from 'lucide-react';
+import { ArrowLeft, Trash2, Mail, Phone, Calendar, CreditCard, Activity, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +29,22 @@ export function MemberDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [member, setMember] = useState<any>(null);
+  const [member, setMember] = useState<{
+    _id: string;
+    memberNumber?: string;
+    joinDate: string;
+    status: string;
+    fitnessGoals?: string[];
+    medicalConditions?: string[];
+    emergencyContact?: { name: string; relationship: string; phoneNumber: string };
+    height?: { value: number; unit: string };
+    currentWeight?: { value: number; unit: string };
+    targetWeight?: { value: number; unit: string };
+    bodyFatPercentage?: number;
+    dateOfBirth?: string;
+    dietaryPreferences?: string[];
+    userId?: { firstName: string; lastName: string; email: string; phone?: string; role?: string; avatar?: string };
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,11 +69,12 @@ export function MemberDetail() {
     };
 
     fetchMember();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleDelete = async () => {
     if (!member || !confirm(`Are you sure you want to delete ${member.userId?.firstName}?`)) return;
-    
+
     try {
       const response = await memberService.deleteMember(member._id);
       if (response.success) {
@@ -68,7 +84,7 @@ export function MemberDetail() {
         });
         navigate('/members');
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to delete member.',
@@ -95,7 +111,7 @@ export function MemberDetail() {
     );
   }
 
-  const userData = member.userId || {};
+  const userData = member.userId || ({} as { firstName?: string; lastName?: string; email?: string; phone?: string; role?: string; avatar?: string });
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -120,13 +136,6 @@ export function MemberDetail() {
           </div>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
-          <Button
-            variant="outline"
-            className="flex-1 md:flex-none h-11 px-6 rounded-xl border-slate-200 dark:border-navy-800 font-bold text-slate-600 dark:text-navy-300 hover:bg-slate-50 dark:hover:bg-navy-800 transition-colors"
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Profile
-          </Button>
           <Button
             variant="outline"
             onClick={handleDelete}
@@ -154,7 +163,7 @@ export function MemberDetail() {
                 {member.status}
               </Badge>
             </div>
-            
+
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-1 transition-colors">
               {userData.firstName} {userData.lastName}
             </h2>
@@ -222,8 +231,8 @@ export function MemberDetail() {
                   <Activity className="h-5 w-5 text-indigo-400" />
                 </div>
                 <p className="text-xl font-bold leading-snug">
-                  {member.fitnessGoals?.length > 0 
-                    ? `Working towards ${member.fitnessGoals[0].replace('_', ' ')}`
+                  {(member.fitnessGoals?.length || 0) > 0
+                    ? `Working towards ${(member.fitnessGoals || [])[0].replace('_', ' ')}`
                     : 'No fitness data recorded'
                   }
                 </p>
@@ -264,8 +273,8 @@ export function MemberDetail() {
                     <div>
                       <p className="text-xs font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-navy-600 mb-2">Medical Notes</p>
                       <div className="flex flex-wrap gap-2">
-                        {member.medicalConditions?.length > 0 ? (
-                          member.medicalConditions.map((c: string) => (
+                        {(member.medicalConditions?.length || 0) > 0 ? (
+                          (member.medicalConditions || []).map((c: string) => (
                             <Badge key={c} variant="outline" className="rounded-lg border-rose-100 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold uppercase text-[11px] transition-colors">
                               {c}
                             </Badge>
@@ -287,8 +296,8 @@ export function MemberDetail() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
-                      {member.fitnessGoals?.length > 0 ? (
-                        member.fitnessGoals.map((goal: string) => (
+                      {(member.fitnessGoals?.length || 0) > 0 ? (
+                        (member.fitnessGoals || []).map((goal: string) => (
                           <Badge key={goal} className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900/50 font-bold text-xs uppercase tracking-wider shadow-none transition-colors">
                             {goal.replace('_', ' ')}
                           </Badge>
@@ -318,7 +327,7 @@ export function MemberDetail() {
                   </Card>
                 ))}
               </div>
-              
+
               <Card className="bg-slate-50 dark:bg-navy-950 border-none rounded-3xl transition-colors">
                 <CardContent className="p-8">
                   <div className="flex items-center gap-4 mb-6">
@@ -331,8 +340,8 @@ export function MemberDetail() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {member.dietaryPreferences?.length > 0 ? (
-                      member.dietaryPreferences.map((pref: string) => (
+                    {(member.dietaryPreferences?.length || 0) > 0 ? (
+                      (member.dietaryPreferences || []).map((pref: string) => (
                         <Badge key={pref} className="px-4 py-2 rounded-xl bg-white dark:bg-navy-900 text-slate-700 dark:text-navy-200 border-slate-200 dark:border-navy-800 font-bold text-xs shadow-none transition-colors">
                           {pref.replace('_', ' ')}
                         </Badge>

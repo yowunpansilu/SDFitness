@@ -21,6 +21,7 @@ export interface Transaction {
     status: TransactionStatus;
     invoiceUrl: string;
     sessionId?: string;
+    bankSlipUrl?: string;
 }
 
 export interface StripeSessionResponse {
@@ -46,6 +47,15 @@ export const getPaymentById = async (paymentId: string): Promise<any> => {
     return response.data;
 };
 
+export const submitPayment = async (data: FormData): Promise<any> => {
+    const response = await api.post('/payments/bank-slip', data, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return response.data;
+};
+
 export const getTransactions = async (): Promise<Transaction[]> => {
     try {
         const response = await api.get('/payments');
@@ -54,11 +64,12 @@ export const getTransactions = async (): Promise<Transaction[]> => {
         return payments.map((p: any) => ({
             id: p._id,
             date: p.createdAt,
-            amount: p.amount,
+            amount: p.currency === 'USD' ? p.amount * 300 : p.amount,
             description: p.description,
             status: p.status === 'completed' ? 'paid' : p.status,
             invoiceUrl: '#',
-            sessionId: p.stripeSessionId
+            sessionId: p.stripeSessionId,
+            bankSlipUrl: p.bankSlipUrl
         }));
     } catch (error) {
         console.error('Failed to fetch transactions:', error);

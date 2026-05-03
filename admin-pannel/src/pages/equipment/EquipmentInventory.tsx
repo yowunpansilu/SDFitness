@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Wrench, AlertTriangle, CheckCircle, XCircle, Calendar, Loader2 } from 'lucide-react';
+import { Plus, Search, Wrench, AlertTriangle, CheckCircle, XCircle, Calendar, Loader2, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,7 +24,8 @@ import { cn } from '@/lib/utils';
 import api from '@/lib/api/axios';
 
 interface Equipment {
-  id: string;
+  _id?: string;
+  id?: string;
   name: string;
   category: 'cardio' | 'strength' | 'free_weights' | 'functional' | 'other';
   brand: string;
@@ -40,7 +41,7 @@ interface Equipment {
 
 // Mock data
 
-const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
+const statusConfig: Record<string, { label: string; color: string; icon: LucideIcon }> = {
   working: {
     label: 'Working',
     color: 'bg-emerald-50 text-emerald-600 border-emerald-100  ',
@@ -82,7 +83,7 @@ export function EquipmentInventory() {
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
-        const response = await api.get('/api/equipment');
+        const response = await api.get('/equipment');
         setEquipment(response.data);
       } catch (error) {
         console.error('Error fetching equipment:', error);
@@ -251,15 +252,15 @@ export function EquipmentInventory() {
               </TableHeader>
               <TableBody>
                 {filteredEquipment.map((equipment) => {
-                  const statusCfg = statusConfig[equipment.status];
-                  const StatusIcon = statusCfg.icon;
+                  const statusCfg = statusConfig[equipment.status] || statusConfig.working;
+                  const StatusIcon = statusCfg.icon || CheckCircle;
                   const isMaintenanceDue = equipment.nextMaintenance &&
                     new Date(equipment.nextMaintenance) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
                   return (
                     <TableRow
-                      key={equipment.id}
-                      onClick={() => navigate(`/equipment/${equipment.id}`)}
+                      key={equipment._id || equipment.id}
+                      onClick={() => navigate(`/equipment/${equipment._id || equipment.id}`)}
                       className="border-b border-slate-50 dark:border-navy-800/50 hover:bg-slate-50/50 dark:hover:bg-navy-950/50 transition-all cursor-pointer group"
                     >
                       <TableCell className="p-4 pl-6">
@@ -294,7 +295,7 @@ export function EquipmentInventory() {
                                 "text-xs font-bold transition-colors",
                                 isMaintenanceDue ? "text-amber-600" : "text-slate-400 dark:text-navy-500"
                               )}>
-                                {new Date(equipment.nextMaintenance).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}
+                                {new Date(equipment.nextMaintenance).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                               </span>
                               {isMaintenanceDue && (
                                 <span className="text-xs font-bold text-amber-500 uppercase tracking-normal">Due soon</span>

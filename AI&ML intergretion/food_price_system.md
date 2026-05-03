@@ -407,19 +407,6 @@ GET  /api/diet-plans/:id/cost        Recalculate current cost of a plan's shoppi
 
 ---
 
-## Team Member Responsibilities for Price System
-
-| Member | New Responsibility |
-|---|---|
-| **Member 1** (Backend) | Build `priceScraperService.js`, `priceWatcherService.js`, price API endpoints, CRON jobs |
-| **Member 2** (Frontend) | Shopping list with live price badges, budget bar, "Regenerate" button, price change warnings |
-| **Member 3** (Admin Panel) | Food Prices management page, price trend charts, scraper status dashboard |
-| **Member 4** (Payment/Notifs) | Budget alert notifications when price changes push total over budget |
-| **Member 5** (ML Model) | Use live prices in ML scoring; accept live prices dictionary in POST payload |
-| **Member 6** (Analytics) | Price trend analysis, price change impact on budget compliance metrics |
-
----
-
 ## What This Adds to the Academic Narrative
 
 > *"Unlike static diet plan generators, SDFitness implements a real-time food price tracking system. Food prices are automatically updated via a scheduled web scraper targeting local supermarket websites, supplemented by the Open Food Facts API and manual admin input. These live prices are stored in MongoDB and fed directly into our ML model's budget scoring function. When food prices change, affected shopping lists are automatically recalculated, and members are notified if their plan exceeds budget — ensuring our budget guarantee is real, not hypothetical."*

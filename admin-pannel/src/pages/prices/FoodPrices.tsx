@@ -65,6 +65,7 @@ export function FoodPrices() {
 
     useEffect(() => {
         fetchProducts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedDepartment]);
 
     useEffect(() => {
@@ -72,33 +73,35 @@ export function FoodPrices() {
             fetchProducts();
         }, 500);
         return () => clearTimeout(timeoutId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery]);
 
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const params: any = {};
+            const params: Record<string, string> = {};
             if (selectedDepartment !== 'all') params.departmentName = selectedDepartment;
             if (searchQuery.trim() !== '') params.search = searchQuery;
-            
+
             const res = await api.get('/prices', { params });
             // the API currently does filtering internally, but we can also filter on client-side
             let data = res.data.data || [];
-            
+
             // Client side filter just in case the backend text search isn't rigorous enough
             if (searchQuery.trim() !== '') {
                 const q = searchQuery.toLowerCase();
-                data = data.filter((p: Product) => 
-                    (p.name && p.name.toLowerCase().includes(q)) || 
+                data = data.filter((p: Product) =>
+                    (p.name && p.name.toLowerCase().includes(q)) ||
                     (p.sku && p.sku.toLowerCase().includes(q))
                 );
             }
 
             setProducts(data);
-        } catch (err: any) {
+        } catch (err) {
+            const error = err as Error;
             toast({
                 title: 'Sync Failed',
-                description: err.message || 'Failed to sync with Atlas products',
+                description: error.message || 'Failed to sync with Atlas products',
                 variant: 'destructive'
             });
         } finally {
@@ -144,8 +147,9 @@ export function FoodPrices() {
             await api.delete(`/prices/${id}`);
             setProducts(prev => prev.filter(p => p._id !== id));
             toast({ title: 'Product Deleted', description: `${name} has been removed.` });
-        } catch (err: any) {
-            toast({ title: 'Deletion Failed', description: err.message, variant: 'destructive' });
+        } catch (err) {
+            const error = err as Error;
+            toast({ title: 'Deletion Failed', description: error.message, variant: 'destructive' });
         }
     };
 
@@ -162,10 +166,11 @@ export function FoodPrices() {
                 toast({ title: 'Product Created', description: `${formData.name} was successfully added.` });
             }
             setIsDialogOpen(false);
-        } catch (err: any) {
+        } catch (err) {
+            const error = err as { response?: { data?: { error?: string } }, message: string };
             toast({
                 title: 'Operation Failed',
-                description: err.response?.data?.error || err.message,
+                description: error.response?.data?.error || error.message,
                 variant: 'destructive'
             });
         }
@@ -184,14 +189,14 @@ export function FoodPrices() {
                     </p>
                 </div>
                 <div className="flex gap-3">
-                    <Button 
+                    <Button
                         onClick={fetchProducts}
                         variant="outline"
                         className="rounded-xl h-11 px-4 border-border transition-all shadow-sm"
                     >
                         <RefreshCw className={cn("w-4 h-4", loading ? 'animate-spin' : '')} />
                     </Button>
-                    <Button 
+                    <Button
                         onClick={handleAddClick}
                         className="rounded-xl shadow-lg h-11 px-8 font-semibold text-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
@@ -292,17 +297,17 @@ export function FoodPrices() {
                                         </td>
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
                                                     onClick={() => handleEditClick(product)}
                                                     className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg"
                                                 >
                                                     <Edit2 className="w-3.5 h-3.5" />
                                                 </Button>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
                                                     onClick={() => handleDeleteClick(product._id, product.name)}
                                                     className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-lg"
                                                 >
@@ -333,79 +338,79 @@ export function FoodPrices() {
                                 Modified attributes will be immediately synchronized with the external Atlas database.
                             </DialogDescription>
                         </DialogHeader>
-                        
+
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label className="text-xs font-semibold text-muted-foreground">SKU (Foreign Key)</Label>
-                                    <Input 
+                                    <Input
                                         required
                                         placeholder="e.g. 104523"
                                         value={formData.sku}
-                                        onChange={e => setFormData({...formData, sku: e.target.value})}
+                                        onChange={e => setFormData({ ...formData, sku: e.target.value })}
                                         className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
                                     />
                                 </div>
-                                
+
                                 <div className="space-y-2">
                                     <Label className="text-xs font-semibold text-muted-foreground">Item ID (Internal)</Label>
-                                    <Input 
+                                    <Input
                                         placeholder="e.g. ITM-99"
                                         value={formData.itemID}
-                                        onChange={e => setFormData({...formData, itemID: e.target.value})}
+                                        onChange={e => setFormData({ ...formData, itemID: e.target.value })}
                                         className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
                                     />
                                 </div>
 
                                 <div className="space-y-2 col-span-2">
                                     <Label className="text-xs font-semibold text-muted-foreground">Product Name</Label>
-                                    <Input 
+                                    <Input
                                         required
                                         placeholder="e.g. Keells Fresh Carrots"
                                         value={formData.name}
-                                        onChange={e => setFormData({...formData, name: e.target.value})}
+                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
                                         className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
                                     />
                                 </div>
-                                
+
                                 <div className="space-y-2">
                                     <Label className="text-xs font-semibold text-muted-foreground">Current Price (LKR)</Label>
-                                    <Input 
+                                    <Input
                                         required
                                         type="number"
                                         min="0"
                                         step="0.01"
                                         value={formData.currentPrice}
-                                        onChange={e => setFormData({...formData, currentPrice: parseFloat(e.target.value)})}
+                                        onChange={e => setFormData({ ...formData, currentPrice: parseFloat(e.target.value) })}
                                         className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label className="text-xs font-semibold text-muted-foreground">Unit of Measurement (UOM)</Label>
-                                    <Input 
+                                    <Input
                                         placeholder="e.g. 1kg, 500g, bunch"
                                         value={formData.uom}
-                                        onChange={e => setFormData({...formData, uom: e.target.value})}
+                                        onChange={e => setFormData({ ...formData, uom: e.target.value })}
                                         className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
                                     />
                                 </div>
-                                
+
                                 <div className="space-y-2 col-span-2">
                                     <Label className="text-xs font-semibold text-muted-foreground">Image URL</Label>
-                                    <Input 
+                                    <Input
                                         placeholder="https://..."
                                         value={formData.imageUrl}
-                                        onChange={e => setFormData({...formData, imageUrl: e.target.value})}
+                                        onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
                                         className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label className="text-xs font-semibold text-muted-foreground">Department Name</Label>
-                                    <Select 
-                                        value={formData.departmentName} 
-                                        onValueChange={v => setFormData({...formData, departmentName: v})}
+                                    <Select
+                                        value={formData.departmentName}
+                                        onValueChange={v => setFormData({ ...formData, departmentName: v })}
                                     >
                                         <SelectTrigger className="h-10 text-sm font-medium rounded-xl focus:ring-primary/50">
                                             <SelectValue placeholder="Department" />
@@ -421,15 +426,15 @@ export function FoodPrices() {
 
                                 <div className="space-y-2">
                                     <Label className="text-xs font-semibold text-muted-foreground">Department ID</Label>
-                                    <Input 
+                                    <Input
                                         placeholder="e.g. DEP-001"
                                         value={formData.departmentId}
-                                        onChange={e => setFormData({...formData, departmentId: e.target.value})}
+                                        onChange={e => setFormData({ ...formData, departmentId: e.target.value })}
                                         className="h-10 text-sm font-medium rounded-xl focus-visible:ring-primary/50"
                                     />
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center justify-between p-4 bg-muted/40 rounded-xl border border-border mt-6">
                                 <div className="space-y-0.5">
                                     <Label className="text-sm font-semibold">Store Availability</Label>
@@ -439,20 +444,20 @@ export function FoodPrices() {
                                 </div>
                                 <Switch
                                     checked={formData.isAvailable}
-                                    onCheckedChange={checked => setFormData({...formData, isAvailable: checked})}
+                                    onCheckedChange={checked => setFormData({ ...formData, isAvailable: checked })}
                                 />
                             </div>
 
                             <DialogFooter className="gap-2 sm:gap-2 pt-6">
-                                <Button 
-                                    type="button" 
-                                    variant="outline" 
+                                <Button
+                                    type="button"
+                                    variant="outline"
                                     onClick={() => setIsDialogOpen(false)}
                                     className="flex-1 rounded-xl font-semibold text-xs h-11"
                                 >
                                     Cancel
                                 </Button>
-                                <Button 
+                                <Button
                                     type="submit"
                                     className="flex-1 rounded-xl font-semibold text-xs h-11 transition-all hover:scale-[1.02] shadow-md active:scale-95"
                                 >

@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotificationStore } from "@/lib/stores/notificationStore";
@@ -21,6 +21,9 @@ export function NotificationSheet({ children }: Props) {
                 <SheetHeader className="p-6 border-b">
                     <div className="flex items-center justify-between">
                         <SheetTitle>Notifications ({unreadCount})</SheetTitle>
+                        <SheetDescription className="sr-only">
+                            Your recent activity and alerts
+                        </SheetDescription>
                         <div className="flex gap-2">
                             <Button
                                 variant="ghost"

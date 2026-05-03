@@ -23,7 +23,7 @@ interface Trainer {
   email: string;
   phone: string;
   specializations: string[];
-  certifications: any[];
+  certifications: unknown[];
   assignedMembers: number;
   rating: number;
   photoUrl?: string;
@@ -49,7 +49,7 @@ export function TrainersList() {
       try {
         const response = await api.get('/trainers');
         // Map backend structure to frontend interface
-        const mappedTrainers = response.data.map((t: any) => ({
+        const mappedTrainers = response.data.map((t: { _id: string; userId?: { firstName?: string; lastName?: string; email?: string; phone?: string; avatar?: string }; specializations?: string[]; certifications?: unknown[]; assignedMembers?: number; rating?: number; status?: string; joinDate?: string; createdAt?: string }) => ({
           id: t._id,
           firstName: t.userId?.firstName || 'Unknown',
           lastName: t.userId?.lastName || 'Faculty',
@@ -142,7 +142,7 @@ export function TrainersList() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-slate-900 dark:text-white">
-              {trainers.filter((t: any) => t.status === 'active').length}
+              {trainers.filter((t) => t.status === 'active').length}
             </div>
             <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Currently teaching</p>
           </CardContent>
@@ -156,7 +156,7 @@ export function TrainersList() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-slate-900 dark:text-white">
-              {trainers.reduce((sum: number, t: any) => sum + (t.assignedMembers || 0), 0)}
+              {trainers.reduce((sum: number, t) => sum + (t.assignedMembers || 0), 0)}
             </div>
             <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Assigned members</p>
           </CardContent>
@@ -171,7 +171,7 @@ export function TrainersList() {
           <CardContent>
             <div className="text-3xl font-bold text-slate-900 dark:text-white">
               {trainers.length > 0
-                ? (trainers.reduce((sum: number, t: any) => sum + (t.rating || 0), 0) / trainers.length).toFixed(1)
+                ? (trainers.reduce((sum: number, t) => sum + (t.rating || 0), 0) / trainers.length).toFixed(1)
                 : '0.0'}
             </div>
             <p className="text-xs font-medium text-slate-400 dark:text-navy-500 mt-1 uppercase tracking-wider font-bold">Service quality</p>

@@ -125,7 +125,7 @@ export function TrainerDetail() {
         description: 'Profile has been successfully purged from the matrix.',
       });
       navigate('/trainers');
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to terminate faculty profile.',
@@ -264,9 +264,9 @@ export function TrainerDetail() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="bg-white dark:bg-navy-900 p-1.5 rounded-2xl border border-slate-100 dark:border-navy-800 shadow-sm transition-colors h-auto w-full md:w-auto">
           {['overview', 'members', 'schedule', 'certifications'].map(t => (
-            <TabsTrigger 
-              key={t} 
-              value={t} 
+            <TabsTrigger
+              key={t}
+              value={t}
               className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all capitalize"
             >
               {t}
@@ -338,13 +338,13 @@ export function TrainerDetail() {
                     <TableHead className="font-bold text-xs uppercase tracking-widest text-slate-700 dark:text-navy-400 text-right pr-8">Sessions</TableHead>
                   </TableRow>
                 </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell colSpan={4} className="h-32 text-center text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">
-                        No active student units assigned to this faculty
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
+                <TableBody>
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-32 text-center text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">
+                      No active student units assigned to this faculty
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
               </Table>
             </CardContent>
           </Card>
@@ -358,10 +358,10 @@ export function TrainerDetail() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-              <div className="h-32 flex flex-col items-center justify-center text-center space-y-4">
-                <Globe className="h-8 w-8 text-slate-200 dark:text-navy-800" />
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Standard faculty shifts currently in reconciliation</p>
-              </div>
+                <div className="h-32 flex flex-col items-center justify-center text-center space-y-4">
+                  <Globe className="h-8 w-8 text-slate-200 dark:text-navy-800" />
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600">Standard faculty shifts currently in reconciliation</p>
+                </div>
               </div>
             </CardContent>
           </Card>

@@ -6,12 +6,12 @@ export const membershipService = {
         return response.data;
     },
 
-    createPlan: async (data: any) => {
+    createPlan: async (data: Record<string, unknown>) => {
         const response = await api.post('/membership/plans', data);
         return response.data;
     },
 
-    updatePlan: async (id: string, data: any) => {
+    updatePlan: async (id: string, data: Record<string, unknown>) => {
         const response = await api.put(`/membership/plans/${id}`, data);
         return response.data;
     },
@@ -26,7 +26,7 @@ export const membershipService = {
         return response.data;
     },
 
-    createSubscription: async (data: any) => {
+    createSubscription: async (data: Record<string, unknown>) => {
         const response = await api.post('/membership/subscriptions', data);
         return response.data;
     },

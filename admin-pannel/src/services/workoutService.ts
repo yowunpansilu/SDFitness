@@ -12,9 +12,9 @@ export interface WorkoutTemplate {
     estimatedCaloriesBurned: number;
     status: 'pending_review' | 'approved' | 'rejected';
     aiGenerated: boolean;
-    aiPrompt?: any;
+    aiPrompt?: unknown;
     adminNotes?: string;
-    exercises: any[];
+    exercises: unknown[];
 }
 
 export const generateWorkout = async (memberId: string, overrides: { targetDuration?: number, difficulty?: string, category?: string, notes?: string }) => {

@@ -4,6 +4,7 @@ import {
     type StripeSessionResponse,
     getTransactions,
     createStripeSession,
+    submitPayment as submitPaymentApi,
 } from '@/lib/api/billingService';
 
 interface BillingState {
@@ -17,6 +18,7 @@ interface BillingState {
     removePaymentMethod: (id: string) => Promise<void>;
     setAsDefault: (id: string) => Promise<void>;
     startPayment: (data: { amount: number, currency: string, description: string, planId?: string }) => Promise<StripeSessionResponse>;
+    submitPayment: (data: FormData) => Promise<any>;
     downloadInvoice: (transactionId: string) => Promise<void>;
 }
 
@@ -44,6 +46,19 @@ export const useBillingStore = create<BillingState>((set) => ({
             return res;
         } catch (err: any) {
             const message = err.response?.data?.error || err.message || 'Failed to initiate payment';
+            set({ error: message, isLoading: false });
+            throw err;
+        }
+    },
+
+    submitPayment: async (data: FormData) => {
+        set({ isLoading: true, error: null });
+        try {
+            const res = await submitPaymentApi(data);
+            set({ isLoading: false });
+            return res;
+        } catch (err: any) {
+            const message = err.response?.data?.error || err.message || 'Failed to submit payment';
             set({ error: message, isLoading: false });
             throw err;
         }

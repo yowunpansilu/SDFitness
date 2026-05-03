@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const { connectDB, connectFoodDB } = require('./config/db');
+const path = require('path');
 
 // Load env vars
 dotenv.config();
@@ -10,17 +11,24 @@ const app = express();
 
 // Middleware
 const allowedOrigins = [
-    process.env.FRONT_END_URL || 'http://localhost:5173',
+    process.env.FRONT_END_URL,
+    'http://localhost:5173',
     'http://127.0.0.1:5173',
-    'http://localhost:3001'
-];
+    'http://localhost:3001',
+    'https://sd-fitness.vercel.app'
+].filter(Boolean);
 
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
 
-        if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        const isAllowed = allowedOrigins.includes(origin) || 
+                          origin.includes('localhost') || 
+                          origin.includes('127.0.0.1') ||
+                          origin.endsWith('.vercel.app');
+
+        if (isAllowed) {
             return callback(null, true);
         } else {
             console.warn(`⚠️ CORS blocked for origin: ${origin}`);
@@ -30,6 +38,9 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
+
+// Serve static assets for uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Health check
 app.get('/api/health', (req, res) => {

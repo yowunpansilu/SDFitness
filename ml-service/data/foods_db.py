@@ -9,10 +9,15 @@ training and inference, we keep a local copy as a CSV/dict for speed.
 import pandas as pd
 import os
 from pymongo import MongoClient
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # MongoDB Config
-MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME = os.getenv("DB_NAME", "keelsPriceDB")
+# Use FOOD_DB_URI if available, fallback to MONGO_URI
+MONGO_URI = os.getenv("FOOD_DB_URI") or os.getenv("MONGO_URI")
+DB_NAME = os.getenv("FOOD_DB_NAME") or os.getenv("DB_NAME", "keelsPriceDB")
 
 def _get_mongo_client():
     """Helper to get a connected MongoDB client."""

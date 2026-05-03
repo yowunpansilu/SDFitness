@@ -31,9 +31,10 @@ export function Login() {
         alert(data.message || 'Login failed!');
         setIsLoading(false);
       }
-    } catch (error: any) {
-      console.error('Admin Login Error:', error);
-      alert(error.response?.data?.message || 'Connection to security server failed.');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      console.error('Admin Login Error:', err);
+      alert(err.response?.data?.message || 'Connection to security server failed.');
       setIsLoading(false);
     }
   };

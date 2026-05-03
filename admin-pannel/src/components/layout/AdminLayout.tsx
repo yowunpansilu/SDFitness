@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 
 export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -17,6 +17,10 @@ export function AdminLayout() {
       {/* Mobile Sidebar */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetContent side="left" className="p-0 w-72 bg-white border-r border-slate-200">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Admin Navigation</SheetTitle>
+            <SheetDescription>Access management sections and facility settings</SheetDescription>
+          </SheetHeader>
           <AdminSidebar />
         </SheetContent>
       </Sheet>

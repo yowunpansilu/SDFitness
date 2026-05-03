@@ -129,7 +129,10 @@ exports.setWeightGoal = async (req, res) => {
 // GET active weight goal
 exports.getActiveGoal = async (req, res) => {
     try {
-        const userId = req.user.id;
+        let userId = req.user.id;
+        if ((req.user.role === 'admin' || req.user.role === 'trainer') && req.query.userId) {
+            userId = req.query.userId;
+        }
         const goal = await WeightGoal.findOne({ userId, status: 'active' });
 
         res.json({
@@ -144,7 +147,10 @@ exports.getActiveGoal = async (req, res) => {
 // GET weight history
 exports.getWeightHistory = async (req, res) => {
     try {
-        const userId = req.user.id;
+        let userId = req.user.id;
+        if ((req.user.role === 'admin' || req.user.role === 'trainer') && req.query.userId) {
+            userId = req.query.userId;
+        }
         const logs = await WeightLog.find({ userId }).sort({ date: -1 });
 
         res.json({

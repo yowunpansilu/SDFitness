@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Activity,
     TrendingUp,
@@ -16,11 +16,10 @@ import { format } from 'date-fns';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 export function ProgressDashboard() {
-    const [members, setMembers] = useState<any[]>([]);
+    const [members, setMembers] = useState<{ _id: string; firstName?: string; lastName?: string; memberId?: string; currentWeight?: number; goal?: string }[]>([]);
     const [search, setSearch] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [selectedMember, setSelectedMember] = useState<any>(null);
-    const [weeklyProgress, setWeeklyProgress] = useState<any[]>([]);
+    const [selectedMember, setSelectedMember] = useState<{ _id: string; firstName?: string; lastName?: string; memberId?: string; currentWeight?: number; goal?: string } | null>(null);
+    const [weeklyProgress, setWeeklyProgress] = useState<{ date: string; workout: number; diet: number }[]>([]);
     const [fetchingProgress, setFetchingProgress] = useState(false);
 
     useEffect(() => {
@@ -33,17 +32,15 @@ export function ProgressDashboard() {
             setMembers(res.data.members || res.data);
         } catch (err) {
             console.error('Error fetching members:', err);
-        } finally {
-            setLoading(false);
         }
     };
 
-    const handleSelectMember = async (member: any) => {
+    const handleSelectMember = async (member: { _id: string; firstName?: string; lastName?: string; memberId?: string; currentWeight?: number; goal?: string }) => {
         setSelectedMember(member);
         setFetchingProgress(true);
         try {
             const res = await api.get(`/progress/weekly?userId=${member._id}`);
-            const chartData = res.data.map((item: any) => ({
+            const chartData = res.data.map((item: { date: string; workoutCompleted?: boolean; dietFollowed?: boolean }) => ({
                 date: format(new Date(item.date), 'EEE'),
                 workout: item.workoutCompleted ? 1 : 0,
                 diet: item.dietFollowed ? 1 : 0,
@@ -154,7 +151,7 @@ export function ProgressDashboard() {
                                         {fetchingProgress ? (
                                             <div className="h-full flex items-center justify-center animate-pulse bg-navy-800/10 rounded-xl" />
                                         ) : weeklyProgress.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height="100%">
+                                            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                                 <BarChart data={weeklyProgress}>
                                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
                                                     <XAxis dataKey="date" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />

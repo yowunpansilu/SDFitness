@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { 
-    CreditCard, 
-    RefreshCw, 
-    AlertCircle, 
-    Search, 
-    User, 
+import {
+    CreditCard,
+    RefreshCw,
+    AlertCircle,
+    Search,
+    User,
     ArrowUpRight,
     Ban,
     Loader2,
@@ -39,7 +39,7 @@ import { format } from 'date-fns';
 
 export function SubscriptionsDashboard() {
     const { toast } = useToast();
-    const [renewals, setRenewals] = useState<any[]>([]);
+    const [renewals, setRenewals] = useState<{ memberName: string; email: string; plan?: { name?: string }; nextChargeAmount?: number; hasToken?: boolean; endDate: string; memberId: string; paymentMethod?: { brand?: string; last4?: string } }[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [cancellingId, setCancellingId] = useState<string | null>(null);
@@ -47,6 +47,7 @@ export function SubscriptionsDashboard() {
 
     useEffect(() => {
         fetchRenewals();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchRenewals = async () => {
@@ -75,7 +76,7 @@ export function SubscriptionsDashboard() {
 
     const confirmCancel = async () => {
         if (!cancellingId) return;
-        
+
         try {
             const response = await membershipService.cancelAutoRenewal(cancellingId);
             if (response.success) {
@@ -85,7 +86,7 @@ export function SubscriptionsDashboard() {
                 });
                 fetchRenewals(); // Refresh list
             }
-        } catch (error) {
+        } catch {
             toast({
                 title: 'Error',
                 description: 'Failed to cancel auto-renewal.',
@@ -97,7 +98,7 @@ export function SubscriptionsDashboard() {
         }
     };
 
-    const filteredRenewals = renewals.filter(r => 
+    const filteredRenewals = renewals.filter(r =>
         r.memberName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.plan?.name?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -130,8 +131,8 @@ export function SubscriptionsDashboard() {
                     </p>
                 </div>
                 <div className="flex gap-3">
-                    <Button 
-                        variant="outline" 
+                    <Button
+                        variant="outline"
                         onClick={fetchRenewals}
                         className="rounded-xl border-slate-200 dark:border-navy-800"
                     >
@@ -316,7 +317,7 @@ export function SubscriptionsDashboard() {
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-2 pt-4">
                         <AlertDialogCancel className="rounded-xl border-slate-200 font-bold">Stay Active</AlertDialogCancel>
-                        <AlertDialogAction 
+                        <AlertDialogAction
                             onClick={confirmCancel}
                             className="rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold shadow-lg shadow-rose-200"
                         >

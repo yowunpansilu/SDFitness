@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Download, Printer, Mail, User, CreditCard, DollarSign, Loader2 } from 'lucide-react';
+import { ArrowLeft, Printer, User, CreditCard, DollarSign, Loader2, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +22,25 @@ export function PaymentDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
-  const [payment, setPayment] = useState<any>(null);
+  const [payment, setPayment] = useState<{
+    _id?: string;
+    id?: string;
+    status: string;
+    bankSlipUrl?: string;
+    transactionId?: string;
+    invoiceNumber?: string;
+    memberId?: { _id?: string, userId?: { firstName?: string, lastName?: string, email?: string }, phone?: string, address?: string };
+    createdAt?: string;
+    date?: string;
+    paymentMethod?: string;
+    cardLast4?: string;
+    items?: { description: string, quantity: number, unitPrice: number, total: number }[];
+    description?: string;
+    type?: string;
+    amount: number;
+    currency?: string;
+    referenceId?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,12 +72,33 @@ export function PaymentDetail() {
     window.print();
   };
 
-  const handleDownload = () => {
-    console.log('Downloading invoice...');
+  const handleApprove = async () => {
+    if (!payment) return;
+    try {
+      await paymentService.approvePayment(payment._id || payment.id!);
+      setPayment({ ...payment, status: 'completed' });
+      toast({ title: 'Success', description: 'Payment approved successfully.' });
+    } catch {
+      toast({ title: 'Error', description: 'Failed to approve payment.', variant: 'destructive' });
+    }
   };
 
-  const handleSendEmail = () => {
-    console.log('Sending invoice via email...');
+  const handleReject = async () => {
+    if (!payment) return;
+    try {
+      await paymentService.rejectPayment(payment._id || payment.id!, 'Rejected by admin');
+      setPayment({ ...payment, status: 'failed' });
+      toast({ title: 'Success', description: 'Payment rejected.' });
+    } catch {
+      toast({ title: 'Error', description: 'Failed to reject payment.', variant: 'destructive' });
+    }
+  };
+
+  const handleViewSlip = () => {
+    if (!payment) return;
+    if (payment.bankSlipUrl) {
+      window.open(`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5005'}${payment.bankSlipUrl}`, '_blank');
+    }
   };
 
   if (loading) {
@@ -100,14 +139,33 @@ export function PaymentDetail() {
           </div>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button
-            onClick={handleSendEmail}
-            variant="ghost"
-            className="h-11 px-6 bg-slate-50 dark:bg-navy-950 border-none text-slate-400 dark:text-navy-500 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-navy-800 rounded-xl font-bold uppercase text-xs tracking-widest transition-all"
-          >
-            <Mail className="h-4 w-4 mr-2" />
-            Send Receipt
-          </Button>
+          {payment.status === 'pending' && (
+            <>
+              <Button
+                onClick={handleApprove}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-11 px-6 font-bold uppercase text-xs tracking-widest transition-all shadow-lg"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Approve
+              </Button>
+              <Button
+                onClick={handleReject}
+                className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl h-11 px-6 font-bold uppercase text-xs tracking-widest transition-all shadow-lg"
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                Reject
+              </Button>
+            </>
+          )}
+          {payment.bankSlipUrl && (
+            <Button
+              onClick={handleViewSlip}
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-11 px-6 font-bold uppercase text-xs tracking-widest transition-all shadow-lg"
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              View Slip
+            </Button>
+          )}
           <Button
             onClick={handlePrint}
             variant="ghost"
@@ -115,13 +173,6 @@ export function PaymentDetail() {
           >
             <Printer className="h-4 w-4 mr-2" />
             Print Record
-          </Button>
-          <Button
-            onClick={handleDownload}
-            className="bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-200 dark:shadow-indigo-950/20 h-11 px-8 font-bold uppercase text-xs tracking-widest transition-all hover:scale-105 active:scale-95"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download PDF
           </Button>
         </div>
       </div>
@@ -140,15 +191,6 @@ export function PaymentDetail() {
               </div>
               <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-navy-600 print:text-slate-600">
                 Invoice Number: {payment.invoiceNumber || payment.transactionId || 'N/A'}
-              </p>
-            </div>
-            <div className="text-right space-y-2">
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white print:text-black tracking-tight">SD FITNESS GLOBAL</h3>
-              <p className="text-xs font-bold text-slate-400 dark:text-navy-400 print:text-slate-600 leading-relaxed uppercase">
-                SD Fitness Main Branch<br />
-                Colombo, Sri Lanka<br />
-                Email: payments@sdfitness.lk<br />
-                Tel: +94 11 234 5678
               </p>
             </div>
           </div>
@@ -189,7 +231,7 @@ export function PaymentDetail() {
               <div className="p-8 rounded-[2rem] bg-slate-50 dark:bg-navy-950/50 border border-slate-100 dark:border-navy-800 space-y-6 transition-colors font-bold uppercase text-xs tracking-widest text-slate-400 dark:text-navy-600">
                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-navy-800">
                   <span>Payment Date</span>
-                  <span className="text-slate-900 dark:text-white">{new Date(payment.createdAt || payment.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                  <span className="text-slate-900 dark:text-white">{new Date(payment.createdAt || payment.date || '').toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-navy-800">
                   <span>Method</span>
@@ -217,7 +259,7 @@ export function PaymentDetail() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-navy-950">
-                {(payment.items || [{ description: payment.description || payment.type, quantity: 1, unitPrice: payment.amount, total: payment.amount }]).map((item: any, index: number) => {
+                {(payment.items || [{ description: payment.description || payment.type || '', quantity: 1, unitPrice: payment.amount, total: payment.amount }]).map((item: { description: string, quantity: number, unitPrice: number, total: number }, index: number) => {
                   const unitPriceLkr = payment.currency === 'USD' ? item.unitPrice * 300 : item.unitPrice;
                   const totalLkr = payment.currency === 'USD' ? item.total * 300 : item.total;
                   return (
@@ -309,7 +351,7 @@ export function PaymentDetail() {
             </div>
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 text-center transition-colors">
               <span className="text-slate-400 dark:text-navy-600 text-[11px] font-bold uppercase tracking-widest text-xs">Recorded at</span>
-              <p className="text-sm font-bold text-slate-900 dark:text-white mt-1 uppercase">{new Date(payment.createdAt || payment.date).toLocaleTimeString()}</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white mt-1 uppercase">{new Date(payment.createdAt || payment.date || '').toLocaleTimeString()}</p>
             </div>
           </CardContent>
         </Card>

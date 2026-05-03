@@ -207,3 +207,72 @@ exports.getMemberApprovedWorkouts = async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 };
+
+// UPDATE workout template (Rename)
+exports.updateTemplate = async (req, res) => {
+    try {
+        const { name } = req.body;
+        const template = await WorkoutTemplate.findByIdAndUpdate(req.params.id, {
+            name
+        }, { new: true });
+
+        if (!template) {
+            return res.status(404).json({ success: false, message: 'Template not found' });
+        }
+
+        res.json({ success: true, data: template });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// DELETE workout template
+exports.deleteTemplate = async (req, res) => {
+    try {
+        const template = await WorkoutTemplate.findByIdAndDelete(req.params.id);
+        if (!template) {
+            return res.status(404).json({ success: false, message: 'Template not found' });
+        }
+        res.json({ success: true, message: 'Template deleted' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// GET 30-day workout history aggregated per day (for progress chart)
+exports.getMemberHistory30Days = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+        startDate.setHours(0, 0, 0, 0);
+
+        const workouts = await WorkoutLog.find({
+            memberId: id,
+            workoutDate: { $gte: startDate },
+            status: 'completed'
+        }).sort({ workoutDate: 1 });
+
+        // Build a per-day aggregated map for chart rendering
+        const dayMap = {};
+        for (let i = 30; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const key = d.toISOString().split('T')[0];
+            dayMap[key] = { date: key, calories: 0, duration: 0, count: 0 };
+        }
+
+        for (const w of workouts) {
+            const key = new Date(w.workoutDate).toISOString().split('T')[0];
+            if (dayMap[key]) {
+                dayMap[key].calories += w.totalCaloriesBurned || 0;
+                dayMap[key].duration += w.duration || 0;
+                dayMap[key].count += 1;
+            }
+        }
+
+        res.json({ success: true, data: Object.values(dayMap), workouts });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};

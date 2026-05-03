@@ -133,8 +133,8 @@ const initialGeneralSettings: GeneralSettings = {
         saturday: { isOpen: true, openTime: '08:00', closeTime: '20:00' },
         sunday: { isOpen: true, openTime: '08:00', closeTime: '18:00' },
     },
-    currency: 'USD',
-    timezone: 'America/Los_Angeles',
+    currency: 'LKR',
+    timezone: 'Asia/Colombo',
 };
 
 const initialEmailTemplates: EmailTemplate[] = [
@@ -348,13 +348,13 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
         set({ isLoading: true });
         try {
             const settings = await settingsService.getAllSettings();
-            const updates: any = {};
-            
+            const updates: Partial<SettingsState> = {};
+
             settings.forEach(s => {
-                if (s.key === 'generalSettings') updates.generalSettings = s.value;
-                if (s.key === 'emailTemplates') updates.emailTemplates = s.value;
-                if (s.key === 'notificationSettings') updates.notificationSettings = s.value;
-                if (s.key === 'roles') updates.roles = s.value;
+                if (s.key === 'generalSettings') updates.generalSettings = s.value as GeneralSettings;
+                if (s.key === 'emailTemplates') updates.emailTemplates = s.value as EmailTemplate[];
+                if (s.key === 'notificationSettings') updates.notificationSettings = s.value as NotificationSettings;
+                if (s.key === 'roles') updates.roles = s.value as Role[];
             });
 
             if (Object.keys(updates).length > 0) {
@@ -372,7 +372,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
 
         try {
             const { generalSettings, emailTemplates, notificationSettings, roles } = get();
-            
+
             await Promise.all([
                 settingsService.updateSetting('generalSettings', generalSettings, 'general'),
                 settingsService.updateSetting('emailTemplates', emailTemplates, 'email'),

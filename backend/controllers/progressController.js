@@ -42,23 +42,56 @@ exports.submitDailyProgress = async (req, res) => {
 exports.getDailyProgress = async (req, res) => {
     try {
         const userId = req.user.id;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const { date } = req.params;
+        const targetDate = date ? new Date(date) : new Date();
+        targetDate.setHours(0, 0, 0, 0);
 
-        const progress = await DailyProgress.findOne({ userId, date: today });
+        const progress = await DailyProgress.findOne({ userId, date: targetDate });
         res.json({
             success: true,
-            data: progress
+            data: progress || { userId, date: targetDate, workoutCompleted: false, dietFollowed: false }
         });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 };
 
+// POST toggle daily progress (for specific task)
+exports.toggleDailyProgress = async (req, res) => {
+    try {
+        const { date, type, value } = req.body;
+        const userId = req.user.id;
+
+        const targetDate = date ? new Date(date) : new Date();
+        targetDate.setHours(0, 0, 0, 0);
+
+        const updateField = type === 'workout' ? 'workoutCompleted' : 'dietFollowed';
+
+        const progress = await DailyProgress.findOneAndUpdate(
+            { userId, date: targetDate },
+            { $set: { [updateField]: value } },
+            { upsert: true, new: true }
+        );
+
+        res.json({
+            success: true,
+            data: progress
+        });
+    } catch (err) {
+        res.status(400).json({ success: false, message: err.message });
+    }
+};
+
 // GET weekly progress (last 7 days)
 exports.getWeeklyProgress = async (req, res) => {
     try {
-        const userId = req.user.id;
+        let userId = req.user.id;
+
+        // If admin and userId provided in query, look up that user
+        if ((req.user.role === 'admin' || req.user.role === 'trainer') && req.query.userId) {
+            userId = req.query.userId;
+        }
+
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         sevenDaysAgo.setHours(0, 0, 0, 0);

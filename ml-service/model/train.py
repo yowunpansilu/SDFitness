@@ -23,7 +23,7 @@ import os
 import json
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import GradientBoostingRegressor
+from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import joblib
@@ -205,17 +205,18 @@ def train_model(df):
     print(f"📊 Test set:     {len(X_test)} samples")
     print(f"📊 Features:     {len(feature_cols)}")
 
-    model = GradientBoostingRegressor(
+    model = XGBRegressor(
         n_estimators=200,
         max_depth=5,
         learning_rate=0.1,
-        min_samples_split=10,
-        min_samples_leaf=5,
         subsample=0.8,
-        random_state=42
+        colsample_bytree=0.8,
+        n_jobs=-1,
+        random_state=42,
+        verbosity=0
     )
 
-    print("\n🔄 Training Gradient Boosting model...")
+    print("\n🔄 Training XGBoost model...")
     model.fit(X_train, y_train)
 
     # Evaluate

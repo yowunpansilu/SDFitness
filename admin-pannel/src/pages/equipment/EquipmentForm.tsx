@@ -27,7 +27,7 @@ const equipmentSchema = z.object({
   brand: z.string().optional(),
   model: z.string().optional(),
   serialNumber: z.string().min(1, 'Serial number is required'),
-  status: z.enum(['available', 'in-use', 'maintenance', 'broken']),
+  status: z.enum(['working', 'maintenance', 'broken', 'retired']),
 
   // Purchase Details
   purchaseDate: z.string().optional(),
@@ -78,7 +78,7 @@ export function EquipmentForm() {
       name: '',
       category: '',
       serialNumber: '',
-      status: 'available',
+      status: 'working',
       location: '',
     },
   });
@@ -90,7 +90,7 @@ export function EquipmentForm() {
     if (isEditMode) {
       const fetchEquipment = async () => {
         try {
-          const response = await api.get(`/api/equipment/${id}`);
+          const response = await api.get(`/equipment/${id}`);
           const data = response.data;
           reset(data);
           if (data.specifications) setSpecifications(data.specifications);
@@ -112,9 +112,9 @@ export function EquipmentForm() {
     try {
       const payload = { ...data, specifications };
       if (isEditMode) {
-        await api.put(`/api/equipment/${id}`, payload);
+        await api.put(`/equipment/${id}`, payload);
       } else {
-        await api.post('/api/equipment', payload);
+        await api.post('/equipment', payload);
       }
 
       toast({
@@ -264,15 +264,15 @@ export function EquipmentForm() {
                 <Label htmlFor="status" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Status <span className="text-rose-500">*</span>
                 </Label>
-                <Select value={watch('status')} onValueChange={(value) => setValue('status', value as any)}>
+                <Select value={watch('status')} onValueChange={(value) => setValue('status', value as 'working' | 'maintenance' | 'broken' | 'retired')}>
                   <SelectTrigger className="h-14 bg-slate-50 dark:bg-navy-950/50 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-bold uppercase">
                     <SelectValue placeholder="Current Status" />
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-navy-900 border-slate-200 dark:border-navy-800">
-                    <SelectItem value="available" className="py-3">Available</SelectItem>
-                    <SelectItem value="in-use" className="py-3">In Use</SelectItem>
+                    <SelectItem value="working" className="py-3">Working</SelectItem>
                     <SelectItem value="maintenance" className="py-3">Maintenance</SelectItem>
                     <SelectItem value="broken" className="py-3">Broken</SelectItem>
+                    <SelectItem value="retired" className="py-3">Retired</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -501,7 +501,7 @@ export function EquipmentForm() {
                 <Label htmlFor="maintenanceFrequency" className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-navy-500">
                   Execution Frequency
                 </Label>
-                <Select onValueChange={(value) => setValue('maintenanceFrequency', value as any)}>
+                <Select onValueChange={(value) => setValue('maintenanceFrequency', value as 'weekly' | 'monthly' | 'quarterly' | 'yearly')}>
                   <SelectTrigger className="h-14 bg-white dark:bg-navy-900 border-slate-100 dark:border-navy-800 text-slate-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-indigo-500 transition-all font-bold uppercase">
                     <SelectValue placeholder="Select Cadence" />
                   </SelectTrigger>

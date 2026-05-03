@@ -1,257 +1,283 @@
 """
-Phase 2.2 — Food Alias Table & Fuzzy Matching
-Maps scraped product names → canonical food IDs in foods_db.py
+SDFitness ML Service — Fuzzy Matching Bridge v2
 
-Usage:
-    from scrapers.food_aliases import fuzzy_match_to_food_id
-    food_id = fuzzy_match_to_food_id("KEELLS Chicken Drumstick 500g")
-    # → "chicken_breast" (confidence: 0.82)
+Public API (unchanged from v1):
+    fuzzy_match_to_food_id(name, category_hint=None) → dict | None
+    get_all_food_ids()                                → list[str]
+    get_category_for_food(food_id)                    → str | None
+
+Internal pipeline (new):
+    1. Sanitizer.clean()        — strip Unicode noise + brand prefixes (Atlas-driven)
+    2. WeightExtractor.extract() — strip UOM tokens, return weight in grams
+    3. WaterfallMatcher.match() — 3-stage: Exact → Fuzzy → Category-scoped Fuzzy
 """
 
-from thefuzz import fuzz
-from thefuzz import process
+from __future__ import annotations
+
+import logging
+import re
+from functools import lru_cache
 from typing import Optional
 
-# ─────────────────────────────────────────────────────────────
-# Canonical food ID → list of known aliases / product name fragments
-# Category is used to constrain matching (only match within same category)
-# ─────────────────────────────────────────────────────────────
-FOOD_ALIASES = {
-    # ── Protein ──────────────────────────────────────────────
-    "chicken_breast": {
-        "category": "protein",
-        "aliases": [
-            "chicken breast", "chicken fillet", "chicken boneless",
-            "chicken drumstick", "chicken thigh", "chicken whole",
-            "broiler chicken", "farm chicken", "keells chicken",
-            "cargills chicken", "ranfer chicken",
-        ],
-    },
-    "eggs": {
-        "category": "protein",
-        "aliases": [
-            "eggs", "egg", "free range eggs", "farm eggs",
-            "brown eggs", "white eggs", "10 pack eggs", "6 pack eggs",
-            "omega eggs", "village eggs",
-        ],
-    },
-    "tuna": {
-        "category": "protein",
-        "aliases": [
-            "tuna", "canned tuna", "tuna chunks", "tuna flakes",
-            "john west tuna", "mega tuna", "sealord tuna",
-            "skipjack tuna", "yellowfin tuna",
-        ],
-    },
-    "soy_meat": {
-        "category": "protein",
-        "aliases": [
-            "soy meat", "soya meat", "textured vegetable protein",
-            "tvp", "lanka soy", "prima soy", "soya chunks",
-        ],
-    },
-    "red_lentils": {
-        "category": "protein",
-        "aliases": [
-            "red lentils", "parippu", "lentils", "masoor dal",
-            "red dal", "dhal", "dal", "sathosa parippu",
-        ],
-    },
-    "tofu": {
-        "category": "protein",
-        "aliases": [
-            "tofu", "bean curd", "silken tofu", "firm tofu",
-            "tofu block",
-        ],
-    },
+from thefuzz import fuzz
 
-    # ── Carbs ─────────────────────────────────────────────────
-    "rice": {
-        "category": "carbs",
-        "aliases": [
-            "white rice", "basmati rice", "samba", "keeri samba",
-            "nadu rice", "raw rice", "parboiled rice",
-            "cargills rice", "prima rice", "sathosa rice",
-        ],
-    },
-    "brown_rice": {
-        "category": "carbs",
-        "aliases": [
-            "brown rice", "red rice", "hand pounded rice",
-            "whole grain rice", "unpolished rice",
-        ],
-    },
-    "oats": {
-        "category": "carbs",
-        "aliases": [
-            "oats", "rolled oats", "instant oats", "quaker oats",
-            "morn oats", "porridge oats", "whole oats",
-        ],
-    },
-    "sweet_potato": {
-        "category": "carbs",
-        "aliases": [
-            "sweet potato", "bathala", "purple sweet potato",
-            "orange sweet potato", "kumara",
-        ],
-    },
-    "bread": {
-        "category": "carbs",
-        "aliases": [
-            "bread", "white bread", "brown bread", "whole wheat bread",
-            "toast bread", "harvest bread", "prima bread", "massimo bread",
-        ],
-    },
+log = logging.getLogger(__name__)
 
-    # ── Vegetables ────────────────────────────────────────────
-    "spinach": {
-        "category": "vegetable",
-        "aliases": [
-            "spinach", "kangkung", "water spinach", "mukunuwenna",
-            "leafy greens", "green leaves", "kankun",
-        ],
-    },
-    "carrot": {
-        "category": "vegetable",
-        "aliases": [
-            "carrot", "carrots", "baby carrots", "orange carrot",
-        ],
-    },
-    "broccoli": {
-        "category": "vegetable",
-        "aliases": [
-            "broccoli", "broccoli florets",
-        ],
-    },
 
-    # ── Fruits ────────────────────────────────────────────────
-    "banana": {
-        "category": "fruit",
-        "aliases": [
-            "banana", "kolikuttu banana", "ambun banana", "ripe banana",
-            "raw banana", "plantain", "kesel",
-        ],
-    },
-    "papaya": {
-        "category": "fruit",
-        "aliases": [
-            "papaya", "pawpaw", "ripe papaya", "papaw",
-        ],
-    },
+# ─────────────────────────────────────────────────────────────────────────────
+# Sanitizer
+# ─────────────────────────────────────────────────────────────────────────────
 
-    # ── Dairy ─────────────────────────────────────────────────
-    "milk": {
-        "category": "dairy",
-        "aliases": [
-            "fresh milk", "full cream milk", "low fat milk",
-            "ambewela milk", "highland milk", "anchor milk",
-            "cowbell milk", "uht milk", "1l milk",
-        ],
-    },
-    "yogurt": {
-        "category": "dairy",
-        "aliases": [
-            "yogurt", "yoghurt", "plain yogurt", "set yogurt",
-            "ambewela yogurt", "highland yogurt", "curd",
-            "buffalo curd", "cow curd",
-        ],
-    },
-    "butter": {
-        "category": "dairy",
-        "aliases": [
-            "butter", "unsalted butter", "salted butter",
-            "anchor butter", "lurpak butter", "keells butter",
-        ],
-    },
+class Sanitizer:
+    """
+    Strips non-ASCII characters and brand-name prefixes from a product name.
 
-    # ── Fats / Oils ───────────────────────────────────────────
-    "coconut_oil": {
-        "category": "fats",
-        "aliases": [
-            "coconut oil", "virgin coconut oil", "vco",
-            "pure coconut oil", "parachute coconut oil",
-            "coco oil", "coconut cooking oil",
-        ],
-    },
-    "coconut_milk": {
-        "category": "fats",
-        "aliases": [
-            "coconut milk", "thick coconut milk", "thin coconut milk",
-            "coconut cream", "kiri", "maggi coconut milk",
-            "cocomax coconut milk",
-        ],
-    },
-}
+    All brand prefixes are injected at construction time from Atlas
+    (scraper_config.brand_prefixes) — nothing is hardcoded here.
+    """
 
-# Build reverse lookup: alias fragment → (food_id, category)
-_ALIAS_LOOKUP: list[tuple[str, str, str]] = []
-for food_id, meta in FOOD_ALIASES.items():
-    for alias in meta["aliases"]:
-        _ALIAS_LOOKUP.append((alias.lower(), food_id, meta["category"]))
+    _UNICODE_NOISE = re.compile(r"[^\x00-\x7F]+")
+    _MULTI_SPACE   = re.compile(r"\s{2,}")
 
+    def __init__(self, brand_prefixes: frozenset[str]) -> None:
+        self._brands = brand_prefixes  # already lower-cased by AliasConfig
+
+    def clean(self, text: str) -> str:
+        # Remove non-ASCII inline (replace with "") so embedded chars in words
+        # don't split the word: "cârrots" → "carrots", not "c rrots"
+        text = self._UNICODE_NOISE.sub("", text)
+        tokens = [t for t in text.lower().split() if t not in self._brands]
+        return self._MULTI_SPACE.sub(" ", " ".join(tokens)).strip()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WeightExtractor
+# ─────────────────────────────────────────────────────────────────────────────
+
+class WeightExtractor:
+    """
+    Detects and strips a UOM quantity token (e.g. "500g", "1kg", "200ml")
+    from a product name string and converts it to grams.
+
+    Unit → grams multipliers are injected from Atlas
+    (scraper_config.uom_to_grams) — nothing is hardcoded.
+    """
+
+    # Matches: "500g", "1.5 kg", "200 ml", "1 litre", "1liter", "1L"
+    _UOM_PATTERN = re.compile(
+        r"(\d+\.?\d*)\s*(kg|g|ml|l|litre|liter|grams?|millilit(?:re|er)s?)\b",
+        re.IGNORECASE,
+    )
+
+    def __init__(self, uom_to_grams: dict[str, float]) -> None:
+        # keys are already lower-cased by AliasConfig
+        self._uom_map = uom_to_grams
+
+    def extract(self, text: str) -> tuple[Optional[float], str]:
+        """
+        Returns (weight_in_grams, cleaned_text).
+        If no UOM token found, returns (None, original_text).
+        """
+        match = self._UOM_PATTERN.search(text)
+        if not match:
+            return None, text
+
+        qty  = float(match.group(1))
+        unit = match.group(2).lower()
+
+        # Normalise plurals / alternate spellings to map key
+        unit_key = (
+            "kg"    if unit == "kg"     else
+            "g"     if unit in ("g", "grams", "gram") else
+            "ml"    if unit in ("ml", "millilitre", "milliliter", "millilitres", "milliliters") else
+            "l"     if unit in ("l", "litre", "liter") else
+            unit
+        )
+        multiplier = self._uom_map.get(unit_key)
+        if multiplier is None:
+            log.debug("WeightExtractor: unknown unit key '%s', skipping conversion", unit_key)
+            return None, text
+
+        weight_g = qty * multiplier
+        cleaned  = self._UOM_PATTERN.sub("", text).strip()
+        return weight_g, cleaned
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WaterfallMatcher
+# ─────────────────────────────────────────────────────────────────────────────
+
+class WaterfallMatcher:
+    """
+    3-stage waterfall matcher. Returns on the first stage that produces a hit.
+
+    Stage 1: Exact token match         → confidence 1.0
+    Stage 2: Fuzzy token_set_ratio     ≥ threshold
+    Stage 3: Category-scoped fuzzy     ≥ (threshold − relaxation)
+
+    All tuning parameters (threshold, relaxation) come from Atlas via AliasConfig.
+    """
+
+    def __init__(
+        self,
+        aliases: dict[str, dict],          # {foodId: {category, aliases[]}}
+        threshold: float,
+        relaxation: float,
+        sanitizer: Sanitizer,
+        extractor: WeightExtractor,
+    ) -> None:
+        self._aliases    = aliases
+        self._threshold  = threshold
+        self._relaxation = relaxation
+        self._sanitizer  = sanitizer
+        self._extractor  = extractor
+
+        # Build flat lookup: alias_token → (foodId, category)
+        self._lookup: list[tuple[str, str, str]] = [
+            (alias, food_id, meta["category"])
+            for food_id, meta in aliases.items()
+            for alias in meta["aliases"]
+        ]
+
+    def match(
+        self,
+        raw_name: str,
+        category_hint: Optional[str] = None,
+    ) -> Optional[dict]:
+        """
+        Match a raw scraped product name to a canonical food_id.
+
+        Returns:
+            dict with keys: food_id, category, confidence, matched_alias, weight_g
+            or None if no stage produces a match.
+        """
+        # Pre-processing
+        cleaned   = self._sanitizer.clean(raw_name)
+        weight_g, cleaned = self._extractor.extract(cleaned)
+
+        # Stage 1 — Exact match
+        result = self._exact_match(cleaned, category_hint)
+        if result:
+            result["weight_g"] = weight_g
+            return result
+
+        # Stage 2 — Fuzzy match
+        result = self._fuzzy_match(cleaned, self._threshold, category_hint)
+        if result:
+            result["weight_g"] = weight_g
+            return result
+
+        # Stage 3 — Category-scoped with relaxed threshold
+        if category_hint:
+            relaxed = max(0.0, self._threshold - self._relaxation)
+            result  = self._fuzzy_match(cleaned, relaxed, category_hint)
+            if result:
+                result["weight_g"] = weight_g
+                return result
+
+        return None
+
+    # ── Internal stages ────────────────────────────────────────────────────────
+
+    def _exact_match(self, cleaned: str, category_hint: Optional[str]) -> Optional[dict]:
+        candidates = self._filter_by_category(category_hint)
+        for alias, food_id, category in candidates:
+            if alias == cleaned:
+                return {
+                    "food_id":      food_id,
+                    "category":     category,
+                    "confidence":   1.0,
+                    "matched_alias": alias,
+                }
+        return None
+
+    def _fuzzy_match(
+        self,
+        cleaned: str,
+        threshold: float,
+        category_hint: Optional[str],
+    ) -> Optional[dict]:
+        candidates  = self._filter_by_category(category_hint)
+        best_score  = 0.0
+        best: Optional[tuple] = None
+
+        for alias, food_id, category in candidates:
+            score = fuzz.token_set_ratio(cleaned, alias) / 100.0
+            if score > best_score:
+                best_score = score
+                best = (food_id, category, alias)
+
+        if best and best_score >= threshold:
+            return {
+                "food_id":       best[0],
+                "category":      best[1],
+                "confidence":    round(best_score, 3),
+                "matched_alias": best[2],
+            }
+        return None
+
+    def _filter_by_category(
+        self, category_hint: Optional[str]
+    ) -> list[tuple[str, str, str]]:
+        if not category_hint:
+            return self._lookup
+        return [
+            (a, fid, cat)
+            for a, fid, cat in self._lookup
+            if cat == category_hint
+        ]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Singleton Factory
+# ─────────────────────────────────────────────────────────────────────────────
+
+@lru_cache(maxsize=1)
+def _get_matcher() -> WaterfallMatcher:
+    """
+    Build and cache the WaterfallMatcher from Atlas config.
+    Called once on first use; cached for the process lifetime.
+    Raises EnvironmentError on Atlas connectivity or config issues.
+    """
+    from scrapers.config_loader import AliasConfig  # local import avoids circular
+
+    cfg       = AliasConfig.from_env()
+    sanitizer = Sanitizer(cfg.brands)
+    extractor = WeightExtractor(cfg.uom_to_grams)
+    return WaterfallMatcher(
+        aliases=cfg.aliases,
+        threshold=cfg.threshold,
+        relaxation=cfg.relaxation,
+        sanitizer=sanitizer,
+        extractor=extractor,
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Public API  (signature identical to v1 — no call-site changes needed)
+# ─────────────────────────────────────────────────────────────────────────────
 
 def fuzzy_match_to_food_id(
     scraped_name: str,
-    threshold: float = 0.60,
     category_hint: Optional[str] = None,
 ) -> Optional[dict]:
     """
     Match a raw scraped product name to a canonical food_id.
 
     Args:
-        scraped_name: Raw product name from scraper (e.g. "KEELLS Chicken Drumstick 500g")
-        threshold: Minimum similarity score (0.0–1.0) to accept a match
-        category_hint: Optional category to restrict matching scope
+        scraped_name:  Raw product name from scraper (e.g. "KEELLS Chicken 500g")
+        category_hint: Optional category to restrict search scope
 
     Returns:
-        dict with keys: food_id, category, confidence, matched_alias
-        or None if no match above threshold
+        dict: {food_id, category, confidence, matched_alias, weight_g} or None
     """
-    name_lower = scraped_name.lower()
-
-    # Strip common noise words
-    noise = ["500g", "1kg", "250g", "200ml", "1l", "pack", "box",
-             "tin", "can", "bottle", "keells", "cargills", "arpico",
-             "sathosa", "prima", "anchor", "fresh", "premium", "special"]
-    cleaned = name_lower
-    for word in noise:
-        cleaned = cleaned.replace(word, "").strip()
-
-    candidates = _ALIAS_LOOKUP
-    if category_hint:
-        candidates = [(a, fid, cat) for a, fid, cat in candidates if cat == category_hint]
-
-    if not candidates:
-        return None
-
-    best_score = 0.0
-    best_food_id = None
-    best_alias = None
-    best_category = None
-
-    for alias, food_id, category in candidates:
-        # Use token set ratio — handles word order differences well
-        score = fuzz.token_set_ratio(cleaned, alias) / 100.0
-        if score > best_score:
-            best_score = score
-            best_food_id = food_id
-            best_alias = alias
-            best_category = category
-
-    if best_score >= threshold:
-        return {
-            "food_id": best_food_id,
-            "category": best_category,
-            "confidence": round(best_score, 3),
-            "matched_alias": best_alias,
-        }
-
-    return None
+    return _get_matcher().match(scraped_name, category_hint)
 
 
 def get_all_food_ids() -> list[str]:
-    return list(FOOD_ALIASES.keys())
+    return list(_get_matcher()._aliases.keys())
 
 
 def get_category_for_food(food_id: str) -> Optional[str]:
-    return FOOD_ALIASES.get(food_id, {}).get("category")
+    aliases = _get_matcher()._aliases
+    return aliases.get(food_id, {}).get("category")

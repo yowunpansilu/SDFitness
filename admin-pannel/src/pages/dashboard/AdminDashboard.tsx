@@ -71,19 +71,26 @@ export function AdminDashboard() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const [revenueTimeRange, setRevenueTimeRange] = useState<'monthly' | 'yearly'>('monthly');
-  const [stats, setStats] = useState<any>(null);
-  const [recentMembers, setRecentMembers] = useState<any[]>([]);
+  const [stats, setStats] = useState<{
+    revenueHistory?: Record<string, { month: string, revenue: number }[]>;
+    totalMembers?: number;
+    activeMembers?: number;
+    monthlyRevenue?: number;
+    equipmentStats?: { broken: number };
+    maintenanceNeeded?: { _id: string, name: string, location: string, daysUntil: number }[];
+  } | null>(null);
+  const [recentMembers, setRecentMembers] = useState<{ _id?: string, userId?: { firstName?: string, lastName?: string }, membershipType?: string, joinDate: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         const [statsRes, membersRes] = await Promise.all([
-          api.get('/api/analytics/dashboard'),
-          api.get('/api/members?limit=5')
+          api.get('/analytics/dashboard'),
+          api.get('/members?limit=5')
         ]);
         setStats(statsRes.data);
-        setRecentMembers(membersRes.data.members || membersRes.data || []);
+        setRecentMembers(membersRes.data.data || []);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -97,7 +104,7 @@ export function AdminDashboard() {
     { month: 'Jan', revenue: 0 },
     { month: 'Feb', revenue: 0 },
   ];
-  
+
   return (
     <div className="space-y-10 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 text-navy-950 dark:text-white">
       {/* Page Header */}
@@ -186,7 +193,7 @@ export function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent className="pt-8">
-            <ResponsiveContainer width="100%" height={320}>
+            <ResponsiveContainer width="100%" height={320} minWidth={0}>
               <AreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -195,8 +202,8 @@ export function AdminDashboard() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#1e293b' : '#e2e8f0'} vertical={false} />
-                <XAxis dataKey="month" stroke={theme === 'dark' ? '#475569' : '#94a3b8'} axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 600}} dy={10} />
-                <YAxis stroke={theme === 'dark' ? '#475569' : '#94a3b8'} axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 600}} dx={-10} />
+                <XAxis dataKey="month" stroke={theme === 'dark' ? '#475569' : '#94a3b8'} axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600 }} dy={10} />
+                <YAxis stroke={theme === 'dark' ? '#475569' : '#94a3b8'} axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600 }} dx={-10} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: theme === 'dark' ? '#0f172a' : '#fff',
@@ -205,7 +212,7 @@ export function AdminDashboard() {
                     boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
                   }}
                   itemStyle={{ color: '#4f46e5', fontWeight: 700 }}
-                  formatter={(value: any) => value !== undefined ? [`LKR${value.toLocaleString()}`, 'Revenue'] : ['LKR0', 'Revenue']}
+                  formatter={(value: number | undefined) => value !== undefined ? [`LKR${value.toLocaleString()}`, 'Revenue'] : ['LKR0', 'Revenue']}
                 />
                 <Area
                   type="monotone"
@@ -235,7 +242,7 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="space-y-5">
-              {recentMembers.map((member: any, i: number) => (
+              {recentMembers.map((member: { _id?: string, userId?: { firstName?: string, lastName?: string }, membershipType?: string, joinDate: string }, i: number) => (
                 <div
                   key={member._id || i}
                   className="flex items-center gap-4 p-2 rounded-2xl hover:bg-navy-50 dark:hover:bg-navy-800/50 transition-all duration-300 group cursor-pointer"
@@ -269,13 +276,13 @@ export function AdminDashboard() {
         <Card className="bg-white dark:bg-navy-900 border-navy-100/50 dark:border-navy-800 shadow-sm rounded-3xl overflow-hidden transition-colors">
           <CardHeader className="border-b border-navy-50 dark:border-navy-800/50 pb-6">
             <CardTitle className="text-navy-950 dark:text-white font-bold text-xl flex items-center gap-2">
-               Equipment Health
+              Equipment Health
             </CardTitle>
             <p className="text-sm font-medium text-navy-400 dark:text-navy-500">Upcoming maintenance schedule</p>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="space-y-4">
-              {stats?.maintenanceNeeded?.map((item: any) => {
+              {stats?.maintenanceNeeded?.map((item: { _id: string, name: string, location: string, daysUntil: number }) => {
                 const isOverdue = item.daysUntil < 0;
                 return (
                   <div
@@ -379,8 +386,8 @@ export function AdminDashboard() {
                     <span className="text-navy-900 dark:text-white font-bold">{classItem.spots}</span>
                   </div>
                   <div className="h-2 w-full bg-navy-100/50 dark:bg-navy-800 rounded-full overflow-hidden transition-colors">
-                    <div 
-                      className="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full transition-all duration-1000" 
+                    <div
+                      className="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full transition-all duration-1000"
                       style={{ width: `${(parseInt(classItem.spots.split('/')[0]) / parseInt(classItem.spots.split('/')[1])) * 100}%` }}
                     />
                   </div>

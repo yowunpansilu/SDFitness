@@ -9,7 +9,10 @@ import {
     DollarSign,
     CheckCircle,
     MessageSquare,
-    Activity,
+    TrendingUp,
+    CheckSquare,
+    CalendarDays,
+    MessageCircle,
 } from 'lucide-react';
 import { Logo } from '../shared/Logo';
 import { cn } from '@/lib/utils';
@@ -41,16 +44,19 @@ function ScaleIcon({ className }: { className?: string }) {
 const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Profile', href: '/dashboard/profile', icon: User },
+    { name: 'Progress', href: '/dashboard/progress', icon: TrendingUp },
+    { name: 'Daily Progress', href: '/dashboard/daily-progress', icon: CheckSquare },
+    { name: 'Weekly Schedule', href: '/dashboard/weekly-schedule', icon: CalendarDays },
     { name: 'Diet Plans', href: '/dashboard/diet-plans', icon: Apple },
     { name: 'Workouts', href: '/dashboard/workouts', icon: Dumbbell },
     { name: 'Classes', href: '/dashboard/classes', icon: Calendar },
-    { name: 'My Bookings', href: '/dashboard/my-bookings', icon: Calendar }, // Using Calendar for now, could use Ticket or similar
+    { name: 'My Bookings', href: '/dashboard/my-bookings', icon: Calendar },
     { name: 'Membership', href: '/dashboard/membership', icon: CreditCard },
     { name: 'Payments', href: '/dashboard/payments', icon: DollarSign },
     { name: 'Attendance', href: '/dashboard/attendance', icon: CheckCircle },
-    { name: 'Progress', href: '/dashboard/progress', icon: Activity },
     { name: 'Weight Tracking', href: '/dashboard/weight', icon: ScaleIcon as any },
     { name: 'Messages', href: '/dashboard/messages', icon: MessageSquare },
+    { name: 'Feedback', href: '/dashboard/feedback', icon: MessageCircle },
 ];
 
 export function Sidebar() {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { useGoogleLogin } from '@react-oauth/google';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -40,6 +41,32 @@ export function LoginForm() {
             setIsLoading(false);
         }
     };
+
+    const handleGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            setIsLoading(true);
+            try {
+                // Exchange the access token for user info, then send to backend
+                const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+                });
+                const userInfo = await userInfoRes.json();
+
+                const response = await api.post('/auth/google', { idToken: tokenResponse.access_token, userInfo });
+                const { user, token, member } = response.data;
+                login(user, token, member);
+                navigate('/dashboard');
+            } catch (error: any) {
+                console.error('❌ [GOOGLE LOGIN] Failed', error.response?.data || error.message);
+                alert(error.response?.data?.message || 'Google login failed. Please try again.');
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        onError: () => {
+            alert('Google sign-in was cancelled or failed.');
+        },
+    });
 
     return (
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -138,6 +165,8 @@ export function LoginForm() {
                 <Button
                     type="button"
                     variant="outline"
+                    onClick={() => handleGoogleLogin()}
+                    disabled={isLoading}
                     className="h-12 border-primary-200 text-primary-800 bg-white hover:border-secondary-500 hover:bg-primary-50 rounded-lg transition-all"
                 >
                     <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">

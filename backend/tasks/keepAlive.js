@@ -10,8 +10,8 @@ const axios = require('axios');
 
 const PING_INTERVAL_MS = 14 * 60 * 1000; // 14 minutes
 
-const BACKEND_URL  = process.env.RENDER_EXTERNAL_URL  || `http://localhost:${process.env.PORT || 5000}`;
-const ML_URL       = process.env.ML_SERVICE_URL        || 'http://localhost:5001';
+const BACKEND_URL  = process.env.BACKEND_URL   || process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 5000}`;
+const ML_URL       = process.env.ML_SERVICE_URL || 'http://localhost:5001';
 
 const ping = async (name, url) => {
     try {

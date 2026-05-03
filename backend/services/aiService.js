@@ -116,34 +116,7 @@ Only return valid JSON. Do not include markdown code blocks.`;
     }
 };
 
-/**
- * Nvidia-only fallback — generates entire plan without ML model
- */
-const generateWithNvidiaOnly = async (userProfile) => {
-    console.log(`[AI] Generating full 7-day plan (fallback mode)...`);
-    const prompt = `Generate a 7-day Sri Lankan healthy meal plan in JSON for:
-- Age: ${userProfile.age}, Weight: ${userProfile.weight_kg}kg
-- Goal: ${userProfile.goal}
-- Budget: ${userProfile.diet_budget?.amount || 7000} LKR/week
 
-RESPOND IN VALID JSON ONLY:
-{
-  "targetCalories": 2000,
-  "macroSplit": { "protein": { "grams": 100, "percentage": 30 }, "carbs": { "grams": 200, "percentage": 40 }, "fats": { "grams": 65, "percentage": 30 } },
-  "days": [...]
-}
-
-Include items, calories, macros, cost, description and instructions for each meal.`;
-
-    try {
-        const keys = getApiKeys();
-        const response = await callNvidia([{ role: 'user', content: prompt }], keys[0]);
-        return JSON.parse(response.choices[0].message.content.trim());
-    } catch (error) {
-        console.error('❌ Nvidia fallback error:', error.message);
-        throw new Error('Both ML service and Nvidia failed to generate diet plan');
-    }
-};
 
 /**
  * MAIN: Generate a diet plan using the ML-first pipeline
@@ -179,26 +152,22 @@ const generateDietPlan = async (memberId, shouldSave = true, overrides = {}) => 
     // 2. Fetch live prices
     const livePrices = await getLivePrices();
 
-    // 3. Try ML service first
-    let mlResult = null;
-    let generationMethod = 'ml_plus_nvidia';
-
+    // 3. Call ML service
     const mlResponse = await getMLRecommendation(userProfile, livePrices);
-    if (mlResponse.success) {
-        mlResult = mlResponse.data;
-        console.log(`✅ ML recommendation received (confidence: ${mlResult.aiMetadata.mlConfidenceScore})`);
-    } else {
-        console.warn(`⚠️  ML service failed: ${mlResponse.error}. Falling back to Nvidia-only.`);
-        generationMethod = 'nvidia_only_fallback';
+    if (!mlResponse.success) {
+        console.error(`❌ ML service failed: ${mlResponse.error}`);
+        throw new Error(`ML service failed: ${mlResponse.error}`);
     }
+
+    const mlResult = mlResponse.data;
+    console.log(`✅ ML recommendation received (confidence: ${mlResult.aiMetadata.mlConfidenceScore})`);
 
     // 4. Generate the plan
     let planData;
 
-    if (mlResult) {
-        // ML-first: format with Nvidia (Parallel 4+3 Days)
-        console.log(`[AI] Formatting recipes in parallel batches (7 days)...`);
-        const processedDays = [];
+    // ML-first: format with Nvidia (Parallel 4+3 Days)
+    console.log(`[AI] Formatting recipes in parallel batches (7 days)...`);
+    const processedDays = [];
         const keys = getApiKeys();
 
         if (keys.length === 0) {
@@ -289,19 +258,6 @@ const generateDietPlan = async (memberId, shouldSave = true, overrides = {}) => 
                 gptModel: NVIDIA_MODEL
             }
         };
-    } else {
-        // Fallback: Nvidia generates everything
-        const nvidiaPlan = await generateWithNvidiaOnly(userProfile);
-        planData = {
-            ...nvidiaPlan,
-            shoppingList: { items: [], totalAtGeneration: 0, currentTotal: 0 },
-            aiMetadata: {
-                generationMethod: 'nvidia_only_fallback',
-                gptModel: NVIDIA_MODEL,
-                mlConfidenceScore: 0
-            }
-        };
-    }
 
     // 5. Save to MongoDB
     const dietPlan = new DietPlan({

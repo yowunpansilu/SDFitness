@@ -180,7 +180,43 @@ def barcode_lookup(code: str):
     return jsonify({"success": False, "error": "Product not found"}), 404
 
 
+def start_keep_alive():
+    """Ping the backend every 14 minutes to prevent Render spin-down."""
+    import time
+    import requests
+    
+    # Use explicit BACKEND_URL. 
+    # Avoid RENDER_EXTERNAL_URL here because in the ML service instance, 
+    # that variable points to the ML service itself!
+    backend_url = os.environ.get('BACKEND_URL')
+    
+    if not backend_url:
+        print("[KeepAlive] ⚠️ BACKEND_URL not set. ML service will not ping backend.")
+        return
+
+    # Safeguard: Don't ping yourself
+    my_url = os.environ.get('RENDER_EXTERNAL_URL')
+    if my_url and backend_url.rstrip('/') == my_url.rstrip('/'):
+        print(f"[KeepAlive] ⚠️ BACKEND_URL matches self ({my_url}). Skipping pinger to avoid infinite loop.")
+        return
+
+    print(f"[KeepAlive] Started — pinging {backend_url}/api/health every 14m")
+    
+    while True:
+        try:
+            # Ping every 14 minutes
+            time.sleep(14 * 60)
+            res = requests.get(f"{backend_url}/api/health", timeout=10)
+            print(f"[KeepAlive] ✅ Backend alive — status: {res.status_code}")
+        except Exception as e:
+            print(f"[KeepAlive] ⚠️ Backend ping failed: {e}")
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
     print(f"🚀 ML Service running on port {port}")
+    
+    # Start keep-alive thread in production
+    if os.environ.get('NODE_ENV') == 'production' or os.environ.get('RENDER'):
+        threading.Thread(target=start_keep_alive, daemon=True).start()
+        
     app.run(host='0.0.0.0', port=port, debug=False)

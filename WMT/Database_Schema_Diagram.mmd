@@ -1,0 +1,140 @@
+erDiagram
+    USER ||--o| MEMBER : "has profile (if member)"
+    USER ||--o| TRAINER : "has profile (if trainer)"
+    MEMBER ||--o{ SUBSCRIPTION : "subscribes to"
+    MEMBERSHIP_PLAN ||--o{ SUBSCRIPTION : "included in"
+    TRAINER ||--o{ CLASS : "teaches"
+    USER ||--o{ BOOKING : "makes"
+    CLASS ||--o{ BOOKING : "has"
+    USER ||--o{ ATTENDANCE_RECORD : "has"
+    USER ||--o{ NOTIFICATION : "receives"
+    USER ||--o{ CONVERSATION : "participates in"
+    CONVERSATION ||--o{ MESSAGE : "contains"
+    USER ||--o{ MESSAGE : "sends"
+    USER ||--o{ MEAL : "logs"
+
+    USER {
+        ObjectId _id
+        string email
+        string firstName
+        string lastName
+        string role
+        string phone
+    }
+    
+    MEMBER {
+        ObjectId _id
+        ObjectId userId
+        string memberNumber
+        string status
+        string activityLevel
+        string[] fitnessGoals
+    }
+
+    TRAINER {
+        ObjectId _id
+        ObjectId userId
+        string[] specializations
+        int experienceYears
+        string bio
+    }
+
+    MEMBERSHIP_PLAN {
+        ObjectId _id
+        string name
+        float price
+        int duration
+        boolean isActive
+    }
+
+    SUBSCRIPTION {
+        ObjectId _id
+        ObjectId user
+        ObjectId plan
+        date startDate
+        date endDate
+        string status
+    }
+
+    CLASS {
+        ObjectId _id
+        string name
+        ObjectId trainer
+        object schedule
+        int capacity
+        int enrolled
+    }
+
+    EQUIPMENT {
+        ObjectId _id
+        string name
+        string category
+        string status
+        date purchaseDate
+        date lastMaintenance
+    }
+
+    BOOKING {
+        ObjectId _id
+        ObjectId user
+        ObjectId class
+        string status
+        date classDate
+    }
+
+    ATTENDANCE_RECORD {
+        ObjectId _id
+        ObjectId user
+        date checkInTime
+        date checkOutTime
+        string facility
+    }
+
+    NOTIFICATION {
+        ObjectId _id
+        ObjectId user
+        string title
+        string message
+        string type
+        boolean isRead
+    }
+
+    CONVERSATION {
+        ObjectId _id
+        ObjectId[] participants
+        ObjectId lastMessage
+    }
+
+    MESSAGE {
+        ObjectId _id
+        ObjectId conversation
+        ObjectId sender
+        string text
+    }
+
+    SCRAPER_REVIEW_ITEM {
+        ObjectId _id
+        string rawName
+        string store
+        float price
+        date scrapedAt
+        string suggestedMatch
+        string status
+    }
+
+    MEAL {
+        ObjectId _id
+        ObjectId user_id
+        string food_name
+        float calories
+        float protein
+        float carbs
+        float fat
+        date log_date
+    }
+
+    FOOD_ALIAS {
+        ObjectId _id
+        string canonical_name
+        string[] aliases
+    }

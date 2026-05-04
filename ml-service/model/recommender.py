@@ -115,7 +115,8 @@ class DietRecommender:
 
     def _score_foods(self, user_features, foods_df, live_prices):
         """Use the trained model to score all candidate foods for this user."""
-        scores = []
+        if foods_df.empty:
+            return []
 
         # Map goal string to numeric
         goal_map = {'weight_loss': 0, 'muscle_gain': 1, 'endurance': 2,
@@ -123,24 +124,30 @@ class DietRecommender:
                      'athletic_performance': 1}
         goal_numeric = goal_map.get(user_features.get('goal', 'general_fitness'), 2)
 
-        for _, food in foods_df.iterrows():
-            # Use live price if available, else default
-            price = live_prices.get(food['foodId'], {}).get('pricePerGram', food['default_price_per_gram'])
+        # Prepare base features common to all foods
+        base_features = {
+            'age': user_features.get('age', 30),
+            'weight_kg': user_features.get('weight_kg', 70),
+            'height_cm': user_features.get('height_cm', 170),
+            'gender': 1 if user_features.get('gender', 'male') == 'male' else 0,
+            'activity_level': {'sedentary': 1.2, 'lightly_active': 1.375, 'moderately_active': 1.55,
+                               'very_active': 1.725, 'extremely_active': 1.9}.get(
+                user_features.get('activity_level', 'moderately_active'), 1.55),
+            'goal': goal_numeric,
+            'budget_per_day_lkr': user_features.get('budget_per_day_lkr', 800),
+            'target_calories': user_features.get('target_calories', 2000),
+            'target_protein': user_features.get('target_protein', 100),
+            'target_carbs': user_features.get('target_carbs', 250),
+            'target_fat': user_features.get('target_fat', 55),
+        }
 
-            feature_vector = {
-                'age': user_features.get('age', 30),
-                'weight_kg': user_features.get('weight_kg', 70),
-                'height_cm': user_features.get('height_cm', 170),
-                'gender': 1 if user_features.get('gender', 'male') == 'male' else 0,
-                'activity_level': {'sedentary': 1.2, 'lightly_active': 1.375, 'moderately_active': 1.55,
-                                   'very_active': 1.725, 'extremely_active': 1.9}.get(
-                    user_features.get('activity_level', 'moderately_active'), 1.55),
-                'goal': goal_numeric,
-                'budget_per_day_lkr': user_features.get('budget_per_day_lkr', 800),
-                'target_calories': user_features.get('target_calories', 2000),
-                'target_protein': user_features.get('target_protein', 100),
-                'target_carbs': user_features.get('target_carbs', 250),
-                'target_fat': user_features.get('target_fat', 55),
+        # Build feature matrix efficiently
+        X_data = []
+        for _, food in foods_df.iterrows():
+            price = live_prices.get(food['foodId'], {}).get('pricePerGram', food['default_price_per_gram'])
+            
+            f = base_features.copy()
+            f.update({
                 'food_calories': food['calories'],
                 'food_protein': food['protein'],
                 'food_carbs': food['carbs'],
@@ -153,28 +160,28 @@ class DietRecommender:
                 'food_category_fruit': 1 if food['category'] == 'fruit' else 0,
                 'food_category_dairy': 1 if food['category'] == 'dairy' else 0,
                 'food_category_fats': 1 if food['category'] == 'fats' else 0,
-            }
+            })
+            X_data.append(f)
 
-            X = pd.DataFrame([feature_vector])[self.feature_names]
-            pred_score = self.model.predict(X)[0]
+        # Convert to DataFrame once and predict in batch
+        X = pd.DataFrame(X_data)[self.feature_names]
+        all_pred_scores = self.model.predict(X)
 
-            # --- Budget Enforcement Logic (Senior SE Fix) ---
-            # If food is expensive relative to the daily budget, penalize the score.
-            # We estimate the cost to get ~25% of daily calories from this food.
-            daily_budget = user_features.get('budget_per_day_lkr', 800)
-            target_calories = user_features.get('target_calories', 2000)
-            
+        scores = []
+        daily_budget = user_features.get('budget_per_day_lkr', 800)
+        target_calories = user_features.get('target_calories', 2000)
+
+        for i, (_, food) in enumerate(foods_df.iterrows()):
+            pred_score = all_pred_scores[i]
+            price = X_data[i]['food_price_per_gram']
+
+            # Budget Penalty logic
             if food['calories'] > 0:
-                # Cost for 1/4 of daily calorie target using this food
                 estimated_slot_cost = (price / food['calories']) * (target_calories / 4)
                 slot_budget_allowance = daily_budget / 4
-                
                 if estimated_slot_cost > slot_budget_allowance:
-                    # Penalize score proportionally to budget overrun
-                    # A 2x over-budget item gets a significant penalty
                     penalty = (estimated_slot_cost / slot_budget_allowance) - 1.0
-                    pred_score -= penalty * 0.5 # Adjustment factor
-            # ------------------------------------------------
+                    pred_score -= penalty * 0.5
 
             scores.append({
                 'foodId': food['foodId'],

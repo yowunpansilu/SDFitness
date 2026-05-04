@@ -31,79 +31,79 @@ import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 
 // Protected Route wrapper
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  return <>{children}</>;
+    const { isAuthenticated } = useAuthStore();
+    if (!isAuthenticated) return <Navigate to="/login" replace />;
+    return <>{children}</>;
 }
 
 // Public Route wrapper
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
-  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
-  return <>{children}</>;
+    const { isAuthenticated } = useAuthStore();
+    if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+    return <>{children}</>;
 }
 
 function App() {
-  return (
-    <ErrorBoundary>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          } />
-          <Route path="/register" element={
-            <PublicRoute>
-              <Register />
-            </PublicRoute>
-          } />
-          <Route path="/forgot-password" element={
-            <PublicRoute>
-              <ForgotPassword />
-            </PublicRoute>
-          } />
-          <Route path="/reset-password" element={
-            <PublicRoute>
-              <ResetPassword />
-            </PublicRoute>
-          } />
+    return (
+        <ErrorBoundary>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/login" element={
+                        <PublicRoute>
+                            <Login />
+                        </PublicRoute>
+                    } />
+                    <Route path="/register" element={
+                        <PublicRoute>
+                            <Register />
+                        </PublicRoute>
+                    } />
+                    <Route path="/forgot-password" element={
+                        <PublicRoute>
+                            <ForgotPassword />
+                        </PublicRoute>
+                    } />
+                    <Route path="/reset-password" element={
+                        <PublicRoute>
+                            <ResetPassword />
+                        </PublicRoute>
+                    } />
 
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Dashboard />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="diet-plans" element={<DietPlans />} />
-            <Route path="workouts" element={<Workouts />} />
-            <Route path="classes" element={<ClassSchedule />} />
-            <Route path="my-bookings" element={<MyBookings />} />
-            <Route path="membership" element={<MembershipDetails />} />
-            <Route path="membership/plans" element={<MembershipPlans />} />
-            <Route path="payments" element={<BillingOverview />} />
-            <Route path="payment/success" element={<PaymentSuccess />} />
-            <Route path="payment/cancel" element={<PaymentCancel />} />
-            <Route path="attendance" element={<AttendancePage />} />
-            <Route path="progress" element={<ProgressPage />} />
-            <Route path="weight" element={<WeightTrackerPage />} />
-            <Route path="daily-progress" element={<DailyProgress />} />
-            <Route path="weekly-schedule" element={<WeeklySchedule />} />
-            <Route path="feedback" element={<FeedbackPage />} />
-            <Route path="member-progress" element={<MemberProgress />} />
+                    <Route path="/dashboard" element={
+                        <ProtectedRoute>
+                            <DashboardLayout />
+                        </ProtectedRoute>
+                    }>
+                        <Route index element={<Dashboard />} />
+                        <Route path="profile" element={<Profile />} />
+                        <Route path="diet-plans" element={<DietPlans />} />
+                        <Route path="workouts" element={<Workouts />} />
+                        <Route path="classes" element={<ClassSchedule />} />
+                        <Route path="my-bookings" element={<MyBookings />} />
+                        <Route path="membership" element={<MembershipDetails />} />
+                        <Route path="membership/plans" element={<MembershipPlans />} />
+                        <Route path="payments" element={<BillingOverview />} />
+                        <Route path="payment/success" element={<PaymentSuccess />} />
+                        <Route path="payment/cancel" element={<PaymentCancel />} />
+                        <Route path="attendance" element={<AttendancePage />} />
+                        <Route path="progress" element={<ProgressPage />} />
+                        <Route path="weight" element={<WeightTrackerPage />} />
+                        <Route path="daily-progress" element={<DailyProgress />} />
+                        <Route path="weekly-schedule" element={<WeeklySchedule />} />
+                        <Route path="feedback" element={<FeedbackPage />} />
+                        <Route path="member-progress" element={<MemberProgress />} />
 
-            <Route path="messages" element={<MessagesPage />} />
-            <Route path="settings/notifications" element={<NotificationSettings />} />
-          </Route>
+                        <Route path="messages" element={<MessagesPage />} />
+                        <Route path="settings/notifications" element={<NotificationSettings />} />
+                    </Route>
 
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </BrowserRouter>
-      <Toaster />
-    </ErrorBoundary>
-  );
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                </Routes>
+            </BrowserRouter>
+            <Toaster />
+        </ErrorBoundary>
+    );
 }
 
 export default App;

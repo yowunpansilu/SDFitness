@@ -48,11 +48,13 @@ interface AuthState {
     member: Member | null;
     token: string | null;
     isAuthenticated: boolean;
+    hasHydrated: boolean;
     login: (user: User, token: string, member?: any) => void;
     logout: () => void;
     updateUser: (user: Partial<User>) => void;
     updateMember: (member: any) => void;
     fetchProfile: () => Promise<void>;
+    setHasHydrated: (state: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -62,6 +64,8 @@ export const useAuthStore = create<AuthState>()(
             member: null,
             token: null,
             isAuthenticated: false,
+            hasHydrated: false,
+            setHasHydrated: (state) => set({ hasHydrated: state }),
             login: (user, token, member) => set({ user, token, member, isAuthenticated: true }),
             logout: () => set({ user: null, token: null, member: null, isAuthenticated: false }),
             updateUser: (userData) =>
@@ -93,6 +97,10 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
+            onRehydrateStorage: () => (state) => {
+                // Called after localStorage has been read and state restored
+                state?.setHasHydrated(true);
+            },
         }
     )
 );

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Filter, Search, RefreshCw } from "lucide-react";
+import { openStripeCheckout } from '@/hooks/useStripeCheckout';
 
 export function ClassSchedule() {
     const { toast } = useToast();
@@ -94,7 +95,7 @@ export function ClassSchedule() {
             } else {
                 const response = await initiateClassPayment(selectedClass.id, selectedClass.startTime, user.id);
                 if (response.checkoutUrl) {
-                    window.location.href = response.checkoutUrl;
+                    await openStripeCheckout(response.checkoutUrl);
                 }
             }
         } catch (error: any) {

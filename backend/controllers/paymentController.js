@@ -100,7 +100,24 @@ exports.createStripeSession = async (req, res) => {
 
         const user = member.userId;
 
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        // Detect mobile (Capacitor) — use deep link scheme so Android routes back to app
+        // Capacitor sends x-capacitor: true header AND uses 'https://localhost' or 'capacitor://localhost' as Origin
+        const origin = req.headers['origin'] || '';
+        const userAgent = (req.headers['user-agent'] || '').toLowerCase();
+        const isMobile = req.headers['x-capacitor'] === 'true' ||
+            userAgent.includes('capacitor') ||
+            origin === 'https://localhost' ||
+            origin === 'capacitor://localhost' ||
+            origin.startsWith('http://localhost') === false && userAgent.includes('android');
+
+        console.log(`[STRIPE] isMobile=${isMobile} | x-capacitor=${req.headers['x-capacitor']} | origin=${origin}`);
+
+        // Resolve the correct frontend base URL:
+        // - Mobile: always use deep-link scheme (sdfitness://)
+        // - Production: FRONTEND_URL env var (set to Vercel URL on Render dashboard)
+        // - Fallback: localhost for local dev
+        const rawFrontend = process.env.FRONTEND_URL || 'https://sd-fitness.vercel.app';
+        const frontendUrl = isMobile ? 'sdfitness://' : rawFrontend;
 
         // Convert amount to smallest currency unit (cents for USD, paise for INR, etc.)
         // Stripe requires integer amounts in the smallest unit
@@ -182,7 +199,11 @@ exports.createClassPaymentSession = async (req, res) => {
         }
 
         const user = member.userId;
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        // Detect mobile (Capacitor) — use deep link scheme so Android routes back to app
+        const isMobile = req.headers['x-capacitor'] === 'true' ||
+            (req.headers['user-agent'] || '').toLowerCase().includes('capacitor');
+        const rawFrontend = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const frontendUrl = isMobile ? 'sdfitness://' : rawFrontend;
         const gymClass = await Class.findById(classId);
 
         if (!gymClass) return res.status(404).json({ success: false, error: 'Class not found' });

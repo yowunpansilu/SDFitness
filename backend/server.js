@@ -15,7 +15,10 @@ const allowedOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3001',
-    'https://sd-fitness.vercel.app'
+    'https://sd-fitness.vercel.app',
+    // Capacitor mobile app origins
+    'https://localhost',       // Android WebView (Capacitor)
+    'capacitor://localhost',   // iOS WebView (Capacitor)
 ].filter(Boolean);
 
 app.use(cors({

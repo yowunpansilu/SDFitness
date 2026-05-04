@@ -43,17 +43,29 @@ const PaymentSuccess: React.FC = () => {
     const paymentId = searchParams.get('payment_id') || searchParams.get('session_id');
     const [payment, setPayment] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showConfetti, setShowConfetti] = useState(false);
 
     useEffect(() => {
         const fetchStatus = async () => {
             try {
                 if (paymentId) {
-                    const data = await getPaymentById(paymentId);
-                    setPayment(data.payment);
+                    // Retry up to 3 times with 2s delay (webhook may not have fired yet)
+                    let data = null;
+                    for (let attempt = 0; attempt < 3; attempt++) {
+                        try {
+                            data = await getPaymentById(paymentId);
+                            if (data?.payment) break;
+                        } catch {
+                            if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
+                        }
+                    }
+                    if (data?.payment) setPayment(data.payment);
                 }
-            } catch (err) {
+            } catch (err: any) {
                 console.error('Error fetching payment:', err);
+                // Don't block the success screen for API errors
+                setError('Could not load payment details, but your payment was received.');
             } finally {
                 setLoading(false);
                 setTimeout(() => setShowConfetti(true), 200);
@@ -138,6 +150,14 @@ const PaymentSuccess: React.FC = () => {
                             Your subscription has been activated. Check your membership tab for details.
                         </span>
                     </div>
+
+                    {/* Error notice (non-blocking) */}
+                    {error && (
+                        <div className="flex items-start gap-2 bg-amber-50 rounded-xl p-3 border border-amber-100 text-xs text-amber-700">
+                            <ShieldCheck className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                            <span className="font-medium">{error}</span>
+                        </div>
+                    )}
 
                     <Separator />
 

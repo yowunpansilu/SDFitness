@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Capacitor } from '@capacitor/core';
 import { useAuthStore } from '../stores/authStore';
 
 const api = axios.create({
@@ -8,12 +9,16 @@ const api = axios.create({
     }
 });
 
-// Request interceptor to attach JWT token
+// Request interceptor to attach JWT token + mobile platform flag
 api.interceptors.request.use(
     (config) => {
         const token = useAuthStore.getState().token;
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+        }
+        // Tell backend this is a Capacitor native request → use deep link success URL
+        if (Capacitor.isNativePlatform()) {
+            config.headers['x-capacitor'] = 'true';
         }
         return config;
     },

@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
+import { openStripeCheckout } from '@/hooks/useStripeCheckout';
 
 export function BillingOverview() {
     const { fetchBillingData, isLoading: billingLoading, error: billingError, startPayment } = useBillingStore();
@@ -35,7 +36,7 @@ export function BillingOverview() {
             });
             // Redirect to Stripe Checkout
             if (res?.checkoutUrl) {
-                window.location.href = res.checkoutUrl;
+                await openStripeCheckout(res.checkoutUrl);
             }
         } catch (err: any) {
             console.error('Renewal Error:', err);

@@ -17,6 +17,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { format, differenceInDays } from 'date-fns';
 import type { MembershipPlan } from '@/lib/api/membershipService';
+import { openStripeCheckout } from '@/hooks/useStripeCheckout';
 
 // Helper to determine if a plan is "yearly" (12 months)
 const isYearlyPlan = (plan: MembershipPlan) =>
@@ -80,7 +81,7 @@ export function MembershipPlans() {
             const res = await startPlanPayment(selectedPlan._id || selectedPlan.id);
             // Redirect to Stripe Checkout
             if (res?.checkoutUrl) {
-                window.location.href = res.checkoutUrl;
+                await openStripeCheckout(res.checkoutUrl);
             }
         } catch {
             setInitiating(false);

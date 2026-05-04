@@ -54,6 +54,17 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Debug env check (non-sensitive)
+app.get('/api/debug/config', (req, res) => {
+    res.json({
+        FRONTEND_URL: process.env.FRONTEND_URL || '(not set - using fallback)',
+        FRONT_END_URL: process.env.FRONT_END_URL || '(not set)',
+        NODE_ENV: process.env.NODE_ENV,
+        STRIPE_KEY_SET: !!process.env.STRIPE_SECRET_KEY,
+        STRIPE_WEBHOOK_SET: !!process.env.STRIPE_WEBHOOK_SECRET && process.env.STRIPE_WEBHOOK_SECRET !== 'whsec_placeholder_replace_after_stripe_cli',
+    });
+});
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/prices', require('./routes/priceRoutes'));

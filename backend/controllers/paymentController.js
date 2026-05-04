@@ -279,13 +279,30 @@ exports.createClassPaymentSession = async (req, res) => {
 exports.stripeWebhook = async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    const isTestKey = (process.env.STRIPE_SECRET_KEY || '').startsWith('sk_test_');
+    const hasRealSecret = webhookSecret && !webhookSecret.startsWith('whsec_placeholder');
 
     let event;
-    try {
-        event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    } catch (err) {
-        console.error('❌ Stripe Webhook Signature Invalid:', err.message);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
+    if (hasRealSecret) {
+        // Production path: verify Stripe signature
+        try {
+            event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+        } catch (err) {
+            console.error('❌ Stripe Webhook Signature Invalid:', err.message);
+            return res.status(400).send(`Webhook Error: ${err.message}`);
+        }
+    } else if (isTestKey) {
+        // Test mode without webhook secret: parse body directly (safe for sk_test_ keys)
+        console.warn('⚠️ [STRIPE] Webhook running without signature verification (test mode)');
+        try {
+            event = JSON.parse(req.body.toString());
+        } catch (err) {
+            console.error('❌ Webhook body parse error:', err.message);
+            return res.status(400).send('Invalid webhook body');
+        }
+    } else {
+        console.error('❌ Live Stripe keys require a valid STRIPE_WEBHOOK_SECRET');
+        return res.status(400).send('Webhook secret not configured for live mode');
     }
 
     console.log(`[STRIPE] Webhook event: ${event.type}`);
@@ -346,25 +363,37 @@ exports.getPaymentStatus = async (req, res) => {
             return res.status(404).json({ success: false, error: 'Payment not found' });
         }
 
-        // Self-healing: check Stripe if still pending
+        // Self-healing: check Stripe directly if payment is still pending
         if (payment.status === 'pending' && payment.stripeSessionId) {
+            console.log(`[STRIPE] Self-healing check for payment ${payment._id}, session ${payment.stripeSessionId}`);
             try {
                 const session = await stripe.checkout.sessions.retrieve(payment.stripeSessionId);
+                console.log(`[STRIPE] Session payment_status: ${session.payment_status}`);
+
                 if (session.payment_status === 'paid') {
                     payment.status = 'completed';
                     payment.paidAt = new Date();
                     payment.stripePaymentIntentId = session.payment_intent;
                     payment.transactionId = session.payment_intent;
                     await payment.save();
+                    console.log(`✅ [STRIPE] Self-heal: payment ${payment._id} marked completed`);
 
-                    if (payment.planId) {
-                        await activateSubscription(payment.memberId, payment.planId);
-                    } else if (payment.type === 'class_booking' || session.metadata.type === 'class_booking') {
+                    // Activate subscription or confirm booking
+                    const planId = payment.planId || session.metadata?.planId;
+                    if (planId) {
+                        try {
+                            await activateSubscription(payment.memberId, planId);
+                        } catch (subErr) {
+                            console.error('❌ Self-heal subscription activation failed:', subErr.message);
+                        }
+                    } else if (payment.type === 'class_booking' || session.metadata?.type === 'class_booking') {
                         await confirmClassBooking(payment, session.metadata);
                     }
+                } else {
+                    console.log(`[STRIPE] Payment ${payment._id} not yet paid (status: ${session.payment_status})`);
                 }
             } catch (stripeErr) {
-                console.warn('⚠️ Could not cross-verify with Stripe:', stripeErr.message);
+                console.error('❌ [STRIPE] Self-heal Stripe API error:', stripeErr.message);
             }
         }
 

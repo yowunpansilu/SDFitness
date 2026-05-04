@@ -113,11 +113,12 @@ exports.createStripeSession = async (req, res) => {
         console.log(`[STRIPE] isMobile=${isMobile} | x-capacitor=${req.headers['x-capacitor']} | origin=${origin}`);
 
         // Resolve the correct frontend base URL:
-        // - Mobile: always use deep-link scheme (sdfitness://)
+        // - Mobile: use sdfitness://dashboard so success_url = sdfitness://dashboard/payment/success?...
+        //   (DeepLinkHandler parses hostname='dashboard' + pathname='/payment/success' → /dashboard/payment/success)
         // - Production: FRONTEND_URL env var (set to Vercel URL on Render dashboard)
         // - Fallback: localhost for local dev
         const rawFrontend = process.env.FRONTEND_URL || 'https://sd-fitness.vercel.app';
-        const frontendUrl = isMobile ? 'sdfitness://' : rawFrontend;
+        const frontendUrl = isMobile ? 'sdfitness://dashboard' : rawFrontend;
 
         // Convert amount to smallest currency unit (cents for USD, paise for INR, etc.)
         // Stripe requires integer amounts in the smallest unit
@@ -202,8 +203,8 @@ exports.createClassPaymentSession = async (req, res) => {
         // Detect mobile (Capacitor) — use deep link scheme so Android routes back to app
         const isMobile = req.headers['x-capacitor'] === 'true' ||
             (req.headers['user-agent'] || '').toLowerCase().includes('capacitor');
-        const rawFrontend = process.env.FRONTEND_URL || 'http://localhost:5173';
-        const frontendUrl = isMobile ? 'sdfitness://' : rawFrontend;
+        const rawFrontend = process.env.FRONTEND_URL || 'https://sd-fitness.vercel.app';
+        const frontendUrl = isMobile ? 'sdfitness://dashboard' : rawFrontend;
         const gymClass = await Class.findById(classId);
 
         if (!gymClass) return res.status(404).json({ success: false, error: 'Class not found' });
